@@ -1,0 +1,166 @@
+/* Išdėstymas telefone (stačiai): ekranai, iOS „large title“ antraštės, matinio stiklo apatinė juosta.
+   Kompiuteris / planšetė – 09-desktop.css. */
+.app {
+  min-height: 100dvh;
+}
+.side {
+  display: none;
+}
+.main {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--tabH) + var(--safeB) + 24px);
+}
+.view {
+  display: none;
+}
+.view.active {
+  display: block;
+}
+.viewBody {
+  padding: 0 var(--pad);
+}
+
+/* Pradžios viršus: logotipas + „i“ */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(56px + var(--safeT));
+  padding: var(--safeT) var(--pad) 0;
+  background: rgba(243, 245, 248, 0.82);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+}
+.logo svg {
+  width: 26px;
+  height: 26px;
+}
+.logo b {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Kitų ekranų „large title“ ir prilipusi paieška */
+.largeHead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: calc(14px + var(--safeT)) var(--pad) 12px;
+  background: rgba(243, 245, 248, 0.86);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+}
+.largeHead h1 {
+  margin: 4px 0 12px;
+}
+.largeHead.scrolled {
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+}
+
+/* Apatinė juosta – matinis stiklas, kontūrinė / užpildyta ikona kaip AutoEasier */
+.tabbar {
+  position: fixed;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: calc(var(--tabH) + var(--safeB));
+  padding: 6px 8px var(--safeB);
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  border-top: 1px solid rgba(226, 232, 240, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--ink4);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+  transition: color 0.18s ease;
+}
+.tab.active {
+  color: var(--brand);
+}
+.tabIco {
+  position: relative;
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+}
+.tabIco svg {
+  width: 27px;
+  height: 27px;
+  grid-area: 1 / 1;
+  transition: transform 0.42s var(--spring);
+}
+.tabIco .nvO {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tabIco .nvF {
+  fill: currentColor;
+  display: none;
+}
+.active > .tabIco .nvO {
+  display: none;
+}
+.active > .tabIco .nvF {
+  display: block;
+}
+.tab:active .tabIco svg {
+  transform: scale(0.88);
+  transition-duration: 0.08s;
+}
+.tabBadge {
+  position: absolute;
+  top: 3px;
+  left: calc(50% + 6px);
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, #fb4d6d 0%, #e11d48 100%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #fff, 0 1px 3px rgba(190, 18, 60, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.tabBadge.bump {
+  animation: vdBump 0.5s var(--spring);
+}
+@keyframes vdBump {
+  30% {
+    transform: scale(1.32);
+  }
+}
+.tab[data-tab="fav"] .tabBadge {
+  background: var(--ink2);
+  box-shadow: 0 0 0 2px #fff;
+}

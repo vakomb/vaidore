@@ -1,0 +1,32 @@
+VAIDORE.COM – KVEPALŲ E-PARDUOTUVĖ
+==================================
+
+Ta pati sandara ir dizainas kaip AutoEasier: įkeliate į GitHub → Vercel surenka ir paskelbia.
+
+1. NAUJA REPOZITORIJA GITHUB'E
+   - github.com → New repository → pavadinimas „vaidore“ → Private → Create.
+   - „uploading an existing file“ → įtempkite VISUS failus ir aplankus iš šio ZIP (išarchyvavę,
+     aplankų struktūrą išlaikykite: api/, docs/, src/, tools/, package.json, vercel.json…) → Commit.
+   - Svarbu: įkelkite ir paslėptą failą .gitignore (Windows: išarchyvuotame aplanke įjunkite
+     „Rodyti paslėptus failus“, jei jo nesimato).
+
+2. VERCEL
+   - vercel.com → Add New → Project → Import „vaidore“ → Deploy (nustatymai jau vercel.json).
+   - Settings → Environment Variables → STRIPE_SECRET_KEY = Jūsų Stripe slaptas raktas
+     (Stripe → Developers → API keys; bandymams sk_test_…, tikriems mokėjimams sk_live_…) → Save → Redeploy.
+   - Settings → Domains → vaidore.com (DNS – kaip nurodys Vercel).
+
+3. PREKĖS IR DUOMENYS
+   - Viskas viename faile: src/data/catalog.json – kvapai, kainos, tūriai, mėginukai, natos, pristatymas,
+     nemokamo pristatymo riba, įmonės duomenys (pirkimo sąlygoms ir privatumo politikai).
+   - Dabar įrašyti 12 PAVYZDINIŲ kvapų – pakeiskite tikrais.
+   - Užpildykite settings.company („[Įmonės pavadinimas]“ ir pan.) ir sąlygų / privatumo tekstus
+     (src/pages/salygos.html, privatumas.html) patikrinkite su teisininku.
+
+4. KAS VEIKIA
+   - Telefonas: Pradžia · Katalogas · Mėgstami · Krepšelis (apatinė juosta kaip AutoEasier).
+   - Kompiuteris: šoninis meniu, platus katalogas, kvapo langas dviem stulpeliais.
+   - Paieška (ir pagal natas: „vanilė“, „kedras“…), filtrai, rūšiavimas, mėginukai 2 ml.
+   - Apmokėjimas per Stripe (kortelė, Apple Pay, Google Pay), pristatymas Omniva / DPD, nemokamai nuo 60 €.
+   - Kainos tikrinamos serveryje – naršyklėje jų pakeisti neįmanoma.
+   - Galima „įdiegti“ telefone (Bendrinti → Į pradžios ekraną) – atsidaro kaip programėlė.

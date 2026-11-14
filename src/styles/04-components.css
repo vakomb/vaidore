@@ -1,0 +1,628 @@
+/* Bendri komponentai: mygtukai, plytelės, blokai, žymės, segmentai, paieška, langai, pranešimai. */
+
+/* Paspaudimo pojūtis – 0,975 ir atšokimas spyruokle (visur vienodas) */
+.press,
+.btn,
+.tile,
+.card,
+.roundBtn,
+.chip,
+.mood,
+.stepBtn,
+.sizeOpt,
+.sideLink,
+.sortBtn {
+  transition: transform 0.42s var(--spring), background-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+}
+:is(.press, .btn, .tile, .card, .roundBtn, .chip, .mood, .stepBtn, .sizeOpt, .sideLink, .sortBtn):active:not(:disabled) {
+  transform: scale(var(--press));
+  transition-duration: 0.08s;
+}
+
+/* Mygtukai */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: var(--r-btn);
+  font-size: 16.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.btn svg {
+  width: 20px;
+  height: 20px;
+}
+.btn.primary {
+  background: var(--grad);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(40, 76, 162, 0.25), 0 6px 16px -6px rgba(40, 76, 162, 0.45);
+}
+.btn.primary:disabled {
+  background: #cbd5e1;
+  box-shadow: none;
+  color: #fff;
+}
+.btn.ghost {
+  background: #fff;
+  color: var(--brand);
+  box-shadow: var(--sh);
+}
+.btn.block {
+  width: 100%;
+}
+.btn.ink {
+  background: var(--ink);
+  color: #fff;
+}
+.roundBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: var(--sh);
+}
+.roundBtn svg {
+  width: 20px;
+  height: 20px;
+}
+.linkBtn {
+  color: var(--brand);
+  font-size: 15px;
+  font-weight: 650;
+  padding: 6px 2px;
+}
+.dotBadge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--brand);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+/* Glifai (linijinės ikonos 1,85 px) */
+[data-glyph] {
+  display: inline-grid;
+  place-items: center;
+}
+[data-glyph] svg,
+.gl {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Blokai */
+.block {
+  margin-top: 28px;
+}
+.blockHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.surface {
+  background: var(--card);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh);
+}
+
+/* Plytelės (kaip AutoEasier: ikona virš pavadinimo, 2 stulpeliai, ~100 px) */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.tile {
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border-radius: var(--r-tile);
+  background: #fff;
+  box-shadow: var(--sh);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.tile svg {
+  width: 44px;
+  height: 44px;
+}
+.tile small {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink3);
+  margin-top: -6px;
+}
+
+/* Žymės – permatoma spalva + 1 px žiedas */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  background: rgba(100, 116, 139, 0.1);
+  color: var(--ink2);
+  box-shadow: inset 0 0 0 1px rgba(100, 116, 139, 0.16);
+}
+.pill.blue {
+  background: rgba(40, 76, 162, 0.08);
+  color: var(--brand);
+  box-shadow: inset 0 0 0 1px rgba(40, 76, 162, 0.18);
+}
+.pill.green {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--green);
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.24);
+}
+.pill.amber {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--amber);
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.26);
+}
+.pill.rose {
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--red);
+  box-shadow: inset 0 0 0 1px rgba(244, 63, 94, 0.22);
+}
+.pill.glass {
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* Pasirenkamos žymės (filtrai) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 15px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 650;
+  box-shadow: var(--sh);
+}
+.chip[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: none;
+}
+.chip .x {
+  opacity: 0.6;
+}
+.chipsActive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.chipsActive:empty {
+  display: none;
+}
+.chipsActive .chip {
+  min-height: 34px;
+  font-size: 14px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  box-shadow: inset 0 0 0 1px rgba(40, 76, 162, 0.16);
+}
+
+/* Segmentai (iOS) */
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 13px;
+  background: rgba(118, 128, 150, 0.12);
+}
+.seg button {
+  height: 36px;
+  border-radius: 10px;
+  color: var(--ink2);
+  font-size: 14.5px;
+  font-weight: 650;
+  transition: background-color 0.25s var(--spring), color 0.2s ease, box-shadow 0.25s var(--spring);
+}
+.seg button[aria-selected="true"] {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 3px 8px -2px rgba(15, 23, 42, 0.08);
+}
+
+/* Paieška */
+.searchRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 8px 0 12px;
+  border-radius: var(--r-field);
+  background: #fff;
+  box-shadow: var(--sh);
+  color: var(--ink3);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+}
+.search input::placeholder {
+  color: var(--ink4);
+}
+.search input::-webkit-search-cancel-button {
+  display: none;
+}
+.searchClear {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink3);
+}
+.filterBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-field);
+}
+
+/* Apatinis lapas (kaip AutoEasier #sheet): pritemdymas + suliejimas, spyruoklinis įvažiavimas, rankenėlė */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+/* Pritemdymas – atskiras sluoksnis: blunka tik jis, lapas lieka nepermatomas (kaip iOS) */
+.backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.25);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  animation: vdFade 0.25s ease both;
+}
+.backdrop.closing::before {
+  animation: vdFadeOut 0.24s ease both;
+}
+.sheet {
+  position: relative;
+  width: 100%;
+  max-height: calc(100dvh - var(--safeT) - 10px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 28px 28px 0 0;
+  background: var(--bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 0 0 1px rgba(15, 23, 42, 0.04), 0 -12px 40px -8px rgba(15, 23, 42, 0.18);
+  animation: vdSheetIn 0.46s var(--spring) both;
+  outline: none;
+  overflow: hidden;
+}
+.backdrop.closing .sheet {
+  animation: vdSheetOut 0.26s cubic-bezier(0.4, 0, 1, 1) both;
+}
+.sheet.dragging {
+  transition: none;
+  animation: none;
+}
+.grabber {
+  position: absolute;
+  z-index: 3;
+  top: 7px;
+  left: 50%;
+  width: 38px;
+  height: 5px;
+  margin-left: -19px;
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.18);
+}
+.sheetBody {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--safeB) + 20px);
+}
+.sheetHead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px 10px;
+  background: rgba(243, 245, 248, 0.88);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+}
+.sheetHead h2 {
+  text-align: center;
+  font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sheetHead .roundBtn {
+  width: 36px;
+  height: 36px;
+  justify-self: end;
+}
+.sheetHead .roundBtn svg {
+  width: 17px;
+  height: 17px;
+}
+.sheetPad {
+  padding: 4px 18px 0;
+}
+@keyframes vdFade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes vdFadeOut {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vdSheetIn {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes vdSheetOut {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Grupė (iOS „Settings“ stiliaus eilutės) */
+.group {
+  background: #fff;
+  border-radius: var(--r-card);
+  box-shadow: var(--sh);
+  overflow: hidden;
+}
+.group + .group,
+.groupTitle + .group {
+  margin-top: 8px;
+}
+.groupTitle {
+  margin: 22px 4px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink3);
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 12px 16px;
+  color: var(--ink);
+  font-size: 16px;
+  text-align: left;
+  width: 100%;
+}
+.row + .row {
+  box-shadow: inset 0 1px 0 var(--line);
+}
+.row .rowIco {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #fff;
+  background: var(--brand);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+.row .rowIco svg {
+  width: 18px;
+  height: 18px;
+}
+.row .rowTxt {
+  flex: 1;
+  min-width: 0;
+}
+.row .rowTxt small {
+  display: block;
+  color: var(--ink3);
+  font-size: 14px;
+}
+.row .chev {
+  color: var(--ink4);
+}
+
+/* Tuščia būsena */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 48px 24px 32px;
+  color: var(--ink2);
+}
+.empty svg {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 4px;
+}
+.empty h3 {
+  color: var(--ink);
+  font-size: 19px;
+}
+.empty p {
+  max-width: 290px;
+  font-size: 15px;
+}
+.empty .btn {
+  margin-top: 8px;
+}
+
+/* Pranešimai – tamsi kapsulė viršuje */
+.toastWrap {
+  position: fixed;
+  z-index: 90;
+  top: calc(var(--safeT) + 10px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+  min-height: 46px;
+  padding: 10px 18px 10px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.92);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 650;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 32px -6px rgba(15, 23, 42, 0.35);
+  animation: vdToastIn 0.5s var(--spring) backwards;
+  transition: opacity 0.3s ease, transform 0.4s var(--spring);
+  pointer-events: auto;
+}
+.toast .tIco {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+.toast .tIco svg {
+  width: 16px;
+  height: 16px;
+}
+.toast button {
+  margin-left: 4px;
+  color: #93b4ff;
+  font-weight: 700;
+}
+.toast.out {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.96);
+}
+@keyframes vdToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+}
+
+/* Pasitikėjimo eilutė ir poraštė */
+.trust {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 28px;
+}
+.trust div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--sh);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink2);
+  line-height: 1.25;
+}
+.trust div svg {
+  width: 26px;
+  height: 26px;
+  color: var(--brand);
+}
+.foot {
+  margin: 28px 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  color: var(--ink3);
+  font-size: 14px;
+}
+.foot a,
+.foot button {
+  color: var(--ink2);
+  font-weight: 600;
+  font-size: 14px;
+}
+.foot span {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink4);
+}

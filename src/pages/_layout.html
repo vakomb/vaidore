@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="lt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{{title}} – Vaidore</title>
+    <meta name="theme-color" content="#F3F5F8" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <style>
+      {{css}}
+    </style>
+  </head>
+  <body class="page">
+    <header class="pgTop">
+      <a class="pgBack" href="/" aria-label="Į parduotuvę"
+        ><svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5" /></svg>Parduotuvė</a
+      >
+      <a class="pgLogo" href="/"
+        ><svg viewBox="0 0 26 26" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#3B67CC" />
+              <stop offset="1" stop-color="#1E3A86" />
+            </linearGradient>
+          </defs>
+          <path d="M13 2.5c4.4 5 7.4 9.1 7.4 12.7a7.4 7.4 0 0 1-14.8 0C5.6 11.6 8.6 7.5 13 2.5z" fill="url(#lg)" /></svg
+        ><b>Vaidore</b></a
+      >
+      <span></span>
+    </header>
+    <main class="pgMain">{{body}}</main>
+    <footer class="pgFoot">
+      <a href="/salygos">Pirkimo sąlygos</a><a href="/privatumas">Privatumas</a
+      ><a href="mailto:{{company.email}}">{{company.email}}</a>
+      <span>© {{year}} {{company.name}}</span>
+    </footer>
+  </body>
+</html>

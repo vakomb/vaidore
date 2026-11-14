@@ -1,0 +1,365 @@
+{
+  "settings": {
+    "shop": "Vaidore",
+    "domain": "vaidore.com",
+    "currency": "eur",
+    "freeShippingFrom": 60,
+    "maxQty": 10,
+    "hero": {
+      "product": "ziemos-ugnis",
+      "eyebrow": "Žiemos kolekcija",
+      "title": "Žiemos ugnis",
+      "text": "Skrudinti kaštonai, cinamonas ir vanilė – šilčiausias sezono kvapas."
+    },
+    "countries": ["LT", "LV", "EE"],
+    "shipping": [
+      { "id": "omniva", "name": "Omniva paštomatas", "price": 2.99, "days": "1–2 d. d." },
+      { "id": "dpd", "name": "DPD kurjeris iki durų", "price": 4.99, "days": "1–2 d. d." }
+    ],
+    "company": {
+      "name": "[Įmonės pavadinimas]",
+      "code": "[Įmonės kodas]",
+      "vat": "[PVM mokėtojo kodas]",
+      "address": "[Buveinės adresas]",
+      "email": "info@vaidore.com",
+      "phone": "[Telefonas]"
+    }
+  },
+  "families": [
+    { "id": "geliu", "name": "Gėlių", "hint": "Rožė, jazminas, bijūnas" },
+    { "id": "sviezi", "name": "Švieži", "hint": "Citrusai, jūra, žaluma" },
+    { "id": "medienos", "name": "Medienos", "hint": "Kedras, santalas, vetiveris" },
+    { "id": "ambros", "name": "Ambros", "hint": "Gintaras, smilkalai, prieskoniai" },
+    { "id": "gurmaniski", "name": "Gurmaniški", "hint": "Vanilė, medus, kakava" }
+  ],
+  "products": [
+    {
+      "id": "rasa",
+      "name": "Rasa",
+      "conc": "EDP",
+      "gender": "moterims",
+      "family": "geliu",
+      "tagline": "Ryto gaiva ant baltųjų rožių",
+      "desc": "Lengvas, švarus gėlių kvapas, kuris primena ankstyvą vasaros rytą sode: rasotos rožės, žalia kriaušė ir minkštas baltas muskusas.",
+      "notes": {
+        "top": ["Kriaušė", "Bergamotė"],
+        "heart": ["Baltoji rožė", "Bijūnas"],
+        "base": ["Baltasis muskusas", "Kašmyro mediena"]
+      },
+      "longevity": 3,
+      "sillage": 2,
+      "seasons": ["pavasaris", "vasara"],
+      "time": ["diena"],
+      "sizes": [
+        { "ml": 30, "price": 45 },
+        { "ml": 50, "price": 65 },
+        { "ml": 100, "price": 95 }
+      ],
+      "sample": 4.9,
+      "look": { "liquid": "#F6C6CF", "tint": "#FCEFF2", "cap": "gold", "shape": "rect" },
+      "badge": "Populiaru",
+      "rank": 1,
+      "added": "2026-03-01"
+    },
+    {
+      "id": "gintaras",
+      "name": "Gintaras",
+      "conc": "Parfum",
+      "gender": "unisex",
+      "family": "ambros",
+      "tagline": "Šiltas Baltijos auksas",
+      "desc": "Gilus ir šiltas: sakų gintaras, labdanas ir švelni vanilė, apgaubti skrudintų prieskonių. Kvapas, kuris lieka ant šaliko iki kito ryto.",
+      "notes": {
+        "top": ["Rožinis pipiras", "Kardamonas"],
+        "heart": ["Labdanas", "Smilkalai"],
+        "base": ["Gintaras", "Vanilė", "Benzoinas"]
+      },
+      "longevity": 5,
+      "sillage": 4,
+      "seasons": ["ruduo", "žiema"],
+      "time": ["vakaras"],
+      "sizes": [
+        { "ml": 50, "price": 89 },
+        { "ml": 100, "price": 129 }
+      ],
+      "sample": 5.9,
+      "look": { "liquid": "#E6A23C", "tint": "#FBF1E1", "cap": "black", "shape": "square" },
+      "badge": "Populiaru",
+      "rank": 2,
+      "added": "2026-01-15"
+    },
+    {
+      "id": "baltijos-pusys",
+      "name": "Baltijos pušys",
+      "conc": "EDP",
+      "gender": "vyrams",
+      "family": "medienos",
+      "tagline": "Kopos, pušų sakai ir vėjas",
+      "desc": "Žalias, sausas medienos kvapas: pušų spygliai, kadagys ir jūros druska ant šilto kedro. Gaivus pradžioje, sodrus pabaigoje.",
+      "notes": {
+        "top": ["Kadagys", "Greipfrutas"],
+        "heart": ["Pušų spygliai", "Jūros druska"],
+        "base": ["Kedras", "Vetiveris", "Samanos"]
+      },
+      "longevity": 4,
+      "sillage": 3,
+      "seasons": ["pavasaris", "ruduo"],
+      "time": ["diena", "vakaras"],
+      "sizes": [
+        { "ml": 50, "price": 69 },
+        { "ml": 100, "price": 99 }
+      ],
+      "sample": 4.9,
+      "look": { "liquid": "#9DBF9E", "tint": "#EEF5EE", "cap": "wood", "shape": "tall" },
+      "badge": null,
+      "rank": 3,
+      "added": "2026-02-10"
+    },
+    {
+      "id": "liepu-medus",
+      "name": "Liepų medus",
+      "conc": "EDP",
+      "gender": "moterims",
+      "family": "gurmaniski",
+      "tagline": "Vasaros vakaras po žydinčia liepa",
+      "desc": "Saldus, bet ne sunkus: liepžiedžiai, laukinis medus ir šilta vanilė. Jaukus kvapas, kuris primena vasaros šventes.",
+      "notes": {
+        "top": ["Liepžiedžiai", "Mandarinas"],
+        "heart": ["Medus", "Apelsinžiedžiai"],
+        "base": ["Vanilė", "Tonkos pupelės"]
+      },
+      "longevity": 4,
+      "sillage": 3,
+      "seasons": ["vasara", "ruduo"],
+      "time": ["diena", "vakaras"],
+      "sizes": [
+        { "ml": 30, "price": 45 },
+        { "ml": 50, "price": 65 },
+        { "ml": 100, "price": 95 }
+      ],
+      "sample": 4.9,
+      "look": { "liquid": "#F2D27A", "tint": "#FCF6E3", "cap": "gold", "shape": "round" },
+      "badge": "Naujiena",
+      "rank": 4,
+      "added": "2026-10-20"
+    },
+    {
+      "id": "juodasis-azuolas",
+      "name": "Juodasis ąžuolas",
+      "conc": "Parfum",
+      "gender": "vyrams",
+      "family": "medienos",
+      "tagline": "Dūmas, oda ir sena mediena",
+      "desc": "Tamsus ir elegantiškas: rūkyta ąžuolo statinė, švelni oda ir kakava. Vakarinis kvapas tiems, kurie mėgsta gilumą.",
+      "notes": {
+        "top": ["Juodasis pipiras", "Bergamotė"],
+        "heart": ["Oda", "Tabako lapai"],
+        "base": ["Ąžuolo mediena", "Kakava", "Pačiulis"]
+      },
+      "longevity": 5,
+      "sillage": 4,
+      "seasons": ["ruduo", "žiema"],
+      "time": ["vakaras"],
+      "sizes": [
+        { "ml": 50, "price": 89 },
+        { "ml": 100, "price": 129 }
+      ],
+      "sample": 5.9,
+      "look": { "liquid": "#6B4A3A", "tint": "#F3EDE9", "cap": "black", "shape": "square" },
+      "badge": null,
+      "rank": 5,
+      "added": "2025-11-01"
+    },
+    {
+      "id": "jura",
+      "name": "Jūra",
+      "conc": "EDT",
+      "gender": "unisex",
+      "family": "sviezi",
+      "tagline": "Druska, citrinos žievelė ir saulė",
+      "desc": "Skaidrus, vandeningas ir šviesus kvapas: jūros brizas, citrina ir švarus muskusas. Puikus kasdien ir po sporto.",
+      "notes": {
+        "top": ["Citrina", "Jūros brizas"],
+        "heart": ["Jūrų dumbliai", "Šalavijas"],
+        "base": ["Ambretas", "Baltasis muskusas"]
+      },
+      "longevity": 2,
+      "sillage": 2,
+      "seasons": ["pavasaris", "vasara"],
+      "time": ["diena"],
+      "sizes": [
+        { "ml": 50, "price": 55 },
+        { "ml": 100, "price": 79 }
+      ],
+      "sample": 3.9,
+      "look": { "liquid": "#9CCBE6", "tint": "#EAF4FA", "cap": "silver", "shape": "tall" },
+      "badge": null,
+      "rank": 6,
+      "added": "2026-05-12"
+    },
+    {
+      "id": "vakaro-silkas",
+      "name": "Vakaro šilkas",
+      "conc": "EDP",
+      "gender": "moterims",
+      "family": "ambros",
+      "tagline": "Jazminas ir šilta ambra",
+      "desc": "Juslus vakaro kvapas: naktinis jazminas, slyvos ir šilkinė ambra. Elegantiškas, bet ne per daug ryškus.",
+      "notes": {
+        "top": ["Slyva", "Šafranas"],
+        "heart": ["Jazminas", "Tuberozė"],
+        "base": ["Ambra", "Santalas"]
+      },
+      "longevity": 4,
+      "sillage": 4,
+      "seasons": ["ruduo", "žiema"],
+      "time": ["vakaras"],
+      "sizes": [
+        { "ml": 30, "price": 49 },
+        { "ml": 50, "price": 72 },
+        { "ml": 100, "price": 105 }
+      ],
+      "sample": 4.9,
+      "look": { "liquid": "#B76E8A", "tint": "#F7ECF1", "cap": "gold", "shape": "round" },
+      "badge": null,
+      "rank": 7,
+      "added": "2026-04-02"
+    },
+    {
+      "id": "pelynas",
+      "name": "Pelynas",
+      "conc": "EDP",
+      "gender": "vyrams",
+      "family": "sviezi",
+      "tagline": "Žolės, levanda ir šiek tiek kartumo",
+      "desc": "Aromatinis, švarus kvapas: pelynas, levanda ir žalia figa ant lengvos medienos. Tinka darbui ir kasdienai.",
+      "notes": {
+        "top": ["Pelynas", "Bergamotė"],
+        "heart": ["Levanda", "Figų lapai"],
+        "base": ["Gvajako mediena", "Muskusas"]
+      },
+      "longevity": 3,
+      "sillage": 3,
+      "seasons": ["pavasaris", "vasara", "ruduo"],
+      "time": ["diena"],
+      "sizes": [
+        { "ml": 50, "price": 65 },
+        { "ml": 100, "price": 92 }
+      ],
+      "sample": 4.9,
+      "look": { "liquid": "#C9D7A8", "tint": "#F2F6EA", "cap": "silver", "shape": "rect" },
+      "badge": "Naujiena",
+      "rank": 8,
+      "added": "2026-09-18"
+    },
+    {
+      "id": "smilga",
+      "name": "Smilga",
+      "conc": "EDP",
+      "gender": "unisex",
+      "family": "medienos",
+      "tagline": "Sausa žolė ir santalas",
+      "desc": "Minkštas, odą primenantis kvapas: šienas, iris ir kreminis santalas. Tylus, bet ilgai išliekantis.",
+      "notes": {
+        "top": ["Šienas", "Rožinis pipiras"],
+        "heart": ["Iris", "Gvazdikėlis"],
+        "base": ["Santalas", "Kašmyro mediena"]
+      },
+      "longevity": 4,
+      "sillage": 2,
+      "seasons": ["ruduo", "pavasaris"],
+      "time": ["diena", "vakaras"],
+      "sizes": [
+        { "ml": 50, "price": 72 },
+        { "ml": 100, "price": 105 }
+      ],
+      "sample": 4.9,
+      "look": { "liquid": "#E3D3B8", "tint": "#F8F3EA", "cap": "wood", "shape": "rect" },
+      "badge": null,
+      "rank": 9,
+      "added": "2026-06-07"
+    },
+    {
+      "id": "ausra",
+      "name": "Aušra",
+      "conc": "EDT",
+      "gender": "moterims",
+      "family": "sviezi",
+      "tagline": "Citrusai ir neroli saulėtekiui",
+      "desc": "Šviesus ir džiugus: kartusis apelsinas, neroli ir arbatžolės. Lengvas kvapas, kurį norisi purkšti dar kartą.",
+      "notes": {
+        "top": ["Kartusis apelsinas", "Greipfrutas"],
+        "heart": ["Neroli", "Žalioji arbata"],
+        "base": ["Baltasis kedras", "Muskusas"]
+      },
+      "longevity": 2,
+      "sillage": 2,
+      "seasons": ["pavasaris", "vasara"],
+      "time": ["diena"],
+      "sizes": [
+        { "ml": 30, "price": 39 },
+        { "ml": 50, "price": 55 },
+        { "ml": 100, "price": 79 }
+      ],
+      "sample": 3.9,
+      "look": { "liquid": "#F7C98B", "tint": "#FDF3E6", "cap": "silver", "shape": "round" },
+      "badge": null,
+      "rank": 10,
+      "added": "2026-07-01"
+    },
+    {
+      "id": "ruta",
+      "name": "Rūta",
+      "conc": "Parfum",
+      "gender": "moterims",
+      "family": "geliu",
+      "tagline": "Žali žiedai ir pudra",
+      "desc": "Žalias, šiek tiek pudrinis gėlių kvapas: rūtos lapai, žibuoklės ir švelnus iris. Rafinuotas ir labai savitas.",
+      "notes": {
+        "top": ["Rūtos lapai", "Galbanumas"],
+        "heart": ["Žibuoklė", "Iris"],
+        "base": ["Pudrinis muskusas", "Vetiveris"]
+      },
+      "longevity": 4,
+      "sillage": 3,
+      "seasons": ["pavasaris"],
+      "time": ["diena", "vakaras"],
+      "sizes": [
+        { "ml": 50, "price": 85 },
+        { "ml": 100, "price": 119 }
+      ],
+      "sample": 5.9,
+      "look": { "liquid": "#B9CDB0", "tint": "#F0F5EE", "cap": "gold", "shape": "tall" },
+      "badge": null,
+      "rank": 11,
+      "added": "2026-03-20"
+    },
+    {
+      "id": "ziemos-ugnis",
+      "name": "Žiemos ugnis",
+      "conc": "EDP",
+      "gender": "unisex",
+      "family": "gurmaniski",
+      "tagline": "Židinys, cinamonas ir kaštonai",
+      "desc": "Jaukus žiemos kvapas: skrudinti kaštonai, cinamonas ir dūmas, sušildyti vanile ir tonkos pupelėmis.",
+      "notes": {
+        "top": ["Cinamonas", "Mandarinas"],
+        "heart": ["Skrudinti kaštonai", "Gvazdikėliai"],
+        "base": ["Vanilė", "Dūmas", "Tonkos pupelės"]
+      },
+      "longevity": 5,
+      "sillage": 3,
+      "seasons": ["žiema"],
+      "time": ["vakaras"],
+      "sizes": [
+        { "ml": 50, "price": 69 },
+        { "ml": 100, "price": 99 }
+      ],
+      "sample": 4.9,
+      "look": { "liquid": "#C77B4E", "tint": "#F8EEE7", "cap": "wood", "shape": "round" },
+      "badge": "Naujiena",
+      "rank": 12,
+      "added": "2026-11-01"
+    }
+  ]
+}

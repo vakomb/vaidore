@@ -1,0 +1,49 @@
+// 03 – katalogas (src/data/catalog.json → window.VAIDORE_CATALOG): prekės, šeimos, kainos, paieška.
+const CAT = window.VAIDORE_CATALOG;
+const SET = CAT.settings;
+const PRODUCTS = CAT.products;
+const BY_ID = new Map(PRODUCTS.map(p => [p.id, p]));
+const FAMILY = new Map(CAT.families.map(f => [f.id, f]));
+const SAMPLE_ML = 2;
+
+const GENDER_NAME = { moterims: "Moterims", vyrams: "Vyrams", unisex: "Unisex" };
+const CONC_NAME = { EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", Extrait: "Extrait de Parfum" };
+const SEASON_NAME = { pavasaris: "Pavasaris", vasara: "Vasara", ruduo: "Ruduo", žiema: "Žiema" };
+const LEVEL = ["", "Labai lengvas", "Lengvas", "Vidutinis", "Stiprus", "Labai stiprus"];
+const LASTS = ["", "2–3 val.", "3–5 val.", "5–7 val.", "7–9 val.", "9+ val."];
+
+const minPrice = p => Math.min(...p.sizes.map(s => s.price));
+const familyName = id => FAMILY.get(id)?.name || "";
+const priceOf = (p, ml) => (ml === SAMPLE_ML ? p.sample : p.sizes.find(s => s.ml === ml)?.price);
+const sizeLabel = ml => (ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${ml} ml`);
+const cardSub = p => `${familyName(p.family)} · ${p.conc}`;
+
+// Paieškos indeksas: pavadinimas, šūkis, natos, šeima, lytis, koncentracija (be diakritikų)
+const SEARCH_IX = new Map(
+  PRODUCTS.map(p => [
+    p.id,
+    fold(
+      [
+        p.name,
+        p.tagline,
+        familyName(p.family),
+        GENDER_NAME[p.gender],
+        p.conc,
+        CONC_NAME[p.conc],
+        ...p.notes.top,
+        ...p.notes.heart,
+        ...p.notes.base,
+        ...p.seasons,
+        ...p.time
+      ].join(" ")
+    )
+  ])
+);
+function matches(p, q) {
+  if (!q) return true;
+  const ix = SEARCH_IX.get(p.id);
+  return fold(q)
+    .split(/\s+/)
+    .filter(Boolean)
+    .every(w => ix.includes(w));
+}

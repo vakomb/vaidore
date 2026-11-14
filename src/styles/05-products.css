@@ -1,0 +1,296 @@
+/* Prekių kortelės, pradžios „hero“, karuselės, nuotaikos, katalogo tinklelis. */
+
+/* Hero – kolekcijos kortelė su dideliu buteliuku */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 42%;
+  align-items: center;
+  min-height: 210px;
+  margin-top: 8px;
+  padding: 22px 6px 22px 22px;
+  border-radius: 26px;
+  overflow: hidden;
+  background: var(--hero-bg, #fbf1e1);
+  box-shadow: var(--sh2);
+  text-align: left;
+  width: 100%;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 80% at 85% 20%, rgba(255, 255, 255, 0.65), transparent 60%);
+  pointer-events: none;
+}
+.heroTxt {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.heroTxt .eyebrow {
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink2);
+}
+.heroTxt h2 {
+  font-size: 27px;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+.heroTxt p {
+  font-size: 15px;
+  color: var(--ink2);
+  max-width: 230px;
+}
+.heroTxt .btn {
+  min-height: 42px;
+  padding: 0 16px;
+  font-size: 15px;
+  margin-top: 4px;
+}
+.heroArt {
+  position: relative;
+  z-index: 1;
+  height: 190px;
+}
+.heroArt svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Buteliuko paveikslas (SVG) – minkštai atspalvintame „squircle“ fone */
+.art {
+  position: relative;
+  aspect-ratio: 1 / 1.08;
+  border-radius: 18px;
+  background: radial-gradient(90% 70% at 50% 35%, #ffffff 0%, var(--tint, #f3f5f8) 72%);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+.art svg {
+  position: absolute;
+  inset: 8% 14% 4%;
+  width: 72%;
+  height: 88%;
+}
+.art .pill {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  height: 24px;
+  font-size: 12px;
+  padding: 0 9px;
+}
+.heart {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.78);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--ink3);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.05);
+  transition: transform 0.42s var(--spring), color 0.2s ease;
+}
+.heart svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.85;
+}
+.heart[aria-pressed="true"] {
+  color: #e11d48;
+}
+.heart[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+.heart.pop {
+  animation: vdPop 0.5s var(--spring);
+}
+@keyframes vdPop {
+  35% {
+    transform: scale(1.28);
+  }
+}
+
+/* Prekės kortelė */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 8px 12px;
+  border-radius: var(--r-card);
+  background: #fff;
+  box-shadow: var(--sh);
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: 300px;
+}
+.cardTxt {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0 6px;
+  min-width: 0;
+}
+.cardName {
+  font-size: 16.5px;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cardSub {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cardPrice {
+  margin-top: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 16.5px;
+  font-weight: 750;
+}
+.cardPrice small {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink3);
+}
+
+/* Katalogo tinklelis */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.shopMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 2px 12px;
+  color: var(--ink3);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  font-size: 14.5px;
+  font-weight: 700;
+  padding: 6px 2px;
+}
+.sortBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Horizontali karuselė (snap) */
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 46%;
+  gap: 12px;
+  margin: 0 calc(var(--pad) * -1);
+  padding: 2px var(--pad) 6px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--pad);
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+.rail .card {
+  scroll-snap-align: start;
+}
+
+/* Nuotaikos (kvapo šeimos) */
+.moods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.mood {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--sh);
+  text-align: left;
+}
+.mood:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+.moodDot {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--mt, #eef2f8);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
+}
+.moodDot svg {
+  width: 24px;
+  height: 24px;
+}
+.mood b {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 700;
+}
+.mood small {
+  display: block;
+  font-size: 13px;
+  color: var(--ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mood > span:last-child {
+  min-width: 0;
+}
+
+@media (max-width: 360px) {
+  .grid {
+    gap: 10px;
+  }
+  .cardName {
+    font-size: 15.5px;
+  }
+  .rail {
+    grid-auto-columns: 52%;
+  }
+  .heroTxt h2 {
+    font-size: 24px;
+  }
+}

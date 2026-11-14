@@ -1,0 +1,24 @@
+<section class="view" id="view-shop" data-view="shop" aria-label="Katalogas">
+  <header class="largeHead">
+    <h1>Katalogas</h1>
+    <div class="searchRow">
+      <label class="search">
+        <span data-glyph="search" aria-hidden="true"></span>
+        <input id="shopQ" type="search" inputmode="search" placeholder="Kvapas, nata ar nuotaika" autocomplete="off" enterkeyhint="search" />
+        <button class="searchClear" id="shopQClear" aria-label="Išvalyti" hidden><span data-glyph="x"></span></button>
+      </label>
+      <button class="roundBtn filterBtn" id="shopFilterBtn" aria-label="Filtrai">
+        <span data-glyph="filter"></span><b class="dotBadge" id="shopFilterCount" hidden></b>
+      </button>
+    </div>
+    <div class="seg" id="shopSeg" role="tablist"></div>
+  </header>
+  <div class="viewBody">
+    <div class="shopMeta">
+      <span id="shopCount"></span>
+      <button class="sortBtn" id="shopSortBtn"><span id="shopSortLabel"></span><span data-glyph="chev-down"></span></button>
+    </div>
+    <div class="chipsActive" id="shopActive"></div>
+    <div class="grid" id="shopGrid"></div>
+  </div>
+</section>

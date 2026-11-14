@@ -1,0 +1,45 @@
+/* Vaidore – dizaino kintamieji. Ta pati DNR kaip AutoEasier (v176 / v190 / v192):
+   šviesiai pilkas fonas, baltos kortelės su šviesos kraštu ir plonu žiedu (šešėliu – ne border, kad niekas nepasislinktų),
+   sistemos šriftas (SF Pro), tabular-nums, spyruoklinis judesys, matinio stiklo juosta. Keiskite reikšmes TIK čia. */
+:root {
+  --bg: #f3f5f8;
+  --card: #ffffff;
+  --ink: #0f172a;
+  --ink2: #475569;
+  --ink3: #64748b;
+  --ink4: #94a3b8;
+  --line: #eceff4;
+  --field: #eef1f6;
+  --hair: rgba(226, 232, 240, 0.6);
+
+  --brand: #284ca2;
+  --brand2: #3561c4;
+  --brand-soft: rgba(40, 76, 162, 0.08);
+  --grad: linear-gradient(180deg, #3b67cc 0%, #284ca2 100%);
+  --green: #047857;
+  --amber: #b45309;
+  --red: #be123c;
+
+  --sh: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(226, 232, 240, 0.6), 0 1px 2px rgba(15, 23, 42, 0.04),
+    0 4px 12px -2px rgba(15, 23, 42, 0.03);
+  --sh2: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(226, 232, 240, 0.6), 0 1px 2px rgba(15, 23, 42, 0.04),
+    0 10px 28px -6px rgba(15, 23, 42, 0.08);
+
+  --r-card: 20px;
+  --r-tile: 20px;
+  --r-btn: 16px;
+  --r-field: 14px;
+  --r-sm: 12px;
+
+  --spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --press: 0.975;
+
+  --gap: 16px;
+  --pad: 18px;
+  --tabH: 64px;
+  --safeB: env(safe-area-inset-bottom, 0px);
+  --safeT: env(safe-area-inset-top, 0px);
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+}
