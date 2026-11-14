@@ -12,6 +12,10 @@ src/data/catalog.json ── vienas tiesos šaltinis: programėlei (inline), sit
 Be jokių priklausomybių produkcijoje: surinkimas – tik Node.js, apmokėjimas – Stripe REST API per `fetch`.
 `playwright` (testams) ir `sharp` (ikonoms) – tik kūrėjo kompiuteryje.
 
+Visi adresai santykiniai (`salygos`, `api/checkout`, `sw.js`, `manifest.webmanifest`), todėl ta pati svetainė veikia
+ir šaknyje (Vercel, vaidore.com/), ir poaplankyje (GitHub Pages, vakomb.github.io/vaidore/).
+`.github/workflows/pages.yml` – po kiekvieno įkėlimo į `main` surenka `site/` ir paskelbia GitHub Pages (apmokėjimo ten nėra).
+
 ## Dizainas (AutoEasier DNR)
 
 - Fonas `#F3F5F8`, baltos 20 px kortelės; šešėlis `--sh` = viršutinis šviesos kraštas + plonas žiedas (`0 0 0 1px`) + švelnus šešėlis – be `border`, todėl niekas nepasislenka.

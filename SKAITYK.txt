@@ -10,7 +10,15 @@ Ta pati sandara ir dizainas kaip AutoEasier: įkeliate į GitHub → Vercel sure
    - Svarbu: įkelkite ir paslėptą failą .gitignore (Windows: išarchyvuotame aplanke įjunkite
      „Rodyti paslėptus failus“, jei jo nesimato).
 
-2. VERCEL
+2A. PERŽIŪRA TIK PER GITHUB (be Vercel, be apmokėjimo)
+   - Settings → General → apačioje „Danger Zone“ → Change visibility → Make public
+     (GitHub Pages nemokamai veikia tik viešoms repozitorijoms).
+   - Settings → Pages → Build and deployment → Source: „GitHub Actions“.
+   - Įkelkite failus (būtinai ir aplanką .github – jame pages.yml). Po 1–2 min. parduotuvė:
+     https://vakomb.github.io/vaidore/   (eiga – skirtukas „Actions“).
+   - Per GitHub Pages veikia viskas, išskyrus apmokėjimą („Apmokėti“ parodys „laikinai nepasiekiamas“).
+
+2B. VERCEL (tikra parduotuvė su apmokėjimu)
    - vercel.com → Add New → Project → Import „vaidore“ → Deploy (nustatymai jau vercel.json).
    - Settings → Environment Variables → STRIPE_SECRET_KEY = Jūsų Stripe slaptas raktas
      (Stripe → Developers → API keys; bandymams sk_test_…, tikriems mokėjimams sk_live_…) → Save → Redeploy.

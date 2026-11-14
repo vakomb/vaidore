@@ -1,3 +1,6 @@
+# GitHub Pages: po kiekvieno įkėlimo į main surenka parduotuvę (node tools/build-site.mjs → site/) ir paskelbia
+# adresu https://<vartotojas>.github.io/vaidore/. Įjungti: Settings → Pages → Source: „GitHub Actions“.
+# Pastaba: Pages rodo tik statinius failus – apmokėjimas (api/checkout.js) veikia tik per Vercel.
 name: GitHub Pages
 
 on:

@@ -19,8 +19,8 @@ function boot() {
   });
   routeFromHash();
   document.documentElement.classList.add("ready");
-  if ("serviceWorker" in navigator && location.protocol === "https:") {
-    navigator.serviceWorker.register("/sw.js").catch(err => logError("sw", err));
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("sw.js").catch(err => logError("sw", err));
   }
 }
 try {

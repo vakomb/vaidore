@@ -22,4 +22,5 @@ Kalba su vartotoju: **lietuvių**. Vaidore.com – kvepalų e-parduotuvė. Telef
 - Apmokėjimas: `api/checkout.js` (Vercel funkcija, Stripe Checkout, be npm paketų) → `/aciu` (`src/pages/aciu.html` išvalo krepšelį).
 - Statiniai puslapiai: `src/pages/` (`_layout.html` + `aciu`, `salygos`, `privatumas`; `{{company.*}}` iš katalogo).
 - PWA: `src/public/` (`manifest.webmanifest`, `sw.js` – keičiant `CACHE` telefonai išmeta seną kopiją, ikonos – `tools/make-icons.mjs`).
+- GitHub Pages: `.github/workflows/pages.yml` (peržiūra be apmokėjimo). Adresai – tik santykiniai (be „/“ pradžioje), kad veiktų ir poaplankyje.
 - Išsamiau – `docs/ARCHITECTURE.md`.

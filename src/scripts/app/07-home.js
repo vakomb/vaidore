@@ -32,7 +32,7 @@ function renderHome() {
     .join("");
 
   $("#homeTrust").innerHTML = `<div>${glyph("truck")}Nemokamai nuo ${eurShort(SET.freeShippingFrom)}</div><div>${glyph("drop")}Mėginukai 2 ml</div><div>${glyph("return")}Grąžinimas per 14 d.</div>`;
-  $("#homeFoot").innerHTML = `<button data-info>Pristatymas</button><a href="/salygos">Pirkimo sąlygos</a><a href="/privatumas">Privatumas</a><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a><span>© ${new Date().getFullYear()} ${esc(SET.shop)}</span>`;
+  $("#homeFoot").innerHTML = `<button data-info>Pristatymas</button><a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumas</a><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a><span>© ${new Date().getFullYear()} ${esc(SET.shop)}</span>`;
 }
 document.addEventListener("click", e => {
   const t = e.target instanceof Element ? e.target : null;

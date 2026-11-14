@@ -24,8 +24,8 @@ function openInfo() {
 </div>
 <p class="groupTitle">Dokumentai</p>
 <div class="group">
-<a class="row" href="/salygos"><span class="rowIco" style="background:#475569">${glyph("doc")}</span><span class="rowTxt">Pirkimo sąlygos</span><span class="chev">${glyph("chev-right")}</span></a>
-<a class="row" href="/privatumas"><span class="rowIco" style="background:#475569">${glyph("shield")}</span><span class="rowTxt">Privatumo politika</span><span class="chev">${glyph("chev-right")}</span></a>
+<a class="row" href="salygos"><span class="rowIco" style="background:#475569">${glyph("doc")}</span><span class="rowTxt">Pirkimo sąlygos</span><span class="chev">${glyph("chev-right")}</span></a>
+<a class="row" href="privatumas"><span class="rowIco" style="background:#475569">${glyph("shield")}</span><span class="rowTxt">Privatumo politika</span><span class="chev">${glyph("chev-right")}</span></a>
 </div>
 <p class="foot"><span>${esc(SET.company.name)} · ${esc(SET.company.code)}</span></p>
 </div>`
