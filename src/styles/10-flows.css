@@ -1,0 +1,701 @@
+/* v2 (pardavimų užbaigimas): vertės žinutė, „Rask savo kvapą“, atradimų rinkinys, istorija, atsiliepimai,
+   kvapo lapo nuotraukos ir eilutės, pristatymas / paštomatas / dovanų pakavimas krepšelyje, „Pranešti, kai bus“.
+   Įtraukiamas po 07-cart.css ir prieš 09-desktop.css (kompiuterio taisyklės – 09). Tik esami 01-tokens.css kintamieji. */
+
+/* ── Pradžia ─────────────────────────────────────────────── */
+.lede {
+  margin: -2px 2px 10px;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--ink2);
+  text-wrap: balance;
+}
+.lede:empty {
+  display: none;
+}
+.homeHelp {
+  margin-top: 12px;
+}
+.homeHelp .row {
+  min-height: 62px;
+}
+.homeHelp .rowTxt {
+  font-weight: 700;
+}
+.homeHelp .rowTxt small {
+  font-weight: 600;
+}
+
+.story {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 18px;
+  border-radius: var(--r-card);
+  background: #fff;
+  box-shadow: var(--sh);
+}
+.story[hidden] {
+  display: none;
+}
+.storyArt {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  height: 132px;
+}
+.storyArt span {
+  position: relative;
+  border-radius: 16px;
+  background: radial-gradient(90% 70% at 50% 35%, #ffffff 0%, var(--tint, #f3f5f8) 72%);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+.storyArt span svg {
+  position: absolute;
+  inset: 10% 18% 4%;
+  width: 64%;
+  height: 86%;
+}
+.storyArt img {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
+.storyTxt h2 {
+  font-size: 21px;
+  letter-spacing: -0.02em;
+}
+.storyTxt p {
+  margin-top: 6px;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--ink2);
+}
+.foot .footLinks {
+  display: contents;
+}
+.footCo {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ink3);
+  line-height: 1.5;
+}
+
+/* Atsiliepimai – tik tikri (products[].reviews) */
+.reviews {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 82%;
+  gap: 12px;
+  margin: 0 calc(var(--pad) * -1);
+  padding: 2px var(--pad) 6px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.reviews::-webkit-scrollbar {
+  display: none;
+}
+.sheet .reviews {
+  margin: 0;
+  padding: 2px 0 6px;
+  grid-auto-flow: row;
+  grid-auto-columns: auto;
+}
+.review {
+  scroll-snap-align: start;
+  margin: 0;
+  padding: 16px;
+  border-radius: var(--r-card);
+  background: #fff;
+  box-shadow: var(--sh);
+}
+.review blockquote {
+  margin: 6px 0 0;
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.review figcaption {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ink3);
+}
+.stars {
+  color: var(--amber);
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.stars i {
+  font-style: normal;
+  color: var(--line);
+}
+
+/* Kortelės: tikra nuotrauka ir „Išparduota“ */
+.art img.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pill.soldPill {
+  color: var(--ink);
+}
+.card:has(.soldPill) .art > :is(svg, img) {
+  opacity: 0.55;
+}
+
+/* ── Kvapo lapas ─────────────────────────────────────────── */
+.pdTopR {
+  display: flex;
+  gap: 8px;
+}
+.pdHero.hasPhoto {
+  background: var(--tint, #f3f5f8);
+}
+.gal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.gal::-webkit-scrollbar {
+  display: none;
+}
+.gal img {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scroll-snap-align: center;
+}
+.galDots {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 22px;
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+}
+.galDots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+  transition: width 0.3s var(--spring), background 0.2s ease;
+}
+.galDots i.on {
+  width: 18px;
+  border-radius: 4px;
+  background: #fff;
+}
+.hasPhoto .pdBadges {
+  bottom: 44px;
+}
+.pdSuits {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.pdSuits svg,
+.pdShip svg,
+.pdNote svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: var(--ink3);
+}
+.pdShip,
+.pdNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--ink3);
+}
+.pdNote {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--brand-soft);
+  color: var(--ink2);
+}
+.pdNote svg {
+  color: var(--brand);
+  margin-top: 1px;
+}
+.pdNote .linkBtn {
+  display: inline;
+  padding: 0;
+  font-size: inherit;
+}
+.pd.sold .sizes {
+  opacity: 0.55;
+}
+
+/* ── „Rask savo kvapą“ ───────────────────────────────────── */
+.quiz {
+  padding-top: 4px;
+}
+.qzProg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 2px 4px 18px;
+}
+.qzProg i {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  transition: background 0.3s ease;
+}
+.qzProg i.on {
+  background: var(--brand);
+}
+.qzQ {
+  margin: 0 4px;
+  font-size: 23px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.qzHint {
+  margin: 6px 4px 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink3);
+}
+.qzOpts {
+  margin-top: 14px;
+}
+.qzOpts .row {
+  min-height: 60px;
+  font-weight: 650;
+}
+.qzTick {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink4);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.qzTick svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.4;
+}
+[aria-checked="true"] > .qzTick {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: none;
+}
+.qzNav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+}
+.qzNav.col {
+  flex-direction: column;
+}
+.qzNav .btn.ghost {
+  padding: 0 16px 0 10px;
+}
+.qzNav.col .btn.ghost {
+  padding: 0 20px;
+}
+.qzRes {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+.qzCard {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 14px;
+  padding: 10px 14px 12px 10px;
+  border-radius: var(--r-card);
+  background: #fff;
+  box-shadow: var(--sh);
+  text-align: left;
+  color: var(--ink);
+}
+.qzCard .art {
+  aspect-ratio: auto;
+  height: 100px;
+  border-radius: 14px;
+}
+.qzTxt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.qzTxt b {
+  font-size: 17px;
+  letter-spacing: -0.015em;
+}
+.qzTxt small {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink3);
+}
+.qzWhy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.qzWhy em {
+  font-style: normal;
+  font-size: 12.5px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+.qzWhy span {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.qzWhy svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--green);
+  stroke-width: 2.4;
+}
+
+/* ── Atradimų rinkinys ───────────────────────────────────── */
+.discLead {
+  margin: 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.discCredit {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--brand-soft);
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.discCredit svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: var(--brand);
+}
+.discGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.discOpt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 6px 10px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--sh);
+  color: var(--ink);
+  text-align: left;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease;
+}
+.discOpt .art {
+  margin-bottom: 6px;
+  border-radius: 13px;
+}
+.discOpt b {
+  padding: 0 4px;
+  font-size: 14.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.discOpt small {
+  padding: 0 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink3);
+}
+.discOpt[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--brand), 0 4px 14px -6px rgba(40, 76, 162, 0.4);
+}
+.discOpt:disabled {
+  opacity: 0.45;
+}
+.discTick {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1.5px var(--ink4);
+  color: transparent;
+}
+.discTick svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.6;
+}
+[aria-pressed="true"] > .discTick {
+  background: var(--brand);
+  box-shadow: none;
+  color: #fff;
+}
+.discBanner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--r-card);
+  background: #fff;
+  box-shadow: var(--sh);
+  text-align: left;
+  color: var(--ink);
+}
+.discBanner .rowIco {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.discBanner .rowIco svg {
+  width: 18px;
+  height: 18px;
+}
+.discBanner .rowTxt {
+  flex: 1;
+  font-size: 16px;
+}
+.discBanner small {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink3);
+}
+.discBanner .chev {
+  color: var(--ink4);
+}
+
+/* ── Krepšelis: pristatymas, paštomatas, dovana ──────────── */
+.cartOpts {
+  margin-top: 6px;
+}
+.cartOpts .row .money {
+  font-size: 15px;
+  font-weight: 700;
+}
+.cartOpts .row small.warn {
+  color: var(--amber);
+  font-weight: 650;
+}
+.radio {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--ink4);
+  transition: box-shadow 0.2s var(--spring);
+}
+[aria-checked="true"] > .radio {
+  box-shadow: inset 0 0 0 7px var(--brand);
+}
+.row.sub {
+  padding-left: 50px;
+}
+.row.sub .rowTxt {
+  color: var(--brand);
+  font-weight: 650;
+}
+.groupNote {
+  margin: 8px 4px 0;
+  font-size: 14px;
+  color: var(--ink3);
+}
+.switch {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--field);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+  transition: background 0.25s ease;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18), 0 0 0 0.5px rgba(15, 23, 42, 0.06);
+  transition: transform 0.35s var(--spring);
+}
+[aria-checked="true"] > .switch {
+  background: var(--green);
+}
+[aria-checked="true"] > .switch::after {
+  transform: translateX(20px);
+}
+.noteRow {
+  flex-wrap: wrap;
+}
+.noteRow textarea,
+.field input {
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--r-field);
+  background: var(--field);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+  resize: vertical;
+  outline: none;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+.noteRow textarea:focus,
+.field input:focus {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--brand);
+}
+.discArt {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  cursor: pointer;
+}
+.discArt span {
+  position: relative;
+}
+.discArt span svg {
+  position: absolute;
+  inset: 18% 0 10%;
+  width: 100%;
+  height: 72%;
+}
+.stepper .linkBtn {
+  margin-left: auto;
+  font-size: 14.5px;
+}
+
+/* Paštomato paieška */
+.lockerPick .search {
+  margin-bottom: 10px;
+}
+.lockerPick .btn {
+  min-height: 46px;
+  font-size: 15.5px;
+}
+.lkList {
+  margin-top: 12px;
+}
+.lkList .group {
+  margin-top: 0;
+}
+.lkList .row {
+  font-size: 15.5px;
+  font-weight: 650;
+}
+.lkList .rowTxt small {
+  font-weight: 500;
+}
+.tickIco {
+  color: var(--brand);
+}
+
+/* Grąžinimo žingsniai (Informacija) */
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stepNo {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* „Pranešti, kai bus“ */
+.notifyLead {
+  margin: 0 4px 14px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+.field {
+  display: block;
+  margin-bottom: 12px;
+}
+.field > span {
+  display: block;
+  margin: 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink3);
+}
+.formErr {
+  margin: -4px 4px 12px;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--red);
+}
+.notify .qzHint a {
+  color: var(--brand);
+  font-weight: 650;
+}

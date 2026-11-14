@@ -4,14 +4,60 @@
   <h1>Ačiū už užsakymą!</h1>
   <p>Apmokėjimas gautas. Patvirtinimą ir kvitą išsiuntėme el. paštu, o kai siunta iškeliaus – atsiųsime sekimo nuorodą.</p>
   <p class="pgMuted" id="orderRef"></p>
+  <div class="pgCredit" id="credit" hidden>
+    <p>Mėginukų kainą grąžiname. Įveskite šį kodą apmokėdami buteliuką:</p>
+    <button class="pgCode" type="button" id="creditCode" aria-label="Kopijuoti kodą"></button>
+    <p class="pgMuted" id="creditInfo"></p>
+  </div>
   <a class="pgBtn" href="./">Grįžti į parduotuvę</a>
 </section>
 <script>
-  // Užsakymas apmokėtas – išvalome krepšelį (raktai – src/scripts/app/05-state.js)
-  try {
-    localStorage.removeItem("vaidore_cart_v1");
-    localStorage.removeItem("vaidore_pending_v1");
-    var s = new URLSearchParams(location.search).get("s");
-    if (s) document.getElementById("orderRef").textContent = "Užsakymo nr. " + s.slice(-8).toUpperCase();
-  } catch (e) {}
+  // Užsakymas apmokėtas – išvalome krepšelį (raktai – src/scripts/app/05-state.js).
+  // api/order grąžina mėginukų kainos grąžinimo kodą (jei pirkta mėginukų) ir sumą matavimui („Apmokėjo“).
+  (function () {
+    var s = null;
+    try {
+      localStorage.removeItem("vaidore_cart_v1");
+      localStorage.removeItem("vaidore_pending_v1");
+      localStorage.removeItem("vaidore_gift_v1");
+      s = new URLSearchParams(location.search).get("s");
+    } catch (e) {}
+    if (!s) return;
+    document.getElementById("orderRef").textContent = "Užsakymo nr. " + s.slice(-8).toUpperCase();
+    var tracked = false;
+    function track(total) {
+      if (tracked) return;
+      tracked = true;
+      try {
+        var key = "vaidore_paid_" + s.slice(-8);
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, "1");
+        var props = total ? { suma: Math.round(total) } : {};
+        if (window.plausible) window.plausible("Apmokėjo", { props: props, revenue: total ? { currency: "EUR", amount: total } : undefined });
+        if (window.va) window.va("event", { name: "Apmokėjo", data: props });
+      } catch (e) {}
+    }
+    fetch("api/order?s=" + encodeURIComponent(s))
+      .then(function (r) {
+        return r.ok ? r.json() : null;
+      })
+      .then(function (d) {
+        track(d && d.total);
+        if (!d || !d.credit) return;
+        var c = d.credit;
+        var code = document.getElementById("creditCode");
+        code.textContent = c.code;
+        document.getElementById("creditInfo").textContent =
+          "Nuolaida " + (c.amount / 100).toFixed(2).replace(".", ",") + " € · galioja iki " + new Date(c.expires * 1000).toLocaleDateString("lt-LT");
+        document.getElementById("credit").hidden = false;
+        code.addEventListener("click", function () {
+          if (navigator.clipboard) navigator.clipboard.writeText(c.code).then(function () {
+            code.classList.add("copied");
+          });
+        });
+      })
+      .catch(function () {
+        track(0);
+      });
+  })();
 </script>

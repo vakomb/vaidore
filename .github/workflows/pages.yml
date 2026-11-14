@@ -27,6 +27,8 @@ jobs:
           node-version: 20
       - name: Surinkti svetainę
         run: node tools/check.mjs && node tools/build-site.mjs
+        env:
+          NOINDEX: "1" # peržiūros kopija – paieškos sistemos indeksuoja tik vaidore.com
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,4 +1,4 @@
-// 15 – paleidimas: ikonos, ekranai, klausytojai, adresas, PWA (service worker).
+// 99 – paleidimas (visada paskutinis: naujų failų 16–98 const reikšmės jau paruoštos): ikonos, ekranai, klausytojai, adresas, PWA (service worker).
 function boot() {
   hydrateIcons();
   renderHome();
@@ -11,7 +11,7 @@ function boot() {
   updateBadges();
   onChange(what => {
     updateBadges();
-    if (what === "cart" && ui.tab === "cart") renderCart();
+    if ((what === "cart" || what === "ship" || what === "gift") && ui.tab === "cart") renderCart();
     if (what === "fav") {
       syncHearts();
       if (ui.tab === "fav") renderFav();

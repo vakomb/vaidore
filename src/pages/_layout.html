@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{{title}} – Vaidore</title>
     <meta name="theme-color" content="#F3F5F8" />
+    {{head}}
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <style>
@@ -33,7 +34,7 @@
     <footer class="pgFoot">
       <a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumas</a
       ><a href="mailto:{{company.email}}">{{company.email}}</a>
-      <span>© {{year}} {{company.name}}</span>
+      <span>{{companyLine}}</span>
     </footer>
   </body>
 </html>

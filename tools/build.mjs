@@ -29,16 +29,19 @@ const minCss = css =>
         .replace(/;}/g, "}")
         .trim();
 
-export function buildApp() {
+// opts.lockers – kiek Omniva paštomatų parsiųsta (tools/build-site.mjs); opts.head – papildomos <head> eilutės;
+// opts.catalog – katalogo objektas (testams; numatyta – src/data/catalog.json)
+export function buildApp(opts = {}) {
   let html = read("index.html");
   html = html.replace(/<!-- @inline <style id="([\w-]+)"> ([\w./-]+) -->/g, (_, id, rel) => {
     return `<style id="${id}">${minCss(guard(rel, read(rel)))}</style>`;
   });
   html = html.replace(/<!-- @partial ([\w./-]+) -->/g, (_, rel) => guard(rel, read(rel)).trim());
   html = html.replace(/<!-- @catalog -->/, () => {
-    const json = JSON.stringify(JSON.parse(read("data/catalog.json")));
+    const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));
     return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};</script>`;
   });
+  html = html.replace(/<!-- @lockers -->/, () => `<script>window.VAIDORE_LOCKERS=${Number(opts.lockers) || 0};</script>`);
   html = html.replace(/<!-- @app ([\w./-]+) -->/, (_, dir) => {
     const files = fs
       .readdirSync(path.join(src, dir))
@@ -47,6 +50,7 @@ export function buildApp() {
     const body = files.map(f => `// ── ${f}\n${guard(`${dir}/${f}`, read(`${dir}/${f}`))}`).join("\n");
     return `<script>\n(() => {\n"use strict";\n${body}\n})();\n</script>`;
   });
+  if (opts.head) html = html.replace("</head>", `${opts.head}\n  </head>`);
   const left = html.match(/<!-- @[\w]+[^>]*-->/);
   if (left) throw new Error(`Neišspręsta žyma: ${left[0]}`);
   return html;

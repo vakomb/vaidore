@@ -1,6 +1,6 @@
 // Vaidore service worker: tinklas pirmiausia (visada naujausia versija), be ryšio – paskutinė išsaugota kopija.
 // Keičiant CACHE pavadinimą, telefonai išmeta seną kopiją.
-const CACHE = "vaidore-v1";
+const CACHE = "vaidore-v2";
 // Santykiniai keliai – veikia ir svetainės šaknyje, ir GitHub Pages poaplankyje (/vaidore/)
 const CORE = ["./", "manifest.webmanifest", "favicon.svg", "icons/icon-192.png"];
 const HOME = new URL("./", self.registration.scope).href;

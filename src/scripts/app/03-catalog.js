@@ -17,6 +17,28 @@ const familyName = id => FAMILY.get(id)?.name || "";
 const priceOf = (p, ml) => (ml === SAMPLE_ML ? p.sample : p.sizes.find(s => s.ml === ml)?.price);
 const sizeLabel = ml => (ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${ml} ml`);
 const cardSub = p => `${familyName(p.family)} · ${p.conc}`;
+// Likutis: laukas stock (nėra – neskaičiuojama, 0 – laikinai išparduota). Tą pačią taisyklę tikrina api/checkout.js.
+const inStock = p => p.stock == null || p.stock > 0;
+// Atradimų rinkinys (settings.discovery): bet kurie N mėginukų už fiksuotą kainą. Krepšelio eilutė { id, ml: 0, qty, picks }.
+const DISC = SET.discovery || null;
+const isDisc = id => !!DISC && id === DISC.id;
+const SAMPLEABLE = () => PRODUCTS.filter(inStock);
+
+// „Tiks …“ – viena eilutė kvapo lape iš laukų time, sillage, seasons, family (be naujų duomenų)
+const SEASON_DAT = { pavasaris: "pavasariui", vasara: "vasarai", ruduo: "rudeniui", žiema: "žiemai" };
+function suitsLine(p) {
+  const when = p.time.includes("vakaras")
+    ? p.time.includes("diena")
+      ? "dienai ir vakarui"
+      : p.sillage >= 4
+        ? "vakarui ir šventėms"
+        : "vakarui"
+    : p.sillage <= 2
+      ? "kasdienai ir darbui"
+      : "dienai";
+  const seasons = p.seasons.length >= 4 ? "visiems metų laikams" : ["pavasaris", "vasara", "ruduo", "žiema"].filter(x => p.seasons.includes(x)).map(x => SEASON_DAT[x]).join(" ir ").replace(/ ir (?=.* ir )/g, ", ");
+  return `Tiks ${when} · ${seasons}`;
+}
 
 // Paieškos indeksas: pavadinimas, šūkis, natos, šeima, lytis, koncentracija (be diakritikų)
 const SEARCH_IX = new Map(

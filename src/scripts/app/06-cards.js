@@ -4,8 +4,16 @@ function heartBtn(p) {
   return `<button class="heart" data-fav="${p.id}" aria-pressed="${on}" aria-label="${on ? "Pašalinti iš mėgstamų" : "Į mėgstamus"}"><svg viewBox="0 0 24 24">${GLYPH.heart}</svg></button>`;
 }
 function badgePill(p) {
+  if (!inStock(p)) return `<span class="pill glass soldPill">Išparduota</span>`;
   if (!p.badge) return "";
   return `<span class="pill glass">${esc(p.badge)}</span>`;
+}
+// Paveikslas: tikra nuotrauka (images[0], WebP), jei yra; kitaip – buteliuko SVG
+function artImg(p, { eager = false } = {}) {
+  const src = p.images?.[0];
+  return src
+    ? `<img class="photo" src="${esc(src)}" alt="${esc(p.name)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />`
+    : bottleSVG(p);
 }
 function cardHTML(p, opts = {}) {
   const sample = !!opts.sample;
@@ -13,7 +21,7 @@ function cardHTML(p, opts = {}) {
     ? `<span class="money">${eur(p.sample)}</span><small>· 2 ml</small>`
     : `<small>nuo</small><span class="money">${eurShort(minPrice(p))}</span>`;
   return `<article class="card" data-open="${p.id}"${sample ? ' data-sample="1"' : ""} role="button" tabindex="0" aria-label="${esc(p.name)}, ${esc(cardSub(p))}">
-<div class="art" style="--tint:${p.look.tint}">${bottleSVG(p)}${badgePill(p)}${heartBtn(p)}</div>
+<div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${badgePill(p)}${heartBtn(p)}</div>
 <div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardSub">${esc(GENDER_NAME[p.gender])} · ${esc(familyName(p.family))}</span><span class="cardPrice">${price}</span></div>
 </article>`;
 }

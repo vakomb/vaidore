@@ -152,6 +152,35 @@
 .pgFoot span {
   width: 100%;
   text-align: center;
-  color: var(--ink4);
+  color: var(--ink3);
   font-size: 13px;
+  line-height: 1.5;
+}
+/* Mėginukų kainos grąžinimo kodas (/aciu) */
+.pgCredit {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 4px;
+  padding: 16px;
+  border-radius: var(--r-card);
+  background: var(--brand-soft);
+}
+.pgCredit[hidden] {
+  display: none;
+}
+.pgCode {
+  margin: 10px 0 6px;
+  padding: 10px 18px;
+  border-radius: var(--r-sm);
+  border: 1.5px dashed var(--brand);
+  background: #fff;
+  color: var(--brand);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.pgCode.copied::after {
+  content: " ✓";
 }

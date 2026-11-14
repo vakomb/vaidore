@@ -49,9 +49,13 @@ function renderShopSeg() {
 function renderShop() {
   const list = shopList();
   const grid = $("#shopGrid");
+  const discRow =
+    shop.samples && DISC
+      ? `<button class="discBanner" data-disc><span class="rowIco" style="background:#DB2777">${glyph("drop")}</span><span class="rowTxt"><b>${esc(DISC.name)}</b><small>Bet kurie ${DISC.count} mėginukai už ${eur(DISC.price)}</small></span><span class="chev">${glyph("chev-right")}</span></button>`
+      : "";
   grid.innerHTML = list.length
-    ? list.map(p => cardHTML(p, { sample: shop.samples })).join("")
-    : `<div class="empty" style="grid-column:1/-1">${glyph("search")}<h3>Nieko neradome</h3><p>Pabandykite kitą žodį arba nuimkite kelis filtrus.</p><button class="btn ghost" data-reset-filters>Rodyti visus kvapus</button></div>`;
+    ? discRow + list.map(p => cardHTML(p, { sample: shop.samples })).join("")
+    : `<div class="empty" style="grid-column:1/-1">${glyph("search")}<h3>Nieko neradome</h3><p>Pabandykite kitą žodį arba atsakykite į 4 klausimus – pasiūlysime 3 kvapus.</p><button class="btn primary" data-quiz>${glyph("spark")}Rask savo kvapą</button><button class="btn ghost" data-reset-filters>Rodyti visus kvapus</button></div>`;
   $("#shopCount").textContent = plural(list.length, "kvapas", "kvapai", "kvapų");
   $("#shopSortLabel").textContent = SORTS.find(s => s.id === shop.sort).name;
   const n = filterCount();

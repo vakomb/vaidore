@@ -2,9 +2,12 @@
   "settings": {
     "shop": "Vaidore",
     "domain": "vaidore.com",
+    "tagline": "Šiaurės įkvėpti nišiniai kvepalai. Pirma išbandykite 2 ml mėginuką.",
     "currency": "eur",
     "freeShippingFrom": 60,
     "maxQty": 10,
+    "dispatch": "1–2 d. d.",
+    "returnDays": 14,
     "hero": {
       "product": "ziemos-ugnis",
       "eyebrow": "Žiemos kolekcija",
@@ -23,7 +26,23 @@
       "address": "[Buveinės adresas]",
       "email": "info@vaidore.com",
       "phone": "[Telefonas]"
-    }
+    },
+    "story": {
+      "title": "Mūsų istorija",
+      "text": "Vaidore gimė iš paprastos minties: kvapą reikia pažinti prieš jį perkant. Todėl kiekvieną kvapą siūlome ir 2 ml mėginuku, o natas aprašome taip, kad suprastumėte be parfumerio žodyno.",
+      "image": ""
+    },
+    "discovery": {
+      "id": "atradimu-rinkinys",
+      "name": "Atradimų rinkinys",
+      "count": 5,
+      "price": 14.9,
+      "text": "Bet kurie 5 kvapai po 2 ml – išbandykite namuose, ramiai."
+    },
+    "sampleCredit": { "days": 30, "minOrder": 39 },
+    "gift": { "price": 2.5, "noteMax": 200 },
+    "notifyForm": "",
+    "analytics": { "plausible": "", "vercel": false }
   },
   "families": [
     { "id": "geliu", "name": "Gėlių", "hint": "Rožė, jazminas, bijūnas" },
@@ -50,16 +69,14 @@
       "sillage": 2,
       "seasons": ["pavasaris", "vasara"],
       "time": ["diena"],
-      "sizes": [
-        { "ml": 30, "price": 45 },
-        { "ml": 50, "price": 65 },
-        { "ml": 100, "price": 95 }
-      ],
+      "sizes": [{ "ml": 30, "price": 45 }, { "ml": 50, "price": 65 }, { "ml": 100, "price": 95 }],
       "sample": 4.9,
       "look": { "liquid": "#F6C6CF", "tint": "#FCEFF2", "cap": "gold", "shape": "rect" },
       "badge": "Populiaru",
       "rank": 1,
-      "added": "2026-03-01"
+      "added": "2026-03-01",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "gintaras",
@@ -78,15 +95,14 @@
       "sillage": 4,
       "seasons": ["ruduo", "žiema"],
       "time": ["vakaras"],
-      "sizes": [
-        { "ml": 50, "price": 89 },
-        { "ml": 100, "price": 129 }
-      ],
+      "sizes": [{ "ml": 50, "price": 89 }, { "ml": 100, "price": 129 }],
       "sample": 5.9,
       "look": { "liquid": "#E6A23C", "tint": "#FBF1E1", "cap": "black", "shape": "square" },
       "badge": "Populiaru",
       "rank": 2,
-      "added": "2026-01-15"
+      "added": "2026-01-15",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "baltijos-pusys",
@@ -105,15 +121,14 @@
       "sillage": 3,
       "seasons": ["pavasaris", "ruduo"],
       "time": ["diena", "vakaras"],
-      "sizes": [
-        { "ml": 50, "price": 69 },
-        { "ml": 100, "price": 99 }
-      ],
+      "sizes": [{ "ml": 50, "price": 69 }, { "ml": 100, "price": 99 }],
       "sample": 4.9,
       "look": { "liquid": "#9DBF9E", "tint": "#EEF5EE", "cap": "wood", "shape": "tall" },
       "badge": null,
       "rank": 3,
-      "added": "2026-02-10"
+      "added": "2026-02-10",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "liepu-medus",
@@ -132,16 +147,14 @@
       "sillage": 3,
       "seasons": ["vasara", "ruduo"],
       "time": ["diena", "vakaras"],
-      "sizes": [
-        { "ml": 30, "price": 45 },
-        { "ml": 50, "price": 65 },
-        { "ml": 100, "price": 95 }
-      ],
+      "sizes": [{ "ml": 30, "price": 45 }, { "ml": 50, "price": 65 }, { "ml": 100, "price": 95 }],
       "sample": 4.9,
       "look": { "liquid": "#F2D27A", "tint": "#FCF6E3", "cap": "gold", "shape": "round" },
       "badge": "Naujiena",
       "rank": 4,
-      "added": "2026-10-20"
+      "added": "2026-10-20",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "juodasis-azuolas",
@@ -160,15 +173,14 @@
       "sillage": 4,
       "seasons": ["ruduo", "žiema"],
       "time": ["vakaras"],
-      "sizes": [
-        { "ml": 50, "price": 89 },
-        { "ml": 100, "price": 129 }
-      ],
+      "sizes": [{ "ml": 50, "price": 89 }, { "ml": 100, "price": 129 }],
       "sample": 5.9,
       "look": { "liquid": "#6B4A3A", "tint": "#F3EDE9", "cap": "black", "shape": "square" },
       "badge": null,
       "rank": 5,
-      "added": "2025-11-01"
+      "added": "2025-11-01",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "jura",
@@ -187,15 +199,14 @@
       "sillage": 2,
       "seasons": ["pavasaris", "vasara"],
       "time": ["diena"],
-      "sizes": [
-        { "ml": 50, "price": 55 },
-        { "ml": 100, "price": 79 }
-      ],
+      "sizes": [{ "ml": 50, "price": 55 }, { "ml": 100, "price": 79 }],
       "sample": 3.9,
       "look": { "liquid": "#9CCBE6", "tint": "#EAF4FA", "cap": "silver", "shape": "tall" },
       "badge": null,
       "rank": 6,
-      "added": "2026-05-12"
+      "added": "2026-05-12",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "vakaro-silkas",
@@ -205,25 +216,19 @@
       "family": "ambros",
       "tagline": "Jazminas ir šilta ambra",
       "desc": "Juslus vakaro kvapas: naktinis jazminas, slyvos ir šilkinė ambra. Elegantiškas, bet ne per daug ryškus.",
-      "notes": {
-        "top": ["Slyva", "Šafranas"],
-        "heart": ["Jazminas", "Tuberozė"],
-        "base": ["Ambra", "Santalas"]
-      },
+      "notes": { "top": ["Slyva", "Šafranas"], "heart": ["Jazminas", "Tuberozė"], "base": ["Ambra", "Santalas"] },
       "longevity": 4,
       "sillage": 4,
       "seasons": ["ruduo", "žiema"],
       "time": ["vakaras"],
-      "sizes": [
-        { "ml": 30, "price": 49 },
-        { "ml": 50, "price": 72 },
-        { "ml": 100, "price": 105 }
-      ],
+      "sizes": [{ "ml": 30, "price": 49 }, { "ml": 50, "price": 72 }, { "ml": 100, "price": 105 }],
       "sample": 4.9,
       "look": { "liquid": "#B76E8A", "tint": "#F7ECF1", "cap": "gold", "shape": "round" },
       "badge": null,
       "rank": 7,
-      "added": "2026-04-02"
+      "added": "2026-04-02",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "pelynas",
@@ -242,15 +247,14 @@
       "sillage": 3,
       "seasons": ["pavasaris", "vasara", "ruduo"],
       "time": ["diena"],
-      "sizes": [
-        { "ml": 50, "price": 65 },
-        { "ml": 100, "price": 92 }
-      ],
+      "sizes": [{ "ml": 50, "price": 65 }, { "ml": 100, "price": 92 }],
       "sample": 4.9,
       "look": { "liquid": "#C9D7A8", "tint": "#F2F6EA", "cap": "silver", "shape": "rect" },
       "badge": "Naujiena",
       "rank": 8,
-      "added": "2026-09-18"
+      "added": "2026-09-18",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "smilga",
@@ -269,15 +273,14 @@
       "sillage": 2,
       "seasons": ["ruduo", "pavasaris"],
       "time": ["diena", "vakaras"],
-      "sizes": [
-        { "ml": 50, "price": 72 },
-        { "ml": 100, "price": 105 }
-      ],
+      "sizes": [{ "ml": 50, "price": 72 }, { "ml": 100, "price": 105 }],
       "sample": 4.9,
       "look": { "liquid": "#E3D3B8", "tint": "#F8F3EA", "cap": "wood", "shape": "rect" },
       "badge": null,
       "rank": 9,
-      "added": "2026-06-07"
+      "added": "2026-06-07",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "ausra",
@@ -296,16 +299,14 @@
       "sillage": 2,
       "seasons": ["pavasaris", "vasara"],
       "time": ["diena"],
-      "sizes": [
-        { "ml": 30, "price": 39 },
-        { "ml": 50, "price": 55 },
-        { "ml": 100, "price": 79 }
-      ],
+      "sizes": [{ "ml": 30, "price": 39 }, { "ml": 50, "price": 55 }, { "ml": 100, "price": 79 }],
       "sample": 3.9,
       "look": { "liquid": "#F7C98B", "tint": "#FDF3E6", "cap": "silver", "shape": "round" },
       "badge": null,
       "rank": 10,
-      "added": "2026-07-01"
+      "added": "2026-07-01",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "ruta",
@@ -324,15 +325,14 @@
       "sillage": 3,
       "seasons": ["pavasaris"],
       "time": ["diena", "vakaras"],
-      "sizes": [
-        { "ml": 50, "price": 85 },
-        { "ml": 100, "price": 119 }
-      ],
+      "sizes": [{ "ml": 50, "price": 85 }, { "ml": 100, "price": 119 }],
       "sample": 5.9,
       "look": { "liquid": "#B9CDB0", "tint": "#F0F5EE", "cap": "gold", "shape": "tall" },
       "badge": null,
       "rank": 11,
-      "added": "2026-03-20"
+      "added": "2026-03-20",
+      "images": [],
+      "reviews": []
     },
     {
       "id": "ziemos-ugnis",
@@ -351,15 +351,14 @@
       "sillage": 3,
       "seasons": ["žiema"],
       "time": ["vakaras"],
-      "sizes": [
-        { "ml": 50, "price": 69 },
-        { "ml": 100, "price": 99 }
-      ],
+      "sizes": [{ "ml": 50, "price": 69 }, { "ml": 100, "price": 99 }],
       "sample": 4.9,
       "look": { "liquid": "#C77B4E", "tint": "#F8EEE7", "cap": "wood", "shape": "round" },
       "badge": "Naujiena",
       "rank": 12,
-      "added": "2026-11-01"
+      "added": "2026-11-01",
+      "images": [],
+      "reviews": []
     }
   ]
 }

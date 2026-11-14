@@ -24,7 +24,22 @@ for (const p of cat.products) {
   for (const s of p.sizes || []) if (!(s.ml > 0 && s.price > 0)) fail(`${p.id}: blogas tūris / kaina`);
   for (const k of ["top", "heart", "base"]) if (!p.notes?.[k]?.length) fail(`${p.id}: nėra natų „${k}“`);
   if (!/^#[0-9a-f]{6}$/i.test(p.look?.liquid || "")) fail(`${p.id}: look.liquid – spalva #RRGGBB`);
+  if (p.stock != null && !(Number.isInteger(p.stock) && p.stock >= 0)) fail(`${p.id}: stock – sveikas skaičius ≥ 0 (arba nėra lauko)`);
+  for (const img of p.images || []) {
+    if (/^\/|^https?:/.test(img)) fail(`${p.id}: images – santykinis kelias, pvz. img/${p.id}-1.webp`);
+    else if (!fs.existsSync(path.join(root, "src/public", img))) fail(`${p.id}: nėra failo src/public/${img}`);
+  }
+  for (const r of p.reviews || []) {
+    if (!r?.name || !r?.text) fail(`${p.id}: reviews – reikia name ir text (tik tikri atsiliepimai)`);
+    if (r?.rating != null && !(r.rating >= 1 && r.rating <= 5)) fail(`${p.id}: reviews.rating – 1–5`);
+  }
 }
+const D = cat.settings.discovery;
+if (D && !(D.count >= 2 && D.count <= cat.products.length && D.price > 0)) fail("settings.discovery: count ir price");
+if (D && ids.has(D.id)) fail("settings.discovery.id sutampa su kvapo id");
+// Neužpildyti rekvizitai – tik įspėjimas (parduotuvė veikia, bet prieš paleidimą užpildykite)
+const todo = Object.entries(cat.settings.company).filter(([, v]) => /^\[.*\]$/.test(String(v)));
+if (todo.length) console.warn(`! settings.company neužpildyta: ${todo.map(([k]) => k).join(", ")}`);
 
 // 2. JS sintaksė (programėlė kaip vienas scope)
 const html = buildApp();
@@ -36,7 +51,7 @@ scripts.forEach((s, i) => {
     fail(`JS klaida (${i}): ${e.message}`);
   }
 });
-for (const f of ["api/checkout.js", "src/public/sw.js"]) {
+for (const f of [...fs.readdirSync(path.join(root, "api")).map(f => `api/${f}`), "src/public/sw.js"]) {
   const r = spawnSync(process.execPath, ["--check", path.join(root, f)], { encoding: "utf8" });
   if (r.status !== 0) fail(`${f}: ${r.stderr.split("\n").slice(0, 5).join(" ")}`);
 }

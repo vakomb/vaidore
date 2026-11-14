@@ -34,6 +34,26 @@
   .tiles {
     grid-template-columns: repeat(4, 1fr);
   }
+  /* v2: istorija – paveikslas kairėje, tekstas dešinėje; atsiliepimai – keli greta */
+  .story {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 24px;
+    padding: 22px;
+  }
+  .storyArt {
+    height: 170px;
+  }
+  .reviews {
+    grid-auto-columns: 46%;
+  }
+  .homeHelp {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .homeHelp .row + .row {
+    box-shadow: inset 1px 0 0 var(--line);
+  }
   /* Langai – centre, ne iš apačios */
   .backdrop {
     align-items: center;

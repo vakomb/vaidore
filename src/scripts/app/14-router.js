@@ -1,4 +1,5 @@
-// 14 – skirtukai ir adresai: #/ (Pradžia), #/katalogas, #/megstami, #/krepselis, #/kvepalai/<id>, #/info.
+// 14 – skirtukai ir adresai: #/ (Pradžia), #/katalogas, #/megstami, #/krepselis, #/kvepalai/<id>, #/info, #/testas, #/rinkinys.
+// Statinis kvapo puslapis kvepalai/<id> (SEO, tools/build-site.mjs) nustato window.VAIDORE_OPEN – atidaromas tas pats lapas.
 // Skirtukai keičiami akimirksniu (kaip iOS), kiekvienas prisimena savo slinkimo vietą; aktyvaus skirtuko paspaudimas – į viršų.
 const TAB_HASH = { home: "#/", shop: "#/katalogas", fav: "#/megstami", cart: "#/krepselis" };
 const HASH_TAB = Object.fromEntries(Object.entries(TAB_HASH).map(([k, v]) => [v, k]));
@@ -24,10 +25,16 @@ function showTab(tab, { top = false, push = false } = {}) {
   }
   updateHeadShadow();
 }
+const SHEET_ROUTES = { "#/info": () => openInfo(), "#/testas": () => openQuiz(), "#/rinkinys": () => openDiscovery() };
 function routeFromHash() {
+  if (window.VAIDORE_OPEN) {
+    // kvepalai/<id> → programėlės šaknis (<base href="../">) + #/kvepalai/<id>
+    history.replaceState(null, "", `./#/kvepalai/${window.VAIDORE_OPEN}`);
+    window.VAIDORE_OPEN = null;
+  }
   const h = location.hash || "#/";
   const m = h.match(/^#\/kvepalai\/([a-z0-9-]+)/);
-  if ((m || h === "#/info") && !$(".view.active")) {
+  if ((m || SHEET_ROUTES[h]) && !$(".view.active")) {
     $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === ui.tab));
     $$("[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === ui.tab));
   }
@@ -38,9 +45,9 @@ function routeFromHash() {
     }
     return;
   }
-  if (h === "#/info") {
+  if (SHEET_ROUTES[h]) {
     history.replaceState(null, "", TAB_HASH[ui.tab]);
-    openInfo();
+    SHEET_ROUTES[h]();
     return;
   }
   showTab(HASH_TAB[h] || "home");

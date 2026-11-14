@@ -42,3 +42,14 @@ const raf2 = fn => requestAnimationFrame(() => requestAnimationFrame(fn));
 function logError(where, err) {
   console.error(`[Vaidore] ${where}`, err);
 }
+
+// Matavimas be slapukų (settings.analytics): Plausible ir / arba Vercel Web Analytics, jei įjungta ir įkelta.
+// Įvykiai: „Peržiūrėjo kvapą“, „Į krepšelį“, „Pradėjo apmokėjimą“, „Apmokėjo“ (aciu.html), „Užbaigė testą“.
+function track(name, props = {}) {
+  try {
+    window.plausible?.(name, { props });
+    window.va?.("event", { name, data: props });
+  } catch {
+    /* matavimas niekada nestabdo pirkimo */
+  }
+}

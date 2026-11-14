@@ -1,5 +1,7 @@
-// 07 – Pradžia: kolekcijos kortelė, 4 plytelės, populiariausi, nuotaikos (kvapo šeimos), naujienos, pasitikėjimas.
+// 07 – Pradžia: vertės žinutė, kolekcijos kortelė, 4 plytelės, „Rask savo kvapą“ ir atradimų rinkinys, populiariausi,
+// nuotaikos (kvapo šeimos), naujienos, atsiliepimai (tik tikri), pasitikėjimas, „Mūsų istorija“, poraštė su rekvizitais.
 function renderHome() {
+  $("#homeLede").textContent = SET.tagline || "";
   const h = SET.hero || {};
   const hp = BY_ID.get(h.product) || PRODUCTS[0];
   $("#homeHero").innerHTML = `<button class="hero press" data-open="${hp.id}" style="--hero-bg:${hp.look.tint}">
@@ -19,6 +21,12 @@ function renderHome() {
     )
     .join("");
 
+  $("#homeHelp").innerHTML =
+    `<button class="row" data-quiz><span class="rowIco">${glyph("spark")}</span><span class="rowTxt">Rask savo kvapą<small>4 klausimai · 30 sekundžių</small></span><span class="chev">${glyph("chev-right")}</span></button>` +
+    (DISC
+      ? `<button class="row" data-disc><span class="rowIco" style="background:#DB2777">${glyph("drop")}</span><span class="rowTxt">${esc(DISC.name)}<small>${DISC.count} mėginukai po 2 ml už ${eur(DISC.price)}</small></span><span class="chev">${glyph("chev-right")}</span></button>`
+      : "");
+
   const popular = [...PRODUCTS].sort((a, b) => a.rank - b.rank).slice(0, 6);
   $("#homePopular").innerHTML = popular.map(p => cardHTML(p)).join("");
   const fresh = [...PRODUCTS].sort((a, b) => b.added.localeCompare(a.added)).slice(0, 6);
@@ -31,8 +39,51 @@ function renderHome() {
     })
     .join("");
 
-  $("#homeTrust").innerHTML = `<div>${glyph("truck")}Nemokamai nuo ${eurShort(SET.freeShippingFrom)}</div><div>${glyph("drop")}Mėginukai 2 ml</div><div>${glyph("return")}Grąžinimas per 14 d.</div>`;
-  $("#homeFoot").innerHTML = `<button data-info>Pristatymas</button><a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumas</a><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a><span>© ${new Date().getFullYear()} ${esc(SET.shop)}</span>`;
+  renderReviews($("#homeReviews"), PRODUCTS);
+  $("#homeTrust").innerHTML = `<div>${glyph("truck")}Nemokamai nuo ${eurShort(SET.freeShippingFrom)}</div><div>${glyph("drop")}Mėginukai 2 ml</div><div>${glyph("return")}Grąžinimas per ${SET.returnDays || 14} d.</div>`;
+  const st = SET.story;
+  const storyEl = $("#homeStory");
+  storyEl.hidden = !st?.text;
+  if (st?.text) {
+    const trio = [...PRODUCTS].sort((a, b) => a.rank - b.rank).slice(0, 3);
+    storyEl.innerHTML = `<div class="storyArt">${
+      st.image ? `<img src="${esc(st.image)}" alt="" loading="lazy" decoding="async" />` : trio.map(p => `<span style="--tint:${p.look.tint}">${bottleSVG(p)}</span>`).join("")
+    }</div><div class="storyTxt"><h2 id="storyTitle">${esc(st.title || "Mūsų istorija")}</h2><p>${esc(st.text)}</p></div>`;
+  }
+  $("#homeFoot").innerHTML = `<nav class="footLinks" aria-label="Informacija"><button data-info>Pristatymas ir grąžinimas</button><a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumas</a><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></nav>${companyLine()}`;
+}
+// Pardavėjo rekvizitai (settings.company) – neužpildyti laukai „[…]“ nerodomi
+const filled = v => v && !/^\[.*\]$/.test(String(v).trim());
+function companyLine() {
+  const c = SET.company;
+  const parts = [
+    filled(c.name) ? c.name : SET.shop,
+    filled(c.code) && `įm. k. ${c.code}`,
+    filled(c.vat) && `PVM k. ${c.vat}`,
+    filled(c.address) && c.address,
+    filled(c.phone) && c.phone
+  ].filter(Boolean);
+  return `<p class="footCo">© ${new Date().getFullYear()} ${parts.map(esc).join(" · ")}</p>`;
+}
+// Atsiliepimai – rodomi TIK tikri (products[].reviews: [{ name, text, rating?, date? }]); jei nėra – sekcijos nėra
+function reviewsOf(list) {
+  return list.flatMap(p => (p.reviews || []).filter(r => r?.text && r?.name).map(r => ({ ...r, p })));
+}
+function starsHTML(n) {
+  const r = Math.max(0, Math.min(5, Math.round(n)));
+  return `<span class="stars" role="img" aria-label="Įvertinimas ${r} iš 5">${"★".repeat(r)}<i>${"★".repeat(5 - r)}</i></span>`;
+}
+function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct = true } = {}) {
+  const all = reviewsOf(list).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  el.hidden = !all.length;
+  if (!all.length) return (el.innerHTML = "");
+  el.innerHTML = `<div class="blockHead"><h2>${esc(title)}</h2></div><div class="reviews">${all
+    .slice(0, 8)
+    .map(
+      r =>
+        `<figure class="review">${r.rating ? starsHTML(r.rating) : ""}<blockquote>${esc(r.text)}</blockquote><figcaption>${esc(r.name)}${showProduct ? ` · ${esc(r.p.name)}` : ""}</figcaption></figure>`
+    )
+    .join("")}</div>`;
 }
 document.addEventListener("click", e => {
   const t = e.target instanceof Element ? e.target : null;

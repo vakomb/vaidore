@@ -23,18 +23,47 @@ Ta pati sandara ir dizainas kaip AutoEasier: įkeliate į GitHub → Vercel sure
    - Settings → Environment Variables → STRIPE_SECRET_KEY = Jūsų Stripe slaptas raktas
      (Stripe → Developers → API keys; bandymams sk_test_…, tikriems mokėjimams sk_live_…) → Save → Redeploy.
    - Settings → Domains → vaidore.com (DNS – kaip nurodys Vercel).
+   - Stripe → Developers → Webhooks → Add endpoint: https://vaidore.com/api/stripe-webhook,
+     įvykiai checkout.session.completed ir checkout.session.async_payment_succeeded →
+     „Signing secret“ (whsec_…) → Vercel kintamasis STRIPE_WEBHOOK_SECRET → Redeploy.
+     Tada po apmokėjimo automatiškai sukuriamas mėginukų kainos grąžinimo kodas.
+   - Stripe → Settings → Customer emails → „Successful payments“ – kvitas pirkėjui.
+   - (Nebūtina) laiškai su užsakymo santrauka (paštomatas, rašteliukas, kodas): resend.com paskyra,
+     patvirtinkite domeną vaidore.com, Vercel kintamieji RESEND_API_KEY, MAIL_FROM
+     (pvz. Vaidore <uzsakymai@vaidore.com>), ORDER_EMAIL_TO (kam siųsti; numatyta – info@vaidore.com).
 
 3. PREKĖS IR DUOMENYS
    - Viskas viename faile: src/data/catalog.json – kvapai, kainos, tūriai, mėginukai, natos, pristatymas,
      nemokamo pristatymo riba, įmonės duomenys (pirkimo sąlygoms ir privatumo politikai).
    - Dabar įrašyti 12 PAVYZDINIŲ kvapų – pakeiskite tikrais.
-   - Užpildykite settings.company („[Įmonės pavadinimas]“ ir pan.) ir sąlygų / privatumo tekstus
-     (src/pages/salygos.html, privatumas.html) patikrinkite su teisininku.
+   - Užpildykite settings.company („[Įmonės pavadinimas]“ ir pan.) – rekvizitai rodomi poraštėje ir
+     puslapiuose; neužpildyti („[…]“) nerodomi. Sąlygų / privatumo tekstus (src/pages/salygos.html,
+     privatumas.html) patikrinkite su teisininku.
+   - settings.tagline – viena eilutė po logotipu; settings.story.text – „Mūsų istorija“ (įrašykite savo
+     tikrą istoriją; story.image – nebūtina nuotrauka, pvz. img/istorija.webp).
+   - NUOTRAUKOS: įkelkite į src/public/img/ (WebP, ~1200 px pločio, iki 150 KB), pvz. rasa-1.webp,
+     rasa-2.webp, ir kvapo „images“ įrašykite ["img/rasa-1.webp", "img/rasa-2.webp"]. Kol nėra – buteliukas.
+   - ATSILIEPIMAI: kvapo „reviews“ – tik tikri, gavus pirkėjo sutikimą:
+     [{ "name": "Ona K.", "text": "…", "rating": 5, "date": "2026-11-20" }]. Kol tuščia – sekcijos nėra.
+   - LIKUČIAI: kvapui įrašykite "stock": 0 – rodoma „Laikinai išparduota“ ir „Pranešti, kai bus“,
+     pirkti neleidžiama. Vėl turint – ištrinkite lauką arba įrašykite skaičių.
+   - „Pranešti, kai bus“: formspree.io → New form → adresą (https://formspree.io/f/…) įrašykite į
+     settings.notifyForm. Kol tuščia – atidaromas laiškas į info@vaidore.com.
+   - Atradimų rinkinys (settings.discovery: kiek mėginukų ir kaina), mėginukų kainos grąžinimas
+     (settings.sampleCredit: dienos ir minimali užsakymo suma), dovanų pakavimas (settings.gift).
+   - MATAVIMAS: plausible.io paskyra → settings.analytics.plausible = "vaidore.com"
+     (arba Vercel → Analytics → Enable ir settings.analytics.vercel = true). Slapukų juostos nereikia.
+   - Pakeitus kvapus – nauji dalinimosi paveikslai: npm install, npm run og (failai src/public/og/).
 
 4. KAS VEIKIA
    - Telefonas: Pradžia · Katalogas · Mėgstami · Krepšelis (apatinė juosta kaip AutoEasier).
    - Kompiuteris: šoninis meniu, platus katalogas, kvapo langas dviem stulpeliais.
    - Paieška (ir pagal natas: „vanilė“, „kedras“…), filtrai, rūšiavimas, mėginukai 2 ml.
-   - Apmokėjimas per Stripe (kortelė, Apple Pay, Google Pay), pristatymas Omniva / DPD, nemokamai nuo 60 €.
+   - „Rask savo kvapą“ (4 klausimai → 3 kvapai), atradimų rinkinys (5 mėginukai už 14,90 €),
+     mėginukų kaina grąžinama nuolaidos kodu perkant buteliuką per 30 d.
+   - Apmokėjimas per Stripe (kortelė, Apple Pay, Google Pay), Omniva paštomato pasirinkimas krepšelyje
+     (paieška ir „Rasti artimiausius“) arba DPD kurjeris, nemokamai nuo 60 €, dovanų pakavimas su rašteliuku.
+   - Kiekvienas kvapas turi savo adresą vaidore.com/kvepalai/<id> – paieškos sistemoms ir dalinimuisi
+     (paveikslas, kaina, prieinamumas), sitemap.xml, robots.txt.
    - Kainos tikrinamos serveryje – naršyklėje jų pakeisti neįmanoma.
    - Galima „įdiegti“ telefone (Bendrinti → Į pradžios ekraną) – atsidaro kaip programėlė.
