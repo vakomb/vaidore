@@ -1,0 +1,6 @@
+# Supabase CLI nustatymai (supabase functions deploy shop). Funkcija teises tikrina pati:
+# checkout / order – vieši (svečias gali pirkti), stripe-webhook – Stripe parašas, admin / account – vartotojo JWT.
+project_id = "ubtytpfsqbofqizgkxtc"
+
+[functions.shop]
+verify_jwt = false

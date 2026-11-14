@@ -1,0 +1,403 @@
+/* Paskyra (prisijungimas, užsakymai, profilis, kodai, nustatymai) ir informaciniai puslapiai (Pagalba, Apie mus). */
+
+/* Prisijungimas / registracija */
+.authBox {
+  max-width: 440px;
+  margin: 0 auto;
+  padding-top: 12px;
+}
+.authBox .pageHead {
+  text-align: center;
+}
+.authBox .pageSub {
+  margin-left: auto;
+  margin-right: auto;
+}
+.authBox .seg {
+  margin: 14px 0 20px;
+}
+.authForm {
+  margin-top: 8px;
+}
+.authForm .btn {
+  margin-top: 6px;
+}
+.authLinks {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink3);
+  line-height: 1.5;
+}
+.authGuest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 14.5px;
+  color: var(--ink2);
+}
+.authGuest svg {
+  width: 18px;
+  height: 18px;
+  color: var(--ink3);
+}
+
+/* Paskyros išdėstymas */
+.accHead {
+  padding-bottom: 4px;
+}
+.accNav {
+  display: flex;
+  gap: 6px;
+  margin: 12px calc(var(--pad) * -1) 20px;
+  padding: 2px var(--pad) 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--line);
+}
+.accNav::-webkit-scrollbar {
+  display: none;
+}
+.accNav a,
+.accNav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--ink2);
+  font-size: 15px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.accNav svg {
+  width: 18px;
+  height: 18px;
+}
+.accNav a[aria-current="page"] {
+  background: var(--ink);
+  color: #fff;
+}
+.accNav .accAdmin {
+  color: var(--brand);
+}
+.accBody h2 {
+  margin-bottom: 14px;
+  font-size: 20px;
+}
+.accForm {
+  max-width: 520px;
+}
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.formHint {
+  display: block;
+  margin: -4px 2px 14px;
+  font-size: 13.5px;
+  color: var(--ink3);
+}
+.accDanger {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.accActs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* Užsakymai */
+.orders {
+  display: grid;
+  gap: 12px;
+}
+.order {
+  border-radius: var(--r-card);
+  background: #fff;
+  box-shadow: var(--elev-1);
+  overflow: hidden;
+}
+.order summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto 20px;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.order summary::-webkit-details-marker {
+  display: none;
+}
+.order summary > svg {
+  width: 18px;
+  height: 18px;
+  color: var(--ink3);
+  transition: transform 0.3s var(--spring);
+}
+.order[open] summary > svg {
+  transform: rotate(180deg);
+}
+.oMain {
+  min-width: 0;
+}
+.oMain b {
+  display: block;
+  font-size: 16px;
+}
+.oMain small {
+  display: block;
+  font-size: 13.5px;
+  color: var(--ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.order summary .money {
+  font-weight: 750;
+}
+.oBody {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--line);
+}
+.oTrack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: rgba(180, 83, 9, 0.07);
+  font-size: 14.5px;
+}
+.oTrack svg {
+  width: 18px;
+  height: 18px;
+  color: var(--amber);
+}
+.oItems {
+  margin-top: 6px;
+}
+.oItem {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+.oItem + .oItem {
+  border-top: 1px solid var(--line);
+}
+.oItem .art {
+  width: 52px;
+  border-radius: 10px;
+}
+.oItem b {
+  display: block;
+  font-size: 15px;
+}
+.oItem small {
+  font-size: 13.5px;
+  color: var(--ink3);
+}
+.oMeta {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--ink2);
+}
+.oActs {
+  margin-top: 12px;
+}
+.rateRow {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.rateRow button {
+  font-size: 30px;
+  line-height: 1;
+  color: var(--line2);
+  transition: transform 0.3s var(--spring), color 0.15s ease;
+}
+.rateRow button[aria-checked="true"] {
+  color: var(--amber);
+}
+.rateRow button:active {
+  transform: scale(0.85);
+}
+
+/* Pagalba ir Apie mus */
+.infoGrid {
+  display: block;
+}
+.infoToc {
+  display: flex;
+  gap: 6px;
+  margin: 8px calc(var(--pad) * -1) 8px;
+  padding: 0 var(--pad) 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.infoToc::-webkit-scrollbar {
+  display: none;
+}
+.infoToc a {
+  flex: 0 0 auto;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--line2);
+  color: var(--ink);
+  font-size: 14.5px;
+  font-weight: 650;
+}
+.infoSec {
+  padding: 28px 0 8px;
+  scroll-margin-top: calc(var(--hdrH) + 12px);
+}
+.infoSec + .infoSec {
+  border-top: 1px solid var(--line);
+}
+.infoSec h2 {
+  margin-bottom: 14px;
+}
+.infoTxt {
+  margin-top: 12px;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink2);
+  max-width: 680px;
+}
+.faq details {
+  border-bottom: 1px solid var(--line);
+}
+.faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: var(--ink3);
+  transition: transform 0.3s var(--spring);
+}
+.faq details[open] summary svg {
+  transform: rotate(180deg);
+}
+.faq p {
+  padding: 0 0 16px;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink2);
+}
+.about {
+  margin-top: 16px;
+}
+.aboutPts {
+  display: grid;
+  gap: 24px;
+}
+.aboutPts div {
+  display: grid;
+  gap: 8px;
+}
+.aboutPts .prIco {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+.aboutPts .prIco svg {
+  width: 22px;
+  height: 22px;
+}
+.aboutPts b {
+  font-size: 17px;
+}
+.aboutPts p {
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--ink2);
+}
+
+@media (min-width: 1024px) {
+  .accLayout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+  .accNav {
+    position: sticky;
+    top: calc(var(--hdrH) + 16px);
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+  }
+  .accNav a,
+  .accNav button {
+    border-radius: 12px;
+    min-height: 46px;
+  }
+  .accNav a:hover,
+  .accNav button:hover {
+    background: var(--bg-soft);
+  }
+  .accNav a[aria-current="page"] {
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+  .infoGrid {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+  .infoToc {
+    position: sticky;
+    top: calc(var(--hdrH) + 24px);
+    flex-direction: column;
+    margin: 28px 0 0;
+    padding: 0;
+  }
+  .infoToc a {
+    box-shadow: none;
+    border-radius: 10px;
+  }
+  .infoToc a:hover {
+    background: var(--bg-soft);
+  }
+  .aboutPts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+  }
+}

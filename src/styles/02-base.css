@@ -1,4 +1,4 @@
-/* Pagrindas: šriftas, fonas, iOS ergonomika (be teksto žymėjimo ant valdiklių, be 300 ms delsos, be mėlyno blyksnio). */
+/* Pagrindas: šriftas, baltas fonas, iOS ergonomika (be teksto žymėjimo ant valdiklių, be 300 ms delsos, be mėlyno blyksnio). */
 *,
 *::before,
 *::after {
@@ -21,7 +21,6 @@ body {
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none;
 }
 h1,
 h2,
@@ -36,7 +35,7 @@ h1 {
   line-height: 1.15;
 }
 h2 {
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 750;
   letter-spacing: -0.02em;
 }
@@ -61,7 +60,7 @@ button {
 :where(button, a, label, summary, select, input, textarea, [role="button"]) {
   touch-action: manipulation;
 }
-:where(button, [role="button"], .tab, .tile, .card, .chip, .seg button) {
+:where(button, [role="button"], .tile, .chip, .seg button) {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;

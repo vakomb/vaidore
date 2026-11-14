@@ -1,4 +1,4 @@
-// 02 – ikonos: linijiniai glifai (1,85 px), apatinės juostos kontūrinė / užpildyta ikona, spalvotos plytelių ikonos, logotipas.
+// 02 – ikonos: linijiniai glifai (1,85 px), spalvotos kategorijų ir kvapo šeimų ikonos, logotipas.
 const GLYPH = {
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
@@ -29,22 +29,29 @@ const GLYPH = {
   locker: '<rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M12 3.5v17M4 9.5h8M4 15h8M12 12h8"/><path d="M15 9.2h2"/>',
   bell: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 2H5z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
   copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  user: '<circle cx="12" cy="8.5" r="3.8"/><path d="M4.8 20c.9-3.7 3.7-5.6 7.2-5.6s6.3 1.9 7.2 5.6"/>',
+  home: '<path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5H15v-6H9v6H5.5A1.5 1.5 0 0 1 4 19z"/>',
+  grid: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  box: '<path d="m4 7.5 8-4 8 4v9l-8 4-8-4z"/><path d="m4 7.5 8 4 8-4M12 11.5v9"/>',
+  logout: '<path d="M14 4.5h3.5A1.5 1.5 0 0 1 19 6v12a1.5 1.5 0 0 1-1.5 1.5H14"/><path d="M10 8l-4 4 4 4M6 12h9"/>',
+  edit: '<path d="M4.5 19.5h4l10-10-4-4-10 10z"/><path d="m13 7 4 4"/>',
+  trash: '<path d="M5 7h14M10 7V5h4v2M7 7l1 12.5h8L17 7"/><path d="M10.5 11v5M13.5 11v5"/>',
+  eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  "eye-off": '<path d="M4 4l16 16"/><path d="M9.9 6A9.6 9.6 0 0 1 12 5.5C18 5.5 21.5 12 21.5 12a17 17 0 0 1-3 3.7M6.2 7.6A16 16 0 0 0 2.5 12S6 18.5 12 18.5a9 9 0 0 0 4-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  upload: '<path d="M12 15.5V4.5M7.5 9 12 4.5 16.5 9"/><path d="M4.5 15v3A1.5 1.5 0 0 0 6 19.5h12a1.5 1.5 0 0 0 1.5-1.5v-3"/>',
+  chart: '<path d="M4.5 19.5h15"/><path d="M7 16v-5M12 16V7M17 16v-8"/>',
+  tag: '<path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l8 8a1.4 1.4 0 0 1 0 2l-6.6 6.6a1.4 1.4 0 0 1-2 0z"/><circle cx="8" cy="8" r="1.5"/>',
+  users: '<circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 19.5c.8-3.4 3.4-5.2 6.5-5.2s5.7 1.8 6.5 5.2"/><path d="M15.5 5.2a3.5 3.5 0 0 1 0 6.6M17.5 14.6c2 .6 3.4 2.2 4 4.9"/>',
+  star: '<path d="m12 3.8 2.5 5.1 5.6.8-4 3.9 1 5.6-5.1-2.7-5 2.7.9-5.6-4-3.9 5.6-.8z"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2 5.5 5.5"/>',
+  drag: '<circle cx="9" cy="7" r="1"/><circle cx="15" cy="7" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/>',
+  ext: '<path d="M13.5 4.5h6v6M19.5 4.5l-9 9"/><path d="M17 13.5v5a1 1 0 0 1-1 1H5.5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h5"/>',
   pin: '<path d="M12 20.5s6-5.6 6-10.5a6 6 0 0 0-12 0c0 4.9 6 10.5 6 10.5z"/><circle cx="12" cy="10" r="2.2"/>'
 };
 const glyph = (name, cls = "") =>
   `<svg class="gl ${cls}" viewBox="0 0 24 24" aria-hidden="true">${GLYPH[name] || ""}</svg>`;
-
-// Apatinė juosta: nvO – kontūras (neaktyvi), nvF – užpildyta (aktyvi), kaip AutoEasier
-const TAB_ICO = {
-  home:
-    '<svg class="nvO" viewBox="0 0 24 24"><path d="M4 10.2 11.2 4.6a1.3 1.3 0 0 1 1.6 0L20 10.2v8.9a1.4 1.4 0 0 1-1.4 1.4H15v-5.6a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5.6H5.4A1.4 1.4 0 0 1 4 19.1z"/></svg><svg class="nvF" viewBox="0 0 24 24"><path d="M3.6 10.1 11 4.3a1.6 1.6 0 0 1 2 0l7.4 5.8v9.1a1.6 1.6 0 0 1-1.6 1.6H15v-5.4a1.2 1.2 0 0 0-1.2-1.2h-3.6A1.2 1.2 0 0 0 9 15.4v5.4H5.2a1.6 1.6 0 0 1-1.6-1.6z"/></svg>',
-  shop:
-    '<svg class="nvO" viewBox="0 0 24 24"><rect x="9" y="3.6" width="6" height="3.6" rx="1"/><path d="M10.2 7.2h3.6v2.2"/><rect x="5.8" y="9.4" width="12.4" height="11" rx="3"/><path d="M9.2 13.8h5.6"/></svg><svg class="nvF" viewBox="0 0 24 24"><rect x="8.6" y="3" width="6.8" height="4.4" rx="1.3"/><path d="M10 7.2h4v2.4h-4z"/><path d="M8.5 9h7a3.5 3.5 0 0 1 3.5 3.5v6A3.5 3.5 0 0 1 15.5 22h-7A3.5 3.5 0 0 1 5 18.5v-6A3.5 3.5 0 0 1 8.5 9zm.8 4.2a.9.9 0 0 0 0 1.8h5.4a.9.9 0 0 0 0-1.8z"/></svg>',
-  fav:
-    '<svg class="nvO" viewBox="0 0 24 24"><path d="M12 20s-7.8-4.6-7.8-10.4A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.8 2.3C19.8 15.4 12 20 12 20z"/></svg><svg class="nvF" viewBox="0 0 24 24"><path d="M12 20.6s-8.4-4.9-8.4-11.1A4.7 4.7 0 0 1 12 6.6a4.7 4.7 0 0 1 8.4 2.9c0 6.2-8.4 11.1-8.4 11.1z"/></svg>',
-  cart:
-    '<svg class="nvO" viewBox="0 0 24 24"><path d="M5.3 8.4h13.4l-1 11.4a1.6 1.6 0 0 1-1.6 1.4H7.9a1.6 1.6 0 0 1-1.6-1.4z"/><path d="M8.8 8.4V7a3.2 3.2 0 0 1 6.4 0v1.4"/></svg><svg class="nvF" viewBox="0 0 24 24"><path d="M8 7a4 4 0 0 1 8 0v.6h2.8a1 1 0 0 1 1 1.1l-1.1 11.4a2 2 0 0 1-2 1.8H7.3a2 2 0 0 1-2-1.8L4.2 8.7a1 1 0 0 1 1-1.1H8zm1.7.6h4.6V7a2.3 2.3 0 0 0-4.6 0z"/></svg>'
-};
 
 // Logotipas: lašo ženklas + VAIDORE
 // Kiekvienas logotipas gauna savo gradiento id (paslėptame šoniniame meniu esantis gradientas kitur nepiešiamas)
@@ -93,9 +100,6 @@ const FAMILY_LOOK = {
 function hydrateIcons(root = document) {
   $$("[data-glyph]", root).forEach(el => {
     if (!el.firstElementChild) el.innerHTML = glyph(el.dataset.glyph);
-  });
-  $$("[data-ico]", root).forEach(el => {
-    if (!el.firstElementChild) el.innerHTML = TAB_ICO[el.dataset.ico] || "";
   });
   $$("[data-logo]", root).forEach(el => {
     if (!el.firstElementChild) el.innerHTML = logoHTML();

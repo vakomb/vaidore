@@ -6,7 +6,6 @@ function openDiscovery({ preset = [], replaceKey = null } = {}) {
   const sel = preset.filter(id => pool.some(p => p.id === id)).slice(0, DISC.count);
   openSheet({
     title: DISC.name,
-    url: "#/rinkinys",
     html: `<div class="sheetPad disc">
 <p class="discLead">${esc(DISC.text || "")}</p>
 <p class="discCredit">${glyph("return")}<span>${creditText()}</span></p>
@@ -16,7 +15,7 @@ function openDiscovery({ preset = [], replaceKey = null } = {}) {
       )
       .join("")}</div>
 </div>
-<div class="buyBar discBar"><span class="price"><b class="money">${eur(DISC.price)}</b><small data-disc-count></small></span><button class="btn primary" data-disc-add>${glyph("bag")}Į krepšelį</button></div>`
+<div class="buyBar discBar show"><span class="price"><b class="money">${eur(DISC.price)}</b><small data-disc-count></small></span><button class="btn primary" data-disc-add>${glyph("bag")}Į krepšelį</button></div>`
   });
   const root = $("#sheetBody");
   const sync = () => {
@@ -43,12 +42,8 @@ function openDiscovery({ preset = [], replaceKey = null } = {}) {
         if (i >= 0) state.cart.splice(i, 1);
       }
       addToCart(DISC.id, 0, 1, sel);
-      closeSheet();
-      toast(`${DISC.name} – krepšelyje`, {
-        icon: "bag",
-        action: "Peržiūrėti",
-        onAction: () => setTimeout(() => showTab("cart", { top: true }), 260)
-      });
+      if (ui.view === "cart") closeSheet();
+      else openMiniCart({ added: DISC.name });
     }
   });
   sync();

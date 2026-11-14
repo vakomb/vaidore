@@ -2,20 +2,22 @@
 <html lang="lt">
   <head>
     <meta charset="utf-8" />
+    <!-- @base -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Vaidore – kvepalai</title>
-    <meta name="description" content="Vaidore – nišiniai kvepalai iš Lietuvos. Rinkitės pagal kvapo šeimą, natas ir nuotaiką, išbandykite mėginuką." />
-    <meta name="theme-color" content="#F3F5F8" />
+    <meta name="description" content="Vaidore – Šiaurės įkvėpti nišiniai kvepalai. Rinkitės pagal kvapo šeimą, natas ir nuotaiką, išbandykite mėginuką." />
+    <meta name="theme-color" content="#FFFFFF" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Vaidore" />
     <meta property="og:title" content="Vaidore – kvepalai" />
-    <meta property="og:description" content="Nišiniai kvepalai iš Lietuvos. Mėginukai, nemokamas pristatymas nuo 60 €." />
+    <meta property="og:description" content="Šiaurės įkvėpti nišiniai kvepalai. Mėginukai, nemokamas pristatymas nuo 60 €." />
     <meta property="og:type" content="website" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://ubtytpfsqbofqizgkxtc.supabase.co" crossorigin />
     <!-- @inline <style id="tokens"> styles/01-tokens.css -->
     <!-- @inline <style id="base"> styles/02-base.css -->
     <!-- @inline <style id="layout"> styles/03-layout.css -->
@@ -24,19 +26,25 @@
     <!-- @inline <style id="detail"> styles/06-detail.css -->
     <!-- @inline <style id="cart"> styles/07-cart.css -->
     <!-- @inline <style id="flows"> styles/10-flows.css -->
+    <!-- @inline <style id="account"> styles/11-account.css -->
     <!-- @inline <style id="desktop"> styles/09-desktop.css -->
   </head>
   <body>
-    <div class="app" id="app">
-      <!-- @partial partials/side.html -->
-      <main class="main" id="main">
-        <!-- @partial partials/view-home.html -->
-        <!-- @partial partials/view-shop.html -->
-        <!-- @partial partials/view-fav.html -->
-        <!-- @partial partials/view-cart.html -->
-      </main>
-      <!-- @partial partials/tabbar.html -->
-    </div>
+    <a class="skip" href="#main">Pereiti prie turinio</a>
+    <!-- @partial partials/header.html -->
+    <main class="main" id="main" tabindex="-1">
+      <!-- @partial partials/view-home.html -->
+      <!-- @partial partials/view-shop.html -->
+      <!-- @partial partials/view-product.html -->
+      <!-- @partial partials/view-cart.html -->
+      <!-- @partial partials/view-fav.html -->
+      <!-- @partial partials/view-account.html -->
+      <!-- @partial partials/view-info.html -->
+      <!-- @partial partials/view-admin.html -->
+      <!-- @partial partials/view-404.html -->
+    </main>
+    <!-- @partial partials/footer.html -->
+    <!-- @partial partials/drawer.html -->
     <!-- @partial partials/overlays.html -->
     <!-- @catalog -->
     <!-- @lockers -->

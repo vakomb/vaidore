@@ -36,6 +36,19 @@ const store = {
     }
   }
 };
+// Svetainės šaknis: <base href> (Vercel – „/“, GitHub Pages – „/vaidore/“, nustato tools/build-site.mjs BASE_PATH)
+const BASE_PATH = new URL(document.baseURI).pathname.replace(/[^/]*$/, "");
+const SITE_ROOT = new URL(BASE_PATH, location.origin).href;
+const absUrl = rel => new URL(rel, SITE_ROOT).href;
+const dateFmt = new Intl.DateTimeFormat("lt-LT", { year: "numeric", month: "2-digit", day: "2-digit" });
+const dateTimeFmt = new Intl.DateTimeFormat("lt-LT", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+const fmtDate = v => (v ? dateFmt.format(new Date(v)) : "");
+const fmtDateTime = v => (v ? dateTimeFmt.format(new Date(v)) : "");
+const slugify = s =>
+  fold(s)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
 const reduceMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
 const raf2 = fn => requestAnimationFrame(() => requestAnimationFrame(fn));

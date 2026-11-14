@@ -1,18 +1,107 @@
-/* Kvepalų lapas (prekės detalės) ir filtrų / rūšiavimo / informacijos langai. */
+/* Katalogas (įrankių juosta, filtrai) ir kvapo puslapis (galerija, pirkimas, natos, savybės). */
+
+/* Katalogo įrankių juosta */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 14px;
+}
+.shopSearch {
+  flex: 1 1 100%;
+}
+.toolbar .count {
+  margin-left: auto;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink3);
+}
+.toolbar .count + .sortSel {
+  margin-left: 0;
+}
+.filters {
+  display: none;
+}
+
+/* Filtrai (kompiuteryje – šoninė juosta, telefone – langas) */
+.fGroup {
+  padding: 16px 0;
+}
+.fGroup + .fGroup {
+  border-top: 1px solid var(--line);
+}
+.fGroup h3 {
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 750;
+  color: var(--ink);
+}
+.fChecks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fCheck {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink2);
+  cursor: pointer;
+}
+.fCheck input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+.fCheck small {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--ink3);
+}
+.fCheck:hover {
+  color: var(--ink);
+}
+.fActions {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px 0 calc(8px + var(--safeB));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 30%);
+}
+
+/* Kvapo puslapis */
 .pd {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   padding-bottom: 8px;
 }
-.pdHero {
-  position: relative;
-  height: 330px;
-  margin: 0;
-  background: radial-gradient(80% 70% at 50% 40%, #ffffff 0%, var(--tint, #f3f5f8) 75%);
+.pd > * {
+  min-width: 0;
 }
-.pdHero svg.bottle {
+.pdGal {
+  position: relative;
+  margin: 0 calc(var(--pad) * -1);
+  height: 380px;
+  background: radial-gradient(80% 70% at 50% 40%, #ffffff 0%, var(--tint, #f3f5f8) 75%);
+  overflow: hidden;
+}
+.pdGal.hasPhoto {
+  background: var(--tint, #f3f5f8);
+}
+.pdGal svg.bottle {
   position: absolute;
   left: 50%;
-  bottom: 22px;
-  height: 270px;
+  bottom: 30px;
+  height: 300px;
   width: auto;
   transform: translateX(-50%);
   filter: drop-shadow(0 18px 22px rgba(15, 23, 42, 0.14));
@@ -24,34 +113,38 @@
     transform: translate(-50%, 18px) scale(0.96);
   }
 }
-.pdHero .pdTop {
+.pdTools {
   position: absolute;
   z-index: 2;
-  top: 18px;
-  left: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   display: flex;
-  justify-content: space-between;
+  gap: 8px;
 }
-.pdHero .roundBtn {
-  background: rgba(255, 255, 255, 0.8);
+.pdTools .roundBtn,
+.pdTools .heart {
+  position: static;
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.86);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.05);
 }
-.pdHero .heart {
-  position: static;
-  width: 40px;
-  height: 40px;
-}
-.pdHero .pdBadges {
+.pdBadges {
   position: absolute;
+  z-index: 2;
   left: 16px;
   bottom: 16px;
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
-.pdMain {
-  padding: 18px 18px 0;
+.hasPhoto .pdBadges {
+  bottom: 44px;
+}
+.pdInfo {
+  padding-top: 20px;
 }
 .pdTitle {
   display: flex;
@@ -59,25 +152,62 @@
   justify-content: space-between;
   gap: 12px;
 }
-.pdTitle h2 {
-  font-size: 28px;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
+.pdTitle h1 {
+  font-size: 30px;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 .pdTitle .pill {
-  margin-top: 4px;
+  margin-top: 5px;
 }
 .pdTag {
   margin-top: 6px;
   color: var(--ink2);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
 }
+.pdPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 16px;
+}
+.pdPrice b {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.pdPrice small {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink3);
+}
 .pdDesc {
-  margin-top: 12px;
+  margin-top: 14px;
   font-size: 16px;
   color: var(--ink2);
-  line-height: 1.5;
+  line-height: 1.6;
+}
+.pdBuy {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.pdBuy .btn.primary {
+  flex: 1;
+  min-height: 54px;
+  font-size: 16.5px;
+}
+.pdBuy .heartBtn {
+  width: 54px;
+  min-height: 54px;
+  padding: 0;
+}
+.pdBuy .heartBtn[aria-pressed="true"] {
+  color: #e11d48;
+}
+.pdBuy .heartBtn[aria-pressed="true"] svg {
+  fill: currentColor;
 }
 
 /* Tūrio pasirinkimas */
@@ -85,17 +215,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 .sizeOpt {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 10px 6px;
-  border-radius: 16px;
+  padding: 11px 6px;
+  border-radius: 14px;
   background: #fff;
-  box-shadow: var(--sh);
+  box-shadow: inset 0 0 0 1px var(--line2);
   color: var(--ink);
 }
 .sizeOpt b {
@@ -107,9 +237,11 @@
   font-weight: 650;
   color: var(--ink3);
 }
+.sizeOpt:hover {
+  box-shadow: inset 0 0 0 1px var(--ink4);
+}
 .sizeOpt[aria-checked="true"] {
-  box-shadow: inset 0 0 0 2px var(--brand), 0 4px 14px -6px rgba(40, 76, 162, 0.4);
-  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--brand), 0 6px 16px -8px rgba(40, 76, 162, 0.45);
 }
 .sizeOpt[aria-checked="true"] span {
   color: var(--brand);
@@ -120,20 +252,22 @@
   color: var(--ink3);
 }
 
-/* Natų piramidė */
-.pyr {
-  margin-top: 22px;
-  padding: 6px 16px;
-  border-radius: var(--r-card);
-  background: #fff;
-  box-shadow: var(--sh);
+/* Skyriai po pirkimu: natos, savybės (be dėžučių – linijos) */
+.pdSec {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.pdSec h2 {
+  margin-bottom: 12px;
+  font-size: 19px;
 }
 .pyrRow {
   display: grid;
-  grid-template-columns: 92px 1fr;
+  grid-template-columns: 96px 1fr;
   align-items: center;
   gap: 12px;
-  padding: 12px 0;
+  padding: 10px 0;
 }
 .pyrRow + .pyrRow {
   box-shadow: inset 0 1px 0 var(--line);
@@ -172,24 +306,14 @@
   padding: 5px 11px;
   border-radius: 999px;
   background: var(--tint, #f3f5f8);
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
   font-size: 14.5px;
   font-weight: 650;
   color: var(--ink);
 }
-
-/* Charakteristikos */
 .facts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
-}
-.fact {
-  padding: 14px;
-  border-radius: 18px;
-  background: #fff;
-  box-shadow: var(--sh);
+  gap: 18px 24px;
 }
 .fact small {
   display: block;
@@ -218,20 +342,26 @@
   background: var(--brand);
 }
 
-/* Lipnus pirkimo mygtukas lapo apačioje */
+/* Telefone – prilipęs „Į krepšelį“ */
 .buyBar {
-  position: sticky;
+  position: fixed;
+  z-index: 30;
+  left: 0;
+  right: 0;
   bottom: 0;
-  z-index: 3;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 22px;
-  padding: 12px 18px calc(12px + var(--safeB));
-  background: rgba(243, 245, 248, 0.86);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  backdrop-filter: blur(20px) saturate(160%);
-  box-shadow: 0 -1px 0 rgba(15, 23, 42, 0.06);
+  padding: 10px var(--pad) calc(10px + var(--safeB));
+  background: rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  box-shadow: 0 -1px 0 var(--hair), 0 -10px 30px -18px rgba(15, 23, 42, 0.25);
+  transform: translateY(110%);
+  transition: transform 0.45s var(--spring);
+}
+.buyBar.show {
+  transform: none;
 }
 .buyBar .price {
   display: flex;
@@ -239,53 +369,24 @@
   line-height: 1.15;
 }
 .buyBar .price b {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 .buyBar .price small {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink3);
 }
 .buyBar .btn {
   flex: 1;
 }
+/* Lange (rinkinys) – lipnus juostos variantas */
+.sheet .buyBar {
+  position: sticky;
+  transform: none;
+  margin-top: 22px;
+}
 .sheet:has(.buyBar) .sheetBody {
   padding-bottom: 0;
-}
-
-/* Filtrai */
-.fGroup {
-  margin-top: 20px;
-}
-.fGroup h3 {
-  font-size: 15px;
-  color: var(--ink3);
-  margin: 0 2px 10px;
-}
-.fChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.fActions {
-  position: sticky;
-  bottom: 0;
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 10px;
-  margin-top: 24px;
-  padding: 12px 0 calc(8px + var(--safeB));
-  background: linear-gradient(180deg, rgba(243, 245, 248, 0), var(--bg) 30%);
-}
-
-/* Informacijos lapas */
-.infoTxt {
-  font-size: 15.5px;
-  color: var(--ink2);
-  line-height: 1.5;
-}
-.infoTxt b {
-  color: var(--ink);
 }

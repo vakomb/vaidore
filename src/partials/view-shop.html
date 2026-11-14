@@ -1,24 +1,31 @@
-<section class="view" id="view-shop" data-view="shop" aria-label="Katalogas">
-  <header class="largeHead">
-    <h1>Katalogas</h1>
-    <div class="searchRow">
-      <label class="search">
-        <span data-glyph="search" aria-hidden="true"></span>
-        <input id="shopQ" type="search" inputmode="search" placeholder="Kvapas, nata ar nuotaika" autocomplete="off" enterkeyhint="search" />
-        <button class="searchClear" id="shopQClear" aria-label="Išvalyti" hidden><span data-glyph="x"></span></button>
-      </label>
-      <button class="roundBtn filterBtn" id="shopFilterBtn" aria-label="Filtrai">
-        <span data-glyph="filter"></span><b class="dotBadge" id="shopFilterCount" hidden></b>
-      </button>
+<section class="view" id="view-shop" data-view="shop" aria-labelledby="shopTitle">
+  <div class="wrap">
+    <nav class="crumbs" id="shopCrumbs" aria-label="Naršymo kelias"></nav>
+    <header class="pageHead">
+      <h1 id="shopTitle">Kvepalai</h1>
+      <p class="pageSub" id="shopSub"></p>
+    </header>
+    <div class="shopLayout">
+      <aside class="filters" id="shopFilters" aria-label="Filtrai"></aside>
+      <div class="shopMain">
+        <div class="toolbar">
+          <label class="search shopSearch">
+            <span data-glyph="search" aria-hidden="true"></span>
+            <input id="shopQ" type="search" inputmode="search" placeholder="Kvapas, nata ar nuotaika" autocomplete="off" enterkeyhint="search" aria-label="Paieška kataloge" />
+            <button class="searchClear" id="shopQClear" type="button" aria-label="Išvalyti" hidden><span data-glyph="x"></span></button>
+          </label>
+          <button class="chip filterBtn" id="shopFilterBtn"><span data-glyph="filter"></span>Filtrai<b class="countBadge" id="shopFilterCount" hidden></b></button>
+          <span class="count" id="shopCount" aria-live="polite"></span>
+          <label class="sortSel">
+            <span class="sr">Rūšiuoti</span>
+            <select id="shopSort"></select>
+            <span data-glyph="chev-down" aria-hidden="true"></span>
+          </label>
+        </div>
+        <div class="chipsActive" id="shopActive"></div>
+        <div class="grid" id="shopGrid"></div>
+        <div class="moreWrap" id="shopMore"></div>
+      </div>
     </div>
-    <div class="seg" id="shopSeg" role="tablist"></div>
-  </header>
-  <div class="viewBody">
-    <div class="shopMeta">
-      <span id="shopCount"></span>
-      <button class="sortBtn" id="shopSortBtn"><span id="shopSortLabel"></span><span data-glyph="chev-down"></span></button>
-    </div>
-    <div class="chipsActive" id="shopActive"></div>
-    <div class="grid" id="shopGrid"></div>
   </div>
 </section>

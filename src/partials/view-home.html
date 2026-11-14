@@ -1,34 +1,23 @@
 <section class="view" id="view-home" data-view="home" aria-label="Pradžia">
-  <header class="topbar">
-    <span class="logo" data-logo></span>
-    <button class="roundBtn" data-info aria-label="Informacija"><span data-glyph="info"></span></button>
-  </header>
-  <div class="viewBody">
+  <div class="wrap">
     <p class="lede" id="homeLede"></p>
     <div id="homeHero"></div>
-    <div class="tiles" id="homeTiles"></div>
-    <div class="group homeHelp" id="homeHelp"></div>
-    <section class="block">
-      <div class="blockHead">
-        <h2>Populiariausi</h2>
-        <button class="linkBtn" data-go-shop="rank">Visi</button>
-      </div>
+    <nav class="catTiles" id="homeTiles" aria-label="Kategorijos"></nav>
+    <div class="promos" id="homePromos"></div>
+    <section class="sec">
+      <div class="secHead"><h2>Populiariausi</h2><a class="more" href="kvepalai?rikiuoti=rank" data-nav>Visi kvepalai</a></div>
       <div class="rail" id="homePopular"></div>
     </section>
-    <section class="block">
-      <div class="blockHead"><h2>Pagal nuotaiką</h2></div>
+    <section class="sec">
+      <div class="secHead"><h2>Pagal nuotaiką</h2></div>
       <div class="moods" id="homeMoods"></div>
     </section>
-    <section class="block">
-      <div class="blockHead">
-        <h2>Naujienos</h2>
-        <button class="linkBtn" data-go-shop="new">Visos</button>
-      </div>
+    <section class="sec">
+      <div class="secHead"><h2>Naujienos</h2><a class="more" href="kvepalai?rikiuoti=new" data-nav>Visos naujienos</a></div>
       <div class="rail" id="homeNew"></div>
     </section>
-    <section class="block" id="homeReviews" hidden></section>
+    <section class="sec" id="homeReviews" hidden></section>
     <div class="trust" id="homeTrust"></div>
     <section class="story" id="homeStory" aria-labelledby="storyTitle"></section>
-    <footer class="foot" id="homeFoot"></footer>
   </div>
 </section>

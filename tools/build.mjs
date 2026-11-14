@@ -2,7 +2,8 @@
 //   <!-- @inline <style id="x"> styles/01-tokens.css -->   – CSS įdedamas į <style>
 //   <!-- @partial partials/view-home.html -->               – HTML įdedamas kaip yra
 //   <!-- @app scripts/app -->                               – visi scripts/app/*.js eilės tvarka viename IIFE (bendras scope)
-//   <!-- @catalog -->                                       – src/data/catalog.json kaip window.VAIDORE_CATALOG
+//   <!-- @catalog -->                                       – katalogas kaip window.VAIDORE_CATALOG (+ Supabase adresas, surinkimo laikas)
+//   <!-- @base -->                                          – <base href> (svetainės šaknis: „/“ arba GitHub Pages „/vaidore/“)
 // Naudojimas: node tools/build.mjs [--out kelias] [--pretty]
 import fs from "node:fs";
 import path from "node:path";
@@ -37,9 +38,11 @@ export function buildApp(opts = {}) {
     return `<style id="${id}">${minCss(guard(rel, read(rel)))}</style>`;
   });
   html = html.replace(/<!-- @partial ([\w./-]+) -->/g, (_, rel) => guard(rel, read(rel)).trim());
+  html = html.replace(/<!-- @base -->/, () => `<base href="${opts.base || "/"}" />`);
   html = html.replace(/<!-- @catalog -->/, () => {
     const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));
-    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};</script>`;
+    const sb = opts.supabase === undefined ? JSON.parse(read("data/supabase.json")) : opts.supabase;
+    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};</script>`;
   });
   html = html.replace(/<!-- @lockers -->/, () => `<script>window.VAIDORE_LOCKERS=${Number(opts.lockers) || 0};</script>`);
   html = html.replace(/<!-- @app ([\w./-]+) -->/, (_, dir) => {
@@ -54,6 +57,17 @@ export function buildApp(opts = {}) {
   const left = html.match(/<!-- @[\w]+[^>]*-->/);
   if (left) throw new Error(`Neišspręsta žyma: ${left[0]}`);
   return html;
+}
+
+// Administravimo skydelis – atskiras failas (įkeliamas tik /admin): src/scripts/admin/*.js + src/styles/admin.css
+export function buildAdmin() {
+  const dir = "scripts/admin";
+  const files = fs
+    .readdirSync(path.join(src, dir))
+    .filter(f => f.endsWith(".js"))
+    .sort();
+  const js = `(() => {\n"use strict";\n${files.map(f => `// ── ${f}\n${read(`${dir}/${f}`)}`).join("\n")}\n})();\n`;
+  return { js, css: minCss(read("styles/admin.css")) };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

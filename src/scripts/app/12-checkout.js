@@ -1,5 +1,5 @@
-// 12 – Apmokėjimas: krepšelis (id, ml, kiekis) siunčiamas į api/checkout (Vercel funkcija, žr. api/checkout.js).
-// Adresai santykiniai – veikia ir Vercel (vaidore.com/), ir GitHub Pages (vakomb.github.io/vaidore/; ten apmokėjimo nėra).
+// 12 – Apmokėjimas: krepšelis siunčiamas Supabase funkcijai shop/checkout (supabase/functions) – veikia ir
+// Vercel, ir GitHub Pages kopijoje. Prisijungusio pirkėjo užsakymas susiejamas su paskyra (Authorization).
 // Kainas serveris ima iš savo katalogo kopijos – naršyklėje pakeista kaina nieko nekeičia.
 // Siunčiama: items [{ id, ml, qty, picks? }], shipping { method, locker? }, gift { on, note }.
 // Atsakymas { url } – Stripe Checkout puslapis (kortelė, Apple Pay, Google Pay; adresas – jei ne paštomatas).
@@ -13,13 +13,13 @@ async function startCheckout(btn) {
   btn.classList.add("loading");
   btn.innerHTML = `<span class="spin"></span>Jungiamasi prie Stripe…`;
   try {
-    const res = await fetch("api/checkout", {
+    const res = await sbFn("shop/checkout", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         items: state.cart.map(l => (l.picks ? { id: l.id, qty: l.qty, picks: l.picks } : { id: l.id, ml: l.ml, qty: l.qty })),
         shipping: { method: state.ship.method, locker: state.ship.method === "omniva" ? state.ship.locker : null },
-        gift: state.gift.on ? { on: true, note: state.gift.note.trim() } : null
+        gift: state.gift.on ? { on: true, note: state.gift.note.trim() } : null,
+        site: SITE_ROOT.replace(/\/$/, "")
       })
     });
     const data = await res.json().catch(() => ({}));
@@ -29,12 +29,13 @@ async function startCheckout(btn) {
       location.href = data.url;
       return;
     }
-    throw new Error(data.error || `HTTP ${res.status}`);
+    throw Object.assign(new Error(data.error || `HTTP ${res.status}`), { user: res.status >= 400 && res.status < 500 && res.status !== 404 ? data.error : null });
   } catch (err) {
     logError("checkout", err);
     btn.classList.remove("loading");
     btn.innerHTML = label;
     const offline = !navigator.onLine;
+    if (err.user) return toast(err.user, { icon: "info", ms: 5000 });
     toast(offline ? "Nėra interneto ryšio" : "Apmokėjimas laikinai nepasiekiamas", {
       icon: "info",
       ms: 4200,

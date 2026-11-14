@@ -1,42 +1,52 @@
-/* Vaidore – dizaino kintamieji. Ta pati DNR kaip AutoEasier (v176 / v190 / v192):
-   šviesiai pilkas fonas, baltos kortelės su šviesos kraštu ir plonu žiedu (šešėliu – ne border, kad niekas nepasislinktų),
-   sistemos šriftas (SF Pro), tabular-nums, spyruoklinis judesys, matinio stiklo juosta. Keiskite reikšmes TIK čia. */
+/* Vaidore – dizaino kintamieji. Ta pati DNR kaip AutoEasier (spalvos, sistemos šriftas, spyruoklinis judesys,
+   paspaudimo pojūtis), bet svetainė – vientisa: baltas fonas visur, skyriai atskiriami erdve ir plonomis linijomis,
+   o šešėliai (--elev-*) – tik objektams (prekės kortelė, suvestinė, langai, meniu). Keiskite reikšmes TIK čia. */
 :root {
-  --bg: #f3f5f8;
+  --bg: #ffffff; /* puslapio fonas */
+  --bg-soft: #f6f7f9; /* tik subtiliai: paveikslų fonai, laukai, aktyvi eilutė */
   --card: #ffffff;
   --ink: #0f172a;
   --ink2: #475569;
-  --ink3: #5b6b80; /* ≥ 4,5:1 ant fono #F3F5F8 ir laukų #EEF1F6 (WCAG AA) */
-  --ink4: #94a3b8;
-  --line: #eceff4;
-  --field: #eef1f6;
-  --hair: rgba(226, 232, 240, 0.6);
+  --ink3: #5b6b80; /* ≥ 4,5:1 ant balto ir --bg-soft (WCAG AA) */
+  --ink4: #94a3b8; /* tik ikonoms ir skyrikliams, ne tekstui */
+  --line: #e8ecf2; /* plonos skiriamosios linijos */
+  --line2: #dfe4ec; /* laukų ir mygtukų kontūras */
+  --field: #f3f5f8;
+  --hair: rgba(15, 23, 42, 0.06);
 
   --brand: #284ca2;
   --brand2: #3561c4;
-  --brand-soft: rgba(40, 76, 162, 0.08);
+  --brand-soft: rgba(40, 76, 162, 0.07);
   --grad: linear-gradient(180deg, #3b67cc 0%, #284ca2 100%);
   --green: #047857;
   --amber: #b45309;
   --red: #be123c;
+  --pink: #db2777;
 
-  --sh: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(226, 232, 240, 0.6), 0 1px 2px rgba(15, 23, 42, 0.04),
-    0 4px 12px -2px rgba(15, 23, 42, 0.03);
-  --sh2: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(226, 232, 240, 0.6), 0 1px 2px rgba(15, 23, 42, 0.04),
-    0 10px 28px -6px rgba(15, 23, 42, 0.08);
+  /* Šešėliai – daugiasluoksniai, labai švelnūs; be rėmelių (žiedas – šešėliu, kad niekas nepasislinktų) */
+  --elev-1: 0 0 0 1px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px -6px rgba(15, 23, 42, 0.08);
+  --elev-2: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 2px 4px rgba(15, 23, 42, 0.04), 0 12px 28px -10px rgba(15, 23, 42, 0.16);
+  --elev-3: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 8px 16px -4px rgba(15, 23, 42, 0.08), 0 28px 56px -12px rgba(15, 23, 42, 0.24);
+  --elev-btn: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(40, 76, 162, 0.25), 0 8px 18px -8px rgba(40, 76, 162, 0.5);
+  /* senesni pavadinimai (langų turinys) */
+  --sh: var(--elev-1);
+  --sh2: var(--elev-2);
 
   --r-card: 20px;
   --r-tile: 20px;
-  --r-btn: 16px;
-  --r-field: 14px;
+  --r-btn: 14px;
+  --r-field: 12px;
   --r-sm: 12px;
+  --r-hero: 28px;
 
   --spring: cubic-bezier(0.22, 1, 0.36, 1);
   --press: 0.975;
 
   --gap: 16px;
-  --pad: 18px;
-  --tabH: 64px;
+  --pad: 20px; /* puslapio kraštai: 20 px telefone, 40 px kompiuteryje (09-desktop.css) */
+  --maxW: 1280px;
+  --hdrH: 60px;
+  --noteH: 34px;
   --safeB: env(safe-area-inset-bottom, 0px);
   --safeT: env(safe-area-inset-top, 0px);
 

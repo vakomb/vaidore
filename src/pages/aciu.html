@@ -9,11 +9,13 @@
     <button class="pgCode" type="button" id="creditCode" aria-label="Kopijuoti kodą"></button>
     <p class="pgMuted" id="creditInfo"></p>
   </div>
-  <a class="pgBtn" href="./">Grįžti į parduotuvę</a>
+  <div class="pgActs"><a class="pgBtn" href="./">Grįžti į parduotuvę</a><a class="pgBtn ghost" href="paskyra/uzsakymai">Mano užsakymai</a></div>
 </section>
 <script>
   // Užsakymas apmokėtas – išvalome krepšelį (raktai – src/scripts/app/05-state.js).
-  // api/order grąžina mėginukų kainos grąžinimo kodą (jei pirkta mėginukų) ir sumą matavimui („Apmokėjo“).
+  // Supabase funkcija „order“ grąžina mėginukų kainos grąžinimo kodą (jei pirkta mėginukų) ir sumą matavimui („Apmokėjo“),
+  // o užsakymą įrašo į duomenų bazę, jei Stripe webhook dar neatėjo.
+  var SB = {{supabase}};
   (function () {
     var s = null;
     try {
@@ -37,7 +39,8 @@
         if (window.va) window.va("event", { name: "Apmokėjo", data: props });
       } catch (e) {}
     }
-    fetch("api/order?s=" + encodeURIComponent(s))
+    if (!SB || !SB.url) return track(0);
+    fetch(SB.url + "/functions/v1/shop/order?s=" + encodeURIComponent(s), { headers: { apikey: SB.key } })
       .then(function (r) {
         return r.ok ? r.json() : null;
       })

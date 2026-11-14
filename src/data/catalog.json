@@ -51,6 +51,29 @@
     { "id": "ambros", "name": "Ambros", "hint": "Gintaras, smilkalai, prieskoniai" },
     { "id": "gurmaniski", "name": "Gurmaniški", "hint": "Vanilė, medus, kakava" }
   ],
+  "categories": [
+    {
+      "id": "ziemos-kolekcija",
+      "name": "Žiemos kolekcija",
+      "description": "Šilti, gilūs kvapai šaltiems vakarams.",
+      "image": "",
+      "sort": 1
+    },
+    {
+      "id": "vasaros-gaiva",
+      "name": "Vasaros gaiva",
+      "description": "Lengvi, gaivūs kvapai šiltoms dienoms.",
+      "image": "",
+      "sort": 2
+    },
+    {
+      "id": "vakarui",
+      "name": "Vakarui",
+      "description": "Ryškesni kvapai vakarui ir šventėms.",
+      "image": "",
+      "sort": 3
+    }
+  ],
   "products": [
     {
       "id": "rasa",
@@ -76,7 +99,8 @@
       "rank": 1,
       "added": "2026-03-01",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["vasaros-gaiva"]
     },
     {
       "id": "gintaras",
@@ -102,7 +126,8 @@
       "rank": 2,
       "added": "2026-01-15",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["ziemos-kolekcija", "vakarui"]
     },
     {
       "id": "baltijos-pusys",
@@ -128,7 +153,8 @@
       "rank": 3,
       "added": "2026-02-10",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": []
     },
     {
       "id": "liepu-medus",
@@ -154,7 +180,8 @@
       "rank": 4,
       "added": "2026-10-20",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["vasaros-gaiva"]
     },
     {
       "id": "juodasis-azuolas",
@@ -180,7 +207,8 @@
       "rank": 5,
       "added": "2025-11-01",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["ziemos-kolekcija", "vakarui"]
     },
     {
       "id": "jura",
@@ -206,7 +234,8 @@
       "rank": 6,
       "added": "2026-05-12",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["vasaros-gaiva"]
     },
     {
       "id": "vakaro-silkas",
@@ -228,7 +257,8 @@
       "rank": 7,
       "added": "2026-04-02",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["ziemos-kolekcija", "vakarui"]
     },
     {
       "id": "pelynas",
@@ -254,7 +284,8 @@
       "rank": 8,
       "added": "2026-09-18",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["vasaros-gaiva"]
     },
     {
       "id": "smilga",
@@ -280,7 +311,8 @@
       "rank": 9,
       "added": "2026-06-07",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": []
     },
     {
       "id": "ausra",
@@ -306,7 +338,8 @@
       "rank": 10,
       "added": "2026-07-01",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["vasaros-gaiva"]
     },
     {
       "id": "ruta",
@@ -332,7 +365,8 @@
       "rank": 11,
       "added": "2026-03-20",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": []
     },
     {
       "id": "ziemos-ugnis",
@@ -358,7 +392,8 @@
       "rank": 12,
       "added": "2026-11-01",
       "images": [],
-      "reviews": []
+      "reviews": [],
+      "categories": ["ziemos-kolekcija", "vakarui"]
     }
   ]
 }

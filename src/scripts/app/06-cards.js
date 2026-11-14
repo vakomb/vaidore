@@ -1,7 +1,8 @@
-// 06 – prekės kortelė (katalogas, mėgstami, pradžios karuselės) ir širdelė.
-function heartBtn(p) {
+// 06 – prekės kortelė (katalogas, pradžia, mėgstami, krepšelis): tikra nuoroda į kvapo puslapį (kvepalai/<id>),
+// širdelė ir – kompiuteryje užvedus – greitas veiksmas „Į krepšelį“ / „Mėginukas“.
+function heartBtn(p, cls = "heart") {
   const on = state.fav.has(p.id);
-  return `<button class="heart" data-fav="${p.id}" aria-pressed="${on}" aria-label="${on ? "Pašalinti iš mėgstamų" : "Į mėgstamus"}"><svg viewBox="0 0 24 24">${GLYPH.heart}</svg></button>`;
+  return `<button class="${cls}" type="button" data-fav="${p.id}" aria-pressed="${on}" aria-label="${on ? "Pašalinti iš mėgstamų" : "Į mėgstamus"}"><svg viewBox="0 0 24 24">${GLYPH.heart}</svg></button>`;
 }
 function badgePill(p) {
   if (!inStock(p)) return `<span class="pill glass soldPill">Išparduota</span>`;
@@ -15,14 +16,22 @@ function artImg(p, { eager = false } = {}) {
     ? `<img class="photo" src="${esc(src)}" alt="${esc(p.name)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />`
     : bottleSVG(p);
 }
+const defaultMl = p => (p.sizes.find(s => s.ml === 50) || p.sizes[0]).ml;
 function cardHTML(p, opts = {}) {
   const sample = !!opts.sample;
+  const sold = !inStock(p);
   const price = sample
     ? `<span class="money">${eur(p.sample)}</span><small>· 2 ml</small>`
     : `<small>nuo</small><span class="money">${eurShort(minPrice(p))}</span>`;
-  return `<article class="card" data-open="${p.id}"${sample ? ' data-sample="1"' : ""} role="button" tabindex="0" aria-label="${esc(p.name)}, ${esc(cardSub(p))}">
-<div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${badgePill(p)}${heartBtn(p)}</div>
+  const quick = sold
+    ? ""
+    : `<div class="quick"><button class="btn primary small" type="button" data-quick="${p.id}" data-ml="${sample ? SAMPLE_ML : defaultMl(p)}">${glyph("bag")}${sample ? "Mėginukas" : `${defaultMl(p)} ml`}</button>${
+        sample ? "" : `<button class="btn ghost small" type="button" data-quick="${p.id}" data-ml="${SAMPLE_ML}">2 ml</button>`
+      }</div>`;
+  return `<article class="card${sold ? " sold" : ""}">
+<div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${badgePill(p)}${heartBtn(p)}${quick}</div>
 <div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardSub">${esc(GENDER_NAME[p.gender])} · ${esc(familyName(p.family))}</span><span class="cardPrice">${price}</span></div>
+<a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}, ${esc(cardSub(p))}"></a>
 </article>`;
 }
 function syncHearts(root = document) {
@@ -34,12 +43,12 @@ function syncHearts(root = document) {
     }
   });
 }
-// Vienas klausytojas visoms kortelėms ir širdelėms
+// Vienas klausytojas visoms širdelėms ir greitiems veiksmams
 document.addEventListener("click", e => {
   const t = e.target instanceof Element ? e.target : null;
   const fav = t?.closest("[data-fav]");
   if (fav) {
-    e.stopPropagation();
+    e.preventDefault();
     const on = toggleFav(fav.dataset.fav);
     $$(`[data-fav="${fav.dataset.fav}"]`).forEach(b => {
       b.classList.remove("pop");
@@ -49,12 +58,11 @@ document.addEventListener("click", e => {
     toast(on ? "Įdėta į mėgstamus" : "Pašalinta iš mėgstamų", { icon: "heart" });
     return;
   }
-  const card = t?.closest("[data-open]");
-  if (card) openProduct(card.dataset.open, { sample: card.dataset.sample === "1" });
-});
-document.addEventListener("keydown", e => {
-  if ((e.key === "Enter" || e.key === " ") && e.target instanceof Element && e.target.matches("[data-open]")) {
+  const q = t?.closest("[data-quick]");
+  if (q) {
     e.preventDefault();
-    openProduct(e.target.dataset.open, { sample: e.target.dataset.sample === "1" });
+    const p = BY_ID.get(q.dataset.quick);
+    addToCart(p.id, Number(q.dataset.ml));
+    openMiniCart({ added: `${p.name} · ${sizeLabel(Number(q.dataset.ml))}` });
   }
 });

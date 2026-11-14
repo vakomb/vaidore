@@ -76,7 +76,7 @@ function quizRank(a) {
 function openQuiz() {
   const ans = {};
   let step = 0;
-  openSheet({ title: "Rask savo kvapą", url: "#/testas", html: `<div class="sheetPad quiz" id="quizRoot" aria-live="polite"></div>` });
+  openSheet({ title: "Rask savo kvapą", html: `<div class="sheetPad quiz" id="quizRoot" aria-live="polite"></div>` });
   const root = $("#quizRoot");
   const optsOf = q => (typeof q.opts === "function" ? q.opts() : q.opts);
   const draw = () => {
@@ -103,9 +103,9 @@ function openQuiz() {
     root.innerHTML = `<h3 class="qzQ">Jums turėtų patikti</h3>
 <div class="qzRes">${best
       .map(
-        r => `<button class="qzCard" data-open="${r.p.id}" data-sample="1"><span class="art" style="--tint:${r.p.look.tint}">${artImg(r.p)}</span>
+        r => `<a class="qzCard" href="${productUrl(r.p)}?ml=2" data-nav><span class="art" style="--tint:${r.p.look.tint}">${artImg(r.p)}</span>
 <span class="qzTxt"><b>${esc(r.p.name)}</b><small>${esc(GENDER_NAME[r.p.gender])} · ${esc(familyName(r.p.family))} · ${esc(r.p.conc)}</small>
-<span class="qzWhy"><em>Kodėl tinka</em>${(r.why.length ? r.why : [r.p.tagline]).map(w => `<span>${glyph("check")}${esc(w)}</span>`).join("")}</span></span></button>`
+<span class="qzWhy"><em>Kodėl tinka</em>${(r.why.length ? r.why : [r.p.tagline]).map(w => `<span>${glyph("check")}${esc(w)}</span>`).join("")}</span></span></a>`
       )
       .join("")}</div>
 <div class="qzNav col">${

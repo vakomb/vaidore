@@ -51,7 +51,7 @@ scripts.forEach((s, i) => {
     fail(`JS klaida (${i}): ${e.message}`);
   }
 });
-for (const f of [...fs.readdirSync(path.join(root, "api")).map(f => `api/${f}`), "src/public/sw.js"]) {
+for (const f of ["supabase/functions/_shared/shop.js", "src/public/sw.js", ...fs.readdirSync(path.join(root, "src/scripts/admin")).map(f => `src/scripts/admin/${f}`)]) {
   const r = spawnSync(process.execPath, ["--check", path.join(root, f)], { encoding: "utf8" });
   if (r.status !== 0) fail(`${f}: ${r.stderr.split("\n").slice(0, 5).join(" ")}`);
 }
