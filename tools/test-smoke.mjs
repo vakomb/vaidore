@@ -115,15 +115,14 @@ async function run(viewport) {
   await page.waitForSelector("#homeTiles a");
   const tileHrefs = await page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
   check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
-  check((await page.locator("#homeHero .heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .mqRow li").count()) >= 10, "pradžia: kolekcijos paveikslas ir bėganti privalumų juosta");
+  check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .mqRow li").count()) >= 10, "pradžia: kolekcijos paveikslas ir bėganti privalumų juosta");
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex, mėginukai)");
   const note1 = await page.locator("#topNoteTxt").textContent();
   await page.click('[data-note-step="1"]');
   check((await page.locator("#topNoteTxt").textContent()) !== note1, "informacinė juosta: rodyklės keičia žinutę");
-  check((await page.locator("#homeMoods > *").count()) === cat.families.length, `pradžia: ${cat.families.length} kvapo šeimos`);
-  check((await page.locator("#homeLede").textContent()).length > 10, "pradžia: vertės žinutė");
-  check((await page.locator("#homePromos [data-quiz]").count()) === 1 && (await page.locator("#homePromos [data-disc]").count()) === 1, "pradžia: „Rask savo kvapą“ ir atradimų rinkinys");
-  check(await page.locator("#homeStory").isVisible(), "pradžia: „Mūsų istorija“");
+  const slideHrefs = await page.locator("#homeHero .slide").evaluateAll(a => a.map(x => x.getAttribute("href")));
+  check(slideHrefs.length === 3 && slideHrefs.includes("meginukai") && slideHrefs.includes("rinkinys"), "pradžia: skaidrės (kolekcija, mėginukai, rinkinys)");
+  check((await page.locator("#homeHero h1").count()) === 1, "pradžia: vienas h1");
   check(await page.locator("#homeReviews").isHidden(), "be tikrų atsiliepimų – atsiliepimų sekcijos nėra");
   check((await page.locator("#homeRails .card").count()) > 8, "pradžia: karuselės su kvapais");
   if (!mobile) {

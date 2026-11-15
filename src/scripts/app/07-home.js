@@ -1,33 +1,85 @@
-// 07 – Pradžia: vertės žinutė, kolekcijos kortelė, kategorijos, „Rask savo kvapą“ ir atradimų rinkinys, populiariausi,
-// nuotaikos (kvapo šeimos), naujienos, atsiliepimai (tik tikri), pasitikėjimas, „Mūsų istorija“.
-const FAMILY_FALLBACK = {
-  tint: "#F3F5F8",
-  svg: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="#C7D2FE"/><circle cx="12" cy="12" r="4" fill="#818CF8"/></svg>'
-};
-// Pradžia (kaip parfumada.lt): platus kolekcijos paveikslas → bėganti privalumų juosta → kategorijos → karuselės
-// (naujienos, populiariausi moterims / vyrams / unisex, mėginukai) → „Rask savo kvapą“ ir rinkinys → nuotaikos →
-// atsiliepimai (tik tikri) → istorija. Skyrių antraštės – tamsios juostos per visą plotį.
+// 07 – Pradžia: skaidrės, bėganti juosta, produktų plytelės, karuselės, atsiliepimai (tik tikri).
+// Pradžia (kaip parfumada.lt): skaidrės (kolekcija · mėginukai · rinkinys) → bėganti privalumų juosta → „Produktai“
+// (plytelės) → karuselės (naujienos, populiariausi moterims / vyrams / unisex, nuolaidos, mėginukai) → atsiliepimai.
+// Skyrių antraštės – tamsios juostos per visą plotį.
 const sampleFrom = () => Math.min(...PRODUCTS.map(p => p.sample));
-function heroHTML() {
+// Pradžios skaidrės (kaip parfumada.lt): kolekcija, mėginukai, atradimų rinkinys – braukiamos, „‹ 1/3 ›“
+function heroSlidesData() {
   const h = SET.hero || {};
   const hp = BY_ID.get(h.product) || PRODUCTS[0];
+  const byRank = [...PRODUCTS].sort((a, b) => a.rank - b.rank);
   const best = Math.max(...PRODUCTS.map(p => p.longevity));
-  const perks = [
-    ["drop", `Kiekvienas kvapas – ir 2 ml mėginuku`],
-    ["clock", `Išsilaiko iki ${LASTS[best].replace("+ ", "+").replace(" val.", " valandų")}`],
-    ["truck", `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`]
+  const lasts = `Išsilaiko iki ${LASTS[best].replace("+ ", "+").replace(" val.", " valandų")}`;
+  return [
+    {
+      href: productUrl(hp),
+      look: hp.look,
+      eyebrow: h.eyebrow || "Kolekcija",
+      title: h.title || hp.name,
+      lines: ["Kiekvienas kvapas – ir 2 ml mėginuku", lasts, `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`],
+      cta: `Atrasti ${hp.name}`,
+      art: [hp]
+    },
+    {
+      href: "meginukai",
+      look: { tint: "#F3EAD8", liquid: "#d9b46a" },
+      eyebrow: "Mėginukai 2 ml",
+      title: "Išbandykite namuose",
+      lines: ["Kiekvienas kvapas – ir 2 ml mėginuku", `Mėginukas nuo ${eur(sampleFrom())}`, SET.sampleCredit ? "Kainą grąžinsime perkant buteliuką" : lasts],
+      cta: "Rinktis mėginukus",
+      art: byRank.slice(0, 3)
+    },
+    ...(DISC
+      ? [
+          {
+            href: "rinkinys",
+            look: { tint: "#EEF1F8", liquid: "#8ea3d8" },
+            eyebrow: DISC.name,
+            title: `${DISC.count} kvapai už ${eurShort(DISC.price)}`,
+            lines: [`Bet kurie ${DISC.count} kvapai po 2 ml`, "Kvapus išsirenkate patys", "Raskite savo kvapą prieš pirkdami"],
+            cta: "Susidaryti rinkinį",
+            art: byRank.slice(3, 6)
+          }
+        ]
+      : [])
   ];
-  return `<section class="hero" style="--tint:${hp.look.tint};--liquid:${hp.look.liquid}">
-<div class="heroIn">
-<div class="heroTxt">
-<p class="eyebrow">${esc(h.eyebrow || "Kolekcija")}</p>
-<h1 class="heroTitle">${esc(h.title || hp.name)}</h1>
-<p class="heroLede" id="homeLede">${esc(h.text || SET.tagline || hp.tagline)}</p>
-<ul class="heroPerks">${perks.map(([ico, t]) => `<li><span>${glyph(ico)}</span>${esc(t)}</li>`).join("")}</ul>
-<div class="heroActs"><a class="btn light" href="${productUrl(hp)}" data-nav>Atrasti ${esc(hp.name)}</a><a class="btn outlineLight" href="meginukai" data-nav>Mėginukai nuo ${eur(sampleFrom())}</a></div>
-</div>
-<a class="heroArt" href="${productUrl(hp)}" data-nav aria-label="${esc(hp.name)}" tabindex="-1">${hp.images?.[0] ? `<img src="${esc(hp.images[0])}" alt="" fetchpriority="high" />` : bottleSVG(hp)}</a>
-</div></section>`;
+}
+function heroHTML() {
+  const slides = heroSlidesData();
+  const art = list =>
+    list.map(p => `<i>${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="" />` : bottleSVG(p)}</i>`).join("");
+  return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
+    .map((x, i) => {
+      const H = i ? "h2" : "h1";
+      return `<a class="slide" href="${x.href}" data-nav style="--tint:${x.look.tint};--liquid:${x.look.liquid}"><div class="slideIn">
+<div class="heroTxt"><p class="eyebrow">${esc(x.eyebrow)}</p><${H} class="heroTitle">${esc(x.title)}</${H}>
+<ul class="heroPerks">${x.lines.filter(Boolean).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span></div>
+<span class="heroArt n${Math.min(3, x.art.length)}" aria-hidden="true">${art(x.art)}</span>
+</div></a>`;
+    })
+    .join("")}</div><div class="railNav" hidden><button class="railBtn" type="button" data-rail-step="-1" aria-label="Atgal">${glyph(
+    "chev-left"
+  )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div></section>`;
+}
+// Skaidrės keičiasi pačios kas 6 s (sustoja palietus, užvedus pelę ar kai įjungtas „mažiau judesio“)
+let heroTimer = 0;
+function startHeroAuto() {
+  clearInterval(heroTimer);
+  const rail = $("#homeHero .heroRail");
+  if (!rail || reduceMotion() || rail.children.length < 2) return;
+  let hold = false;
+  const stop = () => {
+    hold = true;
+  };
+  ["pointerdown", "touchstart", "wheel", "focusin"].forEach(ev => rail.addEventListener(ev, stop, { passive: true, once: true }));
+  rail.addEventListener("mouseenter", () => (hold = true));
+  rail.addEventListener("mouseleave", () => (hold = false));
+  heroTimer = setInterval(() => {
+    if (hold || document.hidden || !rail.isConnected || !$("#view-home").classList.contains("active")) return;
+    const end = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4;
+    rail.scrollTo({ left: end ? 0 : rail.scrollLeft + rail.clientWidth, behavior: "smooth" });
+  }, 6000);
 }
 function marqueeHTML() {
   const items = [
@@ -46,7 +98,7 @@ function tileHTML({ name, href, list, sub, tint }) {
   const trio = list.slice(0, 3);
   return `<a class="tile" href="${href}" data-nav><span class="tileName">${esc(name)}</span><span class="tileArt" style="--tint:${tint || trio[0]?.look.tint || "#F6F7F9"}">${trio
     .map(p => `<i>${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="" loading="lazy" />` : bottleSVG(p)}</i>`)
-    .join("")}</span>${sub ? `<small>${esc(sub)}</small>` : ""}</a>`;
+    .join("")}</span></a>`;
 }
 // Skyrius su juosta ir karusele (kompiuteryje – rodyklės ir „1/3“)
 function railHTML(cards) {
@@ -108,45 +160,24 @@ function renderHome() {
     { name: "Vyrams", href: "vyrams", list: of("vyrams"), sub: plural(of("vyrams").length, "kvapas", "kvapai", "kvapų") },
     { name: "Unisex", href: "unisex", list: of("unisex"), sub: plural(of("unisex").length, "kvapas", "kvapai", "kvapų") },
     { name: "Mėginukai", href: "meginukai", list: byRank.slice(3), sub: `2 ml nuo ${eur(sampleFrom())}`, tint: "#F3EAD8" },
-    ...(DISC ? [{ name: DISC.name, href: "rinkinys", list: byRank.slice(6), sub: `${DISC.count} × 2 ml už ${eur(DISC.price)}`, tint: "#EEF1F8" }] : []),
+    ...(DISC ? [{ name: "Rinkiniai", href: "rinkinys", list: byRank.slice(6), sub: `${DISC.count} × 2 ml už ${eur(DISC.price)}`, tint: "#EEF1F8" }] : []),
     { name: "Naujienos", href: "kvepalai?rikiuoti=new", list: fresh, sub: "Naujausi kvapai" }
   ];
   $("#homeTiles").innerHTML = tiles.filter(t => t.list.length).map(tileHTML).join("");
 
   const sec = [
-    { title: "Kvapnios naujienos", line: "Naujausi kvapai mūsų kolekcijoje", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
+    { title: "Kvapnios naujienos", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
     { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },
     { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
     { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") },
+    { title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "kvepalai", list: byRank.filter(p => inStock(p) && onSale(p)) },
     { title: "Mėginukai 2 ml", line: SET.sampleCredit ? "Išbandykite prieš pirkdami – kainą grąžinsime perkant buteliuką" : "Išbandykite namuose prieš pirkdami", href: "meginukai", list: byRank.filter(inStock).slice(0, 8), sample: true }
   ].filter(x => x.list.length >= 2);
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
   bindRails($("#view-home"));
 
-  $("#homePromos").innerHTML =
-    `<button class="promo dark" type="button" data-quiz><span class="prIco">${glyph("spark")}</span><span class="prTxt"><b>Rask savo kvapą</b><small>4 klausimai · 30 sekundžių · 3 pasiūlymai, kurie tiks būtent jums</small></span><span class="prGo">Pradėti${glyph("chev-right")}</span></button>` +
-    (DISC
-      ? `<button class="promo gold" type="button" data-disc><span class="prIco">${glyph("drop")}</span><span class="prTxt"><b>${esc(DISC.name)}</b><small>Bet kurie ${DISC.count} kvapai po 2 ml už ${eur(DISC.price)} – išbandykite namuose</small></span><span class="prGo">Rinktis${glyph("chev-right")}</span></button>`
-      : "");
-
-  $("#homeMoods").innerHTML = visibleFamilies()
-    .map(f => {
-      const look = FAMILY_LOOK[f.id] || FAMILY_FALLBACK;
-      return `<a class="mood" href="kvepalai?seima=${encodeURIComponent(f.id)}" data-nav style="--mt:${look.tint}"><span class="moodDot">${look.svg}</span><span><b>${esc(f.name)}</b><small>${esc(f.hint)}</small></span></a>`;
-    })
-    .join("");
-
-  renderReviews($("#homeReviews"), PRODUCTS, { band: true });
-  $("#homeTrust").innerHTML = `<div>${glyph("truck")}<span>Nemokamai nuo <b>${eurShort(SET.freeShippingFrom)}</b></span></div><div>${glyph("drop")}<span>Mėginukai <b>2 ml</b></span></div><div>${glyph("return")}<span>Grąžinimas per <b>${SET.returnDays || 14} d.</b></span></div>`;
-  const st = SET.story;
-  const storyEl = $("#homeStory");
-  storyEl.hidden = !st?.text;
-  if (st?.text) {
-    const trio = byRank.slice(0, 3);
-    storyEl.innerHTML = `<div class="storyArt">${
-      st.image ? `<img src="${esc(st.image)}" alt="" loading="lazy" decoding="async" />` : trio.map(p => `<span style="--tint:${p.look.tint}">${bottleSVG(p)}</span>`).join("")
-    }</div><div class="storyTxt"><p class="eyebrow">Vaidore</p><h2 id="storyTitle">${esc(st.title || "Mūsų istorija")}</h2><p>${esc(st.text)}</p><a class="btn ghost" href="apie-mus" data-nav>Daugiau apie mus</a></div>`;
-  }
+  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai – rašo tik pirkę" });
+  startHeroAuto();
 }
 // Pardavėjo rekvizitai (settings.company) – neužpildyti laukai „[…]“ nerodomi
 const filled = v => v && !/^\[.*\]$/.test(String(v).trim());
@@ -169,17 +200,19 @@ function starsHTML(n) {
   const r = Math.max(0, Math.min(5, Math.round(n)));
   return `<span class="stars" role="img" aria-label="Įvertinimas ${r} iš 5">${"★".repeat(r)}<i>${"★".repeat(5 - r)}</i></span>`;
 }
-function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct = true, band = false } = {}) {
+function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct = true, band = false, line = "" } = {}) {
   if (!el) return;
   const all = reviewsOf(list).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
   el.hidden = !all.length;
   if (!all.length) return (el.innerHTML = "");
-  const head = band ? `<h2 class="band">${esc(title)}</h2><div class="wrap">` : `<div class="secHead"><h2>${esc(title)}</h2></div>`;
+  const head = band
+    ? `<h2 class="band">${esc(title)}</h2><div class="wrap">${line ? `<p class="revLine">${esc(line)}</p>` : ""}`
+    : `<div class="secHead"><h2>${esc(title)}</h2></div>`;
   el.innerHTML = `${head}<div class="reviews">${all
     .slice(0, 9)
     .map(
       r =>
-        `<figure class="review">${r.rating ? starsHTML(r.rating) : ""}<blockquote>${esc(r.text)}</blockquote><figcaption>${esc(r.name)}${
+        `<figure class="review">${showProduct ? `<a class="art revArt" href="${productUrl(r.p)}" data-nav tabindex="-1" aria-hidden="true" style="--tint:${r.p.look.tint}">${artImg(r.p)}</a>` : ""}${r.rating ? starsHTML(r.rating) : ""}<blockquote>${esc(r.text)}</blockquote><figcaption>${esc(r.name)}${
           showProduct ? ` · <a href="${productUrl(r.p)}" data-nav>${esc(r.p.name)}</a>` : ""
         }${r.verified ? ` · <span class="verified">Patvirtintas pirkėjas</span>` : ""}</figcaption></figure>`
     )

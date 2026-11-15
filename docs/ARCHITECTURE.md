@@ -120,6 +120,16 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
+## Dizainas (v5: kaip parfumada.lt – matmenys perimti iš jos puslapių)
+
+- Pradžia: skaidrės (kolekcija · mėginukai · rinkinys, „‹ 1/3 ›“, keičiasi kas 6 s) → bėganti juosta → „Produktai“
+  (plytelės tamsiame fone) → karuselės juostose (naujienos, moterims, vyrams, unisex, nuolaidos – jei yra, mėginukai)
+  → tikri atsiliepimai. Telefone karuselėje – viena didelė kortelė centre, kompiuteryje – 3.
+- Tekstas 18 px, raidžių tarpai .04em; mygtukai juodi, kampai 20 px; laukai 58 px su juodu rėmeliu; tūriai ir kiekis –
+  „piliulės“ su 1 px juodu rėmeliu. Kvapo puslapis: pavadinimas tarp linijų → paveikslas → aprašymas →
+  išskleidžiamos dalys → kaina → tūris → kiekis → mygtukas. Krepšelis: PREKĖ / SUMA, 100 px paveikslai.
+- Juostų / poraštės spalva – vienas žetonas `--band` (01-tokens.css).
+
 ## Dizainas (v4: parfumada.lt išdėstymas, AutoEasier programėlės pojūtis)
 
 - Šriftas Jost (geometrinis, SIL OFL, savame serveryje, 33 KB), lengvi storiai (400–600), teigiami raidžių tarpai; pavadinimai,
