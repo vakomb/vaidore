@@ -251,3 +251,78 @@
     max-width: 46%;
   }
 }
+
+/* Įkeltos nuotraukos (administravimo skydelis „Pradžia“, kategorijos): užpildo tą pačią vietą kaip scena.
+   --fx / --fxm – kuri nuotraukos vieta lieka matoma (kompiuteryje / telefone). Po tekstu – švelnus permatomas
+   sluoksnis (--scrim): telefone viršuje, kompiuteryje kairėje. dark (.onDark) – tamsi nuotrauka, tekstas baltas. */
+.scenePic {
+  display: block;
+  overflow: hidden;
+  background: var(--st-stone);
+}
+.scenePic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--fxm, 50% 50%);
+}
+.scenePic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--scrim) 0%, transparent 50%);
+  pointer-events: none;
+}
+.slide,
+.tile,
+.pageHead {
+  --scrim: rgba(255, 255, 255, 0.5);
+}
+.onDark {
+  --scrim: rgba(0, 0, 0, 0.42);
+}
+.slide.onDark,
+.tile.onDark,
+.slide.onDark .heroTitle {
+  color: #fff;
+}
+.slide.onDark .eyebrow {
+  color: var(--gold-soft);
+}
+.slide.onDark .heroLine,
+.tile.onDark small {
+  color: rgba(255, 255, 255, 0.9);
+}
+/* Katalogo antraštė: telefone tekstas po nuotrauka (be permatomo sluoksnio), kompiuteryje – ant jos */
+.pageHead .scenePic::after {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .pageHead .scenePic::after {
+    display: block;
+    background: linear-gradient(90deg, var(--scrim) 0%, transparent 60%);
+  }
+  .pageHead.onDark h1,
+  .pageHead.onDark .shopHeadTxt {
+    color: #fff;
+  }
+  .pageHead.onDark .pageSub {
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+.slide.onDark .heroCta {
+  background: #fff;
+  color: var(--ink);
+}
+#homeHero:empty {
+  min-height: 0;
+}
+@media (min-width: 700px), (orientation: landscape) and (max-height: 500px) {
+  .scenePic img {
+    object-position: var(--fx, 50% 50%);
+  }
+  .slide .scenePic::after {
+    background: linear-gradient(90deg, var(--scrim) 0%, transparent 55%);
+  }
+}

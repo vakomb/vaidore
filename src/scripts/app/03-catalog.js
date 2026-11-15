@@ -13,7 +13,7 @@ const LASTS = ["", "2–3 val.", "3–5 val.", "5–7 val.", "7–9 val.", "9+ v
 
 function setCatalog(c) {
   CAT = c;
-  SET = c.settings;
+  SET = window.__vdPreviewSet ? { ...c.settings, ...window.__vdPreviewSet } : c.settings; // administravimo peržiūra (25)
   ALL_PRODUCTS = c.products;
   PRODUCTS = c.products.filter(p => p.visible !== false);
   BY_ID = new Map(c.products.map(p => [p.id, p]));

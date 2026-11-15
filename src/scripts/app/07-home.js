@@ -3,53 +3,20 @@
 // (plytelės) → karuselės (naujienos, populiariausi moterims / vyrams / unisex, nuolaidos, mėginukai) → atsiliepimai.
 // Skyrių antraštės – tamsios juostos per visą plotį.
 const sampleFrom = () => Math.min(...PRODUCTS.map(p => p.sample));
-// Pradžios skaidrės (v7): trys vieno stiliaus skaidrės su Vaidore buteliukais be fono – sezono kolekcija,
-// „pirma išbandykite mėginuką“, dovana / atradimų rinkinys. Kiekviena – sava kompozicija (24-stage.js),
-// trumpas tekstas ir VIENAS aiškus veiksmas. Aukštis fiksuotas (CSS) – keičiantis skaidrėms niekas nepasislenka.
-function heroSlidesData() {
-  const h = SET.hero || {};
-  const hp = BY_ID.get(h.product) || PRODUCTS[0];
-  const byRank = [...PRODUCTS].sort((a, b) => a.rank - b.rank);
-  const rest = byRank.filter(p => p !== hp);
-  return [
-    {
-      stage: "collection",
-      list: [hp, ...rest],
-      href: productUrl(hp),
-      eyebrow: h.eyebrow || "Kolekcija",
-      title: h.title || hp.name,
-      text: h.text || hp.tagline,
-      cta: `Atrasti ${hp.name}`
-    },
-    {
-      stage: "samples",
-      list: rest,
-      href: "meginukai",
-      eyebrow: "Mėginukai 2 ml",
-      title: "Pirma išbandykite",
-      text: SET.sampleCredit ? `Mėginukas nuo ${eur(sampleFrom())} – kainą grąžinsime perkant buteliuką.` : `Kiekvienas kvapas – ir 2 ml mėginuku nuo ${eur(sampleFrom())}.`,
-      cta: "Rinktis mėginukus"
-    },
-    DISC && {
-      stage: "gift",
-      list: rest.slice(2),
-      href: "rinkinys",
-      eyebrow: "Dovanai",
-      title: DISC.name,
-      text: `Bet kurie ${DISC.count} kvapai po 2 ml už ${eurShort(DISC.price)} – raskite savo kvapą.`,
-      cta: "Susidaryti rinkinį"
-    }
-  ].filter(Boolean);
-}
+// Pradžios skaidrės ir plytelės – iš nustatymų (25-home-config.js, administravimo skydelis „Pradžia“):
+// nuotrauka arba Vaidore scena (24-stage.js), trumpas tekstas ir VIENAS aiškus veiksmas.
+// Aukštis fiksuotas (CSS) – keičiantis skaidrėms ir kraunantis nuotraukoms niekas nepasislenka.
+const slideBg = (x, i) => (x.image ? photoHTML(x, { eager: !i, cls: "heroStage" }) : stageHTML(x.stage, x.list, { eager: !i, cls: "heroStage" }));
 function heroHTML() {
-  const slides = heroSlidesData();
+  const slides = homeSlides();
+  if (!slides.length) return "";
   return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
     .map((x, i) => {
       const H = i ? "h2" : "h1";
-      return `<a class="slide" href="${x.href}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${stageHTML(x.stage, x.list, { eager: !i, cls: "heroStage" })}<div class="slideIn">
-<div class="heroTxt"><p class="eyebrow">${esc(x.eyebrow)}</p><${H} class="heroTitle">${esc(x.title)}</${H}>
-<p class="heroLine">${esc(x.text)}</p>
-<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span></div>
+      return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
+<div class="heroTxt">${x.eyebrow ? `<p class="eyebrow">${esc(x.eyebrow)}</p>` : ""}<${H} class="heroTitle">${esc(x.title)}</${H}>
+${x.text ? `<p class="heroLine">${esc(x.text)}</p>` : ""}
+${x.cta ? `<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span>` : ""}</div>
 </div></a>`;
     })
     .join("")}</div></div>${
@@ -78,7 +45,8 @@ let heroTimer = 0;
 function startHeroAuto() {
   clearInterval(heroTimer);
   const rail = $("#homeHero .heroRail");
-  if (!rail || reduceMotion() || rail.children.length < 2) return;
+  const secs = Number(SET.slideSeconds ?? 6);
+  if (!rail || reduceMotion() || rail.children.length < 2 || !(secs > 0) || PREVIEW) return;
   let hold = false;
   const stop = () => {
     hold = true;
@@ -91,7 +59,7 @@ function startHeroAuto() {
     if (hold || document.hidden || !rail.isConnected || !$("#view-home").classList.contains("active")) return;
     const end = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4;
     rail.scrollTo({ left: end ? 0 : rail.scrollLeft + rail.clientWidth, behavior: "smooth" });
-  }, 6000);
+  }, secs * 1000);
 }
 function marqueeHTML() {
   const items = [
@@ -106,8 +74,9 @@ function marqueeHTML() {
   return `<div class="mqTrack">${row(false)}${row(true)}</div>`;
 }
 // Kategorijos plytelė (v7): visa plytelė – scena su tos grupės buteliukais (24-stage.js), pavadinimas ant sienos viršuje
-function tileHTML({ name, href, list, sub, stage }) {
-  return `<a class="tile" href="${href}" data-nav>${stageHTML(stage, list, { cls: "tileStage" })}<span class="tileTxt"><span class="tileName">${esc(name)}</span>${
+function tileHTML({ name, href, list, sub, stage, image, focus, dark }) {
+  const bg = image ? photoHTML({ image, focus }, { cls: "tileStage" }) : stageHTML(stage, list, { cls: "tileStage" });
+  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav>${bg}<span class="tileTxt"><span class="tileName">${esc(name)}</span>${
     sub ? `<small>${esc(sub)}</small>` : ""
   }</span></a>`;
 }
@@ -166,15 +135,9 @@ function renderHome() {
   const byRank = [...PRODUCTS].sort((a, b) => a.rank - b.rank);
   const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
   const of = g => byRank.filter(p => p.gender === g);
-  const tiles = [
-    { name: "Moterims", href: "moterims", stage: "women", list: of("moterims"), sub: plural(of("moterims").length, "kvapas", "kvapai", "kvapų") },
-    { name: "Vyrams", href: "vyrams", stage: "men", list: of("vyrams"), sub: plural(of("vyrams").length, "kvapas", "kvapai", "kvapų") },
-    { name: "Unisex", href: "unisex", stage: "unisex", list: of("unisex"), sub: plural(of("unisex").length, "kvapas", "kvapai", "kvapų") },
-    { name: "Mėginukai", href: "meginukai", stage: "vials", list: byRank.slice(3), sub: `2 ml nuo ${eur(sampleFrom())}` },
-    ...(DISC ? [{ name: "Rinkiniai", href: "rinkinys", stage: "set", list: byRank.slice(6), sub: `${DISC.count} × 2 ml už ${eur(DISC.price)}` }] : []),
-    { name: "Naujienos", href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh, sub: "Naujausi kvapai" }
-  ];
-  $("#homeTiles").innerHTML = tiles.filter(t => t.list.length).map(tileHTML).join("");
+  const tiles = homeTiles();
+  $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
+  $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 
   const sec = [
     { title: "Kvapnios naujienos", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },

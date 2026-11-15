@@ -7,6 +7,7 @@
 //   admin                    Apžvalga – pajamos, kas laukia, maži likučiai, perkamiausi
 //   admin/uzsakymai          Užsakymai – supakuota / išsiųsta (+ laiškas) / pristatyta / grąžinti pinigus, CSV buhalterijai
 //   admin/kvapai[/<id>]      Kvapai – sąrašas, redagavimas, nuotraukos, likučiai, rodymas; admin/kvapai/naujas
+//   admin/pradzia            Pradžios puslapis – skaidrės (nuotraukos, tekstai, nuorodos, eilė) ir „Produktai“ plytelės, su peržiūra
 //   admin/kategorijos        Kategorijos ir kvapo šeimos
 //   admin/atsiliepimai       Atsiliepimų peržiūra (paskelbti / paslėpti / ištrinti)
 //   admin/laukia             „Pranešti, kai bus“ užklausos
@@ -19,6 +20,7 @@ const SECTIONS = [
   { id: "", name: "Apžvalga", ico: "chart", render: renderOverview },
   { id: "uzsakymai", name: "Užsakymai", ico: "box", render: renderOrders, count: "orders" },
   { id: "kvapai", name: "Kvapai", ico: "drop", render: renderProducts },
+  { id: "pradzia", name: "Pradžia", ico: "home", render: renderHomeEditor },
   { id: "kategorijos", name: "Kategorijos", ico: "grid", render: renderCategories },
   { id: "atsiliepimai", name: "Atsiliepimai", ico: "star", render: renderReviews, count: "reviews" },
   { id: "laukia", name: "Laukiantys", ico: "bell", render: renderRestock, count: "restock" },
@@ -147,10 +149,10 @@ async function prepareImage(file, max = 1600) {
   if (!blob || blob.type !== "image/webp") blob = await toBlob("image/jpeg", 0.86);
   return blob;
 }
-async function uploadImages(files, prefix) {
+async function uploadImages(files, prefix, max = 1600) {
   const urls = [];
   for (const f of files) {
-    const blob = await prepareImage(f);
+    const blob = await prepareImage(f, max);
     const ext = blob.type === "image/webp" ? "webp" : "jpg";
     urls.push(await sbUpload("products", `${prefix}/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}.${ext}`, blob));
   }

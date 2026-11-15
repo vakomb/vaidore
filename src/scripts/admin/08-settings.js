@@ -1,15 +1,14 @@
 // 08 – Nustatymai (lentelė settings, viena eilutė id=1, laukas data – tas pats formatas kaip catalog.json „settings“):
-// parduotuvė, pagrindinio puslapio kolekcija, pristatymas, mėginukai / rinkinys / pakavimas, įmonės rekvizitai, istorija, matavimas.
+// parduotuvė (pradžios puslapis – 10-home.js), pristatymas, mėginukai / rinkinys / pakavimas, įmonės rekvizitai, istorija, matavimas.
 // Saugant sujungiama su esamais duomenimis – nežinomi laukai neprarandami.
 const COUNTRY_NAME = { LT: "Lietuva", LV: "Latvija", EE: "Estija" };
 
 async function renderSettings(main, _param, seq) {
   main.innerHTML = pageHead("Nustatymai") + loading();
-  const [rows, products] = await Promise.all([sbRest("settings?select=data&id=eq.1"), sbRest("products?select=id,name&order=name.asc")]);
+  const rows = await sbRest("settings?select=data&id=eq.1");
   if (stale(seq)) return;
   const S = { ...VD.SET, ...(rows?.[0]?.data || {}) };
   const c = S.company || {};
-  const h = S.hero || {};
   const d = S.discovery || {};
   const sc = S.sampleCredit || {};
   const g = S.gift || {};
@@ -29,12 +28,7 @@ ${fld("tagline", "Šūkis", S.tagline, { hint: "Viena eilutė pradžios puslapyj
 <div class="fieldRow">${fld("freeShippingFrom", "Nemokamai nuo, €", dec(S.freeShippingFrom), { mode: "decimal" })}${fld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1–2 d. d.", max: 30 })}</div>
 <div class="fieldRow">${fld("returnDays", "Grąžinimas per, d.", S.returnDays, { mode: "numeric" })}${fld("maxQty", "Daugiausia vnt. eilutėje", S.maxQty, { mode: "numeric" })}</div>
 </section>
-<section class="admCard" id="pradzia"><h2>Pradžios puslapio kolekcija</h2>
-<label class="field"><span>Kvapas</span><select name="heroProduct">${products.map(p => `<option value="${esc(p.id)}"${sel(p.id === h.product)}>${esc(p.name)}</option>`).join("")}</select></label>
-${fld("heroEyebrow", "Antraštė virš pavadinimo", h.eyebrow, { ph: "Žiemos kolekcija", max: 40 })}
-${fld("heroTitle", "Pavadinimas", h.title, { ph: "Paliekant tuščią – kvapo pavadinimas", max: 60 })}
-${area("heroText", "Tekstas", h.text, "Paliekant tuščią – kvapo trumpas aprašymas")}
-</section>
+<section class="admCard"><h2>Pradžios puslapis</h2><p class="admNote">Skaidrės, jų nuotraukos ir „Produktai“ plytelės – skyriuje <a href="admin/pradzia" data-nav>Pradžia</a>.</p></section>
 <section class="admCard" id="ikvepti"><h2>„Įkvėpti …“</h2>
 <label class="admToggleRow"><span><b>Rodyti, kokiu kvapu įkvėpta</b><small>Kortelėse ir kvapo puslapyje, pvz. „Įkvėpti Tom Ford – Tobacco Vanille“ (laukas „Įkvėpta“ kvapo kortelėje)</small></span><input type="checkbox" name="insShow" class="admSwitchInp"${attr(ins.show !== false, "checked")} /></label>
 ${area("insNote", "Pastaba apie prekių ženklus", ins.note, "Rodoma kvapo puslapyje po „Į krepšelį“ smulkiu šriftu")}
@@ -120,7 +114,6 @@ ${fld("plausible", "Plausible domenas", an.plausible, { ph: "vaidore.com", hint:
         dispatch: v("dispatch"),
         returnDays: int("returnDays"),
         maxQty: int("maxQty"),
-        hero: { ...h, product: f.heroProduct.value, eyebrow: v("heroEyebrow"), title: v("heroTitle"), text: v("heroText") },
         shipping,
         countries,
         discovery: { ...d, name: v("discName"), count: int("discCount"), price: money("discPrice"), text: v("discText") },

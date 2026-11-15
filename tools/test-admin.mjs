@@ -3,7 +3,7 @@
 // Tikrina: prisijungimas → Administravimas; apžvalga; užsakymai (supakuota, išsiųsta + siuntos nr., paieška, CSV,
 // grąžinti pinigus); kvapai (likutis, „Pranešti“, slėpimas, redagavimas, tūriai, kategorijos, nuotrauka, naujas kvapas –
 // iškart matomas parduotuvėje, neišsaugotų pakeitimų perspėjimas, ištrynimas); kategorijos ir šeimos; atsiliepimai;
-// laukiantys; nustatymai; žurnalas; svetainės atnaujinimas; teisės (pirkėjas, neprisijungęs); telefonas; be JS klaidų.
+// laukiantys; pradžios puslapis (skaidrės, nuotraukos, plytelės, peržiūra); nustatymai; žurnalas; svetainės atnaujinimas; teisės (pirkėjas, neprisijungęs); telefonas; be JS klaidų.
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -57,6 +57,8 @@ async function newPage(viewport, token = null) {
   page.on("pageerror", e => errors.push(`${viewport.width}: ${e.message}`));
   page.on("dialog", d => (d.type() === "beforeunload" ? d.accept() : d.dismiss()));
   await page.route(`${SB_URL}/**`, sb.handle);
+  // Įkeltos nuotraukos (viešas Storage adresas) – rodomas pavyzdinis paveikslas
+  await page.route(`${SB_URL}/storage/v1/object/public/**`, rt => rt.fulfill({ path: path.join(root, "src/public/og/home.jpg"), contentType: "image/jpeg" }));
   await page.route(/plausible\.io|omniva\.ee/, rt => rt.abort());
   if (token) await page.addInitScript(t => localStorage.setItem("vaidore_auth_v1", JSON.stringify({ access_token: t, refresh_token: "r", expires_at: 4e9 })), token);
   return page;
@@ -240,6 +242,50 @@ await go(page, "admin/laukia");
 check((await page.locator('.admRestock[data-pid="arven"] .pill.green').count()) === 1, "laukiantys: Jūrai – visiems pranešta");
 check(await page.locator('.admRestock[data-pid="noirelle"] [data-notify]').isDisabled(), "išparduotam kvapui pranešti negalima");
 
+// Pradžia: skaidrės ir plytelės su gyva peržiūra
+await go(page, "admin/pradzia");
+check((await page.locator("#heSlides .heItem").count()) === 3, "pradžia: 3 numatytosios skaidrės");
+const pv = page.frameLocator("#heFrame");
+check(await until(async () => (await pv.locator("#homeHero .slide").count()) === 3, 9000), "peržiūra: tikra parduotuvė su 3 skaidrėmis");
+await page.click("#heSlides .heItem:first-child [data-he-open]");
+await page.fill('#heSlides .heItem.open input[name="title"]', "Žiemos vakarai");
+check(await until(async () => (await pv.locator("#homeHero .slide .heroTitle").first().textContent()) === "Žiemos vakarai"), "peržiūra: pavadinimas keičiasi iškart");
+await page.click('#heSlides .heItem.open [data-he-bg="photo"]');
+await page.setInputFiles('#heSlides .heItem.open [data-he-file="image"]', path.join(root, "src/public/og/home.jpg"));
+check(await until(() => sb.uploads.some(u => u.path.includes("pradzia/skaidres"))), "skaidrės nuotrauka sumažinta ir įkelta");
+await page.waitForSelector('#heSlides .heItem.open [data-he-focus="image"] img');
+await page.click('#heSlides .heItem.open [data-he-focus="image"] img', { position: { x: 12, y: 12 } });
+await page.click('#heSlides .heItem.open [data-he-dark="1"]');
+await page.waitForTimeout(shots ? 900 : 0);
+if (shots) await page.screenshot({ path: path.join(shotDir, "admin-pradzia-skaidre.png") });
+await page.locator("#heSlides .heItem").nth(2).locator("[data-he-on]").click();
+await page.locator("#heSlides .heItem").nth(1).locator('[data-he-move="-1"]').click();
+await page.click('[data-he-add="custom"]');
+check((await page.locator("#heSlides .heItem").count()) === 4, "nauja skaidrė pridėta");
+await page.locator('#heTiles [data-he-tile="naujienos"] [data-he-on]').click();
+await page.click('[data-he-addtile="kat-vakarui"]');
+await shot(page, "pradzia");
+await page.click("[data-he-save]");
+check(await until(() => Array.isArray(sb.db.settings[0].data.slides)), "pradžia išsaugota");
+const hs = sb.db.settings[0].data;
+check(
+  hs.slides.length === 4 && hs.slides[0].preset === "samples" && hs.slides[1].title === "Žiemos vakarai" && /pradzia\/skaidres/.test(hs.slides[1].image) && hs.slides[1].dark === true && !/^50% 50%$/.test(hs.slides[1].focus) && hs.slides[2].on === false,
+  "skaidrių eilė, nuotrauka, matoma vieta, tamsus tekstas ir paslėpimas išsaugoti"
+);
+check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "naujienos").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
+const front = await newPage({ width: 1440, height: 900 });
+await front.goto(BASE);
+await front.waitForLoadState("networkidle").catch(() => {});
+check(await until(async () => (await front.locator("#homeHero .slide").count()) === 3, 6000), "parduotuvėje: 3 rodomos skaidrės (viena paslėpta)");
+check(
+  (await front.locator("#homeHero .slide").nth(1).locator(".heroTitle").textContent()) === "Žiemos vakarai" &&
+    (await front.locator("#homeHero .slide.onDark.hasPhoto img").count()) === 1,
+  "parduotuvėje: skaidrė su įkelta nuotrauka ir baltu tekstu"
+);
+const tilesNow = await front.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
+check(tilesNow.includes("kategorija/vakarui") && !tilesNow.includes("kvepalai?rikiuoti=new"), "parduotuvėje: plytelės pagal nustatymus");
+await front.context().close();
+
 // Nustatymai
 await go(page, "admin/nustatymai");
 await page.fill('#setForm input[name="freeShippingFrom"]', "70");
@@ -278,12 +324,13 @@ await guest.context().close();
 console.log("\n— telefonas 430×932 —");
 seed();
 page = await newPage({ width: 430, height: 932 }, ADMIN.token);
-for (const sec of ["admin", "admin/uzsakymai", "admin/kvapai", "admin/kvapai/vanor", "admin/kategorijos", "admin/nustatymai"]) {
+for (const sec of ["admin", "admin/uzsakymai", "admin/kvapai", "admin/kvapai/vanor", "admin/pradzia", "admin/kategorijos", "admin/nustatymai"]) {
   await page.goto(BASE + sec);
   await page.waitForSelector("#admTitle");
   await page.waitForFunction(() => !document.querySelector("#admMain .loadingTxt"));
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  check(overflow <= 0, `${sec}: telpa ekrane (be horizontalaus slinkimo)`);
+  const wide = overflow > 0 ? await page.evaluate(() => [...document.querySelectorAll("#admMain *")].filter(el => el.getBoundingClientRect().right > window.innerWidth + 1).slice(0, 3).map(el => el.className || el.tagName)) : [];
+  check(overflow <= 0, `${sec}: telpa ekrane (be horizontalaus slinkimo)${wide.length ? ` – ${wide.join(", ")}` : ""}`);
   await shot(page, `tel-${sec.replace(/\//g, "-")}`);
 }
 check(await page.locator(".admSaveBar button[type=submit]").isVisible(), "telefone – „Išsaugoti“ juosta matoma");

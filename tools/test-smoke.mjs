@@ -34,6 +34,19 @@ const variant = structuredClone(cat);
 const vp = id => variant.products.find(p => p.id === id);
 vp("arven").stock = 0;
 vp("vanor").images = ["img/kvapai/vanor-1.webp", "img/kvapai/safrane-1.webp", "og/home.jpg"]; // galerija iš kelių nuotraukų
+// Pradžios puslapis iš nustatymų (administravimo „Pradžia“): 2 skaidrės (viena – su nuotrauka, tamsi), viena paslėpta;
+// plytelės – Vyrams su nuotrauka ir kategorija „Vakarui“
+variant.settings.slides = [
+  { id: "a", on: true, preset: "samples" },
+  { id: "b", on: true, preset: "custom", title: "Ruduo", text: "Šilti kvapai", cta: "Žiūrėti", href: "vyrams", image: "og/home.jpg", focus: "30% 40%", dark: true },
+  { id: "c", on: false, preset: "gift" }
+];
+variant.settings.tiles = [
+  { key: "vyrams", on: true, image: "og/home.jpg", title: "Jam" },
+  { key: "kat-vakarui", on: true },
+  { key: "naujienos", on: false }
+];
+variant.settings.slideSeconds = 0;
 vp("safrane").sizes.forEach(s => (s.was = s.price + 20)); // akcija (sena kaina) // akcija (sena kaina)
 vp("vanor").reviews = [
   { name: "Ona K.", text: "Gaivus ir švelnus, puikiai tinka darbui.", rating: 5, date: "2026-11-01", verified: true },
@@ -389,6 +402,14 @@ async function run(viewport) {
   check((await v.page.locator("#productRoot .pdPrice s").count()) === 1, "akcija kvapo puslapyje: sena kaina");
   await open(v.page, B);
   check(await until(() => v.page.locator("#homeReviews").isVisible()), "pradžia: atsiliepimai (kai yra tikrų)");
+  const vs = await v.page.evaluate(() =>
+    [...document.querySelectorAll("#homeHero .slide")].map(s => ({ t: s.querySelector(".heroTitle").textContent, href: s.getAttribute("href"), dark: s.classList.contains("onDark"), img: s.querySelector(".scenePic img")?.getAttribute("src") || "" }))
+  );
+  check(vs.length === 2 && vs[0].t === "Pirma išbandykite" && vs[1].t === "Ruduo" && vs[1].href === "vyrams" && vs[1].dark && vs[1].img === "og/home.jpg", "pradžia iš nustatymų: skaidrių eilė, nuotrauka, tekstai, paslėpta nerodoma");
+  const vt = await v.page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => `${x.getAttribute("href")}:${x.querySelector(".tileName").textContent}:${!!x.querySelector(".scenePic")}`));
+  check(vt.length === 2 && vt[0] === "vyrams:Jam:true" && vt[1].startsWith("kategorija/vakarui:Vakarui:false"), "pradžia iš nustatymų: plytelės (nuotrauka, pavadinimas, kategorija)");
+  await open(v.page, `${B}vyrams`);
+  check((await v.page.locator("#shopHead.hasStage .scenePic img").getAttribute("src")) === "og/home.jpg", "grupės puslapyje – ta pati nuotrauka");
   await shot(v.page, `${tag}-variantas`);
   await v.page.context().close();
 }

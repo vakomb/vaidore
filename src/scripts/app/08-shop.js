@@ -133,15 +133,18 @@ function renderShop() {
   $("#shopTitle").textContent = shopTitle();
   $("#shopSub").textContent = shopSub();
   // Kategorijos / lyties / mėginukų puslapyje – tos grupės scena (24-stage.js); perpiešiama tik pasikeitus grupei
+  // Nuotrauka – ta pati kaip pradžios plytelės (arba kategorijos paveikslas), kitaip – scena
   const stName = shopStageName();
-  const stKey = `${stName}|${shop.base}`;
+  const photo = stName ? groupPhoto(shop.samples ? "meginukai" : shop.category ? `kat-${shop.category}` : shop.gender) : null;
+  const stKey = `${stName}|${shop.base}|${photo?.image || ""}|${photo?.focus || ""}`;
   const stBox = $("#shopStage");
   if (stBox.dataset.key !== stKey) {
     stBox.dataset.key = stKey;
     const group = PRODUCTS.filter(p => (shop.gender === "all" || p.gender === shop.gender) && (!shop.category || (p.categories || []).includes(shop.category))).sort((a, b) => a.rank - b.rank);
-    stBox.innerHTML = stName ? stageHTML(stName, group.length ? group : PRODUCTS, { eager: true, cls: "shopStage" }) : "";
+    stBox.innerHTML = !stName ? "" : photo ? photoHTML(photo, { eager: true, cls: "shopStage" }) : stageHTML(stName, group.length ? group : PRODUCTS, { eager: true, cls: "shopStage" });
   }
   $("#shopHead").classList.toggle("hasStage", !!stName);
+  $("#shopHead").classList.toggle("onDark", !!photo?.dark);
   const crumbs = [
     { name: "Pradžia", href: "./" },
     { name: "Kvepalai", href: "kvepalai" }

@@ -120,6 +120,22 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
+## Pradžios puslapis iš administravimo (v8: admin/pradzia)
+
+- **Skyrius „Pradžia“** (`src/scripts/admin/10-home.js`, stiliai `admin.css` „Pradžios puslapis“): skaidrės ir „Produktai“
+  plytelės su gyva peržiūra – tikra parduotuvė `<iframe>` (`?vdPreview=1`), telefono arba kompiuterio dydžiu; juodraštis
+  siunčiamas `postMessage` (`25-home-config.js` jį pritaiko ir po katalogo atnaujinimo), išsaugoma tik paspaudus „Išsaugoti“.
+- **Skaidrė:** rodoma / paslėpta, eilė (↑ ↓), šablonas (Kolekcija, Mėginukai, Dovana, Sava), fonas – nuotrauka
+  (kompiuteriui ≤ 2400 px ir, nebūtinai, telefonui; spustelėjus nurodoma vieta, kuri lieka matoma – `focus`) arba Vaidore
+  scena (kompozicija + kvapas), tekstas juodas / baltas (`dark`), antraštė, pavadinimas, tekstas, mygtukas, nuoroda (puslapis,
+  kvapas, kategorija ar savas adresas). Tušti tekstai – iš šablono (kainos visada tikros). Skaidrių kiekis – kiek pridėta
+  (0 – pradžia prasideda plytelėmis), `slideSeconds` – kas kiek sekundžių keičiasi (0 – nesikeičia).
+- **Plytelė:** rodoma, eilė, pavadinimas, nuotrauka (ta pati – ir grupės puslapio viršuje); galima pridėti kategorijas
+  (`kat-<id>`; be nuotraukos – kategorijos paveikslas iš „Kategorijos“, o jei nėra – scena).
+- Duomenys – `settings.slides`, `settings.tiles`, `settings.slideSeconds` (formatas – `25-home-config.js`). Nėra – rodomi
+  numatytieji (`DEFAULT_SLIDES`, `DEFAULT_TILES`). Nuotraukos – Storage `products/pradzia/…` (WebP, sumažinama naršyklėje).
+- Prekių kortelėse ir visur kitur kvapo nuotrauka – tik buteliukas, be fono ar kvadrato (`--photo-bg: transparent`).
+
 ## Dizainas (v7: nuotraukos be fono, juoda vietoje mėlynos, scenos)
 
 - **Nuotraukos.** Kiekvienam kvapui – VIENA nuotrauka `src/public/img/kvapai/<id>-1.webp`: tik buteliukas permatomame fone

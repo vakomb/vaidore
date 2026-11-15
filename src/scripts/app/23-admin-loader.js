@@ -55,5 +55,19 @@ window.VD = {
     return SET;
   },
   GENDER_NAME, CONC_NAME, SEASON_NAME, LEVEL, LASTS, ORDER_STATUS, statusPill, FAMILY_LOOK, SAMPLE_ML,
-  catalogFromDb, fetchCatalog
+  catalogFromDb, fetchCatalog,
+  // Pradžios puslapio redaktorius (admin/pradzia): šablonai, numatytieji, scenos, nuotraukos
+  stageHTML, photoHTML, slideDefaults, resolveSlide, tilePreset, productUrl,
+  get DEFAULT_SLIDES() {
+    return DEFAULT_SLIDES;
+  },
+  get DEFAULT_TILES() {
+    return DEFAULT_TILES;
+  },
+  get SLIDE_PRESETS() {
+    return SLIDE_PRESETS;
+  },
+  get STAGES() {
+    return STAGES;
+  }
 };
