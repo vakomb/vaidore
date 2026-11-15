@@ -30,7 +30,7 @@ const accHTML = (ico, title, body, { open = false, id = "" } = {}) =>
 function productPageHTML(p, ml) {
   const sizes = [...p.sizes.map(s => ({ ml: s.ml, price: s.price, was: s.was })), { ml: SAMPLE_ML, price: p.sample }];
   const sizeBtn = s =>
-    `<button class="sizeOpt" type="button" role="radio" data-ml="${s.ml}" aria-checked="${s.ml === ml}"><b>${s.ml === SAMPLE_ML ? "2 ml" : `${s.ml} ml`}</b><span class="money">${eur(s.price)}</span><em class="per">${s.ml === SAMPLE_ML ? "mėginukas" : `${eur((s.price / s.ml) * 10).replace(/\s€/, " €")}/10 ml`}</em></button>`;
+    `<button class="sizeOpt" type="button" role="radio" data-ml="${s.ml}" aria-checked="${s.ml === ml}" aria-label="${s.ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${s.ml} ml`}, ${eur(s.price)}"><b>${s.ml === SAMPLE_ML ? "2 ml mėginukas" : `${s.ml} ml`}</b></button>`;
   const similar = PRODUCTS.filter(x => x.id !== p.id && inStock(x) && (x.family === p.family || x.gender === p.gender))
     .sort((a, b) => (b.family === p.family) - (a.family === p.family) || a.rank - b.rank)
     .slice(0, 8);
@@ -74,8 +74,15 @@ ${galleryHTML(p)}
   }</div>
 </div>
 <div class="pdInfo">
-<p class="pdTag"><b>${esc(p.name)}</b> – ${esc(p.tagline)}</p>
-<p class="pdSuits">${glyph(p.time.includes("vakaras") && !p.time.includes("diena") ? "moon" : "sun")}${esc(suitsLine(p))}</p>
+<p class="pdTag"><b>${esc(p.name)}</b> – ${esc(p.tagline)}.</p>
+<p class="pdDesc">${esc(p.desc)}</p>
+<div class="accs">
+${accHTML("user", "Kam skirti", who)}
+${accHTML("drop", "Natos", notes, { id: "pdNotesH" })}
+${accHTML("chart", "Savybės", facts, { id: "pdFactsH" })}
+${accHTML("spark", "Panaudojimo būdas", use)}
+${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
+</div>
 <div class="pdPrice">${sold ? `<b>Laikinai išparduota</b>` : priceBlockHTML(p, ml)}</div>
 <p class="pdLabel">Tūris</p>
 <div class="sizes" role="radiogroup" aria-label="Tūris">${sizes.map(sizeBtn).join("")}</div>
@@ -84,17 +91,9 @@ ${sold ? "" : `<p class="pdLabel">Kiekis</p>`}
     sold
       ? ""
       : `<div class="qty" role="group" aria-label="Kiekis"><button type="button" data-qty-step="-1" aria-label="Mažiau">${glyph("minus")}</button><output data-qty>1</output><button type="button" data-qty-step="1" aria-label="Daugiau">${glyph("plus")}</button></div>`
-  }${buyBtn}<button class="btn ghost heartBtn" type="button" data-fav="${p.id}" aria-pressed="${state.fav.has(p.id)}" aria-label="Į mėgstamus"><svg class="gl" viewBox="0 0 24 24">${GLYPH.heart}</svg></button></div>
+  }${buyBtn}</div>
 <p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
 <div data-note-slot>${ml === SAMPLE_ML && !sold ? sampleNoteHTML() : ""}</div>
-<p class="pdDesc">${esc(p.desc)}</p>
-<div class="accs">
-${accHTML("drop", "Kvapo natos", notes, { open: true, id: "pdNotesH" })}
-${accHTML("chart", "Savybės", facts, { id: "pdFactsH" })}
-${accHTML("user", "Kam skirti", who)}
-${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
-${accHTML("spark", "Kaip naudoti", use)}
-</div>
 </div>
 <div class="pdBelow">
 <section class="sec" id="pdReviews" data-pd-reviews hidden></section>

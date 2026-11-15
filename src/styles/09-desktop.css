@@ -13,6 +13,11 @@
   .rail {
     grid-auto-columns: calc((100% - 2 * 18px) / 3);
     gap: 18px;
+    padding: 2px var(--pad) 8px;
+    scroll-padding: 0 var(--pad);
+  }
+  .rail .card {
+    scroll-snap-align: start;
   }
   .moods {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -35,8 +40,11 @@
     margin-right: 0;
   }
   .band {
-    min-height: 58px;
-    font-size: 21px;
+    min-height: 64px;
+    font-size: 30px;
+  }
+  .secLine {
+    font-size: 22px;
   }
   .catTiles {
     grid-auto-flow: row;
@@ -90,7 +98,7 @@
     margin-top: 56px;
   }
   .pdH1 {
-    font-size: 38px;
+    font-size: 40px;
   }
   /* Langai – centre, ne iš apačios */
   .backdrop {
@@ -109,13 +117,8 @@
   .grabber {
     display: none;
   }
-  .pdGal {
-    margin: 0;
-    border-radius: var(--r-hero);
-    height: 520px;
-  }
   .pdGal svg.bottle {
-    height: 400px;
+    height: 78%;
   }
   .discGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -387,17 +390,12 @@
   .pdGal {
     position: sticky;
     top: calc(var(--hdrAll) + 16px);
-    height: min(640px, calc(100dvh - var(--hdrAll) - 40px));
-  }
-  .pdGal svg.bottle {
-    height: 72%;
-    bottom: 12%;
   }
   .pdInfo {
     padding-top: 4px;
   }
   .pdH1 {
-    font-size: 44px;
+    font-size: 46px;
   }
   .buyBar {
     display: none;

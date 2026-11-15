@@ -15,16 +15,17 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 2px;
-  color: var(--ink);
-  font-size: 15.5px;
-  font-weight: 500;
+  color: #000;
+  font-size: 19px;
+  font-weight: 400;
   letter-spacing: 0.04em;
 }
 .filterBtn svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.5;
 }
 .filterBtn .countBadge {
   position: static;
@@ -33,8 +34,8 @@
 }
 .toolbar .count {
   margin-left: auto;
-  font-size: 15px;
-  color: var(--ink3);
+  font-size: 17px;
+  color: var(--ink2);
 }
 .toolbar .sortSel {
   display: none;
@@ -132,9 +133,9 @@
 }
 .pdGal {
   position: relative;
-  margin: 0 calc(var(--pad) * -1);
-  height: 380px;
-  background: radial-gradient(80% 70% at 50% 40%, #ffffff 0%, var(--tint, #f3f5f8) 75%);
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  background: radial-gradient(80% 70% at 50% 40%, #ffffff 0%, var(--tint, #f4f4f4) 78%);
   overflow: hidden;
 }
 .pdGal.hasPhoto {
@@ -143,8 +144,8 @@
 .pdGal svg.bottle {
   position: absolute;
   left: 50%;
-  bottom: 30px;
-  height: 300px;
+  bottom: 7%;
+  height: 80%;
   width: auto;
   transform: translateX(-50%);
   filter: drop-shadow(0 18px 22px rgba(15, 23, 42, 0.14));
@@ -188,34 +189,37 @@
 }
 /* Antraštė virš visko: PAVADINIMAS tarp linijų, po juo – trys natos (kaip parfumada.lt) */
 .pdHead {
-  padding: 14px 0 18px;
+  padding: 10px 0 22px;
   text-align: center;
 }
 .pdH1 {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 30px;
-  font-weight: 500;
+  gap: 18px;
+  margin: 0 calc(var(--pad) * -1);
+  font-size: 32px;
+  font-weight: 800;
   line-height: 1.1;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
+  color: #000;
 }
 .pdH1::before,
 .pdH1::after {
   content: "";
   flex: 1 1 20px;
-  min-width: 14px;
+  min-width: 18px;
   height: 1px;
-  background: var(--line2);
+  background: #9a9a9a;
 }
 .pdH1 span {
   flex: 0 1 auto;
 }
 .pdKey {
-  margin-top: 10px;
-  font-size: 15px;
-  letter-spacing: 0.12em;
+  margin-top: 16px;
+  font-size: 19px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink2);
 }
@@ -232,60 +236,61 @@
   text-underline-offset: 3px;
 }
 .pdInfo {
-  padding-top: 22px;
+  padding-top: 26px;
 }
 .pdTag {
-  font-size: 16.5px;
-  line-height: 1.55;
+  font-size: 18.5px;
+  line-height: 1.65;
   color: var(--ink2);
 }
 .pdTag b {
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--ink2);
 }
 .pdPrice {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 12px;
-  margin-top: 16px;
+  gap: 4px 14px;
+  margin-top: 26px;
 }
 .pdPrice b {
-  font-size: 28px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  color: #000;
 }
 .pdPrice s {
-  font-size: 18px;
-  color: var(--ink3);
+  font-size: 17.5px;
+  letter-spacing: 0.07em;
+  color: var(--ink2);
 }
 .pdPrice small {
-  font-size: 14.5px;
+  font-size: 15px;
   color: var(--ink3);
 }
 .pdLabel {
-  margin: 18px 0 8px;
-  font-size: 14px;
-  letter-spacing: 0.06em;
+  margin: 20px 0 8px;
+  font-size: 17px;
+  letter-spacing: 0.03em;
   color: var(--ink2);
 }
 .pdDesc {
-  margin-top: 20px;
-  font-size: 16.5px;
+  margin-top: 16px;
+  font-size: 18.5px;
   color: var(--ink2);
-  line-height: 1.7;
+  line-height: 1.65;
 }
 .pdBuy {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  gap: 22px;
 }
 .pdBuy .btn.primary {
-  flex: 1;
-  min-height: 54px;
-  font-size: 16.5px;
-  letter-spacing: 0.04em;
+  width: 100%;
+  min-height: 62px;
+  font-size: 19px;
 }
 .pdBuy .heartBtn {
   width: 54px;
@@ -302,90 +307,78 @@
 .qty {
   display: inline-flex;
   align-items: center;
-  flex: 0 0 auto;
-  height: 54px;
-  border-radius: var(--r-btn);
-  box-shadow: inset 0 0 0 1px var(--line2);
+  justify-self: start;
+  height: 60px;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px #000;
 }
 .qty button {
-  width: 44px;
-  height: 54px;
+  width: 50px;
+  height: 60px;
   display: grid;
   place-items: center;
-  color: var(--ink);
+  color: #000;
 }
 .qty button svg {
   width: 18px;
   height: 18px;
 }
 .qty output {
-  min-width: 22px;
-  font-size: 17px;
+  min-width: 30px;
+  font-size: 19px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
 /* Tūrio pasirinkimas – „piliulės“, pasirinkta – tamsi */
 .sizes {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .sizeOpt {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 11px 6px;
-  border-radius: 14px;
+  min-height: 46px;
+  padding: 0 24px;
+  border-radius: 18px;
   background: #fff;
-  box-shadow: inset 0 0 0 1px var(--line2);
-  color: var(--ink);
-  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.42s var(--spring);
+  box-shadow: inset 0 0 0 1px #000;
+  color: #000;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.42s var(--spring);
 }
 .sizeOpt b {
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
 }
-.sizeOpt span {
-  font-size: 14px;
-  color: var(--ink3);
-}
+
 .sizeOpt:hover {
-  box-shadow: inset 0 0 0 1px var(--ink4);
+  box-shadow: inset 0 0 0 2px #000;
 }
 .sizeOpt[aria-checked="true"] {
-  background: var(--ink);
+  background: #000;
   color: #fff;
-  box-shadow: 0 8px 18px -10px rgba(15, 23, 42, 0.6);
 }
-.sizeOpt[aria-checked="true"] span,
-.sizeOpt[aria-checked="true"] .per {
-  color: rgba(255, 255, 255, 0.75);
-}
-.sizeOpt .per {
-  font-size: 12px;
-  font-style: normal;
-  color: var(--ink3);
-}
+
 
 /* Išskleidžiamos dalys: natos, savybės, kam skirti, pristatymas, naudojimas */
 .accs {
-  margin-top: 22px;
-  border-top: 1px solid var(--line);
+  margin-top: 30px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 .acc {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 .acc summary {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 58px;
-  font-size: 16.5px;
-  font-weight: 500;
+  gap: 16px;
+  min-height: 62px;
+  font-size: 19px;
+  font-weight: 400;
   letter-spacing: 0.03em;
+  color: #000;
   cursor: pointer;
   list-style: none;
 }
@@ -403,14 +396,15 @@
   transform: rotate(180deg);
 }
 .accIco svg {
-  width: 21px;
-  height: 21px;
-  color: var(--ink);
+  width: 26px;
+  height: 26px;
+  stroke-width: 1.4;
+  color: #000;
 }
 .accBody {
-  padding: 0 0 18px;
-  font-size: 15.5px;
-  line-height: 1.6;
+  padding: 0 0 20px;
+  font-size: 17px;
+  line-height: 1.65;
   color: var(--ink2);
 }
 .accBody p + p {
@@ -556,4 +550,11 @@
 }
 .sheet:has(.buyBar) .sheetBody {
   padding-bottom: 0;
+}
+/* „Jums gali patikti“ – juosta per visą plotį ir kvapo puslapyje */
+.pdSimilar > .band {
+  margin: 0 calc(var(--pad) * -1);
+}
+.pdSimilar > .wrap {
+  padding: 0;
 }

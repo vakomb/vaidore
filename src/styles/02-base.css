@@ -2,7 +2,7 @@
 @font-face {
   font-family: "Jost";
   src: url("fonts/jost-vf.woff2") format("woff2");
-  font-weight: 300 700;
+  font-weight: 300 800;
   font-style: normal;
   font-display: swap;
 }
@@ -23,8 +23,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 16.5px;
-  line-height: 1.45;
+  font-size: 18px;
+  line-height: 1.55;
   letter-spacing: var(--track);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;

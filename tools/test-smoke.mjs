@@ -208,7 +208,7 @@ async function run(viewport) {
   await page.waitForTimeout(350);
   check((await cartBadge(page)) === "3", "2 mėginukai pridėti (3)");
   check((await page.locator("#productRoot [data-qty]").textContent()) === "1", "kiekis po įdėjimo – vėl 1");
-  check((await page.locator("#productRoot .acc").count()) === 5 && (await page.locator("#productRoot .acc[open]").count()) === 1, "kvapo puslapis: 5 išskleidžiamos dalys (natos atidarytos)");
+  check((await page.locator("#productRoot .acc").count()) === 5 && (await page.locator("#productRoot .acc[open]").count()) === 0, "kvapo puslapis: 5 išskleidžiamos dalys");
 
   // Atradimų rinkinys
   await open(page, `${A}rinkinys`);

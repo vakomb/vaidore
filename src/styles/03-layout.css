@@ -48,17 +48,17 @@
   color: #fff;
 }
 .noteTrack {
-  overflow: hidden;
-  font-size: 13.5px;
+  padding: 11px 0;
+  font-size: 15.5px;
   font-weight: 400;
-  letter-spacing: 0.05em;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
   text-align: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  text-wrap: balance;
 }
 .noteTrack b {
   font-weight: 600;
-  color: var(--gold-soft);
+  color: #fff;
 }
 .noteTrack.in {
   animation: vdNoteIn 0.45s var(--spring) both;
@@ -80,8 +80,8 @@
   color: #fff;
 }
 .noteArrow svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
 /* Header'is: telefone – meniu ir paieška kairėje, logotipas centre, paskyra ir krepšelis dešinėje;
@@ -134,9 +134,9 @@
   height: 22px;
 }
 .logo b {
-  font-size: 21px;
-  font-weight: 500;
-  letter-spacing: 0.24em;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .hdrNav {
@@ -164,8 +164,9 @@
   transition-duration: 0.08s;
 }
 .iconBtn svg {
-  width: 23px;
-  height: 23px;
+  width: 26px;
+  height: 26px;
+  stroke-width: 1.6;
 }
 .favBtn {
   display: none;
@@ -503,7 +504,9 @@
   padding: 18px 0 8px;
 }
 .pageHead h1 {
-  font-size: 30px;
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: 0.03em;
 }
 .pageSub {
   margin-top: 6px;
