@@ -1,20 +1,52 @@
 // 21 – header'is, šoninis meniu, „Kvepalai“ išskleidžiamas meniu, paieška (kompiuteryje – pasiūlymai po lauku,
 // telefone – langas), informacinė juosta ir poraštė. Kategorijos ir šeimos – iš katalogo (administravimo skydelio).
-const NOTE_KEY = "vaidore_note_v1";
-function renderTopNote() {
-  const txt = `Nemokamas pristatymas nuo <b>${eurShort(SET.freeShippingFrom)}</b><span class="noteMore"> · Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")}</span>`;
-  const note = $("#topNote");
-  note.hidden = store.get(NOTE_KEY, "") === txt;
-  $("#topNoteTxt").innerHTML = txt;
-  $("#topNoteX").onclick = () => {
-    store.set(NOTE_KEY, txt);
-    note.hidden = true;
-  };
+// Informacinė juosta – kelios trumpos žinutės, keičiasi kas 5 s (rodyklės – rankiniu būdu; sustoja užvedus,
+// fokusuojant ir jei įjungtas „mažiau judesio“). Visos žinutės – tikri parduotuvės nustatymai.
+const note = { i: 0, t: 0, paused: false };
+function noteMessages() {
+  return [
+    `Nemokamas pristatymas nuo <b>${eurShort(SET.freeShippingFrom)}</b>`,
+    `Kiekvieną kvapą – ir <b>2 ml mėginuku</b> nuo ${eur(Math.min(...PRODUCTS.map(p => p.sample)))}`,
+    `Išsiunčiame per <b>${esc(SET.dispatch || "1–2 d. d.")}</b> · Omniva ir DPD`,
+    SET.sampleCredit ? `Mėginukų kainą <b>grąžiname</b> perkant buteliuką` : "",
+    `Grąžinimas per <b>${SET.returnDays || 14} d.</b> · Saugus apmokėjimas`
+  ].filter(Boolean);
 }
+function showNote(step = 0) {
+  const msgs = noteMessages();
+  note.i = (note.i + step + msgs.length) % msgs.length;
+  const el = $("#topNoteTxt");
+  el.classList.remove("in");
+  void el.offsetWidth;
+  el.innerHTML = msgs[note.i];
+  el.classList.add("in");
+}
+function renderTopNote() {
+  showNote(0);
+  const bar = $("#topNote");
+  if (bar.dataset.bound) return;
+  bar.dataset.bound = "1";
+  bar.addEventListener("click", e => {
+    const b = e.target instanceof Element && e.target.closest("[data-note-step]");
+    if (b) showNote(Number(b.dataset.noteStep));
+  });
+  bar.addEventListener("mouseenter", () => (note.paused = true));
+  bar.addEventListener("mouseleave", () => (note.paused = false));
+  bar.addEventListener("focusin", () => (note.paused = true));
+  bar.addEventListener("focusout", () => (note.paused = false));
+  clearInterval(note.t);
+  if (!reduceMotion()) note.t = setInterval(() => !note.paused && !document.hidden && showNote(1), 5000);
+}
+// Kompiuteryje – antra header'io eilutė (tamsi juosta su kategorijomis)
 function renderHeaderNav() {
-  $("#hdrNav").innerHTML = `<button type="button" id="megaBtn" aria-expanded="false" aria-controls="mega">Kvepalai${glyph("chev-down")}</button>
-<a href="moterims" data-nav data-path="moterims">Moterims</a><a href="vyrams" data-nav data-path="vyrams">Vyrams</a><a href="unisex" data-nav data-path="unisex">Unisex</a>
-<a href="meginukai" data-nav data-path="meginukai">Mėginukai</a><button type="button" data-quiz>Rask savo kvapą</button>`;
+  const link = (href, name, path = href) => `<a href="${href}" data-nav data-path="${path}">${name}</a>`;
+  $("#hdrNav").innerHTML = `<div class="hdrNavIn"><button type="button" id="megaBtn" aria-expanded="false" aria-controls="mega">Visi kvepalai${glyph("chev-down")}</button>
+${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}${link("meginukai", "Mėginukai")}${
+    DISC ? link("rinkinys", esc(DISC.name)) : ""
+  }${link("kvepalai?rikiuoti=new", "Naujienos", "naujienos")}${visibleCategories()
+    .slice(0, 2)
+    .map(c => link(`kategorija/${c.id}`, esc(c.name)))
+    .join("")}<button type="button" data-quiz>Rask savo kvapą</button>${link("apie-mus", "Apie mus")}</div>`;
 }
 function megaHTML() {
   const h = SET.hero || {};
@@ -171,7 +203,8 @@ function updateNavCurrent(path) {
 }
 function renderFooter() {
   const cats = visibleCategories().slice(0, 4);
-  $("#ftrIn").innerHTML = `<div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><p>${esc(SET.tagline || "")}</p></div>
+  $("#ftrIn").innerHTML = `<div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><p>${esc(SET.tagline || "")}</p>
+<div class="ftrPerks"><span>${glyph("drop")}Kiekvienas kvapas – ir 2 ml mėginuku</span><span>${glyph("truck")}Nemokamai nuo ${eurShort(SET.freeShippingFrom)} · Omniva, DPD</span><span>${glyph("return")}Grąžinimas per ${SET.returnDays || 14} d.</span></div></div>
 <div class="ftrCols">
 <div class="ftrCol"><h3>Parduotuvė</h3><a href="kvepalai" data-nav>Visi kvepalai</a><a href="moterims" data-nav>Moterims</a><a href="vyrams" data-nav>Vyrams</a><a href="unisex" data-nav>Unisex</a>${cats
     .map(c => `<a href="kategorija/${c.id}" data-nav>${esc(c.name)}</a>`)

@@ -11,7 +11,7 @@ Duomenų bazė, paskyros, failai ir serverio funkcijos – **Supabase** (projekt
 4. Literalus `</style>` ar `</script>` šaltinio faile sulaužytų puslapį – build sustoja.
 5. Kainos, likučiai, kvapai, nustatymai – **duomenų bazėje** (keičiami administravimo skydelyje `/admin`). `src/data/catalog.json` – pradiniai duomenys (`npm run seed`) ir atsarginis katalogas, jei surinkimo metu bazė nepasiekiama. Kainas ir likučius visada tikrina serveris (`supabase/functions/_shared/shop.js`).
 6. Saugumas – RLS (`supabase/migrations/`): kiekviena nauja lentelė su `enable row level security` ir politikomis; administratorius – `is_admin()` (el. paštas lentelėje `admin_emails`, patvirtintas). Veiksmai su paslaptimis (Stripe, laiškai) – tik Edge Function `shop`.
-7. Dizaino reikšmės (spalvos, kampai, šešėliai, judesys) – tik `src/styles/01-tokens.css`. Tekstų kontrastas ≥ 4,5:1.
+7. Dizaino reikšmės (spalvos, kampai, šešėliai, judesys) – tik `src/styles/01-tokens.css`. Tekstų kontrastas ≥ 4,5:1. Šriftas – Jost (SIL OFL, `src/public/fonts/jost-vf.woff2`, kintamas storis 300–700). CSS selektoriuose nerašyk „ :is(…)“ (tarpas prieš „:“) – glaudintuvas jį pašalina; `check.mjs` tai tikrina.
 8. Raktų į repozitoriją nedėk. Paslaptys – Supabase → Edge Functions → Secrets (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `GITHUB_TOKEN`…). `src/data/supabase.json` – tik **publishable** raktas (viešas, duomenis saugo RLS).
 9. localStorage raktų (`vaidore_cart_v1`, `vaidore_fav_v1`, `vaidore_ship_v1`, `vaidore_gift_v1`, `vaidore_auth_v1`, `vaidore_catalog_v1`) nepervadink – jie pirkėjų telefonuose.
 10. Atsiliepimai – tik tikri (rašo tik pirkę, skelbiami po peržiūros); jokių iššokančių langų, laiko atskaitų, netikrų likučių.

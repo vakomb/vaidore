@@ -12,7 +12,7 @@
   align-items: center;
   gap: 8px;
   font-size: 15px;
-  font-weight: 650;
+  font-weight: 500;
   color: var(--ink2);
 }
 .shipTxt b {
@@ -77,9 +77,10 @@
 .lineName a {
   display: block;
   color: var(--ink);
-  font-size: 16.5px;
-  font-weight: 750;
-  letter-spacing: -0.015em;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -87,13 +88,13 @@
 .lineName small {
   display: block;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink3);
 }
 .linePrice {
   align-self: start;
   font-size: 16.5px;
-  font-weight: 750;
+  font-weight: 600;
   text-align: right;
 }
 .stepper {
@@ -127,11 +128,11 @@
   min-width: 24px;
   text-align: center;
   font-size: 16px;
-  font-weight: 750;
+  font-weight: 600;
 }
 .unit {
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink3);
 }
 .stepper .linkBtn {
@@ -158,19 +159,19 @@
 }
 .sumRow b {
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 600;
 }
 .sumRow.total {
   border-top: 1px solid var(--line);
   padding-top: 14px;
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 17px;
 }
 .sumRow.total b {
   font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 .sumNote {
   font-size: 13.5px;
@@ -192,7 +193,7 @@
   gap: 6px;
   margin-top: 10px;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink3);
 }
 .payNote svg {
@@ -222,12 +223,12 @@
   justify-content: space-between;
   margin-bottom: 12px;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
 }
 .miniTotal b {
   font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 .miniActs {
   display: grid;

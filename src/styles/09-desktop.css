@@ -1,5 +1,6 @@
-/* Planšetė ir kompiuteris. ≥ 700 px – platesnis tinklelis, langai centre; ≥ 1024 px – pilna navigacija header'yje,
-   paieškos laukas, filtrų šoninė juosta, kvapo puslapis dviem stulpeliais, krepšelis su lipnia suvestine. Visada paskutinis. */
+/* Planšetė ir kompiuteris. ≥ 700 px – platesnis tinklelis, langai centre; ≥ 1024 px – dviejų eilių header'is
+   (paieška · logotipas centre · paskyra / mėgstami / krepšelis + tamsi kategorijų juosta), karuselės su rodyklėmis,
+   filtrų šoninė juosta, kvapo puslapis dviem stulpeliais, krepšelis su lipnia suvestine. Visada paskutinis. */
 @media (min-width: 700px) {
   :root {
     --pad: 32px;
@@ -7,10 +8,10 @@
   }
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    gap: 34px 18px;
   }
   .rail {
-    grid-auto-columns: 30%;
+    grid-auto-columns: calc((100% - 2 * 18px) / 3);
     gap: 18px;
   }
   .moods {
@@ -19,47 +20,46 @@
   .mood:last-child:nth-child(odd) {
     grid-column: auto;
   }
-  .hero {
-    min-height: 340px;
-    padding: 44px 16px 44px 48px;
+  .heroIn {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    padding: 52px var(--pad) 56px;
   }
-  .heroTxt h2 {
-    font-size: 44px;
+  .heroTitle {
+    font-size: 58px;
   }
-  .heroTxt p {
-    max-width: 380px;
+  .heroLede {
     font-size: 17px;
   }
   .heroArt {
-    height: 300px;
+    height: 400px;
+    margin-right: 0;
+  }
+  .band {
+    min-height: 58px;
+    font-size: 21px;
   }
   .catTiles {
-    gap: 14px;
-  }
-  .tile {
-    min-height: 120px;
-    font-size: 15.5px;
-  }
-  .tile svg {
-    width: 44px;
-    height: 44px;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    gap: 18px;
   }
   .promos {
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-top: 14px;
+    gap: 16px;
   }
   .promo {
-    min-height: 104px;
-    padding: 20px 24px;
+    padding: 30px 28px;
   }
   .story {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
-    gap: 48px;
+    gap: 56px;
   }
   .storyArt {
-    height: 260px;
+    height: 300px;
   }
   .reviews {
     grid-auto-columns: 46%;
@@ -67,8 +67,8 @@
   .ftrIn {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 3fr);
-    gap: 40px;
-    padding-top: 48px;
+    gap: 48px;
+    padding-top: 56px;
   }
   .ftrCols {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -78,13 +78,19 @@
     grid-column: 1 / -1;
   }
   .pageHead h1 {
-    font-size: 38px;
+    font-size: 42px;
   }
   .secHead h2 {
     font-size: 27px;
   }
   .sec {
     margin-top: 64px;
+  }
+  .hsec {
+    margin-top: 56px;
+  }
+  .pdH1 {
+    font-size: 38px;
   }
   /* Langai – centre, ne iš apačios */
   .backdrop {
@@ -106,10 +112,10 @@
   .pdGal {
     margin: 0;
     border-radius: var(--r-hero);
-    height: 480px;
+    height: 520px;
   }
   .pdGal svg.bottle {
-    height: 380px;
+    height: 400px;
   }
   .discGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -131,70 +137,94 @@
 @media (min-width: 1024px) {
   :root {
     --pad: 40px;
-    --hdrH: 76px;
+    --hdrH: 84px;
+    --navH: 48px;
   }
-  /* Header'is: logotipas, navigacija, paieška, mėgstami, paskyra, krepšelis */
+  /* Header'is: 1 eilutė – paieška · logotipas · įrankiai; 2 eilutė – tamsi kategorijų juosta */
   .menuBtn,
   .searchBtn {
     display: none;
   }
   .hdrIn {
-    gap: 28px;
+    gap: 24px;
     padding: 0 var(--pad);
   }
-  .logo {
-    padding: 0;
+  .logo svg {
+    width: 28px;
+    height: 28px;
   }
   .logo b {
-    font-size: 20px;
+    font-size: 30px;
+    letter-spacing: 0.28em;
   }
   .hdrNav {
+    display: block;
+    background: var(--band);
+  }
+  .hdrNavIn {
+    max-width: var(--maxW);
+    margin: 0 auto;
+    padding: 0 var(--pad);
     display: flex;
     align-items: center;
-    gap: 2px;
+    justify-content: center;
+    gap: 4px;
+    min-height: 48px;
   }
   .hdrNav a,
   .hdrNav button {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    height: 40px;
-    padding: 0 12px;
-    border-radius: 10px;
-    color: var(--ink);
-    font-size: 15px;
-    font-weight: 650;
+    height: 48px;
+    padding: 0 14px;
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
     white-space: nowrap;
-    transition: background-color 0.18s ease, color 0.18s ease;
   }
-  .hdrNav a:hover,
-  .hdrNav button:hover,
-  .hdrNav [aria-expanded="true"] {
-    background: var(--bg-soft);
+  .hdrNav a::after,
+  .hdrNav button::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 10px;
+    height: 1.5px;
+    background: var(--gold-soft);
+    transform: scaleX(0);
+    transition: transform 0.3s var(--spring);
+  }
+  .hdrNav a:hover::after,
+  .hdrNav button:hover::after,
+  .hdrNav [aria-current="page"]::after,
+  .hdrNav [aria-expanded="true"]::after {
+    transform: scaleX(1);
   }
   .hdrNav [aria-current="page"] {
-    color: var(--brand);
+    color: var(--gold-soft);
   }
   .hdrNav svg {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
     transition: transform 0.3s var(--spring);
   }
   .hdrNav [aria-expanded="true"] svg {
     transform: rotate(180deg);
   }
   .hdrTools {
-    gap: 4px;
+    gap: 6px;
   }
   .hdrSearch {
     position: relative;
     display: flex;
     align-items: center;
     gap: 8px;
-    width: clamp(200px, 22vw, 300px);
-    height: 44px;
-    margin-right: 8px;
-    padding: 0 14px;
+    width: min(320px, 100%);
+    height: 46px;
+    padding: 0 16px;
     border-radius: 999px;
     background: var(--field);
     color: var(--ink3);
@@ -202,7 +232,7 @@
   }
   .hdrSearch:focus-within {
     background: #fff;
-    box-shadow: inset 0 0 0 2px var(--brand);
+    box-shadow: inset 0 0 0 1.5px var(--ink);
   }
   .hdrSearch input {
     flex: 1;
@@ -225,34 +255,38 @@
   .iconBtn:hover {
     background: var(--bg-soft);
   }
-  .topNote {
-    font-size: 13.5px;
-  }
 
   /* Pradžia */
-  .lede {
-    padding: 20px 0 16px;
-    font-size: 16.5px;
+  .heroIn {
+    min-height: 520px;
+    padding: 64px var(--pad);
   }
-  .hero {
-    min-height: 420px;
-    padding: 56px 24px 56px 64px;
+  .heroTitle {
+    font-size: 76px;
   }
-  .heroTxt h2 {
-    font-size: 56px;
+  .heroPerks li {
+    font-size: 14.5px;
   }
   .heroArt {
-    height: 360px;
+    height: 460px;
   }
+  .catTiles {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .tileName {
+    font-size: 18px;
+  }
+  /* Karuselė – 4 kortelės, rodyklės ir „1/3“ */
   .rail {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-columns: calc((100% - 3 * 24px) / 4);
+    gap: 24px;
     margin: 0;
-    padding: 4px 0 8px;
-    overflow: visible;
+    padding: 2px 0 8px;
+    scroll-padding: 0;
   }
-  .rail .card:nth-child(n + 5) {
-    display: none;
+  .railNav {
+    margin-top: 14px;
   }
   .moods {
     grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -280,13 +314,13 @@
     overflow: visible;
   }
 
-  /* Prekės kortelė – užvedus pakyla ir rodo greitą veiksmą */
+  /* Prekės kortelė – užvedus paveikslas pakyla ir rodo greitą veiksmą */
   .grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 22px;
+    gap: 40px 24px;
   }
-  .card:hover {
-    transform: translateY(-3px);
+  .card:hover .art {
+    transform: translateY(-4px);
     box-shadow: var(--elev-2);
   }
   .card:hover .quick {
@@ -299,28 +333,46 @@
       transform: translateY(6px);
     }
   }
+  .cardName {
+    font-size: 17px;
+  }
 
-  /* Katalogas: filtrai kairėje */
+  /* Katalogas: filtrai kairėje (išskleidžiamos grupės), viršuje – paieška, kiekis ir rūšiavimas */
   .shopLayout {
     display: grid;
-    grid-template-columns: 240px minmax(0, 1fr);
-    gap: 40px;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 48px;
     align-items: start;
   }
   .filters {
     display: block;
     position: sticky;
-    top: calc(var(--hdrH) + 16px);
-    max-height: calc(100dvh - var(--hdrH) - 32px);
+    top: calc(var(--hdrAll) + 16px);
+    max-height: calc(100dvh - var(--hdrAll) - 32px);
     overflow-y: auto;
-    padding-right: 6px;
+    padding-right: 8px;
     scrollbar-width: thin;
+  }
+  .filters::before {
+    content: "Filtruoti:";
+    display: block;
+    padding-bottom: 6px;
+    font-size: 15px;
+    color: var(--ink2);
   }
   .filterBtn {
     display: none;
   }
   .shopSearch {
-    flex: 0 1 380px;
+    flex: 0 1 340px;
+  }
+  .toolbar .count {
+    order: 3;
+    margin-left: 18px;
+  }
+  .toolbar .sortSel {
+    display: inline-flex;
+    margin-left: auto;
   }
   .shopLayout .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -329,24 +381,23 @@
   /* Kvapo puslapis – galerija kairėje (lipni), informacija dešinėje */
   .pd {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    gap: 56px;
+    gap: 64px;
     align-items: start;
-    padding-top: 8px;
   }
   .pdGal {
     position: sticky;
-    top: calc(var(--hdrH) + 16px);
-    height: min(640px, calc(100dvh - var(--hdrH) - 40px));
+    top: calc(var(--hdrAll) + 16px);
+    height: min(640px, calc(100dvh - var(--hdrAll) - 40px));
   }
   .pdGal svg.bottle {
     height: 72%;
     bottom: 12%;
   }
   .pdInfo {
-    padding-top: 8px;
+    padding-top: 4px;
   }
-  .pdTitle h1 {
-    font-size: 40px;
+  .pdH1 {
+    font-size: 44px;
   }
   .buyBar {
     display: none;
@@ -367,22 +418,19 @@
   }
   .cartSide {
     position: sticky;
-    top: calc(var(--hdrH) + 16px);
+    top: calc(var(--hdrAll) + 16px);
   }
   .cartSide .sum {
     margin-top: 8px;
   }
 }
 @media (min-width: 1400px) {
-  .grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
   .shopLayout .grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .hdrNav a,
   .hdrNav button {
-    padding: 0 14px;
+    padding: 0 16px;
   }
 }
 /* Gulsčias telefonas – mažiau vertikalios erdvės */
@@ -393,11 +441,8 @@
   .pdGal svg.bottle {
     height: 240px;
   }
-  .hero {
-    min-height: 220px;
-  }
   .heroArt {
-    height: 200px;
+    height: 220px;
   }
   .topNote {
     display: none;

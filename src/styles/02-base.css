@@ -1,4 +1,11 @@
 /* Pagrindas: šriftas, baltas fonas, iOS ergonomika (be teksto žymėjimo ant valdiklių, be 300 ms delsos, be mėlyno blyksnio). */
+@font-face {
+  font-family: "Jost";
+  src: url("fonts/jost-vf.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
 *,
 *::before,
 *::after {
@@ -16,8 +23,9 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 16px;
-  line-height: 1.4;
+  font-size: 16.5px;
+  line-height: 1.45;
+  letter-spacing: var(--track);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -29,20 +37,20 @@ p {
   margin: 0;
 }
 h1 {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   line-height: 1.15;
 }
 h2 {
-  font-size: 22px;
-  font-weight: 750;
-  letter-spacing: -0.02em;
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 h3 {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.015em;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 button,
 input,
@@ -91,7 +99,7 @@ svg {
 }
 .money {
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
   white-space: nowrap;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -101,4 +109,9 @@ svg {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+/* Didžiosiomis raidėmis su tarpais – juostos, pavadinimai, žymės */
+.caps {
+  text-transform: uppercase;
+  letter-spacing: var(--caps);
 }

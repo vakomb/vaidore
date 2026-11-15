@@ -96,31 +96,36 @@ function filtersHTML(live = true) {
     ["unisex", "Unisex"]
   ];
   const cats = visibleCategories();
-  return `<section class="fGroup"><h3>Kam</h3><div class="fChecks">${genders
+  const sortGroup = live
+    ? ""
+    : `<details class="fGroup" open><summary>Rūšiuoti${glyph("chev-down")}</summary><div class="fChecks">${SORTS.map(
+        o => `<label class="fCheck"><input type="radio" name="fSortS" data-sort="${o.id}"${shop.sort === o.id ? " checked" : ""} /><span>${o.name}</span></label>`
+      ).join("")}</div></details>`;
+  return `${sortGroup}<details class="fGroup" open><summary>Kam${glyph("chev-down")}</summary><div class="fChecks">${genders
     .map(
       ([href, name]) =>
         `<label class="fCheck"><input type="radio" name="fGender${live ? "" : "S"}" data-f-go="${href}"${
           (href === "kvepalai" ? shop.gender === "all" && !shop.samples && !shop.category : shop.gender === href) ? " checked" : ""
         } /><span>${name}</span></label>`
     )
-    .join("")}</div></section>
+    .join("")}</div></details>
 ${
   cats.length
-    ? `<section class="fGroup"><h3>Kategorijos</h3><div class="fChecks">${cats
+    ? `<details class="fGroup" open><summary>Kategorijos${glyph("chev-down")}</summary><div class="fChecks">${cats
         .map(c => `<label class="fCheck"><input type="radio" name="fCat${live ? "" : "S"}" data-f-go="kategorija/${c.id}"${shop.category === c.id ? " checked" : ""} /><span>${esc(c.name)}</span></label>`)
-        .join("")}</div></section>`
+        .join("")}</div></details>`
     : ""
 }
-<section class="fGroup"><h3>Kvapo šeima</h3><div class="fChecks">${visibleFamilies()
+<details class="fGroup" open><summary>Kvapo šeima${glyph("chev-down")}</summary><div class="fChecks">${visibleFamilies()
     .map(f => check("families", f.id, f.name, n(p => p.family === f.id, "families")))
-    .join("")}</div></section>
-<section class="fGroup"><h3>Koncentracija</h3><div class="fChecks">${concs()
+    .join("")}</div></details>
+<details class="fGroup" open><summary>Koncentracija${glyph("chev-down")}</summary><div class="fChecks">${concs()
     .map(c => check("conc", c, `${c} · ${CONC_NAME[c] || ""}`, n(p => p.conc === c, "conc")))
-    .join("")}</div></section>
-<section class="fGroup"><h3>Kaina</h3><div class="fChecks">${PRICE_BANDS.map(b => check("price", b.id, b.name, n(p => b.test(minPrice(p)), "price"))).join("")}</div></section>
-<section class="fGroup"><h3>Formatas</h3><div class="fChecks"><label class="fCheck"><input type="radio" name="fFmt${live ? "" : "S"}" data-f-go="meginukai"${
+    .join("")}</div></details>
+<details class="fGroup" open><summary>Kaina${glyph("chev-down")}</summary><div class="fChecks">${PRICE_BANDS.map(b => check("price", b.id, b.name, n(p => b.test(minPrice(p)), "price"))).join("")}</div></details>
+<details class="fGroup" open><summary>Formatas${glyph("chev-down")}</summary><div class="fChecks"><label class="fCheck"><input type="radio" name="fFmt${live ? "" : "S"}" data-f-go="meginukai"${
     shop.samples ? " checked" : ""
-  } /><span>Mėginukai 2 ml</span></label></div></section>
+  } /><span>Mėginukai 2 ml</span></label></div></details>
 ${filterCount() ? `<button class="btn ghost small block" type="button" data-reset-filters>Išvalyti filtrus</button>` : ""}`;
 }
 function renderShop() {
@@ -174,6 +179,11 @@ function resetFilters() {
   if (ui.view === "shop") renderShop();
 }
 function applyFilterInput(input) {
+  if (input.dataset.sort) {
+    shop.sort = input.dataset.sort;
+    renderShop();
+    return true;
+  }
   if (input.dataset.fGo) {
     const keep = new URLSearchParams(location.search);
     navigate(input.dataset.fGo + (keep.toString() ? `?${keep}` : ""), { replace: true, keepScroll: true });
@@ -233,10 +243,10 @@ function bindShop() {
 }
 // Telefone – tie patys filtrai lange; keičiami iškart, mygtukas rodo, kiek kvapų liks
 function openFilters() {
-  const body = () => `<div class="sheetPad">${filtersHTML(false)}<div class="fActions"><button class="btn ghost" type="button" data-f-clear>Išvalyti</button><button class="btn primary" type="button" data-f-apply>Rodyti ${plural(shopList().length, "kvapą", "kvapus", "kvapų")}</button></div></div>`;
+  const body = () => `<div class="sheetPad fSheet">${filtersHTML(false)}<div class="fActions"><button class="btn ghost" type="button" data-f-clear>Išvalyti</button><button class="btn primary" type="button" data-f-apply>Rodyti ${plural(shopList().length, "kvapą", "kvapus", "kvapų")}</button></div></div>`;
   // Kol langas atidarytas, adresas įrašomas į lango istorijos įrašą, kuris uždarant pašalinamas („Atgal“) –
   // todėl uždarius filtrus adresą su filtrais įrašome dar kartą (dalinimuisi ir puslapio atnaujinimui)
-  openSheet({ title: "Filtrai", html: body(), onClose: () => ui.view === "shop" && shopToUrl() });
+  openSheet({ title: "Filtruoti ir rūšiuoti", html: body(), onClose: () => ui.view === "shop" && shopToUrl() });
   const root = $("#sheetBody");
   const redraw = () => {
     root.querySelector(".sheetPad").outerHTML = body();

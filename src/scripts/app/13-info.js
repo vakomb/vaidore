@@ -23,7 +23,7 @@ function infoHelpHTML() {
 <div class="infoBody">
 <section id="pristatymas" class="infoSec"><h2>Pristatymas</h2>
 <div class="group">${ship}<div class="row"><span class="rowIco" style="background:var(--green)">${glyph("check")}</span><span class="rowTxt">Nemokamai<small>Užsakymams nuo ${eur(SET.freeShippingFrom)}</small></span></div></div>
-<p class="infoTxt">Siunčiame į ${SET.countries.map(c => ({ LT: "Lietuvą", LV: "Latviją", EE: "Estiją" })[c] || c).join(", ")}. Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")}. Omniva paštomatą pasirenkate krepšelyje.</p></section>
+<p class="infoTxt">Siunčiame į ${SET.countries.map(c => ({ LT: "Lietuvą", LV: "Latviją", EE: "Estiją" })[c] || c).join(", ")}. Išsiunčiame per ${esc((SET.dispatch || "1–2 d. d.").replace(/\.$/, ""))}. Omniva paštomatą pasirenkate krepšelyje.</p></section>
 <section id="grazinimas" class="infoSec"><h2>Grąžinimas per ${days} d.</h2>
 <ol class="group steps">
 <li class="row"><span class="stepNo">1</span><span class="rowTxt">Parašykite mums<small>${esc(SET.company.email)} – nurodykite užsakymo numerį</small></span></li>

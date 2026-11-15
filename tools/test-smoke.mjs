@@ -34,6 +34,7 @@ const variant = structuredClone(cat);
 const vp = id => variant.products.find(p => p.id === id);
 vp("jura").stock = 0;
 vp("rasa").images = ["og/rasa.jpg", "og/home.jpg"];
+vp("gintaras").sizes[0].was = vp("gintaras").sizes[0].price + 20; // akcija (sena kaina)
 vp("rasa").reviews = [
   { name: "Ona K.", text: "Gaivus ir švelnus, puikiai tinka darbui.", rating: 5, date: "2026-11-01", verified: true },
   { name: "Rūta P.", text: "Išsilaiko visą dieną.", rating: 4, date: "2026-10-20", verified: true }
@@ -111,14 +112,26 @@ async function run(viewport) {
 
   // Pradžia
   await open(page, A);
-  await page.waitForSelector("#homeTiles a, #homeTiles button");
-  check((await page.locator("#homeTiles > *").count()) === 4, "pradžia: 4 plytelės (Moterims, Vyrams, Unisex, Mėginukai)");
+  await page.waitForSelector("#homeTiles a");
+  const tileHrefs = await page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
+  check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
+  check((await page.locator("#homeHero .heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .mqRow li").count()) >= 10, "pradžia: kolekcijos paveikslas ir bėganti privalumų juosta");
+  check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex, mėginukai)");
+  const note1 = await page.locator("#topNoteTxt").textContent();
+  await page.click('[data-note-step="1"]');
+  check((await page.locator("#topNoteTxt").textContent()) !== note1, "informacinė juosta: rodyklės keičia žinutę");
   check((await page.locator("#homeMoods > *").count()) === cat.families.length, `pradžia: ${cat.families.length} kvapo šeimos`);
   check((await page.locator("#homeLede").textContent()).length > 10, "pradžia: vertės žinutė");
   check((await page.locator("#homePromos [data-quiz]").count()) === 1 && (await page.locator("#homePromos [data-disc]").count()) === 1, "pradžia: „Rask savo kvapą“ ir atradimų rinkinys");
   check(await page.locator("#homeStory").isVisible(), "pradžia: „Mūsų istorija“");
   check(await page.locator("#homeReviews").isHidden(), "be tikrų atsiliepimų – atsiliepimų sekcijos nėra");
-  check((await page.locator("#homePopular .card").count()) > 0, "pradžia: populiariausi");
+  check((await page.locator("#homeRails .card").count()) > 8, "pradžia: karuselės su kvapais");
+  if (!mobile) {
+    const nav = page.locator("#homeRails .railNav:not([hidden])").first();
+    const before = await nav.locator(".railPage").textContent();
+    await nav.locator('[data-rail-step="1"]').click();
+    check(await until(async () => (await nav.locator(".railPage").textContent()) !== before), `karuselė: rodyklė „pirmyn“ (${before} → kitas puslapis)`);
+  }
   await shot(page, `${tag}-pradzia`);
 
   // Meniu → katalogas
@@ -154,13 +167,19 @@ async function run(viewport) {
   const sortVals = await page.locator("#shopSort option").evaluateAll(o => o.map(x => x.value));
   const cheap = sortVals.find(v => /price|kaina|pig/i.test(v) && !/desc|brang/i.test(v));
   if (cheap) {
-    await page.selectOption("#shopSort", cheap);
+    if (mobile) {
+      await page.click("#shopFilterBtn");
+      await page.locator(`#sheetBody input[data-sort="${cheap}"]`).check();
+      await page.click("[data-f-apply]");
+    } else await page.selectOption("#shopSort", cheap);
     const minAll = Math.min(...cat.products.map(p => Math.min(...p.sizes.map(s => s.price))));
     check(await until(async () => money(await page.locator("#shopGrid .card .cardPrice").first().textContent()).includes(`${minAll}`)), "rūšiavimas: pigiausi pirmi");
   }
   await shot(page, `${tag}-katalogas`);
 
   // Mėgstami
+  await page.waitForSelector("#backdrop", { state: "hidden" });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.locator("#shopGrid .card [data-fav]").first().click();
   check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė → mėgstami (1)");
 
@@ -181,11 +200,15 @@ async function run(viewport) {
   await page.waitForTimeout(350);
   await page.click('#productRoot .sizeOpt[data-ml="2"]');
   check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(rasa.sample), "mėginukas 2 ml – kaina");
+  await page.click('#productRoot [data-qty-step="1"]');
+  check((await page.locator("#productRoot [data-qty]").textContent()) === "2", "kiekis kvapo puslapyje: 2");
   await page.locator("#productRoot [data-add]").first().click();
   await page.waitForSelector("#miniWrap:not([hidden])");
   await page.keyboard.press("Escape");
   await page.waitForTimeout(350);
-  check((await cartBadge(page)) === "2", "mėginukas pridėtas (2)");
+  check((await cartBadge(page)) === "3", "2 mėginukai pridėti (3)");
+  check((await page.locator("#productRoot [data-qty]").textContent()) === "1", "kiekis po įdėjimo – vėl 1");
+  check((await page.locator("#productRoot .acc").count()) === 5 && (await page.locator("#productRoot .acc[open]").count()) === 1, "kvapo puslapis: 5 išskleidžiamos dalys (natos atidarytos)");
 
   // Atradimų rinkinys
   await open(page, `${A}rinkinys`);
@@ -195,7 +218,7 @@ async function run(viewport) {
   for (let i = 0; i < D.count; i++) await picks.nth(i).click();
   check(await page.locator("#sheetBody [data-disc-add]").isEnabled(), `rinkinys: pasirinkta ${D.count}`);
   await page.click("#sheetBody [data-disc-add]");
-  check(await until(async () => (await cartBadge(page)) === "3"), "rinkinys krepšelyje (3)");
+  check(await until(async () => (await cartBadge(page)) === "4"), "rinkinys krepšelyje (4)");
   await page.keyboard.press("Escape");
   await page.waitForTimeout(350);
 
@@ -221,6 +244,7 @@ async function run(viewport) {
   await first.locator('[data-step="1"]').click();
   check(await until(async () => (await first.locator("output").textContent()) === "2"), "kiekis +1");
   await first.locator('[data-step="-1"]').click();
+  await until(async () => (await first.locator("output").textContent()) === "1");
   await page.locator("#cartRoot [data-line]").first().locator('[data-step="-1"]').click();
   check(await until(async () => (await page.locator("#cartRoot [data-line]").count()) === 2), "kiekis 0 – eilutė pašalinta");
   await page.locator(".toast button", { hasText: "Atšaukti" }).click();
@@ -302,6 +326,12 @@ async function run(viewport) {
   await v.page.waitForSelector("#productRoot .gal img");
   check((await v.page.locator("#productRoot .gal img").count()) === 2, "galerija: 2 nuotraukos");
   check(await until(async () => (await v.page.locator("[data-pd-reviews]").isVisible()) && (await v.page.locator("[data-pd-reviews]").textContent()).includes("Ona K.")), "kvapo atsiliepimai");
+  await open(v.page, `${B}kvepalai`);
+  const g = v.page.locator('#shopGrid .card:has(a[href="kvepalai/gintaras"])');
+  check((await g.locator(".cardPrice s").count()) === 1 && (await g.locator(".cardPrice .sale").count()) === 1 && (await g.locator(".salePill").count()) === 1, "akcija: perbraukta sena kaina, raudona kaina, žymė „Akcija“");
+  check((await v.page.locator('#shopGrid .card:has(a[href="kvepalai/rasa"]) .cardRate .stars').count()) === 1, "kortelė: žvaigždutės iš tikrų atsiliepimų");
+  await open(v.page, `${B}kvepalai/gintaras`);
+  check((await v.page.locator("#productRoot .pdPrice s").count()) === 1, "akcija kvapo puslapyje: sena kaina");
   await open(v.page, B);
   check(await until(() => v.page.locator("#homeReviews").isVisible()), "pradžia: atsiliepimai (kai yra tikrų)");
   await shot(v.page, `${tag}-variantas`);

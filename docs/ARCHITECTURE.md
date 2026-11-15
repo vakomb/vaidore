@@ -120,12 +120,22 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
-## Dizainas (AutoEasier DNR)
+## Dizainas (v4: parfumada.lt išdėstymas, AutoEasier programėlės pojūtis)
 
-Baltas fonas, skyriai atskiriami erdve ir plonomis linijomis; šešėliai (`--elev-*`) – tik objektams; sistemos šriftas,
-`tabular-nums`; spyruoklinis judesys (`--spring`), paspaudimas `scale(.975)`; langai – apatinis lapas telefone / centre kompiuteryje,
-braukimas ir „Atgal“ uždaro; jungikliai ir segmentai – kaip iOS. Buteliukai nupiešti SVG (`04-bottle.js`), kol nėra nuotraukų.
-`prefers-reduced-motion` – be animacijų.
+- Šriftas Jost (geometrinis, SIL OFL, savame serveryje, 33 KB), lengvi storiai (400–600), teigiami raidžių tarpai; pavadinimai,
+  juostos ir kortelių vardai – DIDŽIOSIOMIS su tarpais (`--caps`).
+- Spalvos: baltas fonas, grafitas (`--band`, `--ink-grad` – juostos, pagrindiniai mygtukai), šampano auksas (`--gold*` – akcentai).
+- Viršuje – tamsi rotuojanti žinučių juosta; header'is: telefone meniu · paieška · LOGOTIPAS · paskyra · krepšelis, kompiuteryje
+  paieška · LOGOTIPAS · įrankiai + tamsi kategorijų juosta (`--navH`, lipniems elementams – `--hdrAll`).
+- Pradžia: platus tamsus kolekcijos paveikslas su privalumais → bėganti privalumų juosta → skyriai su juostomis per visą plotį
+  ir eilute „… | Peržiūrėti“ → kategorijų plytelės → karuselės (telefone braukiant, kompiuteryje rodyklės ir „1/3“).
+- Kortelė: paveikslas be rėmelio (4:5), centruota: PAVADINIMAS, trys natos, kaina (akcija – perbraukta sena `sizes[].was` ir raudona),
+  žvaigždutės iš tikrų atsiliepimų.
+- Kvapo puslapis: PAVADINIMAS tarp linijų, natos, tūrio „piliulės“, kiekis, „Į krepšelį“, išskleidžiamos dalys (natos, savybės,
+  kam skirti, pristatymas, naudojimas); telefone – prilipęs „Į krepšelį“.
+- Katalogas: kompiuteryje – išskleidžiamos filtrų grupės kairėje, telefone – „Filtruoti ir rūšiuoti“ langas.
+- Programėlės pojūtis lieka: spyruoklinis judesys, paspaudimas `scale(.975)`, apatiniai langai, braukimas ir „Atgal“ uždaro,
+  `prefers-reduced-motion` – be animacijų. Iššokančių „X nusipirko“ langų sąmoningai nėra.
 
 ## Testai
 

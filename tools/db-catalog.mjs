@@ -40,7 +40,7 @@ export async function dbCatalog(sb, fallback) {
         sillage: p.sillage,
         seasons: p.seasons || [],
         time: p.times || [],
-        sizes: (p.sizes || []).map(s => ({ ml: Number(s.ml), price: Number(s.price) })).sort((a, b) => a.ml - b.ml),
+        sizes: (p.sizes || []).map(s => ({ ml: Number(s.ml), price: Number(s.price), ...(Number(s.was) > Number(s.price) ? { was: Number(s.was) } : {}) })).sort((a, b) => a.ml - b.ml),
         sample: Number(p.sample),
         look: p.look,
         badge: p.badge || null,

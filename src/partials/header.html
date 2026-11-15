@@ -1,25 +1,28 @@
-<div class="topNote" id="topNote" role="note">
-  <span id="topNoteTxt"></span>
-  <button class="topNoteX" id="topNoteX" aria-label="Uždaryti pranešimą"><span data-glyph="x"></span></button>
+<div class="topNote" id="topNote" role="region" aria-label="Parduotuvės naujienos">
+  <button class="noteArrow" type="button" data-note-step="-1" aria-label="Ankstesnė žinutė"><span data-glyph="chev-left"></span></button>
+  <p class="noteTrack" id="topNoteTxt" aria-live="polite"></p>
+  <button class="noteArrow" type="button" data-note-step="1" aria-label="Kita žinutė"><span data-glyph="chev-right"></span></button>
 </div>
 <header class="hdr" id="hdr">
   <div class="hdrIn">
-    <button class="iconBtn menuBtn" id="menuBtn" aria-label="Meniu" aria-controls="drawer" aria-expanded="false">
-      <span data-glyph="menu"></span>
-    </button>
-    <a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span data-logo></span></a>
-    <nav class="hdrNav" id="hdrNav" aria-label="Pagrindinė navigacija"></nav>
-    <div class="hdrTools">
+    <div class="hdrL">
+      <button class="iconBtn menuBtn" id="menuBtn" aria-label="Meniu" aria-controls="drawer" aria-expanded="false">
+        <span data-glyph="menu"></span>
+      </button>
+      <button class="iconBtn searchBtn" id="searchBtn" aria-label="Paieška"><span data-glyph="search"></span></button>
       <form class="hdrSearch" id="hdrSearch" role="search" action="kvepalai">
         <span data-glyph="search" aria-hidden="true"></span>
         <input id="hdrQ" name="q" type="search" placeholder="Ieškoti kvapo ar natos" autocomplete="off" enterkeyhint="search" aria-label="Paieška" />
         <div class="searchPop" id="searchPop" hidden></div>
       </form>
-      <button class="iconBtn searchBtn" id="searchBtn" aria-label="Paieška"><span data-glyph="search"></span></button>
-      <a class="iconBtn favBtn" href="megstami" data-nav aria-label="Mėgstami"><span data-glyph="heart"></span><b class="countBadge soft" data-badge="fav" hidden></b></a>
+    </div>
+    <a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span data-logo></span></a>
+    <div class="hdrTools">
       <a class="iconBtn accBtn" href="paskyra" data-nav aria-label="Paskyra"><span data-glyph="user"></span><i class="accDot" id="accDot" hidden></i></a>
+      <a class="iconBtn favBtn" href="megstami" data-nav aria-label="Mėgstami"><span data-glyph="heart"></span><b class="countBadge soft" data-badge="fav" hidden></b></a>
       <button class="iconBtn cartBtn" id="cartBtn" aria-label="Krepšelis"><span data-glyph="bag"></span><b class="countBadge" data-badge="cart" hidden></b></button>
     </div>
   </div>
+  <nav class="hdrNav" id="hdrNav" aria-label="Pagrindinė navigacija"></nav>
   <div class="mega" id="mega" hidden></div>
 </header>

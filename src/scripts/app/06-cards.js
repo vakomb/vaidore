@@ -6,6 +6,7 @@ function heartBtn(p, cls = "heart") {
 }
 function badgePill(p) {
   if (!inStock(p)) return `<span class="pill glass soldPill">Išparduota</span>`;
+  if (onSale(p)) return `<span class="pill glass salePill">Akcija</span>`;
   if (!p.badge) return "";
   return `<span class="pill glass">${esc(p.badge)}</span>`;
 }
@@ -17,20 +18,28 @@ function artImg(p, { eager = false } = {}) {
     : bottleSVG(p);
 }
 const defaultMl = p => (p.sizes.find(s => s.ml === 50) || p.sizes[0]).ml;
+function cardPriceHTML(p, sample) {
+  if (sample) return `<span class="money">${eur(p.sample)}</span><small>· 2 ml</small>`;
+  const c = cheapestSize(p);
+  const from = p.sizes.length > 1 ? "nuo " : "";
+  return c.was > c.price
+    ? `<s class="money">${eur(c.was)}</s><span class="money sale">${from}${eur(c.price)}</span>`
+    : `<span class="money">${from}${eur(c.price)}</span>`;
+}
 function cardHTML(p, opts = {}) {
   const sample = !!opts.sample;
   const sold = !inStock(p);
-  const price = sample
-    ? `<span class="money">${eur(p.sample)}</span><small>· 2 ml</small>`
-    : `<small>nuo</small><span class="money">${eurShort(minPrice(p))}</span>`;
+  const rate = ratingOf(p);
   const quick = sold
     ? ""
     : `<div class="quick"><button class="btn primary small" type="button" data-quick="${p.id}" data-ml="${sample ? SAMPLE_ML : defaultMl(p)}">${glyph("bag")}${sample ? "Mėginukas" : `${defaultMl(p)} ml`}</button>${
-        sample ? "" : `<button class="btn ghost small" type="button" data-quick="${p.id}" data-ml="${SAMPLE_ML}">2 ml</button>`
+        sample ? "" : `<button class="btn light small" type="button" data-quick="${p.id}" data-ml="${SAMPLE_ML}">2 ml</button>`
       }</div>`;
   return `<article class="card${sold ? " sold" : ""}">
 <div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${badgePill(p)}${heartBtn(p)}${quick}</div>
-<div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardSub">${esc(GENDER_NAME[p.gender])} · ${esc(familyName(p.family))}</span><span class="cardPrice">${price}</span></div>
+<div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardNotes">${keyNotes(p).map(esc).join(" · ")}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
+    rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""
+  }</div>
 <a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}, ${esc(cardSub(p))}"></a>
 </article>`;
 }

@@ -21,7 +21,10 @@ for (const p of cat.products) {
   if (!fam.has(p.family)) fail(`${p.id}: nežinoma kvapo šeima „${p.family}“`);
   if (!["moterims", "vyrams", "unisex"].includes(p.gender)) fail(`${p.id}: gender – moterims / vyrams / unisex`);
   if (!p.sizes?.length) fail(`${p.id}: nėra tūrių`);
-  for (const s of p.sizes || []) if (!(s.ml > 0 && s.price > 0)) fail(`${p.id}: blogas tūris / kaina`);
+  for (const s of p.sizes || []) {
+    if (!(s.ml > 0 && s.price > 0)) fail(`${p.id}: blogas tūris / kaina`);
+    if (s.was != null && !(s.was > s.price)) fail(`${p.id}: sizes.was (sena kaina) turi būti didesnė už price`);
+  }
   for (const k of ["top", "heart", "base"]) if (!p.notes?.[k]?.length) fail(`${p.id}: nėra natų „${k}“`);
   if (!/^#[0-9a-f]{6}$/i.test(p.look?.liquid || "")) fail(`${p.id}: look.liquid – spalva #RRGGBB`);
   if (p.stock != null && !(Number.isInteger(p.stock) && p.stock >= 0)) fail(`${p.id}: stock – sveikas skaičius ≥ 0 (arba nėra lauko)`);
@@ -40,6 +43,15 @@ if (D && ids.has(D.id)) fail("settings.discovery.id sutampa su kvapo id");
 // Neužpildyti rekvizitai – tik įspėjimas (parduotuvė veikia, bet prieš paleidimą užpildykite)
 const todo = Object.entries(cat.settings.company).filter(([, v]) => /^\[.*\]$/.test(String(v)));
 if (todo.length) console.warn(`! settings.company neužpildyta: ${todo.map(([k]) => k).join(", ")}`);
+
+// CSS: surinkimo glaudintuvas (build.mjs minCss) šalina tarpą prieš „:“, todėl selektorius „.a :is(…)“ virstų „.a:is(…)“
+for (const f of fs.readdirSync(path.join(root, "src/styles")).filter(f => f.endsWith(".css"))) {
+  fs.readFileSync(path.join(root, "src/styles", f), "utf8")
+    .split("\n")
+    .forEach((line, i) => {
+      if (/\{\s*$/.test(line) && /[\w)\]] :[a-z-]/.test(line)) fail(`src/styles/${f}:${i + 1}: selektoriuje „ :“ – rašykite „ *:“ arba konkretų elementą`);
+    });
+}
 
 // 2. JS sintaksė (programėlė kaip vienas scope)
 const html = buildApp();

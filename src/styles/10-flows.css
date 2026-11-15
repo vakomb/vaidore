@@ -53,7 +53,7 @@
   gap: 7px;
   margin-top: 8px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink2);
 }
 .pdSuits svg,
@@ -72,7 +72,7 @@
   margin-top: 12px;
   font-size: 14px;
   line-height: 1.45;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink3);
 }
 .pdNote {
@@ -121,7 +121,7 @@
   margin: 0 4px;
   font-size: 23px;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.01em;
 }
 .qzHint {
   margin: 6px 4px 0;
@@ -134,7 +134,7 @@
 }
 .qzOpts .row {
   min-height: 60px;
-  font-weight: 650;
+  font-weight: 500;
 }
 .qzTick {
   width: 26px;
@@ -201,11 +201,11 @@
 }
 .qzTxt b {
   font-size: 17px;
-  letter-spacing: -0.015em;
+  letter-spacing: 0.01em;
 }
 .qzTxt small {
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink3);
 }
 .qzWhy {
@@ -214,13 +214,13 @@
   gap: 3px;
   margin-top: 6px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink2);
 }
 .qzWhy em {
   font-style: normal;
   font-size: 12.5px;
-  font-weight: 750;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink3);
@@ -243,7 +243,7 @@
 .discLead {
   margin: 0 4px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink2);
 }
 .discCredit {
@@ -255,7 +255,7 @@
   background: var(--brand-soft);
   font-size: 14px;
   line-height: 1.45;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink2);
 }
 .discCredit svg {
@@ -297,7 +297,7 @@
 .discOpt small {
   padding: 0 4px;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink3);
 }
 .discOpt[aria-pressed="true"] {
@@ -360,7 +360,7 @@
 .discBanner small {
   display: block;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink3);
 }
 .discBanner .chev {
@@ -373,11 +373,11 @@
 }
 .cartOpts .row .money {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
 }
 .cartOpts .row small.warn {
   color: var(--amber);
-  font-weight: 650;
+  font-weight: 500;
 }
 .radio {
   width: 22px;
@@ -395,7 +395,7 @@
 }
 .row.sub .rowTxt {
   color: var(--brand);
-  font-weight: 650;
+  font-weight: 500;
 }
 .groupNote {
   margin: 8px 4px 0;
@@ -467,7 +467,7 @@
 }
 .lkList .row {
   font-size: 15.5px;
-  font-weight: 650;
+  font-weight: 500;
 }
 .lkList .rowTxt small {
   font-weight: 500;
@@ -492,7 +492,7 @@
   background: var(--brand-soft);
   color: var(--brand);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 /* „Pranešti, kai bus“ */
@@ -504,5 +504,5 @@
 }
 .notify .qzHint a {
   color: var(--brand);
-  font-weight: 650;
+  font-weight: 500;
 }

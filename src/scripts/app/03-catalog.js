@@ -46,6 +46,20 @@ const visibleFamilies = () => CAT.families.filter(f => f.visible !== false);
 const visibleCategories = () => (CAT.categories || []).filter(c => c.visible !== false).sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
 
 const minPrice = p => Math.min(...p.sizes.map(s => s.price));
+// Akcija: tūrio „was“ – ankstesnė kaina (administratorius įrašo tik tikrą – mažiausią per 30 d., Omnibus direktyva)
+const wasOf = (p, ml) => {
+  const s = ml === SAMPLE_ML ? null : p.sizes.find(x => x.ml === ml);
+  return s?.was > s?.price ? s.was : null;
+};
+const cheapestSize = p => p.sizes.reduce((a, b) => (b.price < a.price ? b : a), p.sizes[0]);
+const onSale = p => p.sizes.some(s => s.was > s.price);
+// Trys būdingiausios natos (po vieną iš viršutinių, širdies, bazinių) – kortelėse ir kvapo puslapyje
+const keyNotes = p => [p.notes.top[0], p.notes.heart[0], p.notes.base[0]].filter(Boolean);
+// Vidutinis įvertinimas iš tikrų atsiliepimų (be įvertinimo – null)
+function ratingOf(p) {
+  const r = (p.reviews || []).filter(x => x?.rating);
+  return r.length ? { avg: r.reduce((s, x) => s + x.rating, 0) / r.length, n: r.length } : null;
+}
 const familyName = id => FAMILY?.get(id)?.name || "";
 const priceOf = (p, ml) => (ml === SAMPLE_ML ? p.sample : p.sizes.find(s => s.ml === ml)?.price);
 const sizeLabel = ml => (ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${ml} ml`);

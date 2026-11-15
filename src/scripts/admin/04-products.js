@@ -217,6 +217,8 @@ ${pageHead(isNew ? "Naujas kvapas" : p.name, isNew ? "Užpildykite ir išsaugoki
 </section>
 <section class="admCard"><h2>Tūriai, kainos ir likutis</h2>
 <div class="admSizes" id="sizesBox"></div>
+<p class="admNote">„Sena kaina“ – tik akcijai: parduotuvėje ji perbraukiama, o kaina rodoma raudonai. Įrašykite tikrą mažiausią
+kainą per paskutines 30 dienų (Omnibus direktyva); be akcijos palikite tuščią.</p>
 <button class="btn ghost small" type="button" data-size-add>${glyph("plus")}Pridėti tūrį</button>
 <div class="fieldRow" style="margin-top:16px"><label class="field"><span>Mėginukas 2 ml, €</span><input name="sample" inputmode="decimal" value="${esc(dec(p.sample))}" /></label>
 <label class="field"><span>Likutis, vnt.</span><input name="stock" type="number" inputmode="numeric" min="0" step="1" value="${p.stock ?? ""}" placeholder="neskaičiuojamas" /><small>0 – išparduota; tuščia – neskaičiuojama</small></label></div>
@@ -302,11 +304,13 @@ function paintSizes(form, sizes) {
     .map(
       (s, i) => `<div class="admSize"><label class="field"><span>Tūris, ml</span><input inputmode="numeric" data-size-ml value="${esc(s.ml)}" /></label>
 <label class="field"><span>Kaina, €</span><input inputmode="decimal" data-size-price value="${esc(dec(s.price))}" /></label>
+<label class="field"><span>Sena kaina, €</span><input inputmode="decimal" data-size-was value="${esc(dec(s.was ?? ""))}" placeholder="—" /></label>
 <button class="roundBtn" type="button" data-size-rm="${i}" aria-label="Pašalinti tūrį">${glyph("trash")}</button></div>`
     )
     .join("");
 }
-const readSizes = form => $$(".admSize", form).map(r => ({ ml: $("[data-size-ml]", r).value.trim(), price: $("[data-size-price]", r).value.trim() }));
+const readSizes = form =>
+  $$(".admSize", form).map(r => ({ ml: $("[data-size-ml]", r).value.trim(), price: $("[data-size-price]", r).value.trim(), was: $("[data-size-was]", r).value.trim() }));
 function paintImages(ed) {
   const box = $("#imgsBox");
   box.innerHTML = ed.images.length
@@ -355,7 +359,12 @@ function readProduct(ed, form) {
   const id = f.id.value.trim();
   const sizes = readSizes(form)
     .filter(s => s.ml !== "" || s.price !== "")
-    .map(s => ({ ml: Math.round(num(s.ml)), price: Math.round(num(s.price) * 100) / 100 }));
+    .map(s => {
+      const out = { ml: Math.round(num(s.ml)), price: Math.round(num(s.price) * 100) / 100 };
+      const was = s.was === "" ? null : Math.round(num(s.was) * 100) / 100;
+      if (was != null) out.was = was;
+      return out;
+    });
   const notes = { top: list(f.top.value), heart: list(f.heart.value), base: list(f.base.value) };
   const stockRaw = f.stock.value.trim();
   const row = {
@@ -389,6 +398,7 @@ function readProduct(ed, form) {
   if (!sizes.length) errors.push("Pridėkite bent vieną tūrį su kaina");
   if (sizes.some(s => !(s.ml > 2 && s.price > 0))) errors.push("Tūris – daugiau nei 2 ml, kaina – daugiau nei 0 €");
   if (new Set(sizes.map(s => s.ml)).size !== sizes.length) errors.push("Tūriai kartojasi");
+  if (sizes.some(s => s.was != null && !(s.was > s.price))) errors.push("Sena kaina turi būti didesnė už kainą (arba tuščia)");
   if (!(row.sample >= 0)) errors.push("Mėginuko kaina – skaičius");
   if (row.stock != null && !(Number.isInteger(row.stock) && row.stock >= 0)) errors.push("Likutis – sveikas skaičius ≥ 0");
   if (!notes.top.length || !notes.heart.length || !notes.base.length) errors.push("Įrašykite viršutines, širdies ir bazines natas");
