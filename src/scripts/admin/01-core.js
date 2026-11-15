@@ -108,13 +108,38 @@ const loading = (txt = "Įkeliama…") => `<p class="loadingTxt">${esc(txt)}</p>
 // Paleidžia skyriaus įkėlimą; jei vartotojas jau perėjo kitur – rezultato nebepiešia
 const stale = seq => seq !== A.seq;
 // Paveikslų įkėlimas: sumažinama iki 1600 px ir išsaugoma WebP (Safari – JPEG), kad puslapis liktų greitas
+// Nuotrauka sumažinama naršyklėje (iki 1600 px) ir paverčiama WebP (arba JPEG). Jei createImageBitmap formato
+// neatpažįsta (pvz. iPhone HEIC kompiuteryje), bandoma per <img>; nepavykus – aiški klaida.
+async function decodeImage(file) {
+  try {
+    return await createImageBitmap(file);
+  } catch {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      return img;
+    } catch {
+      throw new Error(
+        /\.hei[cf]$/i.test(file.name) || /hei[cf]/i.test(file.type)
+          ? `${file.name}: HEIC formato ši naršyklė neatidaro – išsaugokite nuotrauką kaip JPG arba įkelkite iš telefono`
+          : `${file.name}: nepavyko atidaryti nuotraukos (tinka JPG, PNG, WebP)`
+      );
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+}
 async function prepareImage(file, max = 1600) {
-  if (!/^image\//.test(file.type)) throw new Error(`${file.name}: ne paveikslas`);
-  const bmp = await createImageBitmap(file);
-  const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  if (!/^image\//.test(file.type) && !/\.(jpe?g|png|webp|gif|avif|hei[cf])$/i.test(file.name)) throw new Error(`${file.name}: ne paveikslas`);
+  const bmp = await decodeImage(file);
+  const bw = bmp.naturalWidth || bmp.width;
+  const bh = bmp.naturalHeight || bmp.height;
+  const k = Math.min(1, max / Math.max(bw, bh));
   const c = document.createElement("canvas");
-  c.width = Math.round(bmp.width * k);
-  c.height = Math.round(bmp.height * k);
+  c.width = Math.round(bw * k);
+  c.height = Math.round(bh * k);
   c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
   bmp.close?.();
   const toBlob = (type, q) => new Promise(res => c.toBlob(res, type, q));

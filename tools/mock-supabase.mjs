@@ -9,6 +9,7 @@ export function dbFromCatalog(cat) {
   const products = cat.products.map(p => ({
     id: p.id,
     name: p.name,
+    inspired: p.inspired || "",
     conc: p.conc,
     gender: p.gender,
     family: p.family,

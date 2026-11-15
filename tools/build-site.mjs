@@ -159,7 +159,8 @@ for (const p of products) {
   const url = `${SITE}/kvepalai/${p.id}`;
   const prices = p.sizes.map(s => s.price);
   const notes = [...p.notes.top, ...p.notes.heart, ...p.notes.base].slice(0, 5).join(", ");
-  const desc = `${p.tagline}. ${FAM[p.family]} kvapas: ${notes}. ${p.sizes.map(s => `${s.ml} ml`).join(" / ")} nuo ${money(Math.min(...prices))}, mėginukas 2 ml – ${money(p.sample)}.`.slice(0, 300);
+  const insp = S.inspired?.show !== false && p.inspired ? `Įkvėpti ${p.inspired}. ` : "";
+  const desc = `${insp}${p.tagline}. ${FAM[p.family]} kvapas: ${notes}. ${p.sizes.map(s => `${s.ml} ml`).join(" / ")} nuo ${money(Math.min(...prices))}, mėginukas 2 ml – ${money(p.sample)}.`.slice(0, 300);
   const image = p.images?.length ? p.images.map(i => new URL(i, `${SITE}/`).href) : [`${SITE}/${ogFile(p.id)}`];
   const reviews = (p.reviews || []).filter(r => r?.name && r?.text);
   const rated = reviews.filter(r => r.rating);
@@ -209,10 +210,10 @@ for (const p of products) {
     route: `kvepalai/${p.id}`,
     title: `${p.name} – ${CONC[p.conc] || p.conc} | ${S.shop}`,
     desc,
-    image: image[0],
+    image: fs.existsSync(path.join(src, "public", "og", `${p.id}.jpg`)) ? `${SITE}/og/${p.id}.jpg` : image[0],
     type: "product",
     extra: [ld(product), ld(crumbs)],
-    noscript: `<h1>${esc(p.name)} – ${esc(CONC[p.conc] || p.conc)}</h1><p>${esc(p.desc)}</p><p>${esc(desc)}</p>`
+    noscript: `<h1>${esc(p.name)} – ${esc(CONC[p.conc] || p.conc)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>`
   });
 }
 page("pagalba.html", {

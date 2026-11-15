@@ -34,7 +34,7 @@ const db = {
   products: cat.products.map(p => ({ ...p, description: p.desc, times: p.time, visible: true })),
   profiles: [{ id: "u1", email: "ona@example.com", name: "Ona Onaitė", phone: "+37060000000", address: { name: "Ona", line1: "Gedimino pr. 1", city: "Vilnius", postal: "01103", country: "LT" }, stripe_customer: null }],
   orders: [],
-  restock: [{ id: "r1", product_id: "jura", email: "laukia@example.com", notified: false }]
+  restock: [{ id: "r1", product_id: "arven", email: "laukia@example.com", notified: false }]
 };
 const users = { "eyJ.user": { id: "u1", email: "ona@example.com" }, "eyJ.admin": { id: "a1", email: "vakomb@gmail.com" } };
 const calls = [];
@@ -49,8 +49,8 @@ const session = {
   shipping_cost: { amount_total: 0 },
   line_items: {
     data: [
-      { description: "Vaidore Gintaras · 100 ml", quantity: 1, amount_total: 12900, price: { unit_amount: 12900, product: { metadata: { product_id: "gintaras", ml: "100" } } } },
-      { description: "Vaidore Atradimų rinkinys", quantity: 1, amount_total: 1490, price: { unit_amount: 1490, product: { metadata: { product_id: D.id, picks: "rasa,jura,gintaras,ruta,smilga" } } } },
+      { description: "Vaidore Safrane · 100 ml", quantity: 1, amount_total: 12900, price: { unit_amount: 12900, product: { metadata: { product_id: "safrane", ml: "100" } } } },
+      { description: "Vaidore Atradimų rinkinys", quantity: 1, amount_total: 1490, price: { unit_amount: 1490, product: { metadata: { product_id: D.id, picks: "vanor,arven,safrane,noirelle,bellara" } } } },
       { description: "Dovanų pakavimas", quantity: 1, amount_total: 250, price: { unit_amount: 250, product: { metadata: {} } } }
     ]
   }
@@ -134,23 +134,23 @@ const F = "https://sb.test/functions/v1/shop";
 const res = async r => ({ status: r.status, body: await r.json() });
 
 // ── checkout ──
-let r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "rasa", ml: 77, qty: 1 }] } })));
+let r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "vanor", ml: 77, qty: 1 }] } })));
 check(r.status === 400, "checkout: neegzistuojantis tūris → 400");
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: D.id, qty: 1, picks: ["rasa", "rasa", "jura", "ruta", "smilga"] }] } })));
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: D.id, qty: 1, picks: ["vanor", "vanor", "arven", "noirelle", "bellara"] }] } })));
 check(r.status === 400, "checkout: rinkinys su pasikartojančiu kvapu → 400");
-db.products.find(p => p.id === "jura").stock = 0;
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "jura", ml: 50, qty: 1 }] } })));
+db.products.find(p => p.id === "arven").stock = 0;
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 50, qty: 1 }] } })));
 check(r.status === 409 && /išparduotas/.test(r.body.error), "checkout: stock 0 → 409 „išparduotas“");
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: D.id, qty: 1, picks: ["rasa", "jura", "gintaras", "ruta", "smilga"] }] } })));
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: D.id, qty: 1, picks: ["vanor", "arven", "safrane", "noirelle", "bellara"] }] } })));
 check(r.status === 409, "checkout: rinkinys su išparduotu kvapu → 409");
-db.products.find(p => p.id === "jura").stock = 2;
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "jura", ml: 50, qty: 3 }] } })));
+db.products.find(p => p.id === "arven").stock = 2;
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 50, qty: 3 }] } })));
 check(r.status === 409 && /liko tik 2/.test(r.body.error), "checkout: daugiau nei likutis → 409 „liko tik 2“");
-db.products.find(p => p.id === "jura").stock = null;
-db.products.find(p => p.id === "smilga").visible = false;
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "smilga", ml: 50, qty: 1 }] } })));
+db.products.find(p => p.id === "arven").stock = null;
+db.products.find(p => p.id === "bellara").visible = false;
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "bellara", ml: 50, qty: 1 }] } })));
 check(r.status === 400, "checkout: paslėptas kvapas – nepirktinas");
-db.products.find(p => p.id === "smilga").visible = true;
+db.products.find(p => p.id === "bellara").visible = true;
 
 calls.length = 0;
 r = await res(
@@ -158,9 +158,9 @@ r = await res(
     req(`${F}/checkout`, {
       body: {
         items: [
-          { id: "gintaras", ml: 100, qty: 1, price: 0.01 },
-          { id: "rasa", ml: 2, qty: 1 },
-          { id: D.id, qty: 1, picks: ["rasa", "jura", "gintaras", "ruta", "smilga"] }
+          { id: "safrane", ml: 100, qty: 1, price: 0.01 },
+          { id: "vanor", ml: 2, qty: 1 },
+          { id: D.id, qty: 1, picks: ["vanor", "arven", "safrane", "noirelle", "bellara"] }
         ],
         shipping: { method: "omniva", locker: { zip: "55512", name: "Kauno EXPRESS MARKET Donelaičio paštomatas", addr: "K. Donelaičio g. 44A", city: "Kauno m.", cc: "LT" } },
         gift: { on: true, note: "Su gimtadieniu!\n<b>" },
@@ -171,25 +171,26 @@ r = await res(
 );
 const b = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(r.status === 200 && r.body.url, "checkout: sesija sukurta");
-check(b.get("line_items[0][price_data][unit_amount]") === "12900", "checkout: kaina iš duomenų bazės (12900), ne iš naršyklės");
-check(b.get("line_items[2][price_data][unit_amount]") === String(Math.round(D.price * 100)) && /Rasa, Jūra/.test(b.get("line_items[2][price_data][product_data][description]")), "checkout: rinkinys – fiksuota kaina ir kvapai");
+const c100 = String(Math.round(cat.products.find(p => p.id === "safrane").sizes.find(s => s.ml === 100).price * 100));
+check(b.get("line_items[0][price_data][unit_amount]") === c100, `checkout: kaina iš duomenų bazės (${c100}), ne iš naršyklės`);
+check(b.get("line_items[2][price_data][unit_amount]") === String(Math.round(D.price * 100)) && /Vanor, Arven/.test(b.get("line_items[2][price_data][product_data][description]")), "checkout: rinkinys – fiksuota kaina ir kvapai");
 check(b.get("line_items[3][price_data][product_data][name]") === "Dovanų pakavimas", "checkout: dovanų pakavimo eilutė");
 check(b.get("metadata[gift_note]") === "Su gimtadieniu! <b>", "checkout: rašteliukas metaduomenyse (be eilučių lūžių)");
-check(b.get("metadata[sample_credit_cents]") === String(490 + Math.round(D.price * 100)), "checkout: mėginukų suma kodui");
+check(b.get("metadata[sample_credit_cents]") === String(Math.round(cat.products.find(p => p.id === "vanor").sample * 100) + Math.round(D.price * 100)), "checkout: mėginukų suma kodui");
 check(!b.has("shipping_address_collection[allowed_countries][0]") && /55512/.test(b.get("metadata[locker]")), "checkout: paštomatas – adreso neklausiama");
 check(b.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "0" && !b.has("shipping_options[1][shipping_rate_data][type]"), "checkout: tik pasirinktas būdas, nemokamai nuo 60 €");
 check(b.get("success_url") === "https://vakomb.github.io/vaidore/aciu?s={CHECKOUT_SESSION_ID}", "checkout: grįžimas į tą pačią svetainę (GitHub Pages)");
 check(!b.has("customer") && !b.has("metadata[user_id]"), "checkout: svečias – be paskyros");
 
 calls.length = 0;
-await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "jura", ml: 50, qty: 1 }], shipping: { method: "dpd" }, site: "https://piktas.example" } }));
+await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 50, qty: 1 }], shipping: { method: "dpd" }, site: "https://piktas.example" } }));
 let cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(cb.get("shipping_address_collection[allowed_countries][0]") === "LT" && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "499", "checkout: kurjeris – adresas, 4,99 €");
 check(cb.get("success_url").startsWith("https://vaidore.com/aciu"), "checkout: svetimas grįžimo adresas – nenaudojamas");
 check(!cb.has("metadata[sample_credit_cents]"), "checkout: be mėginukų – kodo nėra");
 
 calls.length = 0;
-await shop.checkout(req(`${F}/checkout`, { token: "eyJ.user", body: { items: [{ id: "jura", ml: 50, qty: 1 }], shipping: { method: "dpd" } } }));
+await shop.checkout(req(`${F}/checkout`, { token: "eyJ.user", body: { items: [{ id: "arven", ml: 50, qty: 1 }], shipping: { method: "dpd" } } }));
 cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(cb.get("metadata[user_id]") === "u1" && cb.get("customer") === "cus_1" && db.profiles[0].stripe_customer === "cus_1", "checkout: prisijungęs – susieta su paskyra, Stripe klientas sukurtas ir išsaugotas");
 check(calls.find(c => c.url === "https://api.stripe.com/v1/customers")?.body.get("shipping[address][line1]") === "Gedimino pr. 1", "checkout: išsaugotas adresas perduodamas Stripe");
@@ -203,7 +204,7 @@ check(promoCall?.body.get("restrictions[minimum_amount]") === String(S.sampleCre
 check(promoCall?.headers["Idempotency-Key"] === `vd-promo-${session.id}`, "kodas: Stripe idempotency raktas");
 check(db.orders.length === 1 && db.orders[0].user_id === "u1" && db.orders[0].credit_code === "VD-E5F6G7H8", "order: užsakymas įrašytas su paskyra ir kodu");
 const it = db.orders[0].items;
-check(it.length === 2 && it[0].ml === 100 && it[1].picks.length === 5 && db.orders[0].product_ids.includes("ruta"), "order: eilutės (buteliukas, rinkinys su kvapais), be pakavimo eilutės");
+check(it.length === 2 && it[0].ml === 100 && it[1].picks.length === 5 && db.orders[0].product_ids.includes("noirelle"), "order: eilutės (buteliukas, rinkinys su kvapais), be pakavimo eilutės");
 check(!JSON.stringify(r.body).includes("ona@"), "order: asmens duomenų negrąžina");
 calls.length = 0;
 await shop.orderInfo(req(`${F}/order?s=${session.id}`, { method: "GET" }));
@@ -243,7 +244,7 @@ r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { a
 check(r.status === 200 && calls.some(c => c.url.endsWith("/refunds") && c.body.get("payment_intent") === "pi_1") && db.orders[0].status === "refunded", "admin: pinigų grąžinimas per Stripe + likučiai");
 r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "refund", order_id: "o1" } })));
 check(r.status === 409, "admin: antrą kartą grąžinti negalima");
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "restock-notify", product_id: "jura" } })));
+r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "restock-notify", product_id: "arven" } })));
 check(r.status === 200 && r.body.sent === 1 && db.restock[0].notified, "admin: „Pranešti, kai bus“ laiškai išsiųsti ir pažymėti");
 
 // ── account ──

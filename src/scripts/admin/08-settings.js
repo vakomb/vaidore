@@ -15,6 +15,7 @@ async function renderSettings(main, _param, seq) {
   const g = S.gift || {};
   const st = S.story || {};
   const an = S.analytics || {};
+  const ins = S.inspired || {};
   const unfilled = v => (/^\[.*\]$/.test(String(v || "")) ? "" : v);
   const fld = (name, label, value, { type = "text", hint = "", ph = "", mode = "", max = 200 } = {}) =>
     `<label class="field"><span>${label}</span><input name="${name}" type="${type}"${mode ? ` inputmode="${mode}"` : ""} maxlength="${max}" value="${esc(value ?? "")}"${ph ? ` placeholder="${esc(ph)}"` : ""} />${hint ? `<small>${hint}</small>` : ""}</label>`;
@@ -33,6 +34,10 @@ ${fld("tagline", "Šūkis", S.tagline, { hint: "Viena eilutė pradžios puslapyj
 ${fld("heroEyebrow", "Antraštė virš pavadinimo", h.eyebrow, { ph: "Žiemos kolekcija", max: 40 })}
 ${fld("heroTitle", "Pavadinimas", h.title, { ph: "Paliekant tuščią – kvapo pavadinimas", max: 60 })}
 ${area("heroText", "Tekstas", h.text, "Paliekant tuščią – kvapo trumpas aprašymas")}
+</section>
+<section class="admCard" id="ikvepti"><h2>„Įkvėpti …“</h2>
+<label class="admToggleRow"><span><b>Rodyti, kokiu kvapu įkvėpta</b><small>Kortelėse ir kvapo puslapyje, pvz. „Įkvėpti Tom Ford – Tobacco Vanille“ (laukas „Įkvėpta“ kvapo kortelėje)</small></span><input type="checkbox" name="insShow" class="admSwitchInp"${attr(ins.show !== false, "checked")} /></label>
+${area("insNote", "Pastaba apie prekių ženklus", ins.note, "Rodoma kvapo puslapyje po „Į krepšelį“ smulkiu šriftu")}
 </section>
 <section class="admCard" id="pristatymas"><h2>Pristatymas</h2>
 ${(S.shipping || [])
@@ -131,7 +136,8 @@ ${fld("plausible", "Plausible domenas", an.plausible, { ph: "vaidore.com", hint:
           email: v("coEmail")
         },
         story: { ...st, title: v("storyTitle"), text: v("storyText"), image: storyImage },
-        analytics: { ...an, plausible: v("plausible"), vercel: f.vercelAn.checked }
+        analytics: { ...an, plausible: v("plausible"), vercel: f.vercelAn.checked },
+        inspired: { ...ins, show: f.insShow.checked, note: v("insNote") }
       };
       if (!(next.freeShippingFrom >= 0)) errors.push("Nemokamo pristatymo riba – skaičius");
       if (shipping.some(o => !(o.price >= 0))) errors.push("Pristatymo kaina – skaičius");

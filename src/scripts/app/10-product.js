@@ -62,7 +62,9 @@ function productPageHTML(p, ml) {
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(o.days)})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
   const use = `<ul class="accList"><li>Purkškite ant pulsuojančių vietų – riešų, kaklo, už ausų – iš 15–20 cm atstumo.</li><li>Netrinkite – leiskite kvapui atsiskleisti pačiam.</li><li>Ant švarios, sudrėkintos odos kvapas išsilaiko ilgiau.</li><li>Laikykite vėsioje, nuo saulės apsaugotoje vietoje.</li></ul>`;
   return `<nav class="crumbs" aria-label="Naršymo kelias">${crumbsHTML(crumbs)}</nav>
-<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1><p class="pdKey">${keyNotes(p).map(esc).join(" · ")}</p>${
+<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
+    inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
+  }<p class="pdKey">${keyNotes(p).map(esc).join(" · ")}</p>${
     rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
   }</header>
 <article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
@@ -93,6 +95,7 @@ ${sold ? "" : `<p class="pdLabel">Kiekis</p>`}
       : `<div class="qty" role="group" aria-label="Kiekis"><button type="button" data-qty-step="-1" aria-label="Mažiau">${glyph("minus")}</button><output data-qty>1</output><button type="button" data-qty-step="1" aria-label="Daugiau">${glyph("plus")}</button></div>`
   }${buyBtn}</div>
 <p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
+${inspiredOf(p) && SET.inspired?.note ? `<p class="pdLegal">${esc(SET.inspired.note)}</p>` : ""}
 <div data-note-slot>${ml === SAMPLE_ML && !sold ? sampleNoteHTML() : ""}</div>
 </div>
 <div class="pdBelow">

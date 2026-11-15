@@ -37,10 +37,12 @@ function cardHTML(p, opts = {}) {
       }</div>`;
   return `<article class="card${sold ? " sold" : ""}">
 <div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${badgePill(p)}${heartBtn(p)}${quick}</div>
-<div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardNotes">${keyNotes(p).map(esc).join(" · ")}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
+<div class="cardTxt"><span class="cardName">${esc(p.name)}</span>${
+    inspiredOf(p) ? `<span class="cardInsp">Įkvėpti ${esc(inspiredOf(p))}</span>` : ""
+  }<span class="cardNotes">${keyNotes(p).map(esc).join(" · ")}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
     rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""
   }</div>
-<a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}, ${esc(cardSub(p))}"></a>
+<a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}${inspiredOf(p) ? `, įkvėpti ${esc(inspiredOf(p))}` : ""}, ${esc(cardSub(p))}"></a>
 </article>`;
 }
 function syncHearts(root = document) {

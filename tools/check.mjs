@@ -27,6 +27,7 @@ for (const p of cat.products) {
   }
   for (const k of ["top", "heart", "base"]) if (!p.notes?.[k]?.length) fail(`${p.id}: nėra natų „${k}“`);
   if (!/^#[0-9a-f]{6}$/i.test(p.look?.liquid || "")) fail(`${p.id}: look.liquid – spalva #RRGGBB`);
+  if (p.inspired != null && (typeof p.inspired !== "string" || p.inspired.length > 120)) fail(`${p.id}: inspired – tekstas iki 120 simbolių, pvz. „Tom Ford – Tobacco Vanille“`);
   if (p.stock != null && !(Number.isInteger(p.stock) && p.stock >= 0)) fail(`${p.id}: stock – sveikas skaičius ≥ 0 (arba nėra lauko)`);
   for (const img of p.images || []) {
     if (/^\/|^https?:/.test(img)) fail(`${p.id}: images – santykinis kelias, pvz. img/${p.id}-1.webp`);

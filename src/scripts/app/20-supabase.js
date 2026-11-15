@@ -53,7 +53,8 @@ async function sbUpload(bucket, path, blob) {
   const token = await getToken();
   const r = await fetch(`${SB.url}/storage/v1/object/${bucket}/${path}`, {
     method: "POST",
-    headers: sbHeaders(token, { "Content-Type": blob.type, "x-upsert": "true", "Cache-Control": "max-age=31536000" }),
+    // Be „x-upsert“: perrašymui Supabase reikalauja dar ir SELECT/UPDATE teisių – failų vardai vis tiek unikalūs
+    headers: sbHeaders(token, { "Content-Type": blob.type, "Cache-Control": "max-age=31536000" }),
     body: blob
   });
   if (!r.ok) throw await sbError(r);
@@ -194,6 +195,7 @@ function catalogFromDb(rows) {
     products: products.map(p => ({
       id: p.id,
       name: p.name,
+      inspired: p.inspired || "",
       conc: p.conc,
       gender: p.gender,
       family: p.family,

@@ -3,7 +3,7 @@
 // (plytelės) → karuselės (naujienos, populiariausi moterims / vyrams / unisex, nuolaidos, mėginukai) → atsiliepimai.
 // Skyrių antraštės – tamsios juostos per visą plotį.
 const sampleFrom = () => Math.min(...PRODUCTS.map(p => p.sample));
-// Pradžios skaidrės (kaip parfumada.lt): kolekcija, mėginukai, atradimų rinkinys – braukiamos, „‹ 1/3 ›“
+// Pradžios skaidrės (kaip parfumada.lt): kolekcija, mėginukai, atradimų rinkinys – braukiamos, keičiasi pačios
 function heroSlidesData() {
   const h = SET.hero || {};
   const hp = BY_ID.get(h.product) || PRODUCTS[0];
@@ -58,9 +58,7 @@ function heroHTML() {
 <span class="heroArt n${Math.min(3, x.art.length)}" aria-hidden="true">${art(x.art)}</span>
 </div></a>`;
     })
-    .join("")}</div><div class="railNav" hidden><button class="railBtn" type="button" data-rail-step="-1" aria-label="Atgal">${glyph(
-    "chev-left"
-  )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div></section>`;
+    .join("")}</div></div></section>`;
 }
 // Skaidrės keičiasi pačios kas 6 s (sustoja palietus, užvedus pelę ar kai įjungtas „mažiau judesio“)
 let heroTimer = 0;

@@ -235,6 +235,22 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.pdInsp {
+  margin-top: 14px;
+  font-size: 17px;
+  letter-spacing: 0.03em;
+  color: var(--ink2);
+}
+.pdInsp b {
+  font-weight: 600;
+  color: #000;
+}
+.pdLegal {
+  margin-top: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink3);
+}
 .pdInfo {
   padding-top: 26px;
 }
@@ -557,4 +573,7 @@
 }
 .pdSimilar > .wrap {
   padding: 0;
+}
+.pdInsp + .pdKey {
+  margin-top: 8px;
 }

@@ -149,9 +149,6 @@
     transform: translateY(16px) scale(0.96);
   }
 }
-.heroWrap .railNav {
-  margin-top: 10px;
-}
 
 /* ── Bėganti privalumų juosta ── */
 .marquee {
@@ -353,7 +350,7 @@
   background: radial-gradient(90% 75% at 50% 35%, #ffffff 0%, var(--tint, #f4f4f4) 78%);
   overflow: hidden;
 }
-.art svg {
+.art > svg {
   position: absolute;
   inset: 7% 18% 4%;
   width: 64%;
@@ -542,6 +539,17 @@
   border-radius: 11px;
 }
 
+/* „Įkvėpti Tom Ford – Tobacco Vanille“ */
+.cardInsp {
+  max-width: 100%;
+  font-size: 13.5px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: var(--ink2);
+}
+.rail .cardInsp {
+  font-size: 15px;
+}
 /* Karuselėje – stambūs, stori pavadinimai (kaip parfumada) */
 .rail .cardName {
   font-size: 22px;
@@ -933,6 +941,17 @@
   border-radius: 11px;
 }
 
+/* „Įkvėpti Tom Ford – Tobacco Vanille“ */
+.cardInsp {
+  max-width: 100%;
+  font-size: 13.5px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: var(--ink2);
+}
+.rail .cardInsp {
+  font-size: 15px;
+}
 /* Karuselėje – stambūs, stori pavadinimai (kaip parfumada) */
 .rail .cardName {
   font-size: 22px;

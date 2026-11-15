@@ -40,13 +40,13 @@ const sb = mockSupabase({ url: SB_URL, catalog: cat });
 function seed() {
   sb.reset();
   sampleOrders(sb.db);
-  sb.db.products.find(p => p.id === "jura").stock = 0;
-  sb.db.products.find(p => p.id === "ruta").stock = 0;
+  sb.db.products.find(p => p.id === "arven").stock = 0;
+  sb.db.products.find(p => p.id === "noirelle").stock = 0;
   sb.db.restock_requests.push(
-    { id: "rq-1", product_id: "jura", email: "laukia@example.com", notified: false, created_at: new Date().toISOString() },
-    { id: "rq-2", product_id: "ruta", email: "kitas@example.com", notified: false, created_at: new Date().toISOString() }
+    { id: "rq-1", product_id: "arven", email: "laukia@example.com", notified: false, created_at: new Date().toISOString() },
+    { id: "rq-2", product_id: "noirelle", email: "kitas@example.com", notified: false, created_at: new Date().toISOString() }
   );
-  sb.db.reviews.push({ id: "rv-1", product_id: "rasa", user_id: BUYER.id, name: "Ona K.", text: "Labai gaivus kvapas, tinka darbui.", rating: 5, status: "pending", verified: true, created_at: new Date().toISOString() });
+  sb.db.reviews.push({ id: "rv-1", product_id: "vanor", user_id: BUYER.id, name: "Ona K.", text: "Labai gaivus kvapas, tinka darbui.", rating: 5, status: "pending", verified: true, created_at: new Date().toISOString() });
 }
 seed();
 
@@ -128,24 +128,24 @@ await shot(page, "uzsakymai");
 
 // Kvapai
 await go(page, "admin/kvapai");
-check((await page.locator(".admTr[data-pid]").count()) === 12, "kvapai: 12");
-const juraStock = page.locator('[data-pid="jura"] [data-stock]');
+check((await page.locator(".admTr[data-pid]").count()) === cat.products.length, `kvapai: ${cat.products.length}`);
+const juraStock = page.locator('[data-pid="arven"] [data-stock]');
 await juraStock.fill("5");
 await juraStock.press("Tab");
-check(await until(() => sb.db.products.find(p => p.id === "jura").stock === 5), "likutis pakeistas sąraše");
+check(await until(() => sb.db.products.find(p => p.id === "arven").stock === 5), "likutis pakeistas sąraše");
 await page.locator(".toast button", { hasText: "Pranešti" }).click({ timeout: 5000 });
-check(await until(() => sb.calls.some(c => c.body?.action === "restock-notify" && c.body.product_id === "jura")), "vėl turint – „Pranešti“ laukiantiems");
-await page.locator('[data-pid="ausra"] [data-visible]').click();
-check(await until(() => sb.db.products.find(p => p.id === "ausra").visible === false), "kvapas paslėptas");
+check(await until(() => sb.calls.some(c => c.body?.action === "restock-notify" && c.body.product_id === "arven")), "vėl turint – „Pranešti“ laukiantiems");
+await page.locator('[data-pid="aurum"] [data-visible]').click();
+check(await until(() => sb.db.products.find(p => p.id === "aurum").visible === false), "kvapas paslėptas");
 await page.click('[data-pf="paslepti"]');
 check((await page.locator(".admTr[data-pid]").count()) === 1, "filtras „Paslėpti“");
 await page.click('[data-pf="visi"]');
-await page.fill("#prodQ", "bijūnas");
-check((await page.locator(".admTr[data-pid]").count()) >= 1 && (await page.locator('.admTr[data-pid="rasa"]').count()) === 1, "paieška pagal natą");
+await page.fill("#prodQ", "tabako");
+check((await page.locator(".admTr[data-pid]").count()) >= 1 && (await page.locator('.admTr[data-pid="vanor"]').count()) === 1, "paieška pagal natą");
 await page.fill("#prodQ", "");
 
 // Redagavimas
-await page.click('.admTr[data-pid="rasa"] .admProd');
+await page.click('.admTr[data-pid="vanor"] .admProd');
 await page.waitForSelector("#prodForm");
 check((await page.locator('#prodForm input[name="id"]').getAttribute("readonly")) !== null, "esamo kvapo adresas nekeičiamas");
 await page.fill('#prodForm input[name="tagline"]', "Ryto gaiva – nauja");
@@ -156,26 +156,26 @@ await page.locator("[data-size-price]").last().fill("19");
 await page.locator('.admCheck:has(input[value="vasaros-gaiva"])').click();
 await page.locator('.admCheck:has(input[value="vakarui"])').click();
 await page.setInputFiles("[data-img-input]", path.join(root, "src/public/icons/icon-512.png"));
-await page.waitForSelector(".admImg");
+check(await until(async () => (await page.locator(".admImg").count()) === 3), "nuotrauka pridėta prie esamų");
 check(sb.uploads.length === 1 && /image\/(webp|jpeg)/.test(sb.uploads[0].type), "nuotrauka sumažinta ir įkelta (WebP)");
 await page.click("#prodForm button[type=submit]");
 check(
   await until(() => {
-    const p = sb.db.products.find(x => x.id === "rasa");
-    return p.tagline === "Ryto gaiva – nauja" && p.images.length === 1;
+    const p = sb.db.products.find(x => x.id === "vanor");
+    return p.tagline === "Ryto gaiva – nauja" && p.images.length === 3;
   }),
   "kvapas išsaugotas"
 );
-const rasa = sb.db.products.find(x => x.id === "rasa");
-check(JSON.stringify(rasa.sizes) === JSON.stringify([{ ml: 10, price: 19 }, { ml: 30, price: 45 }, { ml: 50, price: 69.5 }, { ml: 100, price: 95 }]), "tūriai: pridėtas 10 ml, kaina su kableliu, surikiuota");
-const rasaCats = () => sb.db.product_categories.filter(l => l.product_id === "rasa").map(l => l.category_id);
-check(await until(() => rasaCats().length === 1 && rasaCats()[0] === "vakarui"), "kategorijos atnaujintos");
+const vanor = sb.db.products.find(x => x.id === "vanor");
+check(JSON.stringify(vanor.sizes) === JSON.stringify([{ ml: 10, price: 19 }, { ml: 30, price: 29.9 }, { ml: 50, price: 69.5 }, { ml: 100, price: 59.9 }]), "tūriai: pridėtas 10 ml, kaina su kableliu, surikiuota");
+const rasaCats = () => sb.db.product_categories.filter(l => l.product_id === "vanor").map(l => l.category_id);
+check(await until(() => rasaCats().sort().join() === "vasaros-gaiva,ziemos-kolekcija"), "kategorijos atnaujintos");
 check(await toastHas(page, "Atnaujinti svetainę"), "po išsaugojimo – pasiūlymas atnaujinti svetainę");
 // Neišsaugoti pakeitimai
 await page.fill('#prodForm input[name="tagline"]', "neišsaugota");
 await page.click('.admNav a[href="admin"]');
 await page.waitForTimeout(300);
-check(page.url().endsWith("/admin/kvapai/rasa"), "neišsaugoti pakeitimai – perspėjama prieš išeinant");
+check(page.url().endsWith("/admin/kvapai/vanor"), "neišsaugoti pakeitimai – perspėjama prieš išeinant");
 // Naujas kvapas
 await page.goto(`${BASE}admin/kvapai/naujas`);
 await page.waitForSelector("#prodForm");
@@ -199,7 +199,7 @@ const shop = await newPage({ width: 1440, height: 900 });
 await shop.goto(`${BASE}kvepalai/silko-rytas`);
 await shop.waitForFunction(() => document.title.includes("Šilko rytas"), null, { timeout: 6000 }).catch(() => {});
 check((await shop.title()).includes("Šilko rytas"), "naujas kvapas iškart matomas parduotuvėje");
-await shop.goto(`${BASE}kvepalai/ausra`);
+await shop.goto(`${BASE}kvepalai/aurum`);
 await shop.waitForTimeout(800);
 check((await shop.locator('.view.active[data-view="404"]').count()) === 1, "paslėptas kvapas pirkėjui nerodomas");
 await shop.context().close();
@@ -236,8 +236,8 @@ check(await until(async () => await page.locator('[data-adm-count="reviews"]').i
 
 // Laukiantys
 await go(page, "admin/laukia");
-check((await page.locator('.admRestock[data-pid="jura"] .pill.green').count()) === 1, "laukiantys: Jūrai – visiems pranešta");
-check(await page.locator('.admRestock[data-pid="ruta"] [data-notify]').isDisabled(), "išparduotam kvapui pranešti negalima");
+check((await page.locator('.admRestock[data-pid="arven"] .pill.green').count()) === 1, "laukiantys: Jūrai – visiems pranešta");
+check(await page.locator('.admRestock[data-pid="noirelle"] [data-notify]').isDisabled(), "išparduotam kvapui pranešti negalima");
 
 // Nustatymai
 await go(page, "admin/nustatymai");
@@ -277,7 +277,7 @@ await guest.context().close();
 console.log("\n— telefonas 430×932 —");
 seed();
 page = await newPage({ width: 430, height: 932 }, ADMIN.token);
-for (const sec of ["admin", "admin/uzsakymai", "admin/kvapai", "admin/kvapai/rasa", "admin/kategorijos", "admin/nustatymai"]) {
+for (const sec of ["admin", "admin/uzsakymai", "admin/kvapai", "admin/kvapai/vanor", "admin/kategorijos", "admin/nustatymai"]) {
   await page.goto(BASE + sec);
   await page.waitForSelector("#admTitle");
   await page.waitForFunction(() => !document.querySelector("#admMain .loadingTxt"));

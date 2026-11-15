@@ -32,10 +32,10 @@ const build = (out, extra = {}) => {
 const cat = JSON.parse(fs.readFileSync(path.join(root, "src/data/catalog.json"), "utf8"));
 const variant = structuredClone(cat);
 const vp = id => variant.products.find(p => p.id === id);
-vp("jura").stock = 0;
-vp("rasa").images = ["og/rasa.jpg", "og/home.jpg"];
-vp("gintaras").sizes[0].was = vp("gintaras").sizes[0].price + 20; // akcija (sena kaina)
-vp("rasa").reviews = [
+vp("arven").stock = 0;
+vp("vanor").images = ["img/kvapai/vanor-2.webp", "img/kvapai/vanor-1.webp", "og/home.jpg"];
+vp("safrane").sizes.forEach(s => (s.was = s.price + 20)); // akcija (sena kaina) // akcija (sena kaina)
+vp("vanor").reviews = [
   { name: "Ona K.", text: "Gaivus ir švelnus, puikiai tinka darbui.", rating: 5, date: "2026-11-01", verified: true },
   { name: "Rūta P.", text: "Išsilaiko visą dieną.", rating: 4, date: "2026-10-20", verified: true }
 ];
@@ -76,9 +76,9 @@ const eur = n => `${n.toFixed(2).replace(".", ",")}€`;
 const browser = await chromium.launch();
 
 // 2. SEO failai (be naršyklės)
-const rasaHtml = fs.readFileSync(path.join(siteA, "kvepalai/rasa.html"), "utf8");
-check(/"@type":"Product"/.test(rasaHtml) && rasaHtml.includes('<link rel="canonical" href="https://vaidore.com/kvepalai/rasa"'), "SEO: kvapo puslapis su Product JSON-LD ir kanoniniu adresu");
-check(rasaHtml.includes("<title>Rasa – Eau de Parfum | Vaidore</title>"), "SEO: kvapo pavadinimas <title>");
+const rasaHtml = fs.readFileSync(path.join(siteA, "kvepalai/vanor.html"), "utf8");
+check(/"@type":"Product"/.test(rasaHtml) && rasaHtml.includes('<link rel="canonical" href="https://vaidore.com/kvepalai/vanor"'), "SEO: kvapo puslapis su Product JSON-LD ir kanoniniu adresu");
+check(rasaHtml.includes("<title>Vanor – Eau de Parfum | Vaidore</title>"), "SEO: kvapo pavadinimas <title>");
 const sitemap = fs.readFileSync(path.join(siteA, "sitemap.xml"), "utf8");
 check(cat.products.every(p => sitemap.includes(`/kvepalai/${p.id}<`)) && !sitemap.includes("/admin"), "sitemap.xml: visi kvapai, be administravimo");
 check(fs.readFileSync(path.join(siteA, "robots.txt"), "utf8").includes("Disallow: /admin"), "robots.txt: /admin neindeksuojamas");
@@ -172,7 +172,7 @@ async function run(viewport) {
       await page.click("[data-f-apply]");
     } else await page.selectOption("#shopSort", cheap);
     const minAll = Math.min(...cat.products.map(p => Math.min(...p.sizes.map(s => s.price))));
-    check(await until(async () => money(await page.locator("#shopGrid .card .cardPrice").first().textContent()).includes(`${minAll}`)), "rūšiavimas: pigiausi pirmi");
+    check(await until(async () => money(await page.locator("#shopGrid .card .cardPrice").first().textContent()).includes(eur(minAll))), "rūšiavimas: pigiausi pirmi");
   }
   await shot(page, `${tag}-katalogas`);
 
@@ -183,12 +183,12 @@ async function run(viewport) {
   check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė → mėgstami (1)");
 
   // Kvapo puslapis
-  const rasa = cat.products.find(p => p.id === "rasa");
-  await open(page, `${A}kvepalai/rasa`);
+  const vanor = cat.products.find(p => p.id === "vanor");
+  await open(page, `${A}kvepalai/vanor`);
   await page.waitForSelector("#productRoot h1");
-  check((await page.locator("#productRoot h1").textContent()).includes("Rasa"), "kvapo puslapis: pavadinimas");
-  check((await page.locator("#productRoot .sizeOpt").count()) === rasa.sizes.length + 1, "kvapo puslapis: tūriai + mėginukas 2 ml");
-  const s30 = rasa.sizes[0];
+  check((await page.locator("#productRoot h1").textContent()).includes("Vanor"), "kvapo puslapis: pavadinimas");
+  check((await page.locator("#productRoot .sizeOpt").count()) === vanor.sizes.length + 1, "kvapo puslapis: tūriai + mėginukas 2 ml");
+  const s30 = vanor.sizes[0];
   await page.click(`#productRoot .sizeOpt[data-ml="${s30.ml}"]`);
   check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(s30.price), `tūris ${s30.ml} ml – kaina ${s30.price} €`);
   await page.locator("#productRoot [data-add]").first().click();
@@ -198,7 +198,7 @@ async function run(viewport) {
   await page.locator("#mini [data-sheet-close]").first().click();
   await page.waitForTimeout(350);
   await page.click('#productRoot .sizeOpt[data-ml="2"]');
-  check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(rasa.sample), "mėginukas 2 ml – kaina");
+  check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(vanor.sample), "mėginukas 2 ml – kaina");
   await page.click('#productRoot [data-qty-step="1"]');
   check((await page.locator("#productRoot [data-qty]").textContent()) === "2", "kiekis kvapo puslapyje: 2");
   await page.locator("#productRoot [data-add]").first().click();
@@ -292,9 +292,9 @@ async function run(viewport) {
   check((await view(page)) === "info" && (await page.locator(".infoSec").count()) >= 3, "pagalba: pristatymas, grąžinimas, DUK");
   await open(page, `${A}nera-tokio-puslapio`);
   check((await view(page)) === "404", "nežinomas adresas – „Puslapis nerastas“");
-  await open(page, `${A}#/kvepalai/rasa`);
+  await open(page, `${A}#/kvepalai/vanor`);
   await page.waitForTimeout(300);
-  check(new URL(page.url()).pathname === "/kvepalai/rasa" && (await view(page)) === "product", "senas #/ adresas nukreipiamas");
+  check(new URL(page.url()).pathname === "/kvepalai/vanor" && (await view(page)) === "product", "senas #/ adresas nukreipiamas");
   for (const [p, h] of [
     ["salygos", "Pirkimo sąlygos"],
     ["privatumas", "Privatumo politika"]
@@ -305,31 +305,31 @@ async function run(viewport) {
   if (!mobile) {
     // Paieška antraštėje
     await open(page, A);
-    await page.fill("#hdrQ", "rasa");
+    await page.fill("#hdrQ", "vanor");
     await page.waitForSelector("#searchPop:not([hidden])");
-    check((await page.locator("#searchPop").textContent()).includes("Rasa"), "antraštės paieška: pasiūlymai");
+    check((await page.locator("#searchPop").textContent()).includes("Vanor"), "antraštės paieška: pasiūlymai");
   }
   await page.context().close();
 
   // Variantas: išparduota, nuotraukos, atsiliepimai
   const v = await newPage(siteB, viewport, variant);
-  await open(v.page, `${B}kvepalai/jura`);
+  await open(v.page, `${B}kvepalai/arven`);
   await v.page.waitForSelector("#productRoot [data-notify]");
   check(true, "išparduota – „Pranešti, kai bus“ vietoje „Į krepšelį“");
   await v.page.locator("#productRoot [data-notify]").first().click();
   await v.page.fill('#sheetBody input[name="email"]', "laukiu@example.com");
   await v.page.click("#sheetBody button[type=submit]");
-  check(await until(() => v.sb.db.restock_requests.some(r => r.product_id === "jura" && r.email === "laukiu@example.com")), "„Pranešti, kai bus“ – įrašyta į duomenų bazę");
+  check(await until(() => v.sb.db.restock_requests.some(r => r.product_id === "arven" && r.email === "laukiu@example.com")), "„Pranešti, kai bus“ – įrašyta į duomenų bazę");
   await v.page.waitForSelector("#backdrop", { state: "hidden" });
-  await open(v.page, `${B}kvepalai/rasa`);
+  await open(v.page, `${B}kvepalai/vanor`);
   await v.page.waitForSelector("#productRoot .gal img");
-  check((await v.page.locator("#productRoot .gal img").count()) === 2, "galerija: 2 nuotraukos");
+  check((await v.page.locator("#productRoot .gal img").count()) === 3, "galerija: 3 nuotraukos");
   check(await until(async () => (await v.page.locator("[data-pd-reviews]").isVisible()) && (await v.page.locator("[data-pd-reviews]").textContent()).includes("Ona K.")), "kvapo atsiliepimai");
   await open(v.page, `${B}kvepalai`);
-  const g = v.page.locator('#shopGrid .card:has(a[href="kvepalai/gintaras"])');
+  const g = v.page.locator('#shopGrid .card:has(a[href="kvepalai/safrane"])');
   check((await g.locator(".cardPrice s").count()) === 1 && (await g.locator(".cardPrice .sale").count()) === 1 && (await g.locator(".salePill").count()) === 1, "akcija: perbraukta sena kaina, raudona kaina, žymė „Akcija“");
-  check((await v.page.locator('#shopGrid .card:has(a[href="kvepalai/rasa"]) .cardRate .stars').count()) === 1, "kortelė: žvaigždutės iš tikrų atsiliepimų");
-  await open(v.page, `${B}kvepalai/gintaras`);
+  check((await v.page.locator('#shopGrid .card:has(a[href="kvepalai/vanor"]) .cardRate .stars').count()) === 1, "kortelė: žvaigždutės iš tikrų atsiliepimų");
+  await open(v.page, `${B}kvepalai/safrane`);
   check((await v.page.locator("#productRoot .pdPrice s").count()) === 1, "akcija kvapo puslapyje: sena kaina");
   await open(v.page, B);
   check(await until(() => v.page.locator("#homeReviews").isVisible()), "pradžia: atsiliepimai (kai yra tikrų)");

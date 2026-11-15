@@ -57,7 +57,7 @@ function paintProducts() {
   const q = fold(prodState.q.trim());
   const fam = id => VD.CAT.families.find(f => f.id === id)?.name || id;
   const rows = prodState.rows.filter(
-    p => fn(p) && (!q || fold([p.name, p.id, p.tagline, fam(p.family), ...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])].join(" ")).includes(q))
+    p => fn(p) && (!q || fold([p.name, p.id, p.inspired || "", p.tagline, fam(p.family), ...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])].join(" ")).includes(q))
   );
   if (!rows.length) {
     box.innerHTML = emptyBox(prodState.q ? "Nieko nerasta" : "Kvapų nėra", "", `<a class="btn primary" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas kvapas</a>`);
@@ -143,6 +143,7 @@ async function offerRestockNotify(p) {
 const blankProduct = () => ({
   id: "",
   name: "",
+  inspired: "",
   conc: "EDP",
   gender: "unisex",
   family: VD.CAT.families[0]?.id || "",
@@ -170,7 +171,14 @@ async function renderProductEdit(main, id, seq) {
   const isNew = id === "naujas";
   main.innerHTML = pageHead(isNew ? "Naujas kvapas" : "Kvapas") + loading();
   const [rows, fams, cats, links] = await Promise.all([
-    isNew ? Promise.resolve([blankProduct()]) : sbRest(`products?select=*&id=eq.${encodeURIComponent(id)}`),
+    // Naujam kvapui laukas „Įkvėpta“ rodomas tik jei duomenų bazėje jau yra stulpelis inspired (migracija 0300)
+    isNew
+      ? sbRest("products?select=*&limit=1").then(r => {
+          const b = blankProduct();
+          if (r?.[0] && !("inspired" in r[0])) delete b.inspired;
+          return [b];
+        })
+      : sbRest(`products?select=*&id=eq.${encodeURIComponent(id)}`),
     sbRest("families?select=*&order=sort.asc"),
     sbRest("categories?select=*&order=sort.asc"),
     isNew ? Promise.resolve([]) : sbRest(`product_categories?select=category_id&product_id=eq.${encodeURIComponent(id)}`)
@@ -192,7 +200,8 @@ ${pageHead(isNew ? "Naujas kvapas" : p.name, isNew ? "Užpildykite ir išsaugoki
 <form class="admEdit admForm" id="prodForm" novalidate>
 <div class="admEditCols"><div class="admEditMain">
 <section class="admCard"><h2>Pagrindinė informacija</h2>
-<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(p.name)}" /></label>
+<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(p.name)}" /><small>Užrašomas ir ant buteliuko etiketės, pvz. VANOR</small></label>
+${"inspired" in p ? `<label class="field"><span>Įkvėpta</span><input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="pvz. Tom Ford – Tobacco Vanille" /><small>Prekės ženklas – kvapas. Rodoma „Įkvėpti …“ kortelėse ir kvapo puslapyje</small></label>` : ""}
 <label class="field"><span>Adresas (id)</span><input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="${esc(p.id)}"${attr(!isNew, "readonly")} /><small>${
     isNew ? "Mažosios raidės, skaičiai ir „-“. Sukūrus nebekeičiamas." : "Nebekeičiamas – gali būti pirkėjų krepšeliuose ir nuorodose."
   }</small></label>
@@ -370,6 +379,7 @@ function readProduct(ed, form) {
   const row = {
     id,
     name: f.name.value.trim(),
+    ...(f.inspired ? { inspired: f.inspired.value.trim() } : {}),
     gender: f.gender.value,
     conc: f.conc.value,
     family: f.family.value,

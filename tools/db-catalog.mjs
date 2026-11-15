@@ -30,6 +30,7 @@ export async function dbCatalog(sb, fallback) {
       products: products.map(p => ({
         id: p.id,
         name: p.name,
+        inspired: p.inspired || "",
         conc: p.conc,
         gender: p.gender,
         family: p.family,
