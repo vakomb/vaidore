@@ -22,7 +22,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
 }
 .pgBack svg {
@@ -45,7 +45,7 @@
   height: 22px;
 }
 .pgLogo b {
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -61,18 +61,20 @@
   padding: 8px 0;
 }
 .pgDoc h1 {
-  font-size: 28px;
+  font-size: 39px;
+  font-weight: 400;
   margin-bottom: 8px;
 }
 .pgDoc h2 {
   margin: 24px 0 8px;
-  font-size: 18px;
+  font-size: 21px;
 }
 .pgDoc p,
 .pgDoc li {
   color: var(--ink2);
-  font-size: 15.5px;
-  line-height: 1.55;
+  font-size: 19px;
+  line-height: 1.62;
+  letter-spacing: 0.04em;
 }
 .pgDoc ul {
   padding-left: 20px;
@@ -80,7 +82,7 @@
 }
 .pgMuted {
   color: var(--ink3) !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
 }
 .pgDone {
   display: flex;
@@ -152,7 +154,7 @@
   justify-content: center;
   gap: 6px 16px;
   padding: 18px 18px calc(18px + var(--safeB));
-  font-size: 14px;
+  font-size: 16px;
 }
 .pgFoot a {
   color: var(--ink2);
@@ -162,7 +164,7 @@
   width: 100%;
   text-align: center;
   color: var(--ink3);
-  font-size: 13px;
+  font-size: 14.5px;
   line-height: 1.5;
 }
 /* Mėginukų kainos grąžinimo kodas (/aciu) */

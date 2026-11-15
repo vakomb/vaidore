@@ -86,7 +86,17 @@
     grid-column: 1 / -1;
   }
   .pageHead h1 {
-    font-size: 42px;
+    font-size: 52px;
+  }
+  .empty h1,
+  .empty h2 {
+    font-size: 48px;
+  }
+  .drawer {
+    width: min(460px, 100vw);
+  }
+  .ftrCols {
+    gap: 26px 28px;
   }
   .secHead h2 {
     font-size: 27px;
