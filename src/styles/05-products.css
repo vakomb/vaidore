@@ -315,8 +315,9 @@
   height: 89%;
 }
 /* Nuotrauka – buteliukas permatomame fone: švelnus vienodas fonas ir CSS šešėlis po buteliuku (v7) */
-.art:has(> img.photo) {
+.art:has(img.photo) {
   background: var(--photo-bg);
+  border-radius: 0;
 }
 .art img.photo {
   position: absolute;

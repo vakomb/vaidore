@@ -48,7 +48,7 @@
   --st-shadow: rgba(30, 24, 16, 0.32); /* kontaktinis šešėlis po daiktais */
   /* Buteliuko šešėlis (prekių kortelės, galerija, krepšelis, paieška) – švelnus, vienodas visur */
   --bottle-shadow: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.08)) drop-shadow(0 14px 14px rgba(15, 23, 42, 0.13));
-  --photo-bg: #f6f5f3; /* prekės nuotraukos fonas – labai švelnus */
+  --photo-bg: transparent; /* v8: prekės nuotrauka – tik buteliukas, be jokio kvadrato (kaip parfumada.lt) */
   --gold: #b08a3e;
   --gold-soft: #f3ead8;
   --gold-ink: #6b4f16;

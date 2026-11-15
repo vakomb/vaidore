@@ -363,6 +363,8 @@
   }
   .card:hover .art {
     transform: translateY(-4px);
+  }
+  .card:hover .art:not(:has(img.photo)) {
     box-shadow: var(--elev-2);
   }
   .card:hover .quick {
