@@ -155,14 +155,15 @@ await page.locator("[data-size-ml]").last().fill("10");
 await page.locator("[data-size-price]").last().fill("19");
 await page.locator('.admCheck:has(input[value="vasaros-gaiva"])').click();
 await page.locator('.admCheck:has(input[value="vakarui"])').click();
+const imgs0 = sb.db.products.find(x => x.id === "vanor").images.length;
 await page.setInputFiles("[data-img-input]", path.join(root, "src/public/icons/icon-512.png"));
-check(await until(async () => (await page.locator(".admImg").count()) === 3), "nuotrauka pridėta prie esamų");
+check(await until(async () => (await page.locator(".admImg").count()) === imgs0 + 1), "nuotrauka pridėta prie esamų");
 check(sb.uploads.length === 1 && /image\/(webp|jpeg)/.test(sb.uploads[0].type), "nuotrauka sumažinta ir įkelta (WebP)");
 await page.click("#prodForm button[type=submit]");
 check(
   await until(() => {
     const p = sb.db.products.find(x => x.id === "vanor");
-    return p.tagline === "Ryto gaiva – nauja" && p.images.length === 3;
+    return p.tagline === "Ryto gaiva – nauja" && p.images.length === imgs0 + 1;
   }),
   "kvapas išsaugotas"
 );

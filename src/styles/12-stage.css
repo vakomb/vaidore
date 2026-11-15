@@ -1,0 +1,253 @@
+/* Vaidore scenos (24-stage.js): pradžios skaidrės, kategorijų plytelės, katalogo antraštė. Vienas stilius – šilta
+   „studijos“ siena su šviesa iš kairės viršaus, grindys, CSS formos ir tikri buteliukai be fono su kontaktiniu šešėliu.
+   Matas „u“ = min(--uh × aukščio, --uw × pločio): kompozicija visada telpa ir išlaiko proporcijas.
+   --cx – kompozicijos ašis (pagal nutylėjimą – centras), --fl – grindų linija nuo apačios. Spalvos – 01-tokens.css. */
+/* Numatytosios reikšmės – :where (specifiškumas 0), kad .heroStage / .tileStage / .shopStage jas perrašytų */
+:where(.stage) {
+  --uh: 0.9;
+  --uw: 0.8;
+  --cx: 50%;
+  --fl: 9cqh;
+  --wall: var(--st-stone);
+  --prop: var(--st-stone-2);
+  position: relative;
+}
+.stage {
+  --u: min(calc(var(--uh) * 1cqh), calc(var(--uw) * 1cqw));
+  display: block;
+  overflow: hidden;
+  container-type: size;
+  isolation: isolate;
+  background:
+    radial-gradient(90% 80% at 18% 0%, rgba(255, 255, 255, 0.6) 0%, transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--wall), #fff 14%) 0%, var(--wall) 70%);
+}
+.st-rose {
+  --wall: var(--st-rose);
+  --prop: var(--st-rose-2);
+}
+.st-cool {
+  --wall: var(--st-cool);
+  --prop: var(--st-cool-2);
+}
+.st-sand {
+  --wall: var(--st-sand);
+  --prop: var(--st-sand-2);
+}
+.st-ivory {
+  --wall: var(--st-ivory);
+  --prop: var(--st-ivory-2);
+}
+.st-taupe {
+  --wall: var(--st-taupe);
+  --prop: var(--st-taupe-2);
+}
+.st-sage {
+  --wall: var(--st-sage);
+  --prop: var(--st-sage-2);
+}
+/* Grindys: šviesesnė plokštuma su minkštu horizontu */
+.stage::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--fl) + 13 * var(--u));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--wall), #000 3%) 0,
+    color-mix(in srgb, var(--wall), #fff 30%) calc(3 * var(--u)),
+    color-mix(in srgb, var(--wall), #fff 12%) 100%
+  );
+}
+.stage > * {
+  position: absolute;
+  left: calc(var(--cx) + var(--x, 0) * var(--u));
+  bottom: calc(var(--fl) + var(--y, 0) * var(--u));
+  translate: -50% 0;
+}
+
+/* Buteliukas: kvadratinis paveikslas (buteliukas užima 86 % aukščio, apačioje 6,6 % paraštė) */
+.sb {
+  width: calc(var(--s) * var(--u));
+  aspect-ratio: 1;
+  bottom: calc(var(--fl) + (var(--y, 0) - var(--s) * 0.066) * var(--u));
+}
+.sb img,
+.sb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(calc(-0.6 * var(--u)) calc(0.8 * var(--u)) calc(1.2 * var(--u)) rgba(30, 24, 16, 0.14));
+}
+.sb::after,
+.sv::after,
+.sx::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--st-shadow), transparent);
+}
+.sb::after {
+  left: 24%;
+  right: 24%;
+  bottom: 4.4%;
+  height: 4.6%;
+}
+/* Mėginukas (240 × 800) */
+.sv {
+  width: calc(var(--s) * 0.3 * var(--u));
+  aspect-ratio: 240 / 800;
+}
+.sv img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.sv::after {
+  left: -30%;
+  right: -30%;
+  bottom: -1.6%;
+  height: 4%;
+}
+
+/* Formos */
+.sx {
+  --c: var(--prop);
+  width: calc(var(--w) * var(--u));
+  height: calc(var(--h) * var(--u));
+}
+.sx.c-l {
+  --c: var(--st-light);
+}
+.sx.c-d {
+  --c: var(--st-dark);
+}
+.sx::after {
+  left: -8%;
+  right: -8%;
+  bottom: calc(min(var(--w), 44) * -0.04 * var(--u));
+  height: calc(min(var(--w), 44) * 0.1 * var(--u));
+}
+/* Arka – siena už kompozicijos, be šešėlio */
+.ar {
+  border-radius: calc(var(--w) * 0.5 * var(--u)) calc(var(--w) * 0.5 * var(--u)) 0 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c), #000 3%), var(--c) 60%, color-mix(in srgb, var(--c), #fff 10%));
+}
+.ar::after,
+.sn::after {
+  display: none;
+}
+/* Diskas („saulė“) */
+.sn {
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--c), #fff 34%) 0%, var(--c) 72%);
+}
+/* Cilindras: priekis su šviesos juosta, viršus – elipsė */
+.pl {
+  border-radius: 0 0 50% 50% / 0 0 calc(var(--w) * 0.08 * var(--u)) calc(var(--w) * 0.08 * var(--u));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--c), #000 12%) 0%,
+    color-mix(in srgb, var(--c), #fff 40%) 30%,
+    var(--c) 64%,
+    color-mix(in srgb, var(--c), #000 16%) 100%
+  );
+}
+.pl::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--w) * -0.08 * var(--u));
+  height: calc(var(--w) * 0.16 * var(--u));
+  border-radius: 50%;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c), #fff 50%), color-mix(in srgb, var(--c), #fff 20%));
+  box-shadow: inset 0 calc(-0.3 * var(--u)) calc(0.6 * var(--u)) rgba(0, 0, 0, 0.06);
+}
+/* Blokas: priekis + plona šviesi viršutinė plokštuma */
+.bk {
+  border-radius: calc(0.6 * var(--u)) calc(0.6 * var(--u)) 0 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c), #fff 45%) 0,
+    color-mix(in srgb, var(--c), #fff 45%) calc(1.4 * var(--u)),
+    color-mix(in srgb, var(--c), #fff 6%) calc(1.4 * var(--u)),
+    color-mix(in srgb, var(--c), #000 8%) 100%
+  );
+}
+.bk.c-d {
+  background: linear-gradient(180deg, #3a3a3a 0, #3a3a3a calc(1.4 * var(--u)), #262626 calc(1.4 * var(--u)), #141414 100%);
+}
+/* Dovanų dėžutė: juoda, auksinis rėmelis ir VAIDORE (kaip buteliuko etiketė) */
+.bx {
+  --c: var(--st-dark);
+  display: grid;
+  place-items: center;
+  border-radius: calc(0.5 * var(--u));
+  background: linear-gradient(180deg, #2c2c2c 0, #2c2c2c calc(1.2 * var(--u)), #1a1a1a calc(1.2 * var(--u)), #0d0d0d 100%);
+  color: var(--gold);
+}
+.bx::before {
+  content: "";
+  position: absolute;
+  inset: calc(2.4 * var(--u)) calc(2.4 * var(--u)) calc(2 * var(--u));
+  border: max(1px, calc(0.25 * var(--u))) solid color-mix(in srgb, var(--gold), transparent 30%);
+}
+.bx svg {
+  width: 52%;
+  height: auto;
+  margin-top: calc(1 * var(--u));
+}
+
+/* Katalogo antraštė (08-shop): telefone – scena juostoje virš pavadinimo, kompiuteryje – pavadinimas ant scenos kairėje */
+.shopStageBox {
+  display: none;
+}
+.pageHead.hasStage .shopStageBox {
+  position: relative;
+  display: block;
+  height: 168px;
+  margin-bottom: 18px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.shopStage {
+  position: absolute;
+  inset: 0;
+  --uh: 0.9;
+  --uw: 0.5;
+  --fl: 6cqh;
+}
+@media (min-width: 1024px) {
+  .pageHead.hasStage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 280px;
+    margin: 10px 0 24px;
+    padding: 36px 48px;
+    border-radius: var(--r-card);
+    overflow: hidden;
+  }
+  .pageHead.hasStage .shopStageBox {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    margin: 0;
+    border-radius: 0;
+  }
+  .pageHead.hasStage .shopStage {
+    --cx: 72%;
+    --uh: 0.86;
+    --uw: 0.4;
+  }
+  .pageHead.hasStage .shopHeadTxt {
+    position: relative;
+    max-width: 46%;
+  }
+}

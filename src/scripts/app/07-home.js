@@ -3,63 +3,76 @@
 // (plytelės) → karuselės (naujienos, populiariausi moterims / vyrams / unisex, nuolaidos, mėginukai) → atsiliepimai.
 // Skyrių antraštės – tamsios juostos per visą plotį.
 const sampleFrom = () => Math.min(...PRODUCTS.map(p => p.sample));
-// Pradžios skaidrės (kaip parfumada.lt): kolekcija, mėginukai, atradimų rinkinys – braukiamos, keičiasi pačios
+// Pradžios skaidrės (v7): trys vieno stiliaus skaidrės su Vaidore buteliukais be fono – sezono kolekcija,
+// „pirma išbandykite mėginuką“, dovana / atradimų rinkinys. Kiekviena – sava kompozicija (24-stage.js),
+// trumpas tekstas ir VIENAS aiškus veiksmas. Aukštis fiksuotas (CSS) – keičiantis skaidrėms niekas nepasislenka.
 function heroSlidesData() {
   const h = SET.hero || {};
   const hp = BY_ID.get(h.product) || PRODUCTS[0];
   const byRank = [...PRODUCTS].sort((a, b) => a.rank - b.rank);
-  const best = Math.max(...PRODUCTS.map(p => p.longevity));
-  const lasts = `Išsilaiko iki ${LASTS[best].replace("+ ", "+").replace(" val.", " valandų")}`;
+  const rest = byRank.filter(p => p !== hp);
   return [
     {
+      stage: "collection",
+      list: [hp, ...rest],
       href: productUrl(hp),
-      look: hp.look,
       eyebrow: h.eyebrow || "Kolekcija",
       title: h.title || hp.name,
-      lines: ["Kiekvienas kvapas – ir 2 ml mėginuku", lasts, `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`],
-      cta: `Atrasti ${hp.name}`,
-      art: [hp]
+      text: h.text || hp.tagline,
+      cta: `Atrasti ${hp.name}`
     },
     {
+      stage: "samples",
+      list: rest,
       href: "meginukai",
-      look: { tint: "#F3EAD8", liquid: "#d9b46a" },
       eyebrow: "Mėginukai 2 ml",
-      title: "Išbandykite namuose",
-      lines: ["Kiekvienas kvapas – ir 2 ml mėginuku", `Mėginukas nuo ${eur(sampleFrom())}`, SET.sampleCredit ? "Kainą grąžinsime perkant buteliuką" : lasts],
-      cta: "Rinktis mėginukus",
-      art: byRank.slice(0, 3)
+      title: "Pirma išbandykite",
+      text: SET.sampleCredit ? `Mėginukas nuo ${eur(sampleFrom())} – kainą grąžinsime perkant buteliuką.` : `Kiekvienas kvapas – ir 2 ml mėginuku nuo ${eur(sampleFrom())}.`,
+      cta: "Rinktis mėginukus"
     },
-    ...(DISC
-      ? [
-          {
-            href: "rinkinys",
-            look: { tint: "#EEF1F8", liquid: "#8ea3d8" },
-            eyebrow: DISC.name,
-            title: `${DISC.count} kvapai už ${eurShort(DISC.price)}`,
-            lines: [`Bet kurie ${DISC.count} kvapai po 2 ml`, "Kvapus išsirenkate patys", "Raskite savo kvapą prieš pirkdami"],
-            cta: "Susidaryti rinkinį",
-            art: byRank.slice(3, 6)
-          }
-        ]
-      : [])
-  ];
+    DISC && {
+      stage: "gift",
+      list: rest.slice(2),
+      href: "rinkinys",
+      eyebrow: "Dovanai",
+      title: DISC.name,
+      text: `Bet kurie ${DISC.count} kvapai po 2 ml už ${eurShort(DISC.price)} – raskite savo kvapą.`,
+      cta: "Susidaryti rinkinį"
+    }
+  ].filter(Boolean);
 }
 function heroHTML() {
   const slides = heroSlidesData();
-  const art = list =>
-    list.map(p => `<i>${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="" />` : bottleSVG(p)}</i>`).join("");
   return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
     .map((x, i) => {
       const H = i ? "h2" : "h1";
-      return `<a class="slide" href="${x.href}" data-nav style="--tint:${x.look.tint};--liquid:${x.look.liquid}"><div class="slideIn">
+      return `<a class="slide" href="${x.href}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${stageHTML(x.stage, x.list, { eager: !i, cls: "heroStage" })}<div class="slideIn">
 <div class="heroTxt"><p class="eyebrow">${esc(x.eyebrow)}</p><${H} class="heroTitle">${esc(x.title)}</${H}>
-<ul class="heroPerks">${x.lines.filter(Boolean).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+<p class="heroLine">${esc(x.text)}</p>
 <span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span></div>
-<span class="heroArt n${Math.min(3, x.art.length)}" aria-hidden="true">${art(x.art)}</span>
 </div></a>`;
     })
-    .join("")}</div></div></section>`;
+    .join("")}</div></div>${
+    slides.length > 1
+      ? `<div class="heroDots" role="tablist" aria-label="Skaidrės">${slides
+          .map((x, i) => `<button type="button" role="tab" data-hero-go="${i}" aria-label="${esc(x.title)}" aria-selected="${!i}"></button>`)
+          .join("")}</div>`
+      : ""
+  }</section>`;
 }
+// Taškai po skaidrėmis: rodo aktyvią, paspaudus – pereina
+function syncHeroDots() {
+  const rail = $("#homeHero .heroRail");
+  if (!rail) return;
+  const i = Math.round(rail.scrollLeft / Math.max(1, rail.clientWidth));
+  $$("#homeHero [data-hero-go]").forEach((b, n) => b.setAttribute("aria-selected", String(n === i)));
+}
+document.addEventListener("click", e => {
+  const b = e.target instanceof Element && e.target.closest("[data-hero-go]");
+  if (!b) return;
+  const rail = $("#homeHero .heroRail");
+  rail.scrollTo({ left: Number(b.dataset.heroGo) * rail.clientWidth, behavior: reduceMotion() ? "auto" : "smooth" });
+});
 // Skaidrės keičiasi pačios kas 6 s (sustoja palietus, užvedus pelę ar kai įjungtas „mažiau judesio“)
 let heroTimer = 0;
 function startHeroAuto() {
@@ -71,6 +84,7 @@ function startHeroAuto() {
     hold = true;
   };
   ["pointerdown", "touchstart", "wheel", "focusin"].forEach(ev => rail.addEventListener(ev, stop, { passive: true, once: true }));
+  rail.addEventListener("scroll", () => requestAnimationFrame(syncHeroDots), { passive: true });
   rail.addEventListener("mouseenter", () => (hold = true));
   rail.addEventListener("mouseleave", () => (hold = false));
   heroTimer = setInterval(() => {
@@ -91,12 +105,11 @@ function marqueeHTML() {
   const row = hidden => `<ul class="mqRow"${hidden ? ' aria-hidden="true"' : ""}>${items.map(([i, t]) => `<li>${glyph(i)}<span>${esc(t)}</span></li>`).join("")}</ul>`;
   return `<div class="mqTrack">${row(false)}${row(true)}</div>`;
 }
-// Kategorijos plytelė: pavadinimas viršuje, apačioje – tos grupės buteliukai minkštame fone
-function tileHTML({ name, href, list, sub, tint }) {
-  const trio = list.slice(0, 3);
-  return `<a class="tile" href="${href}" data-nav><span class="tileName">${esc(name)}</span><span class="tileArt" style="--tint:${tint || trio[0]?.look.tint || "#F6F7F9"}">${trio
-    .map(p => `<i>${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="" loading="lazy" />` : bottleSVG(p)}</i>`)
-    .join("")}</span></a>`;
+// Kategorijos plytelė (v7): visa plytelė – scena su tos grupės buteliukais (24-stage.js), pavadinimas ant sienos viršuje
+function tileHTML({ name, href, list, sub, stage }) {
+  return `<a class="tile" href="${href}" data-nav>${stageHTML(stage, list, { cls: "tileStage" })}<span class="tileTxt"><span class="tileName">${esc(name)}</span>${
+    sub ? `<small>${esc(sub)}</small>` : ""
+  }</span></a>`;
 }
 // Skyrius su juosta ir karusele (kompiuteryje – rodyklės ir „1/3“)
 function railHTML(cards) {
@@ -154,12 +167,12 @@ function renderHome() {
   const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
   const of = g => byRank.filter(p => p.gender === g);
   const tiles = [
-    { name: "Moterims", href: "moterims", list: of("moterims"), sub: plural(of("moterims").length, "kvapas", "kvapai", "kvapų") },
-    { name: "Vyrams", href: "vyrams", list: of("vyrams"), sub: plural(of("vyrams").length, "kvapas", "kvapai", "kvapų") },
-    { name: "Unisex", href: "unisex", list: of("unisex"), sub: plural(of("unisex").length, "kvapas", "kvapai", "kvapų") },
-    { name: "Mėginukai", href: "meginukai", list: byRank.slice(3), sub: `2 ml nuo ${eur(sampleFrom())}`, tint: "#F3EAD8" },
-    ...(DISC ? [{ name: "Rinkiniai", href: "rinkinys", list: byRank.slice(6), sub: `${DISC.count} × 2 ml už ${eur(DISC.price)}`, tint: "#EEF1F8" }] : []),
-    { name: "Naujienos", href: "kvepalai?rikiuoti=new", list: fresh, sub: "Naujausi kvapai" }
+    { name: "Moterims", href: "moterims", stage: "women", list: of("moterims"), sub: plural(of("moterims").length, "kvapas", "kvapai", "kvapų") },
+    { name: "Vyrams", href: "vyrams", stage: "men", list: of("vyrams"), sub: plural(of("vyrams").length, "kvapas", "kvapai", "kvapų") },
+    { name: "Unisex", href: "unisex", stage: "unisex", list: of("unisex"), sub: plural(of("unisex").length, "kvapas", "kvapai", "kvapų") },
+    { name: "Mėginukai", href: "meginukai", stage: "vials", list: byRank.slice(3), sub: `2 ml nuo ${eur(sampleFrom())}` },
+    ...(DISC ? [{ name: "Rinkiniai", href: "rinkinys", stage: "set", list: byRank.slice(6), sub: `${DISC.count} × 2 ml už ${eur(DISC.price)}` }] : []),
+    { name: "Naujienos", href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh, sub: "Naujausi kvapai" }
   ];
   $("#homeTiles").innerHTML = tiles.filter(t => t.list.length).map(tileHTML).join("");
 

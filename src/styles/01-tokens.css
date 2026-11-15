@@ -14,13 +14,41 @@
   --field: #f4f4f4;
   --hair: rgba(15, 23, 42, 0.06);
 
-  --brand: #284ca2;
-  --brand2: #3561c4;
-  --brand-soft: rgba(40, 76, 162, 0.07);
-  --grad: linear-gradient(180deg, #3b67cc 0%, #284ca2 100%);
-  /* Pagrindiniai mygtukai ir juostos – grafitas (prabangus, ramus), akcentas – šampano auksas */
-  --ink-grad: #000;
-  --band: #1c2f5e; /* Vaidore tamsiai mėlyna – juostos, žinutės, poraštė */
+  /* Akcentas – juoda (v7: mėlynos nebėra). Mygtukai, aktyvios būsenos, ženkliukai, pasirinkimai, juostos. */
+  --brand: #111111; /* baltas tekstas ant jos – 18,9:1 */
+  --brand2: #2b2b2b; /* užvedus */
+  --brand-soft: rgba(17, 17, 17, 0.06);
+  --brand-ring: rgba(17, 17, 17, 0.14);
+  --brand-glow: rgba(17, 17, 17, 0.28);
+  --grad: linear-gradient(180deg, #2b2b2b 0%, #111111 100%);
+  --dark-grad: radial-gradient(80% 120% at 100% 0%, rgba(176, 138, 62, 0.3), transparent 60%), linear-gradient(160deg, #262626, #0b0b0b);
+  --focus: rgba(17, 17, 17, 0.6);
+  --ink-grad: #111111;
+  --band: #111111; /* juostos, žinutės, skyrių antraštės */
+  --badge: #d1102b; /* krepšelio skaičiukas – raudonas, baltas tekstas 5,5:1 */
+  --on-dark-link: #f3ead8;
+  --ease: 0.22s ease; /* spalvų perėjimai (mygtukai, būsenos) */
+  /* Scenos (12-stage.css): šilti neutralūs fonai – sienos tonas ir šiek tiek gilesnis formų tonas */
+  --st-stone: #e9e2d8;
+  --st-stone-2: #dcd1c3;
+  --st-rose: #ede3dd;
+  --st-rose-2: #e0cfc5;
+  --st-cool: #e6e6e3;
+  --st-cool-2: #d3d3cf;
+  --st-sand: #ebe4d8;
+  --st-sand-2: #dccfba;
+  --st-ivory: #f2eee7;
+  --st-ivory-2: #e4dbcc;
+  --st-taupe: #e6ddd2;
+  --st-taupe-2: #d4c6b5;
+  --st-sage: #e6e7df;
+  --st-sage-2: #d4d6c9;
+  --st-light: #f8f6f2; /* šviesūs postamentai */
+  --st-dark: #232323; /* tamsus blokas, dovanų dėžutė */
+  --st-shadow: rgba(30, 24, 16, 0.32); /* kontaktinis šešėlis po daiktais */
+  /* Buteliuko šešėlis (prekių kortelės, galerija, krepšelis, paieška) – švelnus, vienodas visur */
+  --bottle-shadow: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.08)) drop-shadow(0 14px 14px rgba(15, 23, 42, 0.13));
+  --photo-bg: #f6f5f3; /* prekės nuotraukos fonas – labai švelnus */
   --gold: #b08a3e;
   --gold-soft: #f3ead8;
   --gold-ink: #6b4f16;
@@ -45,6 +73,8 @@
   --r-field: 12px;
   --r-sm: 12px;
   --r-hero: 28px;
+  --heroAR: 0.78; /* pradžios skaidrė telefone (plotis / aukštis) */
+  --heroH: 440px; /* skaidrės aukštis nuo 700 px (≥ 1024 px – 09-desktop.css) */
 
   --spring: cubic-bezier(0.22, 1, 0.36, 1);
   --press: 0.975;
@@ -52,8 +82,10 @@
   --gap: 16px;
   --pad: 20px; /* puslapio kraštai: 20 px telefone, 40 px kompiuteryje (09-desktop.css) */
   --maxW: 1280px;
-  --hdrH: 60px;
-  --noteH: 38px;
+  --hdrH: 54px; /* v7: mažiau tuščios vietos viršuje ir apačioje (kompiuteryje – 09-desktop.css) */
+  --hdrIcon: 28px; /* header'io ikonos (mygtukas – 44 px) */
+  --logoH: 19px; /* VAIDORE logotipo aukštis (didžiųjų raidžių) */
+  --noteH: 36px; /* juosta virš header'io – fiksuotas aukštis, tekstas vienoje eilutėje */
   --navH: 0px; /* kompiuteryje – tamsi kategorijų juosta (09-desktop.css) */
   --hdrAll: calc(var(--hdrH) + var(--navH)); /* visas prilipęs header'is – lipniems elementams */
   --safeB: env(safe-area-inset-bottom, 0px);

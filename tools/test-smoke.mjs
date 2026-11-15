@@ -33,7 +33,7 @@ const cat = JSON.parse(fs.readFileSync(path.join(root, "src/data/catalog.json"),
 const variant = structuredClone(cat);
 const vp = id => variant.products.find(p => p.id === id);
 vp("arven").stock = 0;
-vp("vanor").images = ["img/kvapai/vanor-2.webp", "img/kvapai/vanor-1.webp", "og/home.jpg"];
+vp("vanor").images = ["img/kvapai/vanor-1.webp", "img/kvapai/safrane-1.webp", "og/home.jpg"]; // galerija iš kelių nuotraukų
 vp("safrane").sizes.forEach(s => (s.was = s.price + 20)); // akcija (sena kaina) // akcija (sena kaina)
 vp("vanor").reviews = [
   { name: "Ona K.", text: "Gaivus ir švelnus, puikiai tinka darbui.", rating: 5, date: "2026-11-01", verified: true },
@@ -117,12 +117,64 @@ async function run(viewport) {
   check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
   check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .mqRow li").count()) >= 10, "pradžia: kolekcijos paveikslas ir bėganti privalumų juosta");
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex, mėginukai)");
+  const noteOk = await page.evaluate(async () => {
+    const el = document.querySelector("#topNoteTxt");
+    const bar = document.querySelector("#topNote");
+    if (getComputedStyle(bar).display === "none") return true;
+    const h = bar.getBoundingClientRect().height;
+    for (let i = 0; i < 6; i++) {
+      if (el.scrollWidth > el.clientWidth + 1 || bar.getBoundingClientRect().height !== h) return false;
+      document.querySelector('[data-note-step="1"]').click();
+      await new Promise(r => setTimeout(r, 30));
+    }
+    return true;
+  });
+  check(noteOk, "informacinė juosta: kiekviena žinutė – vienoje eilutėje, aukštis nesikeičia");
   const note1 = await page.locator("#topNoteTxt").textContent();
   await page.click('[data-note-step="1"]');
   check((await page.locator("#topNoteTxt").textContent()) !== note1, "informacinė juosta: rodyklės keičia žinutę");
   const slideHrefs = await page.locator("#homeHero .slide").evaluateAll(a => a.map(x => x.getAttribute("href")));
   check(slideHrefs.length === 3 && slideHrefs.includes("meginukai") && slideHrefs.includes("rinkinys"), "pradžia: skaidrės (kolekcija, mėginukai, rinkinys)");
   check((await page.locator("#homeHero h1").count()) === 1, "pradžia: vienas h1");
+  // v7: skaidrės ir kategorijos – scenos su Vaidore buteliukais be fono, kiekviena skaidrė – vienas veiksmas
+  const heroInfo = await page.evaluate(() =>
+    [...document.querySelectorAll("#homeHero .slide")].map(s => ({
+      stage: !!s.querySelector(".stage"),
+      bottles: [...s.querySelectorAll(".stage img")].map(i => i.getAttribute("src")),
+      ctas: s.querySelectorAll(".heroCta").length
+    }))
+  );
+  check(heroInfo.every(x => x.stage && x.bottles.length >= 2 && x.ctas === 1), "skaidrės: kiekviena – scena su buteliukais ir vienu veiksmu");
+  check(heroInfo.flatMap(x => x.bottles).every(src => /^img\/(kvapai\/[a-z0-9-]+-1|meginukas)\.webp$/.test(src)), "skaidrės: tik buteliukai be fono (-1.webp) ir mėginukai");
+  const firstLoaded = await until(() => page.evaluate(() => [...document.querySelectorAll("#homeHero .slide:first-child .stage img")].every(i => i.complete && i.naturalWidth > 0)));
+  check(firstLoaded, "skaidrės: pirmos skaidrės buteliukai įsikėlė");
+  check(
+    await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].every(t => t.querySelector(".stage") && t.querySelectorAll(".stage img").length >= 2)),
+    "kategorijos: kiekviena plytelė – scena su buteliukais"
+  );
+  const heroBox = await page.locator("#homeHero").boundingBox();
+  await page.locator("#homeHero .heroRail").evaluate(r => r.scrollTo({ left: r.clientWidth }));
+  await page.waitForTimeout(400);
+  const heroBox2 = await page.locator("#homeHero").boundingBox();
+  check(Math.abs(heroBox.height - heroBox2.height) < 1, "skaidrės: aukštis nesikeičia keičiantis skaidrėms");
+  const cls = await page.evaluate(
+    () =>
+      new Promise(res => {
+        let v = 0;
+        new PerformanceObserver(l => l.getEntries().forEach(e => !e.hadRecentInput && (v += e.value))).observe({ type: "layout-shift", buffered: true });
+        setTimeout(() => res(v), 300);
+      })
+  );
+  check(cls < 0.05, `pradžia: CLS ${cls.toFixed(3)} < 0,05`);
+  // v7: spalvos – juoda vietoje mėlynos, krepšelio skaičiukas raudonas, VAIDORE – etiketės šriftu (SVG)
+  check((await page.locator(".hdr .logo svg.wordmark").count()) === 1, "logotipas: VAIDORE kontūrai (etiketės šriftas)");
+  const blue = await page.evaluate(() =>
+    [...document.querySelectorAll("body *")].filter(el => {
+      const c = getComputedStyle(el);
+      return [c.backgroundColor, c.color, c.borderTopColor].some(v => /rgba?\(\s*(40, 76, 162|53, 97, 196|28, 47, 94|59, 103, 204)\b/.test(v));
+    }).length
+  );
+  check(blue === 0, `mėlynos spalvos nebėra (${blue})`);
   check(await page.locator("#homeReviews").isHidden(), "be tikrų atsiliepimų – atsiliepimų sekcijos nėra");
   check((await page.locator("#homeRails .card").count()) > 8, "pradžia: karuselės su kvapais");
   if (!mobile) {
@@ -194,6 +246,10 @@ async function run(viewport) {
   await page.locator("#productRoot [data-add]").first().click();
   await page.waitForSelector("#miniWrap:not([hidden])");
   check((await cartBadge(page)) === "1", "„Į krepšelį“ → mini krepšelis, skaičiukas 1");
+  check(
+    (await page.locator('#cartBtn [data-badge="cart"]').evaluate(b => getComputedStyle(b).backgroundColor)) === "rgb(209, 16, 43)",
+    "krepšelio skaičiukas – raudonas"
+  );
   await shot(page, `${tag}-mini`);
   await page.locator("#mini [data-sheet-close]").first().click();
   await page.waitForTimeout(350);
@@ -338,6 +394,7 @@ async function run(viewport) {
 }
 
 await run({ width: 430, height: 932 });
+await run({ width: 360, height: 780 });
 await run({ width: 1440, height: 900 });
 await browser.close();
 serverA.close();

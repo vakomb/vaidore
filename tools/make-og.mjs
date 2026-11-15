@@ -20,16 +20,16 @@ const CONC = { EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", E
 const FAM = Object.fromEntries(catalog.families.map(f => [f.id, f.name]));
 const money = n => (Number.isInteger(n) ? `${n} €` : `${n.toFixed(2).replace(".", ",")} €`);
 const esc = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const LOGO =
-  '<svg viewBox="0 0 26 26" width="40" height="40"><defs><linearGradient id="og" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B67CC"/><stop offset="1" stop-color="#1E3A86"/></linearGradient></defs><path d="M13 2.5c4.4 5 7.4 9.1 7.4 12.7a7.4 7.4 0 0 1-14.8 0C5.6 11.6 8.6 7.5 13 2.5z" fill="url(#og)"/></svg>';
+// VAIDORE logotipas – tas pats kaip svetainėje (src/partials/logo.svg, tools/make-logo.py)
+const LOGO = fs.readFileSync(path.join(root, "src/partials/logo.svg"), "utf8").trim();
 const page = (tint, art, text) => `<!doctype html><html><head><meta charset="utf-8"><style>
-*{box-sizing:border-box;margin:0}body{width:1200px;height:630px;overflow:hidden;font-family:-apple-system,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:#0F172A;
-background:radial-gradient(70% 90% at 28% 45%,#fff 0%,${tint} 70%);display:grid;grid-template-columns:520px 1fr;align-items:center}
+*{box-sizing:border-box;margin:0}body{width:1200px;height:630px;overflow:hidden;font-family:-apple-system,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:#111;
+background:radial-gradient(70% 90% at 28% 45%,#fff 0%,#ece6dd 72%);display:grid;grid-template-columns:520px 1fr;align-items:center}
 .art{height:630px;display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:40px 0 50px}.art svg{height:520px;width:auto;filter:drop-shadow(0 24px 30px rgba(15,23,42,.16))}
-.art.trio svg{height:400px}.art img{height:560px;width:auto;object-fit:contain}.art.trio img{height:430px;margin:0 -70px}.txt{padding:0 70px 0 10px}.brand{display:flex;align-items:center;gap:14px;font-size:30px;font-weight:800;letter-spacing:.18em;margin-bottom:34px}
+.art.trio svg{height:400px}.art img{height:560px;width:auto;object-fit:contain;filter:drop-shadow(0 18px 18px rgba(30,24,16,.18))}.art.trio img{height:400px;margin:0 -118px}.art{overflow:hidden}.txt{padding:0 70px 0 10px}.brand{margin-bottom:34px;color:#111}.brand svg{height:34px;width:auto;display:block}
 h1{font-size:84px;line-height:1.02;letter-spacing:-.03em}h1.home{font-size:58px;line-height:1.1}p{margin-top:18px;font-size:34px;line-height:1.3;color:#475569;font-weight:600}
-.meta{margin-top:30px;display:inline-flex;padding:14px 22px;border-radius:999px;background:#fff;box-shadow:0 0 0 1px rgba(226,232,240,.7),0 8px 24px -8px rgba(15,23,42,.15);font-size:26px;font-weight:700;color:#284CA2}
-</style></head><body><div class="art${art.trio ? " trio" : ""}">${art.svg}</div><div class="txt"><div class="brand">${LOGO}VAIDORE</div>${text}</div></body></html>`;
+.meta{margin-top:30px;display:inline-flex;padding:14px 22px;border-radius:999px;background:#fff;box-shadow:0 0 0 1px rgba(226,232,240,.7),0 8px 24px -8px rgba(15,23,42,.15);font-size:26px;font-weight:700;color:#111}
+</style></head><body><div class="art${art.trio ? " trio" : ""}">${art.svg}</div><div class="txt"><div class="brand">${LOGO}</div>${text}</div></body></html>`;
 
 // Buteliukų SVG – iš tikros programėlės (window.VD.bottleSVG), be duomenų bazės
 const app = buildApp({ catalog, supabase: null });

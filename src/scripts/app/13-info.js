@@ -51,7 +51,7 @@ function infoAboutHTML() {
   return `<nav class="crumbs" aria-label="Naršymo kelias">${crumbsHTML([{ name: "Pradžia", href: "./" }, { name: "Apie mus" }])}</nav>
 <header class="pageHead"><h1>${esc(st.title || "Apie mus")}</h1><p class="pageSub">${esc(SET.tagline || "")}</p></header>
 <section class="story about">
-<div class="storyArt">${st.image ? `<img src="${esc(st.image)}" alt="" loading="lazy" decoding="async" />` : trio.map(p => `<span style="--tint:${p.look.tint}">${bottleSVG(p)}</span>`).join("")}</div>
+<div class="storyArt">${st.image ? `<img src="${esc(st.image)}" alt="" loading="lazy" decoding="async" />` : stageHTML("collection", trio, { cls: "storyStage" })}</div>
 <div class="storyTxt"><p>${esc(st.text || "")}</p></div>
 </section>
 <section class="sec"><div class="secHead"><h2>Kaip mes dirbame</h2></div>

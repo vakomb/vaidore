@@ -139,7 +139,7 @@
   overflow: hidden;
 }
 .pdGal.hasPhoto {
-  background: var(--tint, #f3f5f8);
+  background: var(--photo-bg);
 }
 .pdGal svg.bottle {
   position: absolute;

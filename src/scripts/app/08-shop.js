@@ -132,6 +132,16 @@ function renderShop() {
   const list = shopList();
   $("#shopTitle").textContent = shopTitle();
   $("#shopSub").textContent = shopSub();
+  // Kategorijos / lyties / mėginukų puslapyje – tos grupės scena (24-stage.js); perpiešiama tik pasikeitus grupei
+  const stName = shopStageName();
+  const stKey = `${stName}|${shop.base}`;
+  const stBox = $("#shopStage");
+  if (stBox.dataset.key !== stKey) {
+    stBox.dataset.key = stKey;
+    const group = PRODUCTS.filter(p => (shop.gender === "all" || p.gender === shop.gender) && (!shop.category || (p.categories || []).includes(shop.category))).sort((a, b) => a.rank - b.rank);
+    stBox.innerHTML = stName ? stageHTML(stName, group.length ? group : PRODUCTS, { eager: true, cls: "shopStage" }) : "";
+  }
+  $("#shopHead").classList.toggle("hasStage", !!stName);
   const crumbs = [
     { name: "Pradžia", href: "./" },
     { name: "Kvepalai", href: "kvepalai" }

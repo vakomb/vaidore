@@ -4,7 +4,8 @@
 @media (min-width: 700px) {
   :root {
     --pad: 32px;
-    --hdrH: 68px;
+    --hdrH: 60px;
+    --logoH: 22px;
   }
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -25,23 +26,37 @@
   .mood:last-child:nth-child(odd) {
     grid-column: auto;
   }
+  /* Skaidrės: tekstas kairėje, kompozicija dešinėje */
+  #homeHero {
+    min-height: var(--heroH);
+  }
   .slide {
     aspect-ratio: auto;
-    height: 440px;
+    height: var(--heroH);
+  }
+  .heroStage {
+    --cx: 68%;
+    --uh: 0.86;
+    --uw: 0.44;
+    --fl: 8cqh;
   }
   .slideIn {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
-    padding: 40px var(--pad);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--pad);
+  }
+  .heroTxt {
+    width: 46%;
+    max-width: 480px;
+    margin: 0;
+    text-align: left;
   }
   .heroTitle {
-    font-size: 54px;
+    font-size: 46px;
   }
-  .heroPerks li {
-    font-size: 15.5px;
-  }
-  .heroArt {
-    height: 340px;
-    margin-right: 0;
+  .heroLine {
+    margin-left: 0;
+    font-size: 16.5px;
   }
   .band {
     min-height: 64px;
@@ -167,13 +182,13 @@
     gap: 24px;
     padding: 0 var(--pad);
   }
-  .logo svg {
-    width: 28px;
-    height: 28px;
+  :root {
+    --logoH: 25px;
+    --hdrIcon: 29px;
+    --noteH: 38px;
   }
-  .logo b {
-    font-size: 30px;
-    letter-spacing: 0.28em;
+  .noteTrack {
+    font-size: 14px;
   }
   .hdrNav {
     display: block;
@@ -241,7 +256,7 @@
     align-items: center;
     gap: 8px;
     width: min(320px, 100%);
-    height: 46px;
+    height: 44px;
     padding: 0 16px;
     border-radius: 999px;
     background: var(--field);
@@ -275,24 +290,19 @@
   }
 
   /* Pradžia */
-  .slide {
-    height: 462px;
-  }
-  .heroArt {
-    height: 390px;
+  :root {
+    --heroH: 540px;
   }
   .heroTitle {
-    font-size: 66px;
+    font-size: 60px;
   }
-  .heroPerks {
-    max-width: 520px;
-  }
-  .heroPerks li {
-    font-size: 17px;
-    padding: 12px 0 13px;
+  .heroLine {
+    font-size: 18px;
   }
   .heroCta {
-    font-size: 17px;
+    min-height: 50px;
+    padding: 0 24px 0 28px;
+    font-size: 16px;
   }
   .catTiles {
     grid-auto-flow: row;
@@ -303,7 +313,10 @@
     gap: 16px;
   }
   .tileName {
-    font-size: 23px;
+    font-size: 20px;
+  }
+  .tileTxt {
+    padding-top: 20px;
   }
   /* Karuselė – 3 didelės kortelės (kaip parfumada), rodyklės ir „1/3“ */
   .rail {
@@ -465,8 +478,36 @@
   .pdGal svg.bottle {
     height: 240px;
   }
-  .heroArt {
-    height: 220px;
+  /* Skaidrės – žemesnės, tekstas kairėje, kompozicija dešinėje (kaip kompiuteryje) */
+  :root {
+    --heroH: 300px;
+  }
+  #homeHero {
+    min-height: var(--heroH);
+  }
+  .slide {
+    aspect-ratio: auto;
+    height: var(--heroH);
+  }
+  .heroStage {
+    --cx: 70%;
+    --uh: 0.86;
+    --uw: 0.44;
+  }
+  .slideIn {
+    display: flex;
+    align-items: center;
+  }
+  .heroTxt {
+    width: 48%;
+    margin: 0;
+    text-align: left;
+  }
+  .heroTitle {
+    font-size: 30px;
+  }
+  .heroLine {
+    margin-left: 0;
   }
   .topNote {
     display: none;

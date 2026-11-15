@@ -37,7 +37,9 @@ export function buildApp(opts = {}) {
   html = html.replace(/<!-- @inline <style id="([\w-]+)"> ([\w./-]+) -->/g, (_, id, rel) => {
     return `<style id="${id}">${minCss(guard(rel, read(rel)))}</style>`;
   });
-  html = html.replace(/<!-- @partial ([\w./-]+) -->/g, (_, rel) => guard(rel, read(rel)).trim());
+  // @partial gali būti ir dalies viduje (pvz. partials/header.html → partials/logo.svg)
+  const partials = s => s.replace(/<!-- @partial ([\w./-]+) -->/g, (_, rel) => partials(guard(rel, read(rel)).trim()));
+  html = partials(html);
   html = html.replace(/<!-- @base -->/, () => `<base href="${opts.base || "/"}" />`);
   html = html.replace(/<!-- @catalog -->/, () => {
     const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));

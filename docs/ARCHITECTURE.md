@@ -120,6 +120,33 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
+## Dizainas (v7: nuotraukos be fono, juoda vietoje mėlynos, scenos)
+
+- **Nuotraukos.** Kiekvienam kvapui – VIENA nuotrauka `src/public/img/kvapai/<id>-1.webp`: tik buteliukas permatomame fone
+  (WebP su alfa, 1000 × 1000, visi vienodo dydžio, centruoti, be juodų dangtelio kampų). Kuria `python3 tools/make-bottles.py`
+  (iš `tools/assets/vaidore-scena.png`; ten pat – 2 ml mėginukas `img/meginukas.webp`). Scenų su fonu (`-2.webp`) nebėra
+  (migracija `20261115000400_vaidore_vienos_nuotraukos.sql`). Šešėlio paveiksle nėra – visur tas pats CSS `--bottle-shadow`,
+  fonas `--photo-bg` (kortelės, galerija, krepšelis, paieška, administravimas).
+- **Spalvos.** Akcentas – juoda `--brand: #111` (mygtukai, aktyvios būsenos, ženkliukai, pasirinkimai, juostos `--band`,
+  `--focus`, `--brand-ring/-glow`); krepšelio skaičiukas – raudonas `--badge` (5,5:1). Perėjimai – `--ease`. Mėlynos nebėra
+  (testas tikrina). Ikonos ir favicon – auksinė „V“ juodame fone (`tools/make-logo.py` → `favicon.svg`, `tools/make-icons.mjs`).
+- **Logotipas.** VAIDORE – tas pats šriftas ir raidžių tarpai kaip buteliuko etiketėje (TeX Gyre Termes, GUST licencija),
+  kontūrai `src/partials/logo.svg` (`python3 tools/make-logo.py`), įdedamas į header'į surinkimo metu (`@partial` dalies viduje),
+  `logoHTML()` jį paima iš header'io; statiniai puslapiai – `{{logo}}`; OG paveikslai – `tools/make-og.mjs`. Aukštis – `--logoH`.
+- **Header'is.** Mažesnis aukštis (`--hdrH` 54 / 60 px), didesnės ikonos (`--hdrIcon` 28–29 px, mygtukas 44 px).
+- **Juosta virš header'io.** Fiksuotas aukštis `--noteH`, tekstas visada vienoje eilutėje: kiekviena žinutė turi ilgą ir
+  trumpus variantus, `fitNote()` (21-header.js) įrašo ilgiausią telpantį (nuo 360 px); keičiasi vietoje.
+- **Scenos** (`24-stage.js` + `12-stage.css`): vieno stiliaus kompozicijos – šilta studijos siena, grindys, CSS formos (arka,
+  cilindras, blokas, diskas, juoda dovanų dėžutė su VAIDORE) ir tikri buteliukai / mėginukai su kontaktiniu šešėliu.
+  Matas `u = min(--uh × aukščio, --uw × pločio)` (konteinerio užklausos) – kompozicija visada telpa, niekas nepasislenka.
+  `STAGES`: skaidrėms `collection`, `samples`, `gift`; kategorijoms `women`, `men`, `unisex`, `vials`, `set`, `fresh`;
+  administratoriaus kategorijoms – `STAGE_CYCLE`. Tonai – `--st-*` (01-tokens.css).
+- **Pradžios skaidrės:** sezono kolekcija (settings.hero) · „Pirma išbandykite“ (mėginukai) · dovana / atradimų rinkinys.
+  Kiekviena – sava kompozicija, trumpas tekstas ir vienas veiksmas (juodas mygtukas), taškai apačioje, keičiasi kas 6 s.
+  Telefone tekstas viršuje, kompozicija apačioje (`--heroAR`); nuo 700 px ir gulsčiame telefone – tekstas kairėje (`--heroH`).
+- **Kategorijos:** „Produktai“ plytelės – visa plytelė scena su pavadinimu viršuje; katalogo puslapiuose (lytis, mėginukai,
+  kategorija) – scena antraštėje; „Apie mus“ – scena vietoje paveikslo (jei `settings.story.image` nenurodytas).
+
 ## Dizainas (v5: kaip parfumada.lt – matmenys perimti iš jos puslapių)
 
 - Pradžia: skaidrės (kolekcija · mėginukai · rinkinys, „‹ 1/3 ›“, keičiasi kas 6 s) → bėganti juosta → „Produktai“

@@ -1,16 +1,32 @@
 // 21 – header'is, šoninis meniu, „Kvepalai“ išskleidžiamas meniu, paieška (kompiuteryje – pasiūlymai po lauku,
 // telefone – langas), informacinė juosta ir poraštė. Kategorijos ir šeimos – iš katalogo (administravimo skydelio).
-// Informacinė juosta – kelios trumpos žinutės, keičiasi kas 5 s (rodyklės – rankiniu būdu; sustoja užvedus,
+// Informacinė juosta – kelios trumpos žinutės, keičiasi vietoje kas 5 s (rodyklės – rankiniu būdu; sustoja užvedus,
 // fokusuojant ir jei įjungtas „mažiau judesio“). Visos žinutės – tikri parduotuvės nustatymai.
+// Juostos aukštis fiksuotas (--noteH), tekstas – VISADA vienoje eilutėje: kiekviena žinutė turi ilgą ir trumpą
+// variantą; jei ilgas netelpa (siauras telefonas, nuo 360 px), rodomas trumpas.
 const note = { i: 0, t: 0, paused: false };
 function noteMessages() {
+  const free = eurShort(SET.freeShippingFrom);
+  const sample = eur(Math.min(...PRODUCTS.map(p => p.sample)));
+  const days = esc(SET.dispatch || "1–2 d. d.");
+  const ret = `${SET.returnDays || 14} d.`;
   return [
-    `Nemokamas pristatymas nuo <b>${eurShort(SET.freeShippingFrom)}</b>`,
-    `Kiekvieną kvapą – ir <b>2 ml mėginuku</b> nuo ${eur(Math.min(...PRODUCTS.map(p => p.sample)))}`,
-    `Išsiunčiame per <b>${esc(SET.dispatch || "1–2 d. d.")}</b> · Omniva ir DPD`,
-    SET.sampleCredit ? `Mėginukų kainą <b>grąžiname</b> perkant buteliuką` : "",
-    `Grąžinimas per <b>${SET.returnDays || 14} d.</b> · Saugus apmokėjimas`
+    [`Nemokamas pristatymas nuo <b>${free}</b>`, `Nemokamas pristatymas nuo <b>${free}</b>`, `Nemokamai nuo <b>${free}</b>`],
+    [`Kiekvieną kvapą – ir <b>2 ml mėginuku</b> nuo ${sample}`, `<b>2 ml mėginukai</b> nuo ${sample}`, `Mėginukai nuo <b>${sample}</b>`],
+    [`Išsiunčiame per <b>${days}</b> · Omniva ir DPD`, `Išsiunčiame per <b>${days}</b>`, `Išsiunčiame per <b>${days}</b>`],
+    SET.sampleCredit ? [`Mėginukų kainą <b>grąžiname</b> perkant buteliuką`, `Mėginuko kainą <b>grąžiname</b>`, `Mėginuko kaina <b>grąžinama</b>`] : null,
+    [`Grąžinimas per <b>${ret}</b> · Saugus apmokėjimas`, `Grąžinimas per <b>${ret}</b>`, `Grąžinimas per <b>${ret}</b>`]
   ].filter(Boolean);
+}
+// Įrašo ilgiausią telpantį variantą (be perkėlimo į kitą eilutę)
+function fitNote() {
+  const el = $("#topNoteTxt");
+  const v = noteMessages()[note.i];
+  if (!el || !v) return;
+  for (const t of v) {
+    el.innerHTML = t;
+    if (el.scrollWidth <= el.clientWidth + 1) return;
+  }
 }
 function showNote(step = 0) {
   const msgs = noteMessages();
@@ -18,9 +34,13 @@ function showNote(step = 0) {
   const el = $("#topNoteTxt");
   el.classList.remove("in");
   void el.offsetWidth;
-  el.innerHTML = msgs[note.i];
+  fitNote();
   el.classList.add("in");
 }
+window.addEventListener("resize", () => {
+  clearTimeout(note.r);
+  note.r = setTimeout(fitNote, 120);
+});
 function renderTopNote() {
   showNote(0);
   const bar = $("#topNote");

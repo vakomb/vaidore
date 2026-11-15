@@ -269,7 +269,8 @@ const fill = s =>
     .replace(/\{\{dispatch\}\}/g, esc(S.dispatch || "1–2 d. d."))
     .replace(/\{\{shipping\}\}/g, () => S.shipping.map(o => `<li>${esc(o.name)} – ${money(o.price)} (${esc(o.days)})</li>`).join(""))
     .replace(/\{\{supabase\}\}/g, () => JSON.stringify(sb))
-    .replace(/\{\{year\}\}/g, String(new Date().getFullYear()));
+    .replace(/\{\{year\}\}/g, String(new Date().getFullYear()))
+    .replace(/\{\{logo\}\}/g, () => fs.readFileSync(path.join(src, "partials", "logo.svg"), "utf8").trim());
 for (const f of fs.readdirSync(path.join(src, "pages")).filter(f => !f.startsWith("_") && f.endsWith(".html"))) {
   const pg = fs.readFileSync(path.join(src, "pages", f), "utf8");
   const title = (pg.match(/<!-- title: (.*?) -->/) || [])[1] || S.shop;

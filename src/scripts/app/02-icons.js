@@ -53,9 +53,8 @@ const GLYPH = {
 const glyph = (name, cls = "") =>
   `<svg class="gl ${cls}" viewBox="0 0 24 24" aria-hidden="true">${GLYPH[name] || ""}</svg>`;
 
-// Logotipas: lašo ženklas + VAIDORE
-// Kiekvienas logotipas gauna savo gradiento id (paslėptame šoniniame meniu esantis gradientas kitur nepiešiamas)
-const logoHTML = () => `<b>Vaidore</b>`;
+// Logotipas: VAIDORE etiketės šriftu (kontūrai – src/partials/logo.svg, tools/make-logo.py; įdėtas į header'į surinkimo metu)
+const logoHTML = () => document.querySelector(".hdr .logo svg.wordmark")?.outerHTML || `<b>Vaidore</b>`;
 
 // Spalvotos plytelių ikonos (48 × 48, spalvos pačiame SVG – kaip AutoEasier plytelės)
 const TILE_ICO = {

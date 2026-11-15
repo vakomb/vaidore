@@ -15,7 +15,7 @@ function lineHTML(l) {
   const art = disc
     ? `<div class="art discArt" data-disc-edit="${esc(lineKey(l))}">${l.picks
         .slice(0, 3)
-        .map(id => `<span style="--tint:${BY_ID.get(id).look.tint}">${bottleSVG(BY_ID.get(id))}</span>`)
+        .map(id => `<span>${artImg(BY_ID.get(id))}</span>`)
         .join("")}</div>`
     : `<a class="art" href="${productUrl(p)}${l.ml === SAMPLE_ML ? "?ml=2" : ""}" data-nav style="--tint:${p.look.tint}" aria-hidden="true" tabindex="-1">${artImg(p)}</a>`;
   const name = disc
