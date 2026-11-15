@@ -55,11 +55,7 @@ const glyph = (name, cls = "") =>
 
 // Logotipas: lašo ženklas + VAIDORE
 // Kiekvienas logotipas gauna savo gradiento id (paslėptame šoniniame meniu esantis gradientas kitur nepiešiamas)
-let logoSeq = 0;
-const logoHTML = () => {
-  const id = `vdLg${++logoSeq}`;
-  return `<svg viewBox="0 0 26 26" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B67CC"/><stop offset="1" stop-color="#1E3A86"/></linearGradient></defs><path d="M13 2.5c4.4 5 7.4 9.1 7.4 12.7a7.4 7.4 0 0 1-14.8 0C5.6 11.6 8.6 7.5 13 2.5z" fill="url(#${id})"/><path d="M10 15.6a3.2 3.2 0 0 0 3 3.2" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round"/></svg><b>Vaidore</b>`;
-};
+const logoHTML = () => `<b>Vaidore</b>`;
 
 // Spalvotos plytelių ikonos (48 × 48, spalvos pačiame SVG – kaip AutoEasier plytelės)
 const TILE_ICO = {
