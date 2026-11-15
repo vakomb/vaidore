@@ -31,15 +31,15 @@ h1{font-size:84px;line-height:1.02;letter-spacing:-.03em}h1.home{font-size:58px;
 .meta{margin-top:30px;display:inline-flex;padding:14px 22px;border-radius:999px;background:#fff;box-shadow:0 0 0 1px rgba(226,232,240,.7),0 8px 24px -8px rgba(15,23,42,.15);font-size:26px;font-weight:700;color:#284CA2}
 </style></head><body><div class="art${art.trio ? " trio" : ""}">${art.svg}</div><div class="txt"><div class="brand">${LOGO}VAIDORE</div>${text}</div></body></html>`;
 
-const app = buildApp({ catalog });
+// Buteliukų SVG – iš tikros programėlės (window.VD.bottleSVG), be duomenų bazės
+const app = buildApp({ catalog, supabase: null });
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
 const p = await ctx.newPage();
-await p.setContent(app.replace('<script>\n(() => {', "<script>\nlocation.hash='#/katalogas';\n(() => {"));
-await p.waitForSelector("#shopGrid .card");
-const svgs = await p.evaluate(() =>
-  Object.fromEntries([...document.querySelectorAll("#shopGrid .card")].map(c => [c.dataset.open, c.querySelector(".art svg")?.outerHTML || ""]))
-);
+await p.route("http://og.local/**", r => (r.request().url() === "http://og.local/" ? r.fulfill({ contentType: "text/html", body: app }) : r.fulfill({ status: 404, body: "" })));
+await p.goto("http://og.local/");
+await p.waitForFunction(() => window.VD?.bottleSVG);
+const svgs = await p.evaluate(() => Object.fromEntries(window.VD.CAT.products.map(pr => [pr.id, window.VD.bottleSVG(pr)])));
 for (const pr of catalog.products) {
   const min = Math.min(...pr.sizes.map(s => s.price));
   await p.setContent(

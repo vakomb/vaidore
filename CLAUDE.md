@@ -1,27 +1,30 @@
 # Instrukcijos Claude (ir žmonėms)
 
-Kalba su vartotoju: **lietuvių**. Vaidore.com – kvepalų e-parduotuvė. Telefonui (iPhone, 430 px) ir kompiuteriui. Dizainas ir sandara – kaip AutoEasier (vakomb/skelbimai).
+Kalba su vartotoju: **lietuvių**. Vaidore.com – kvepalų e-parduotuvė (v3). Telefonui (iPhone, 430 px) ir kompiuteriui. Dizainas ir sandara – kaip AutoEasier (vakomb/skelbimai).
+Duomenų bazė, paskyros, failai ir serverio funkcijos – **Supabase** (projektas `ubtytpfsqbofqizgkxtc`); apmokėjimas – **Stripe**; svetainė – statinė (Vercel arba GitHub Pages).
 
 ## Nekeičiamos taisyklės
 
-1. Keisk tik `src/`, `api/`, `tools/`. `dist/` ir `site/` – surinkimo rezultatas (nekeliami į GitHub).
-2. Po pakeitimų: `npm test` (patikra → serverio testas → surinkimas ir naršyklės testas telefone ir kompiuteryje). Turi likti žalias.
-3. `src/scripts/app/*.js` – **vienas bendras scope**, sujungiamas eilės tvarka (01 → 19, `99-boot` – paskutinis). Nėra `import/export`. Naujas failas – kitas numeris (20–98).
+1. Keisk tik `src/`, `supabase/`, `tools/` (ir dokumentus). `dist/`, `site/`, `.verify/` – surinkimo rezultatas (nekeliami į GitHub).
+2. Po pakeitimų: `npm test` (patikra → serverio testas → parduotuvės naršyklės testas → administravimo testas, be interneto). Turi likti žalias.
+3. `src/scripts/app/*.js` ir `src/scripts/admin/*.js` – **vienas bendras scope** kiekvienas, sujungiami eilės tvarka. Nėra `import/export`. Programėlėje `99-boot` – paskutinis, naujas failas – kitas numeris (24–98). Administravimas programėlės funkcijas gauna per `window.VD` (`23-admin-loader.js`).
 4. Literalus `</style>` ar `</script>` šaltinio faile sulaužytų puslapį – build sustoja.
-5. Prekės, kainos, likučiai, pristatymas, įmonės duomenys – **tik** `src/data/catalog.json`. Tą patį failą naudoja ir `api/*` – kainos ir likučiai visada tikrinami serveryje.
-6. Dizaino reikšmės (spalvos, kampai, šešėliai, judesys) – tik `src/styles/01-tokens.css`. Tekstų kontrastas ≥ 4,5:1.
-7. Raktų (Stripe, Resend) į repozitoriją nedėk – tik Vercel → Settings → Environment Variables (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`).
-8. localStorage raktų (`vaidore_cart_v1`, `vaidore_fav_v1`, `vaidore_ship_v1`, `vaidore_gift_v1`) nepervadink – jie pirkėjų telefonuose.
-9. Atsiliepimai – tik tikri (`reviews`); jokių iššokančių langų, laiko atskaitų, netikrų likučių.
+5. Kainos, likučiai, kvapai, nustatymai – **duomenų bazėje** (keičiami administravimo skydelyje `/admin`). `src/data/catalog.json` – pradiniai duomenys (`npm run seed`) ir atsarginis katalogas, jei surinkimo metu bazė nepasiekiama. Kainas ir likučius visada tikrina serveris (`supabase/functions/_shared/shop.js`).
+6. Saugumas – RLS (`supabase/migrations/`): kiekviena nauja lentelė su `enable row level security` ir politikomis; administratorius – `is_admin()` (el. paštas lentelėje `admin_emails`, patvirtintas). Veiksmai su paslaptimis (Stripe, laiškai) – tik Edge Function `shop`.
+7. Dizaino reikšmės (spalvos, kampai, šešėliai, judesys) – tik `src/styles/01-tokens.css`. Tekstų kontrastas ≥ 4,5:1.
+8. Raktų į repozitoriją nedėk. Paslaptys – Supabase → Edge Functions → Secrets (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `GITHUB_TOKEN`…). `src/data/supabase.json` – tik **publishable** raktas (viešas, duomenis saugo RLS).
+9. localStorage raktų (`vaidore_cart_v1`, `vaidore_fav_v1`, `vaidore_ship_v1`, `vaidore_gift_v1`, `vaidore_auth_v1`, `vaidore_catalog_v1`) nepervadink – jie pirkėjų telefonuose.
+10. Atsiliepimai – tik tikri (rašo tik pirkę, skelbiami po peržiūros); jokių iššokančių langų, laiko atskaitų, netikrų likučių.
+11. Adresai – santykiniai (`kvepalai/rasa`, `admin/kvapai`), nes svetainė veikia ir šaknyje, ir poaplankyje (`<base href>`, `BASE_PATH`).
 
 ## Kur ką rasti
 
-- Surinkimas: `tools/build.mjs` (`src/index.html` su `@inline` / `@partial` / `@catalog` / `@lockers` / `@app` žymomis → vienas HTML), `tools/build-site.mjs` (→ `site/`: kvapų SEO puslapiai, sitemap, robots, Omniva paštomatai), `tools/make-og.mjs` (dalinimosi paveikslai), `tools/serve.mjs` (peržiūra), `tools/check.mjs`, `tools/test-api.mjs`, `tools/test-smoke.mjs`.
-- Ekranai: `src/partials/` (Pradžia, Katalogas, Mėgstami, Krepšelis, apatinė juosta, šoninis meniu, langai).
-- Stiliai: `src/styles/01-tokens` → `02-base` → `03-layout` (juosta, antraštės) → `04-components` → `05-products` → `06-detail` → `07-cart` → `10-flows` (testas, rinkinys, paštomatas, istorija…) → `09-desktop` (paskutinis); `08-pages` – statiniams puslapiams.
-- Logika: `01-util` (+ `track`), `02-icons`, `03-catalog` (+ likučiai, „Tiks …“), `04-bottle` (buteliuko SVG), `05-state` (krepšelis, mėgstami, pristatymas, pakavimas), `06-cards`, `07-home`, `08-shop` (paieška, filtrai, rūšiavimas), `09-sheet` (langai, pranešimai), `10-product`, `11-cart`, `12-checkout`, `13-info`, `14-router`, `16-quiz`, `17-discovery`, `18-delivery` (paštomatai), `19-notify`, `99-boot`.
-- Apmokėjimas: `api/checkout.js` (Stripe Checkout, be npm paketų) → `/aciu` (`src/pages/aciu.html` išvalo krepšelį, `api/order.js` – mėginukų kodas); `api/stripe-webhook.js` (parašas, kodas, laiškai), bendros funkcijos – `api/_lib.js`.
-- Statiniai puslapiai: `src/pages/` (`_layout.html` + `aciu`, `salygos`, `privatumas`; `{{company.*}}` iš katalogo).
-- PWA: `src/public/` (`manifest.webmanifest`, `sw.js` – keičiant `CACHE` telefonai išmeta seną kopiją, ikonos – `tools/make-icons.mjs`).
-- GitHub Pages: `.github/workflows/pages.yml` (peržiūra be apmokėjimo, `NOINDEX=1`). Adresai – tik santykiniai (be „/“ pradžioje), kad veiktų ir poaplankyje.
-- Išsamiau – `docs/ARCHITECTURE.md`.
+- Surinkimas: `tools/build.mjs` (`src/index.html` su `@inline` / `@partial` / `@catalog` / `@lockers` / `@app` / `@base` → vienas HTML; `buildAdmin()` → `assets/admin.js` + `admin.css`), `tools/build-site.mjs` (→ `site/`: puslapis kiekvienam adresui, kvapų SEO puslapiai, sitemap, robots, Omniva paštomatai; katalogas – iš Supabase, `tools/db-catalog.mjs`), `tools/serve.mjs` (peržiūra), `tools/check.mjs`.
+- Ekranai: `src/partials/` (antraštė, šoninis meniu, poraštė, Pradžia, Kvepalai, Kvapas, Krepšelis, Mėgstami, Paskyra, Pagalba, Administravimas, 404, langai).
+- Stiliai: `01-tokens` → `02-base` → `03-layout` → `04-components` → `05-products` → `06-detail` → `07-cart` → `10-flows` → `11-account` → `09-desktop` (paskutinis); `08-pages` – statiniams puslapiams; `admin.css` – tik administravimui.
+- Programėlė: `01-util` … `14-router` (tikri adresai, History API), `16-quiz`, `17-discovery`, `18-delivery` (paštomatai), `19-notify`, `20-supabase` (REST, Auth, Storage, Edge Functions per `fetch`, katalogas iš bazės), `21-header`, `22-account`, `23-admin-loader`, `99-boot`.
+- Administravimas: `src/scripts/admin/` – `01-core` (meniu, pagalbinės), `02-overview`, `03-orders`, `04-products`, `05-categories`, `06-reviews`, `07-restock`, `08-settings`, `09-log`.
+- Serveris: `supabase/functions/shop/index.ts` (maršrutai) + `supabase/functions/_shared/shop.js` (checkout, order, stripe-webhook, admin, account). Duomenų bazė: `supabase/migrations/`, pradiniai duomenys – `supabase/seed.sql` (`npm run seed`).
+- Statiniai puslapiai: `src/pages/` (`_layout.html` + `aciu`, `salygos`, `privatumas`; `{{company.*}}` iš nustatymų).
+- Testai: `tools/test-api.mjs` (serverio logika), `tools/test-smoke.mjs` (parduotuvė), `tools/test-admin.mjs` (skydelis); Supabase imituojamas – `tools/mock-supabase.mjs`.
+- Diegimas ir nustatymai – `SKAITYK.txt`; išsamiau – `docs/ARCHITECTURE.md`.

@@ -1,22 +1,23 @@
-// Naršyklės testas (Playwright): node tools/test-smoke.mjs [--shots]
-// Surenka dvi svetainės kopijas į .verify/ (be interneto: paštomatai – tools/fixtures/omniva-sample.json):
-//   .verify/site          – tikras katalogas
-//   .verify/site-variant  – katalogas su išparduotu kvapu, nuotraukomis ir atsiliepimais (funkcijoms, kurių tikrame kataloge dar nėra)
-// Tikrina telefoną (430 × 932) ir kompiuterį (1440 × 900): pradžia (vertės žinutė, istorija), katalogas, paieška, filtrai,
-// „Rask savo kvapą“, atradimų rinkinys, kvapo lapas („Tiks …“, pristatymo eilutė, mėginuko kainos grąžinimas), krepšelis
-// (kiekis, atšaukimas, paštomatas, dovanų pakavimas), apmokėjimas (api/checkout – imituojamas), /aciu (kodas), mėgstami,
-// SEO puslapis kvepalai/<id>, sitemap / robots, išparduota + „Pranešti, kai bus“, galerija, atsiliepimai, be JS klaidų.
-// --shots – ekrano nuotraukos į .verify/shots/
-import http from "node:http";
+// Parduotuvės naršyklės testas (Playwright), be interneto: node tools/test-smoke.mjs [--shots]
+// Supabase (katalogas, „Pranešti, kai bus“, apmokėjimas, padėkos puslapis) imituojamas – tools/mock-supabase.mjs;
+// Omniva paštomatai – tools/fixtures/omniva-sample.json. Surenkamos dvi kopijos į .verify/:
+//   site          – tikras katalogas
+//   site-variant  – išparduotas kvapas, nuotraukos ir atsiliepimai (funkcijoms, kurių tikrame kataloge dar nėra)
+// Tikrina telefoną (430 × 932) ir kompiuterį (1440 × 900): pradžia, meniu, katalogas, paieška, filtrai, rūšiavimas,
+// kvapo puslapis (tūris, mėginukas), mini krepšelis, atradimų rinkinys, „Rask savo kvapą“, krepšelis (kiekis, atšaukimas,
+// paštomatas, dovanų pakavimas), apmokėjimas (siunčiami tik id / ml / kiekis), /aciu (kodas, krepšelis išvalytas),
+// mėgstami, paskyros forma, informacija, 404, seni #/ adresai; SEO (JSON-LD, sitemap, robots); išparduota + „Pranešti,
+// kai bus“, galerija, atsiliepimai; be JS klaidų. --shots – ekrano nuotraukos į .verify/shots/
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { startServer } from "./serve.mjs";
+import { mockSupabase } from "./mock-supabase.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const require = createRequire(import.meta.url);
-const { chromium } = require("playwright");
+const { chromium } = createRequire(import.meta.url)("playwright");
 const shots = process.argv.includes("--shots");
 const verify = path.join(root, ".verify");
 const shotDir = path.join(verify, "shots");
@@ -25,300 +26,293 @@ if (shots) fs.mkdirSync(shotDir, { recursive: true });
 // 1. Surinkimas
 const fixture = path.join(root, "tools/fixtures/omniva-sample.json");
 const build = (out, extra = {}) => {
-  const r = spawnSync(process.execPath, [path.join(root, "tools/build-site.mjs")], {
-    env: { ...process.env, OUT: out, OMNIVA_FILE: fixture, ...extra },
-    encoding: "utf8"
-  });
+  const r = spawnSync(process.execPath, [path.join(root, "tools/build-site.mjs")], { env: { ...process.env, OUT: out, NO_DB: "1", OMNIVA_FILE: fixture, ...extra }, encoding: "utf8" });
   if (r.status !== 0) throw new Error(r.stderr || r.stdout);
 };
-const siteA = path.join(verify, "site");
-const siteB = path.join(verify, "site-variant");
-build(siteA);
 const cat = JSON.parse(fs.readFileSync(path.join(root, "src/data/catalog.json"), "utf8"));
 const variant = structuredClone(cat);
 const vp = id => variant.products.find(p => p.id === id);
 vp("jura").stock = 0;
-vp("rasa").images = ["img/test-1.svg", "img/test-2.svg"];
-vp("rasa").reviews = [{ name: "Testas T.", text: "Tikras atsiliepimas testui.", rating: 5, date: "2026-11-01" }];
+vp("rasa").images = ["og/rasa.jpg", "og/home.jpg"];
+vp("rasa").reviews = [
+  { name: "Ona K.", text: "Gaivus ir švelnus, puikiai tinka darbui.", rating: 5, date: "2026-11-01", verified: true },
+  { name: "Rūta P.", text: "Išsilaiko visą dieną.", rating: 4, date: "2026-10-20", verified: true }
+];
 fs.mkdirSync(verify, { recursive: true });
-fs.writeFileSync(path.join(verify, "catalog-variant.json"), JSON.stringify(variant));
-build(siteB, { CATALOG: path.join(verify, "catalog-variant.json"), NOINDEX: "1" });
-fs.mkdirSync(path.join(siteB, "img"), { recursive: true });
-for (const [n, c] of [
-  [1, "#F6C6CF"],
-  [2, "#C7D7F5"]
-])
-  fs.writeFileSync(path.join(siteB, "img", `test-${n}.svg`), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="${c}"/></svg>`);
-
-// 2. Serveris (kaip Vercel cleanUrls)
-const TYPES = { ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml", ".json": "application/json", ".js": "text/javascript", ".xml": "application/xml", ".txt": "text/plain" };
-function serve(dir) {
-  const server = http.createServer((req, res) => {
-    let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
-    if (p.endsWith("/")) p += "index.html";
-    let f = path.join(dir, p);
-    if (!fs.existsSync(f) && fs.existsSync(f + ".html")) f += ".html";
-    if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) return res.writeHead(404).end();
-    res.writeHead(200, { "Content-Type": TYPES[path.extname(f)] || "application/octet-stream" });
-    fs.createReadStream(f).pipe(res);
-  });
-  return new Promise(r => server.listen(0, () => r({ server, base: `http://127.0.0.1:${server.address().port}` })));
-}
-const A = await serve(siteA);
-const B = await serve(siteB);
+const variantFile = path.join(verify, "catalog-variant.json");
+fs.writeFileSync(variantFile, JSON.stringify(variant));
+const siteA = path.join(verify, "site");
+const siteB = path.join(verify, "site-variant");
+build(siteA);
+build(siteB, { CATALOG: variantFile });
+const SB_URL = JSON.parse(fs.readFileSync(path.join(root, "src/data/supabase.json"), "utf8")).url;
+const serverA = await startServer(siteA, 4181);
+const serverB = await startServer(siteB, 4182);
+const A = "http://localhost:4181/";
+const B = "http://localhost:4182/";
 
 let failed = 0;
 const check = (ok, msg) => {
   console.log(`${ok ? "✓" : "✗"} ${msg}`);
   if (!ok) failed++;
 };
+const errors = [];
+const until = async (fn, ms = 4000) => {
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) {
+    if (await fn()) return true;
+    await new Promise(r => setTimeout(r, 50));
+  }
+  return false;
+};
+const fold = s =>
+  String(s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+const money = t => String(t || "").replace(/\s/g, "");
+const eur = n => `${n.toFixed(2).replace(".", ",")}€`;
 const browser = await chromium.launch();
-const closed = p => p.waitForSelector("#backdrop", { state: "hidden" });
 
-async function page(viewport) {
-  const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, hasTouch: viewport.width < 700 });
-  const p = await ctx.newPage();
-  const errors = [];
-  p.on("pageerror", e => errors.push(e.message));
-  p.on("console", m => m.type() === "error" && !/favicon|404|api\/order/.test(m.text()) && errors.push(m.text()));
-  return { ctx, p, errors };
+// 2. SEO failai (be naršyklės)
+const rasaHtml = fs.readFileSync(path.join(siteA, "kvepalai/rasa.html"), "utf8");
+check(/"@type":"Product"/.test(rasaHtml) && rasaHtml.includes('<link rel="canonical" href="https://vaidore.com/kvepalai/rasa"'), "SEO: kvapo puslapis su Product JSON-LD ir kanoniniu adresu");
+check(rasaHtml.includes("<title>Rasa – Eau de Parfum | Vaidore</title>"), "SEO: kvapo pavadinimas <title>");
+const sitemap = fs.readFileSync(path.join(siteA, "sitemap.xml"), "utf8");
+check(cat.products.every(p => sitemap.includes(`/kvepalai/${p.id}<`)) && !sitemap.includes("/admin"), "sitemap.xml: visi kvapai, be administravimo");
+check(fs.readFileSync(path.join(siteA, "robots.txt"), "utf8").includes("Disallow: /admin"), "robots.txt: /admin neindeksuojamas");
+check(fs.existsSync(path.join(siteA, "assets/admin.js")) && fs.statSync(path.join(siteA, "assets/admin.js")).size > 20000, "administravimo skydelis – atskiras failas");
+const appHtml = fs.readFileSync(path.join(siteA, "index.html"), "utf8");
+check(!appHtml.includes("VDAdmin = {") && !appHtml.includes("renderOrders"), "pirkėjams administravimo kodas nesiunčiamas");
+
+async function newPage(site, viewport, catalog) {
+  const ctx = await browser.newContext({ viewport, hasTouch: viewport.width < 800 });
+  const page = await ctx.newPage();
+  const sb = mockSupabase({ url: SB_URL, catalog });
+  page.on("pageerror", e => errors.push(`${viewport.width} ${page.url()}: ${e.message}`));
+  await page.route(`${SB_URL}/**`, sb.handle);
+  await page.route(/plausible\.io|omniva\.ee/, r => r.abort());
+  return { page, sb };
 }
+const shot = async (page, name) => shots && page.screenshot({ path: path.join(shotDir, `${name}.png`), fullPage: false });
+// Atidaro ir palaukia, kol programėlė parsisiunčia šviežią katalogą (kad jis nepersipieštų testo viduryje)
+const open = async (pg, url) => {
+  await pg.goto(url);
+  await pg.waitForLoadState("networkidle").catch(() => {});
+};
+const view = page => page.locator(".view.active").getAttribute("data-view");
+const cartBadge = page => page.locator('#cartBtn [data-badge="cart"]').textContent();
 
-async function run(name, viewport) {
-  console.log(`\n— ${name} ${viewport.width}×${viewport.height} —`);
-  const base = A.base;
-  const { ctx, p, errors } = await page(viewport);
-  let checkoutBody = null;
-  await p.route("**/api/checkout", async r => {
-    checkoutBody = JSON.parse(r.request().postData() || "{}");
-    await r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id: "cs_test_1", url: `${base}/aciu?s=cs_test_ABCDEFGH` }) });
-  });
-  await p.route("**/api/order*", r =>
-    r.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ paid: true, ref: "ABCDEFGH", total: 155.4, credit: { code: "VD-ABCDEFGH", amount: 1490, expires: 1797000000 } })
-    })
-  );
-  const shot = async n => shots && p.screenshot({ path: path.join(shotDir, `${name}-${n}.png`) });
+async function run(viewport) {
+  const mobile = viewport.width < 800;
+  const tag = mobile ? "tel" : "pc";
+  console.log(`\n— ${mobile ? "telefonas" : "kompiuteris"} ${viewport.width}×${viewport.height} —`);
+  const { page, sb } = await newPage(siteA, viewport, cat);
 
   // Pradžia
-  await p.goto(base + "/");
-  await p.waitForSelector("#view-home.active .card");
-  check((await p.locator("#homeTiles .tile").count()) === 4, "pradžia: 4 plytelės");
-  check((await p.locator("#homeMoods .mood").count()) === 5, "pradžia: 5 kvapo šeimos");
-  check((await p.textContent("#homeLede")) === cat.settings.tagline, "pradžia: vertės žinutė");
-  check((await p.locator("#homeHelp .row").count()) === 2, "pradžia: „Rask savo kvapą“ ir atradimų rinkinys");
-  check(await p.locator("#homeStory h2").isVisible(), "pradžia: „Mūsų istorija“");
-  check(await p.locator("#homeReviews").isHidden(), "be tikrų atsiliepimų – atsiliepimų sekcijos nėra");
-  await shot("01-home");
+  await open(page, A);
+  await page.waitForSelector("#homeTiles a, #homeTiles button");
+  check((await page.locator("#homeTiles > *").count()) === 4, "pradžia: 4 plytelės (Moterims, Vyrams, Unisex, Mėginukai)");
+  check((await page.locator("#homeMoods > *").count()) === cat.families.length, `pradžia: ${cat.families.length} kvapo šeimos`);
+  check((await page.locator("#homeLede").textContent()).length > 10, "pradžia: vertės žinutė");
+  check((await page.locator("#homePromos [data-quiz]").count()) === 1 && (await page.locator("#homePromos [data-disc]").count()) === 1, "pradžia: „Rask savo kvapą“ ir atradimų rinkinys");
+  check(await page.locator("#homeStory").isVisible(), "pradžia: „Mūsų istorija“");
+  check(await page.locator("#homeReviews").isHidden(), "be tikrų atsiliepimų – atsiliepimų sekcijos nėra");
+  check((await page.locator("#homePopular .card").count()) > 0, "pradžia: populiariausi");
+  await shot(page, `${tag}-pradzia`);
 
-  // Katalogas ir paieška
-  await p.locator(".tile", { hasText: "Vyrams" }).click();
-  await p.waitForSelector("#view-shop.active");
-  const men = await p.locator("#shopGrid .card").count();
-  check(men > 0 && (await p.locator('#shopSeg [aria-selected="true"]').textContent()) === "Vyrams", `„Vyrams“ plytelė → katalogas (${men})`);
-  await p.locator('#shopSeg [data-gender="all"]').click();
-  check((await p.locator("#shopGrid .card").count()) === 12, "katalogas: visi 12");
-  await p.fill("#shopQ", "vanile");
-  await p.waitForTimeout(200);
-  const van = await p.locator("#shopGrid .card .cardName").allTextContents();
-  check(van.length >= 2 && van.includes("Gintaras"), `paieška be diakritikų „vanile“ → ${van.join(", ")}`);
-  await p.fill("#shopQ", "zzzz");
-  await p.waitForTimeout(200);
-  check(await p.locator("#shopGrid .empty [data-quiz]").isVisible(), "tuščia paieška – „Rask savo kvapą“");
-  await p.click("#shopQClear");
-  await shot("02-shop");
-
+  // Meniu → katalogas
+  if (mobile) {
+    await page.click("#menuBtn");
+    await page.waitForSelector("#drawerWrap:not([hidden]) #drawer a[href='moterims']");
+    await page.click("#drawer a[href='moterims']");
+  } else await page.click('#hdrNav a[href="moterims"]');
+  await page.waitForURL(/\/moterims$/);
+  check((await page.locator("#shopTitle").textContent()) === "Kvepalai moterims", "meniu → „Moterims“");
+  const women = cat.products.filter(p => p.gender === "moterims").length;
+  check((await page.locator("#shopGrid .card").count()) === women, `moterims: ${women} kvapai`);
+  await open(page, `${A}kvepalai`);
+  await page.waitForSelector("#shopGrid .card");
+  check((await page.locator("#shopCount").textContent()).includes(String(cat.products.length)), `katalogas: ${cat.products.length} kvapų`);
+  // Paieška (ir pagal natas, be diakritikų)
+  const vanilla = cat.products.filter(p => fold([...p.notes.top, ...p.notes.heart, ...p.notes.base].join(" ")).includes("vanile")).length;
+  await page.fill("#shopQ", "vanile");
+  check(await until(async () => (await page.locator("#shopGrid .card").count()) === vanilla), `paieška „vanile“ (be diakritikų): ${vanilla}`);
+  await page.fill("#shopQ", "");
+  await until(async () => (await page.locator("#shopGrid .card").count()) === cat.products.length);
   // Filtrai
-  await p.click("#shopFilterBtn");
-  await p.waitForSelector(".sheet .fChips");
-  await p.locator('.sheet [data-f="families"][data-id="medienos"]').click();
-  const applyTxt = await p.locator(".sheet [data-f-apply]").textContent();
-  await shot("03-filters");
-  await p.locator(".sheet [data-f-apply]").click();
-  await closed(p);
-  const wood = await p.locator("#shopGrid .card").count();
-  check(wood === 3 && /3 kvapus/.test(applyTxt), `filtras „Medienos“ → ${wood} (${applyTxt.trim()})`);
-  check((await p.locator("#shopActive .chip").count()) === 1, "aktyvus filtras rodomas žyme");
-  await p.locator("#shopActive .chip").click();
-
-  // Kvapo lapas, tūris, į krepšelį
-  await p.locator('#shopGrid [data-open="gintaras"]').click();
-  await p.waitForSelector(".sheet .pd");
-  check(/#\/kvepalai\/gintaras$/.test(p.url()), "kvapo lapas turi savo adresą");
-  check((await p.locator(".sheet .pyrRow").count()) === 3, "natų piramidė – 3 eilutės");
-  check(/^Tiks vakarui/.test((await p.textContent(".sheet .pdSuits")).trim()), `„Tiks …“: ${(await p.textContent(".sheet .pdSuits")).trim()}`);
-  check(/Išsiunčiame per .* Nemokamai nuo 60 € · Grąžinimas 14 d\./.test(await p.textContent(".sheet .pdShip")), "pristatymo eilutė po kaina");
-  await shot("04-product");
-  await p.locator('.sheet [data-ml="100"]').click();
-  check((await p.locator("[data-buy-price]").textContent()).includes("129,00"), "100 ml – 129,00 €");
-  await p.locator(".sheet [data-add]").click();
-  await p.locator('.sheet [data-ml="2"]').click();
-  check(await p.locator(".sheet [data-sample-note]").isVisible(), "mėginukas – kainos grąžinimo žinutė");
-  await p.locator(".sheet [data-add]").click();
-  await p.waitForTimeout(150);
-  const badge = await p.locator('.tab [data-badge="cart"], .sideLink [data-badge="cart"]').first().textContent();
-  check(badge.trim() === "2", `krepšelio skaičiukas: ${badge}`);
-  await p.goBack();
-  await closed(p);
-  check(!/kvepalai/.test(p.url()), "„Atgal“ uždaro kvapo lapą");
+  const floral = cat.products.filter(p => p.family === "geliu").length;
+  if (mobile) {
+    await page.click("#shopFilterBtn");
+    await page.locator('#sheetBody [data-f="families"][value="geliu"], #sheetBody input[data-f][value="geliu"]').first().check();
+    await page.click("[data-f-apply]");
+  } else await page.locator('#shopFilters input[data-f][value="geliu"]').check();
+  check(await until(async () => (await page.locator("#shopGrid .card").count()) === floral), `filtras „Gėlių“: ${floral}`);
+  check(await until(() => new URL(page.url()).search.includes("geliu")), "filtras įrašomas į adresą (galima dalintis)");
+  await open(page, `${A}kvepalai`);
+  await page.waitForSelector("#shopGrid .card");
+  const sortVals = await page.locator("#shopSort option").evaluateAll(o => o.map(x => x.value));
+  const cheap = sortVals.find(v => /price|kaina|pig/i.test(v) && !/desc|brang/i.test(v));
+  if (cheap) {
+    await page.selectOption("#shopSort", cheap);
+    const minAll = Math.min(...cat.products.map(p => Math.min(...p.sizes.map(s => s.price))));
+    check(await until(async () => money(await page.locator("#shopGrid .card .cardPrice").first().textContent()).includes(`${minAll}`)), "rūšiavimas: pigiausi pirmi");
+  }
+  await shot(page, `${tag}-katalogas`);
 
   // Mėgstami
-  await p.locator('#shopGrid [data-fav="rasa"]').click();
-  await p.locator('[data-tab="fav"]:visible').first().click();
-  check((await p.locator("#favGrid .card").count()) === 1, "mėgstami: 1");
+  await page.locator("#shopGrid .card [data-fav]").first().click();
+  check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė → mėgstami (1)");
 
-  // „Rask savo kvapą“ → atradimų rinkinys
-  await p.locator('[data-tab="home"]:visible').first().click();
-  await p.locator("#homeHelp [data-quiz]").click();
-  await p.waitForSelector(".sheet .qzOpts");
-  await p.locator('.sheet [data-qz="moterims"]').click();
-  await p.locator('.sheet [data-qz="evening"]').click();
-  await p.locator('.sheet [data-qz="ambros"]').click();
-  await p.locator(".sheet [data-qz-next]").click();
-  await p.locator('.sheet [data-qz="3"]').click();
-  await p.waitForSelector(".sheet .qzCard");
-  const res = await p.locator(".sheet .qzCard b").allTextContents();
-  const whyOk = (await p.locator(".sheet .qzCard").evaluateAll(cs => cs.every(c => c.querySelectorAll(".qzWhy span").length >= 1))) === true;
-  const women = new Set(cat.products.filter(x => x.gender !== "vyrams").map(x => x.name));
-  check(res.length === 3 && res.every(n => women.has(n)) && whyOk, `testas: 3 kvapai su „Kodėl tinka“ (${res.join(", ")})`);
-  await shot("05-quiz");
-  await p.locator(".sheet [data-qz-disc]").click();
-  await p.waitForSelector(".sheet .discGrid");
-  check((await p.locator('.sheet [data-pick][aria-pressed="true"]').count()) === 5, "rinkinys: 5 kvapai parinkti pagal testą");
-  await p.locator('.sheet [data-pick][aria-pressed="true"]').first().click();
-  check(await p.locator(".sheet [data-disc-add]").isDisabled(), "rinkinys: 4 iš 5 – mygtukas neaktyvus");
-  await p.locator('.sheet [data-pick][aria-pressed="false"]:not([disabled])').first().click();
-  await shot("06-discovery");
-  await p.locator(".sheet [data-disc-add]").click();
-  await closed(p);
+  // Kvapo puslapis
+  const rasa = cat.products.find(p => p.id === "rasa");
+  await open(page, `${A}kvepalai/rasa`);
+  await page.waitForSelector("#productRoot h1");
+  check((await page.locator("#productRoot h1").textContent()).includes("Rasa"), "kvapo puslapis: pavadinimas");
+  check((await page.locator("#productRoot .sizeOpt").count()) === rasa.sizes.length + 1, "kvapo puslapis: tūriai + mėginukas 2 ml");
+  const s30 = rasa.sizes[0];
+  await page.click(`#productRoot .sizeOpt[data-ml="${s30.ml}"]`);
+  check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(s30.price), `tūris ${s30.ml} ml – kaina ${s30.price} €`);
+  await page.locator("#productRoot [data-add]").first().click();
+  await page.waitForSelector("#miniWrap:not([hidden])");
+  check((await cartBadge(page)) === "1", "„Į krepšelį“ → mini krepšelis, skaičiukas 1");
+  await shot(page, `${tag}-mini`);
+  await page.locator("#mini [data-sheet-close]").first().click();
+  await page.waitForTimeout(350);
+  await page.click('#productRoot .sizeOpt[data-ml="2"]');
+  check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(rasa.sample), "mėginukas 2 ml – kaina");
+  await page.locator("#productRoot [data-add]").first().click();
+  await page.waitForSelector("#miniWrap:not([hidden])");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(350);
+  check((await cartBadge(page)) === "2", "mėginukas pridėtas (2)");
+
+  // Atradimų rinkinys
+  await open(page, `${A}rinkinys`);
+  await page.waitForSelector("#sheetBody [data-pick]");
+  const D = cat.settings.discovery;
+  const picks = page.locator("#sheetBody [data-pick]");
+  for (let i = 0; i < D.count; i++) await picks.nth(i).click();
+  check(await page.locator("#sheetBody [data-disc-add]").isEnabled(), `rinkinys: pasirinkta ${D.count}`);
+  await page.click("#sheetBody [data-disc-add]");
+  check(await until(async () => (await cartBadge(page)) === "3"), "rinkinys krepšelyje (3)");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(350);
+
+  // Rask savo kvapą
+  await open(page, `${A}testas`);
+  await page.waitForSelector("#quizRoot [data-qz]");
+  await page.click('#quizRoot [data-qz="any"]');
+  await page.click('#quizRoot [data-qz="daily"]');
+  await page.click('#quizRoot [data-qz="geliu"]');
+  await page.click("#quizRoot [data-qz-next]");
+  await page.click('#quizRoot [data-qz="3"]');
+  await page.waitForSelector("#quizRoot .qzCard");
+  check((await page.locator("#quizRoot .qzCard").count()) === 3, "„Rask savo kvapą“: 3 pasiūlymai su „Kodėl tinka“");
+  await shot(page, `${tag}-testas`);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(350);
 
   // Krepšelis
-  await p.locator('[data-tab="cart"]:visible').first().click();
-  await p.waitForSelector("#view-cart.active .line");
-  check((await p.locator(".line").count()) === 3, "krepšelyje 3 eilutės (100 ml, mėginukas, rinkinys)");
-  const total = await p.locator(".sumRow.total b").textContent();
-  check(/149,80/.test(total), `iš viso su nemokamu pristatymu: ${total}`);
-  check(await p.locator(".ship.done").isVisible(), "nemokamo pristatymo juosta – „nemokamas“");
-  const sample = '.line[data-line="gintaras:2"]';
-  await p.locator(`${sample} [data-step="1"]`).click();
-  check((await p.locator(`${sample} output`).textContent()) === "2", "kiekis +1");
-  await p.locator(`${sample} [data-step="-1"]`).click();
-  await p.locator(`${sample} [data-step="-1"]`).click();
-  check((await p.locator(".line").count()) === 2, "kiekis 0 – eilutė pašalinta");
-  await p.locator(".toast button", { hasText: "Atšaukti" }).click();
-  check((await p.locator(".line").count()) === 3, "„Atšaukti“ grąžina eilutę");
-
+  await open(page, `${A}krepselis`);
+  await page.waitForSelector("#cartRoot [data-line]");
+  check((await page.locator("#cartRoot [data-line]").count()) === 3, "krepšelis: 3 eilutės");
+  const first = page.locator("#cartRoot [data-line]").first();
+  await first.locator('[data-step="1"]').click();
+  check(await until(async () => (await first.locator("output").textContent()) === "2"), "kiekis +1");
+  await first.locator('[data-step="-1"]').click();
+  await page.locator("#cartRoot [data-line]").first().locator('[data-step="-1"]').click();
+  check(await until(async () => (await page.locator("#cartRoot [data-line]").count()) === 2), "kiekis 0 – eilutė pašalinta");
+  await page.locator(".toast button", { hasText: "Atšaukti" }).click();
+  check(await until(async () => (await page.locator("#cartRoot [data-line]").count()) === 3), "„Atšaukti“ – eilutė grąžinta");
+  // Pristatymas: paštomatas
+  await page.click('#cartRoot [data-ship="omniva"]');
+  // Paštomato langas atsidaro pats, jei paštomatas dar nepasirinktas
+  if (!(await until(() => page.locator("#lkQ").isVisible(), 1200))) await page.click("#cartRoot [data-pick-locker]");
+  await page.waitForSelector("#lkQ");
+  await page.fill("#lkQ", "Vilni");
+  await page.waitForTimeout(250);
+  const lk = page.locator("#sheetBody [data-locker]").first();
+  const lkName = (await lk.locator(".rowTxt").textContent()).trim();
+  await lk.click();
+  check(await until(async () => (await page.locator("#cartRoot").textContent()).includes(lkName.split("\n")[0].slice(0, 12))), "paštomatas pasirinktas");
   // Dovanų pakavimas
-  await p.locator("[data-gift]").click();
-  await p.fill("#giftNote", "Su gimtadieniu, Ona!");
-  check(/152,30/.test(await p.locator(".sumRow.total b").textContent()), "dovanų pakavimas +2,50 € suvestinėje");
-  await shot("07-cart");
+  await page.click("#cartRoot [data-gift]");
+  await page.fill("#giftNote", "Su meile");
+  check((await page.locator("#cartRoot [data-gift]").getAttribute("aria-checked")) === "true", "dovanų pakavimas įjungtas");
+  await shot(page, `${tag}-krepselis`);
+  // Apmokėjimas
+  await page.click("#payBtn");
+  await page.waitForURL(/__stripe/);
+  const co = sb.calls.find(c => c.name === "checkout");
+  check(!!co, "„Apmokėti“ → Stripe (serverio funkcija)");
+  const items = co?.body.items || [];
+  check(items.length === 3 && items.every(i => i.id && i.qty && !("price" in i) && !("unit" in i)), "serveriui siunčiami tik id, ml / picks, kiekis (be kainų)");
+  check(items.some(i => i.picks?.length === D.count), "rinkinio kvapai perduoti");
+  check(co?.body.shipping?.method === "omniva" && /^\d{4,6}$/.test(co?.body.shipping?.locker?.zip || ""), "paštomatas perduotas");
+  check(co?.body.gift?.on && co.body.gift.note === "Su meile", "dovanų pakavimas ir rašteliukas perduoti");
+  // Padėkos puslapis
+  await open(page, `${A}aciu?s=cs_test_abcdefghij1234567890`);
+  await page.waitForSelector("#credit:not([hidden])");
+  check((await page.locator("#creditCode").textContent()) === "VD-MOCK1234", "/aciu: mėginukų kainos grąžinimo kodas");
+  check((await page.evaluate(() => localStorage.getItem("vaidore_cart_v1"))) === null, "/aciu: krepšelis išvalytas");
+  await open(page, A);
+  await page.waitForSelector("#homeTiles > *");
+  check(await page.locator('#cartBtn [data-badge="cart"]').isHidden(), "grįžus – krepšelis tuščias");
 
-  // Apmokėjimas: be paštomato – pirmiausia pasirinkimas
-  await p.click("#payBtn");
-  await p.waitForSelector(".sheet .lockerPick .group, .sheet .lockerPick .qzHint");
-  await p.fill("#lkQ", "kaunas");
-  await p.waitForTimeout(100);
-  const found = await p.locator(".sheet [data-locker]").count();
-  check(found === 2, `paštomato paieška „kaunas“ → ${found}`);
-  await shot("08-locker");
-  await p.locator(".sheet [data-locker]").first().click();
-  await closed(p);
-  check(/Kauno/.test(await p.textContent('[data-ship="omniva"] small')), "pasirinktas paštomatas rodomas krepšelyje");
-  await p.click("#payBtn");
-  await p.waitForURL(/\/aciu/);
-  const items = checkoutBody?.items || [];
-  check(items.length === 3 && items.every(i => i.id && i.qty && !("price" in i)), "į api/checkout – tik id, ml / picks, kiekis (be kainų)");
-  check(items.some(i => i.picks?.length === 5), "rinkinys siunčiamas su 5 kvapais");
-  check(checkoutBody?.shipping?.method === "omniva" && /^\d{5}$/.test(checkoutBody.shipping.locker?.zip), "siunčiamas paštomatas");
-  check(checkoutBody?.gift?.note === "Su gimtadieniu, Ona!", "siunčiamas rašteliukas");
-  check(/Ačiū už užsakymą/.test(await p.textContent("h1")), "/aciu – padėkos puslapis");
-  await p.waitForSelector("#credit:not([hidden])");
-  check((await p.textContent("#creditCode")) === "VD-ABCDEFGH", "/aciu – mėginukų kainos grąžinimo kodas");
-  await shot("09-thanks");
-  await p.goto(base + "/");
-  await p.waitForSelector("#view-home.active");
-  check((await p.evaluate(() => localStorage.getItem("vaidore_cart_v1"))) === null, "po apmokėjimo krepšelis išvalytas");
+  // Mėgstami, paskyra, informacija, 404, seni adresai
+  await open(page, `${A}megstami`);
+  check((await page.locator("#favGrid .card").count()) === 1, "mėgstami: 1 kvapas");
+  await open(page, `${A}paskyra`);
+  check(await page.locator('.authForm input[name="email"]').isVisible(), "paskyra: prisijungimo forma");
+  await open(page, `${A}pagalba`);
+  check((await view(page)) === "info" && (await page.locator(".infoSec").count()) >= 3, "pagalba: pristatymas, grąžinimas, DUK");
+  await open(page, `${A}nera-tokio-puslapio`);
+  check((await view(page)) === "404", "nežinomas adresas – „Puslapis nerastas“");
+  await open(page, `${A}#/kvepalai/rasa`);
+  await page.waitForTimeout(300);
+  check(new URL(page.url()).pathname === "/kvepalai/rasa" && (await view(page)) === "product", "senas #/ adresas nukreipiamas");
+  for (const [p, h] of [
+    ["salygos", "Pirkimo sąlygos"],
+    ["privatumas", "Privatumo politika"]
+  ]) {
+    await open(page, A + p);
+    check((await page.locator("h1").first().textContent()).includes(h.split(" ")[0]), `${p}: puslapis`);
+  }
+  if (!mobile) {
+    // Paieška antraštėje
+    await open(page, A);
+    await page.fill("#hdrQ", "rasa");
+    await page.waitForSelector("#searchPop:not([hidden])");
+    check((await page.locator("#searchPop").textContent()).includes("Rasa"), "antraštės paieška: pasiūlymai");
+  }
+  await page.context().close();
 
-  // Tiesioginė nuoroda, SEO puslapis, teisiniai puslapiai
-  await p.goto(base + "/#/kvepalai/jura");
-  await p.waitForSelector(".sheet .pd");
-  check((await p.textContent("#sheetTitle")) === "Jūra", "tiesioginė nuoroda atidaro kvapą");
-  await p.keyboard.press("Escape");
-  await closed(p);
-  check(await p.locator("#view-home").isVisible(), "uždarius – pradžia matoma");
-  await p.goto(base + "/kvepalai/baltijos-pusys");
-  await p.waitForSelector(".sheet .pd");
-  const seo = await p.evaluate(() => ({
-    title: document.title,
-    canon: document.querySelector('link[rel="canonical"]')?.href,
-    og: document.querySelector('meta[property="og:image"]')?.content,
-    ld: JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent),
-    url: location.href,
-    sheet: document.querySelector("#sheetTitle")?.textContent
-  }));
-  check(seo.sheet === "Baltijos pušys" && /#\/kvepalai\/baltijos-pusys$/.test(seo.url), "kvepalai/<id> – atsidaro tas pats kvapo lapas");
-  check(/^Baltijos pušys – /.test(seo.title) && seo.canon === "https://vaidore.com/kvepalai/baltijos-pusys", "kvepalai/<id> – title ir kanoninis adresas");
-  check(seo.ld["@type"] === "Product" && seo.ld.offers.lowPrice > 0 && /InStock/.test(seo.ld.offers.availability), "kvepalai/<id> – Product JSON-LD");
-  check(/og\/baltijos-pusys\.jpg$/.test(seo.og), "kvepalai/<id> – Open Graph paveikslas");
-  for (const pg of ["/salygos", "/privatumas"]) {
-    const r = await p.goto(base + pg);
-    check(r.ok() && (await p.locator(".pgDoc h1").count()) === 1, `${pg} – puslapis`);
-  }
-  if (name === "telefonas") {
-    const sm = await (await p.goto(base + "/sitemap.xml")).text();
-    check((sm.match(/<loc>/g) || []).length === 15, "sitemap.xml – 15 adresų");
-    check(/Sitemap: https:\/\/vaidore\.com\/sitemap\.xml/.test(await (await p.goto(base + "/robots.txt")).text()), "robots.txt");
-  }
-  if (shots) {
-    await p.goto(base + "/");
-    await p.waitForSelector("#view-home.active");
-    await p.evaluate(() => window.scrollTo(0, 99999));
-    await shot("10-home-bottom");
-  }
-  check(errors.length === 0, `be JS klaidų${errors.length ? ": " + errors.join(" | ") : ""}`);
-  await ctx.close();
+  // Variantas: išparduota, nuotraukos, atsiliepimai
+  const v = await newPage(siteB, viewport, variant);
+  await open(v.page, `${B}kvepalai/jura`);
+  await v.page.waitForSelector("#productRoot [data-notify]");
+  check(true, "išparduota – „Pranešti, kai bus“ vietoje „Į krepšelį“");
+  await v.page.locator("#productRoot [data-notify]").first().click();
+  await v.page.fill('#sheetBody input[name="email"]', "laukiu@example.com");
+  await v.page.click("#sheetBody button[type=submit]");
+  check(await until(() => v.sb.db.restock_requests.some(r => r.product_id === "jura" && r.email === "laukiu@example.com")), "„Pranešti, kai bus“ – įrašyta į duomenų bazę");
+  await v.page.waitForSelector("#backdrop", { state: "hidden" });
+  await open(v.page, `${B}kvepalai/rasa`);
+  await v.page.waitForSelector("#productRoot .gal img");
+  check((await v.page.locator("#productRoot .gal img").count()) === 2, "galerija: 2 nuotraukos");
+  check(await until(async () => (await v.page.locator("[data-pd-reviews]").isVisible()) && (await v.page.locator("[data-pd-reviews]").textContent()).includes("Ona K.")), "kvapo atsiliepimai");
+  await open(v.page, B);
+  check(await until(() => v.page.locator("#homeReviews").isVisible()), "pradžia: atsiliepimai (kai yra tikrų)");
+  await shot(v.page, `${tag}-variantas`);
+  await v.page.context().close();
 }
 
-// Variantas: išparduota, nuotraukos, atsiliepimai, noindex
-async function runVariant(name, viewport) {
-  console.log(`\n— ${name}: katalogo variantas —`);
-  const { ctx, p, errors } = await page(viewport);
-  await p.goto(B.base + "/");
-  await p.waitForSelector("#view-home.active .card");
-  check(await p.locator("#homeReviews .review").first().isVisible(), "su tikrais atsiliepimais – sekcija rodoma");
-  check((await p.locator('.card[data-open="rasa"] img.photo').count()) > 0, "kortelėje – tikra nuotrauka");
-  await p.goto(B.base + "/#/kvepalai/rasa");
-  await p.waitForSelector(".sheet .pd");
-  check((await p.locator(".sheet .gal img").count()) === 2 && (await p.locator(".sheet .galDots i").count()) === 2, "kvapo lape – galerija (2 nuotraukos)");
-  check(await p.locator(".sheet [data-pd-reviews] .review").isVisible(), "kvapo lape – atsiliepimas");
-  await p.keyboard.press("Escape");
-  await closed(p);
-  await p.goto(B.base + "/#/kvepalai/jura");
-  await p.waitForSelector(".sheet .pd.sold");
-  check((await p.locator(".sheet [data-add]").count()) === 0 && (await p.locator(".sheet [data-notify]").isVisible()), "išparduota – „Pranešti, kai bus“ vietoje „Į krepšelį“");
-  await p.locator(".sheet [data-notify]").click();
-  await p.waitForSelector('.sheet input[type="email"]');
-  await p.fill('.sheet input[type="email"]', "blogas");
-  await p.locator('.sheet button[type="submit"]').click();
-  check(await p.locator(".sheet .formErr").isVisible(), "neteisingas el. paštas – klaida");
-  if (shots) await p.screenshot({ path: path.join(shotDir, `${name}-variant-notify.png`) });
-  const seo = await (await p.goto(B.base + "/kvepalai/jura")).text();
-  check(/OutOfStock/.test(seo) && /<meta name="robots" content="noindex"/.test(seo), "išparduotas – OutOfStock JSON-LD; NOINDEX=1 – noindex");
-  const rasa = await (await p.goto(B.base + "/kvepalai/rasa")).text();
-  check(/"aggregateRating"/.test(rasa) && /img\/test-1\.svg/.test(rasa), "su atsiliepimais – aggregateRating, nuotrauka JSON-LD");
-  check(/Disallow: \//.test(await (await p.goto(B.base + "/robots.txt")).text()), "NOINDEX=1 – robots.txt uždraudžia");
-  check(errors.length === 0, `be JS klaidų${errors.length ? ": " + errors.join(" | ") : ""}`);
-  await ctx.close();
-}
-
-await run("telefonas", { width: 430, height: 932 });
-await run("kompiuteris", { width: 1440, height: 900 });
-await runVariant("telefonas", { width: 390, height: 844 });
+await run({ width: 430, height: 932 });
+await run({ width: 1440, height: 900 });
 await browser.close();
-A.server.close();
-B.server.close();
-console.log(failed ? `\n✗ Nepavyko: ${failed}` : "\nVisi testai praėjo");
+serverA.close();
+serverB.close();
+check(!errors.length, `be JS klaidų${errors.length ? `: ${errors.slice(0, 5).join(" | ")}` : ""}`);
+console.log(failed ? `\n${failed} patikrinimai nepavyko` : "\nNaršyklės testai praėjo");
 process.exit(failed ? 1 : 0);

@@ -1,6 +1,6 @@
 // Vaidore service worker: tinklas pirmiausia (visada naujausia versija), be ryšio – paskutinė išsaugota kopija.
-// Keičiant CACHE pavadinimą, telefonai išmeta seną kopiją.
-const CACHE = "vaidore-v2";
+// Keičiant CACHE pavadinimą, telefonai išmeta seną kopiją. Duomenų bazė ir apmokėjimas (Supabase) – kitas adresas, neliečiami.
+const CACHE = "vaidore-v3";
 // Santykiniai keliai – veikia ir svetainės šaknyje, ir GitHub Pages poaplankyje (/vaidore/)
 const CORE = ["./", "manifest.webmanifest", "favicon.svg", "icons/icon-192.png"];
 const HOME = new URL("./", self.registration.scope).href;
@@ -24,7 +24,7 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   const url = new URL(req.url);
-  if (req.method !== "GET" || url.origin !== location.origin || url.pathname.includes("/api/")) return;
+  if (req.method !== "GET" || url.origin !== location.origin) return;
   e.respondWith(
     fetch(req)
       .then(res => {

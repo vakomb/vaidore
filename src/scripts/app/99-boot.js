@@ -28,7 +28,8 @@ function boot() {
       renderHeaderNav();
       renderFooter();
       renderTopNote();
-      if (ui.view !== "admin") route({ restoreY: window.scrollY });
+      // Paskyra (įvedamos formos) ir administravimas katalogo nenaudoja – jų nepersipiešiame, kad nedingtų įvesti duomenys
+      if (ui.view !== "admin" && ui.view !== "account") route({ restoreY: window.scrollY });
     }
   });
   route();

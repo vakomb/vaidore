@@ -1,69 +1,88 @@
-VAIDORE.COM – KVEPALŲ E-PARDUOTUVĖ
-==================================
+VAIDORE.COM – KVEPALŲ E-PARDUOTUVĖ (v3)
+=======================================
 
-Ta pati sandara ir dizainas kaip AutoEasier: įkeliate į GitHub → Vercel surenka ir paskelbia.
+Ta pati sandara ir dizainas kaip AutoEasier. Trys dalys:
+  • Svetainė (statinė) – GitHub Pages (nemokamai) ir / arba Vercel (vaidore.com).
+  • Supabase – duomenų bazė (kvapai, užsakymai, paskyros, atsiliepimai), nuotraukos ir serverio funkcija „shop“
+    (apmokėjimas, užsakymai, laiškai, administravimo veiksmai).
+  • Stripe – apmokėjimas (kortelė, Apple Pay, Google Pay).
+Prekes, kainas, likučius, užsakymus ir nustatymus valdote administravimo skydelyje: vaidore.com/admin
 
-1. NAUJA REPOZITORIJA GITHUB'E
-   - github.com → New repository → pavadinimas „vaidore“ → Private → Create.
-   - „uploading an existing file“ → įtempkite VISUS failus ir aplankus iš šio ZIP (išarchyvavę,
-     aplankų struktūrą išlaikykite: api/, docs/, src/, tools/, package.json, vercel.json…) → Commit.
-   - Svarbu: įkelkite ir paslėptą failą .gitignore (Windows: išarchyvuotame aplanke įjunkite
-     „Rodyti paslėptus failus“, jei jo nesimato).
 
-2A. PERŽIŪRA TIK PER GITHUB (be Vercel, be apmokėjimo)
-   - Settings → General → apačioje „Danger Zone“ → Change visibility → Make public
-     (GitHub Pages nemokamai veikia tik viešoms repozitorijoms).
-   - Settings → Pages → Build and deployment → Source: „GitHub Actions“.
-   - Įkelkite failus (būtinai ir aplanką .github – jame pages.yml). Po 1–2 min. parduotuvė:
-     https://vakomb.github.io/vaidore/   (eiga – skirtukas „Actions“).
-   - Per GitHub Pages veikia viskas, išskyrus apmokėjimą („Apmokėti“ parodys „laikinai nepasiekiamas“).
+1. SUPABASE: DUOMENŲ BAZĖ (vieną kartą)
+   - supabase.com → projektas „ubtytpfsqbofqizgkxtc“ (adresas ir viešas raktas jau įrašyti src/data/supabase.json).
+   - SQL Editor → New query → įklijuokite ir paleiskite (Run) EILĖS TVARKA:
+       supabase/migrations/20261115000000_shop.sql
+       supabase/migrations/20261115000100_hardening.sql
+       supabase/migrations/20261115000200_orders_mailed.sql
+       supabase/seed.sql            (12 pavyzdinių kvapų ir nustatymai – vėliau keisite skydelyje)
+   - Administratorius: el. paštas vakomb@gmail.com jau įrašytas (lentelė admin_emails). Kitą pridėti:
+       insert into public.admin_emails (email) values ('kitas@pastas.lt');
 
-2B. VERCEL (tikra parduotuvė su apmokėjimu)
-   - vercel.com → Add New → Project → Import „vaidore“ → Deploy (nustatymai jau vercel.json).
-   - Settings → Environment Variables → STRIPE_SECRET_KEY = Jūsų Stripe slaptas raktas
-     (Stripe → Developers → API keys; bandymams sk_test_…, tikriems mokėjimams sk_live_…) → Save → Redeploy.
-   - Settings → Domains → vaidore.com (DNS – kaip nurodys Vercel).
-   - Stripe → Developers → Webhooks → Add endpoint: https://vaidore.com/api/stripe-webhook,
-     įvykiai checkout.session.completed ir checkout.session.async_payment_succeeded →
-     „Signing secret“ (whsec_…) → Vercel kintamasis STRIPE_WEBHOOK_SECRET → Redeploy.
-     Tada po apmokėjimo automatiškai sukuriamas mėginukų kainos grąžinimo kodas.
-   - Stripe → Settings → Customer emails → „Successful payments“ – kvitas pirkėjui.
-   - (Nebūtina) laiškai su užsakymo santrauka (paštomatas, rašteliukas, kodas): resend.com paskyra,
-     patvirtinkite domeną vaidore.com, Vercel kintamieji RESEND_API_KEY, MAIL_FROM
-     (pvz. Vaidore <uzsakymai@vaidore.com>), ORDER_EMAIL_TO (kam siųsti; numatyta – info@vaidore.com).
+2. SUPABASE: PRISIJUNGIMAS (Authentication → URL Configuration)
+   - Site URL: https://vaidore.com
+   - Redirect URLs (po vieną eilutėje):
+       https://vaidore.com/paskyra
+       https://www.vaidore.com/paskyra
+       https://vakomb.github.io/vaidore/paskyra
+       http://localhost:4180/paskyra
+   - Authentication → Providers → Email: įjungta, „Confirm email“ – įjungta.
+   - Tada svetainėje → Paskyra → Registruotis su vakomb@gmail.com → patvirtinkite laišką → Paskyra → „Administravimas“.
 
-3. PREKĖS IR DUOMENYS
-   - Viskas viename faile: src/data/catalog.json – kvapai, kainos, tūriai, mėginukai, natos, pristatymas,
-     nemokamo pristatymo riba, įmonės duomenys (pirkimo sąlygoms ir privatumo politikai).
-   - Dabar įrašyti 12 PAVYZDINIŲ kvapų – pakeiskite tikrais.
-   - Užpildykite settings.company („[Įmonės pavadinimas]“ ir pan.) – rekvizitai rodomi poraštėje ir
-     puslapiuose; neužpildyti („[…]“) nerodomi. Sąlygų / privatumo tekstus (src/pages/salygos.html,
-     privatumas.html) patikrinkite su teisininku.
-   - settings.tagline – viena eilutė po logotipu; settings.story.text – „Mūsų istorija“ (įrašykite savo
-     tikrą istoriją; story.image – nebūtina nuotrauka, pvz. img/istorija.webp).
-   - NUOTRAUKOS: įkelkite į src/public/img/ (WebP, ~1200 px pločio, iki 150 KB), pvz. rasa-1.webp,
-     rasa-2.webp, ir kvapo „images“ įrašykite ["img/rasa-1.webp", "img/rasa-2.webp"]. Kol nėra – buteliukas.
-   - ATSILIEPIMAI: kvapo „reviews“ – tik tikri, gavus pirkėjo sutikimą:
-     [{ "name": "Ona K.", "text": "…", "rating": 5, "date": "2026-11-20" }]. Kol tuščia – sekcijos nėra.
-   - LIKUČIAI: kvapui įrašykite "stock": 0 – rodoma „Laikinai išparduota“ ir „Pranešti, kai bus“,
-     pirkti neleidžiama. Vėl turint – ištrinkite lauką arba įrašykite skaičių.
-   - „Pranešti, kai bus“: formspree.io → New form → adresą (https://formspree.io/f/…) įrašykite į
-     settings.notifyForm. Kol tuščia – atidaromas laiškas į info@vaidore.com.
-   - Atradimų rinkinys (settings.discovery: kiek mėginukų ir kaina), mėginukų kainos grąžinimas
-     (settings.sampleCredit: dienos ir minimali užsakymo suma), dovanų pakavimas (settings.gift).
-   - MATAVIMAS: plausible.io paskyra → settings.analytics.plausible = "vaidore.com"
-     (arba Vercel → Analytics → Enable ir settings.analytics.vercel = true). Slapukų juostos nereikia.
-   - Pakeitus kvapus – nauji dalinimosi paveikslai: npm install, npm run og (failai src/public/og/).
+3. SUPABASE: SERVERIO FUNKCIJA „shop“ IR PASLAPTYS
+   Kompiuteryje (reikia Node.js), repozitorijos aplanke:
+       npx supabase login
+       npx supabase functions deploy shop --project-ref ubtytpfsqbofqizgkxtc --no-verify-jwt
+   Paslaptys (Supabase → Edge Functions → Secrets → Add, arba npx supabase secrets set VARDAS=reikšmė):
+       STRIPE_SECRET_KEY      Stripe → Developers → API keys (bandymams sk_test_…, tikriems mokėjimams sk_live_…)
+       STRIPE_WEBHOOK_SECRET  žr. 4 punktą (whsec_…)
+       SITE_URL               https://vaidore.com
+     Nebūtina:
+       RESEND_API_KEY, MAIL_FROM, ORDER_EMAIL_TO  laiškai (užsakymas savininkui, siuntos nr. pirkėjui, „vėl turime“):
+                              resend.com → patvirtinkite domeną vaidore.com; MAIL_FROM pvz. Vaidore <uzsakymai@vaidore.com>;
+                              ORDER_EMAIL_TO – kam siųsti užsakymus (numatyta – nustatymų el. paštas)
+       GITHUB_TOKEN           „Atnaujinti svetainę“ skydelyje perrenka GitHub Pages: github.com → Settings → Developer settings →
+                              Fine-grained tokens → tik repozitorija vaidore → Actions: Read and write
+       VERCEL_DEPLOY_HOOK     tas pats Vercel'iui: Vercel → Project → Settings → Git → Deploy Hooks → nuoroda
+       SITE_URLS              jei svetainė dar kitu adresu (kableliais); vaidore.com, www ir vakomb.github.io/vaidore jau leidžiami
+   Supabase pats suteikia SUPABASE_URL ir raktus – jų įrašyti nereikia.
 
-4. KAS VEIKIA
-   - Telefonas: Pradžia · Katalogas · Mėgstami · Krepšelis (apatinė juosta kaip AutoEasier).
-   - Kompiuteris: šoninis meniu, platus katalogas, kvapo langas dviem stulpeliais.
-   - Paieška (ir pagal natas: „vanilė“, „kedras“…), filtrai, rūšiavimas, mėginukai 2 ml.
-   - „Rask savo kvapą“ (4 klausimai → 3 kvapai), atradimų rinkinys (5 mėginukai už 14,90 €),
-     mėginukų kaina grąžinama nuolaidos kodu perkant buteliuką per 30 d.
-   - Apmokėjimas per Stripe (kortelė, Apple Pay, Google Pay), Omniva paštomato pasirinkimas krepšelyje
-     (paieška ir „Rasti artimiausius“) arba DPD kurjeris, nemokamai nuo 60 €, dovanų pakavimas su rašteliuku.
-   - Kiekvienas kvapas turi savo adresą vaidore.com/kvepalai/<id> – paieškos sistemoms ir dalinimuisi
-     (paveikslas, kaina, prieinamumas), sitemap.xml, robots.txt.
-   - Kainos tikrinamos serveryje – naršyklėje jų pakeisti neįmanoma.
-   - Galima „įdiegti“ telefone (Bendrinti → Į pradžios ekraną) – atsidaro kaip programėlė.
+4. STRIPE
+   - Developers → Webhooks → Add endpoint:
+       https://ubtytpfsqbofqizgkxtc.supabase.co/functions/v1/shop/stripe-webhook
+     įvykiai: checkout.session.completed, checkout.session.async_payment_succeeded
+     → „Signing secret“ (whsec_…) → Supabase paslaptis STRIPE_WEBHOOK_SECRET.
+   - Settings → Customer emails → „Successful payments“ – kvitas pirkėjui.
+   - Pirma išbandykite su sk_test_ raktu ir kortele 4242 4242 4242 4242, tada pakeiskite į sk_live_.
+
+5. SVETAINĖ
+   A) GitHub Pages (nemokamai, https://vakomb.github.io/vaidore/):
+      Settings → Pages → Source: „GitHub Actions“. Po kiekvieno įkėlimo į main surenkama automatiškai (Actions skirtukas).
+      Veikia viskas – ir paskyros, ir apmokėjimas (per Supabase). Paieškos sistemoms neindeksuojama (peržiūros kopija).
+   B) Vercel (vaidore.com): vercel.com → Add New → Project → Import „vaidore“ → Deploy (nustatymai – vercel.json).
+      Settings → Domains → vaidore.com. Aplinkos kintamųjų Vercel'yje nebereikia (paslaptys – Supabase).
+   Kvapo pakeitimai skydelyje parduotuvėje matomi IŠKART. Kvapų puslapiai paieškos sistemoms (SEO) atsinaujina perrinkus
+   svetainę: skydelyje „Atnaujinti svetainę“ (jei nustatytas GITHUB_TOKEN / VERCEL_DEPLOY_HOOK) arba bet koks įkėlimas į GitHub.
+
+6. ADMINISTRAVIMAS (vaidore.com/admin)
+   - Apžvalga: pajamos (šiandien, 7 d., 30 d.), kas laukia, maži likučiai, perkamiausi, naujausi užsakymai.
+   - Užsakymai: „Supakuota“ → „Išsiųsta…“ (siuntos nr., pirkėjui laiškas) → „Pristatyta“; „Grąžinti pinigus“ (Stripe, likutis
+     grąžinamas); paieška; „CSV buhalterijai“ (Excel).
+   - Kvapai: naujas kvapas, redagavimas (natos, savybės, tūriai ir kainos, mėginuko kaina, likutis, buteliuko spalvos su peržiūra,
+     nuotraukos – sumažinamos automatiškai, kategorijos, žymė, rodyti / slėpti), greitas likučio keitimas sąraše.
+     Likutis: tuščia – neskaičiuojamas; 0 – „Laikinai išparduota“ ir „Pranešti, kai bus“. Perkant likutis mažėja pats.
+   - Kategorijos ir kvapo šeimos, atsiliepimų peržiūra, „Laukiantys“ (vėl turint – „Pranešti“), Nustatymai (pristatymas,
+     rinkinys, pakavimas, ĮMONĖS REKVIZITAI, istorija, matavimas), Žurnalas (kas ką pakeitė).
+
+7. PRIEŠ PALEIDŽIANT
+   - Skydelis → Nustatymai → Įmonės rekvizitai (rodomi poraštėje ir sąlygose).
+   - Pakeiskite 12 pavyzdinių kvapų tikrais, įkelkite nuotraukas (kol nėra – nupieštas buteliukas).
+   - Sąlygų / privatumo tekstus (src/pages/salygos.html, privatumas.html) patikrinkite su teisininku.
+   - Stripe – sk_live_ raktas ir webhook su live režimu.
+
+8. KOMPIUTERYJE (programuotojui)
+   npm install && npx playwright install chromium
+   npm test                  patikra + serverio + parduotuvės + administravimo testai (be interneto)
+   node tools/build-site.mjs && node tools/serve.mjs   peržiūra http://localhost:4180
+   npm run seed              supabase/seed.sql iš src/data/catalog.json (tik tuščiai bazei)
+   npm run og                dalinimosi paveikslai (src/public/og/)

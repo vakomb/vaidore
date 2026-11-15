@@ -234,7 +234,9 @@ function bindShop() {
 // Telefone – tie patys filtrai lange; keičiami iškart, mygtukas rodo, kiek kvapų liks
 function openFilters() {
   const body = () => `<div class="sheetPad">${filtersHTML(false)}<div class="fActions"><button class="btn ghost" type="button" data-f-clear>Išvalyti</button><button class="btn primary" type="button" data-f-apply>Rodyti ${plural(shopList().length, "kvapą", "kvapus", "kvapų")}</button></div></div>`;
-  openSheet({ title: "Filtrai", html: body() });
+  // Kol langas atidarytas, adresas įrašomas į lango istorijos įrašą, kuris uždarant pašalinamas („Atgal“) –
+  // todėl uždarius filtrus adresą su filtrais įrašome dar kartą (dalinimuisi ir puslapio atnaujinimui)
+  openSheet({ title: "Filtrai", html: body(), onClose: () => ui.view === "shop" && shopToUrl() });
   const root = $("#sheetBody");
   const redraw = () => {
     root.querySelector(".sheetPad").outerHTML = body();

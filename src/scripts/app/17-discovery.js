@@ -1,5 +1,5 @@
 // 17 – Atradimų rinkinys (settings.discovery): pasirenkami bet kurie N kvapų po 2 ml už fiksuotą kainą.
-// Į krepšelį – eilutė { id: DISC.id, ml: 0, qty, picks }. Kainą ir pasirinkimą dar kartą tikrina api/checkout.js.
+// Į krepšelį – eilutė { id: DISC.id, ml: 0, qty, picks }. Kainą ir pasirinkimą dar kartą tikrina serveris (supabase/functions/_shared/shop.js).
 function openDiscovery({ preset = [], replaceKey = null } = {}) {
   if (!DISC) return;
   const pool = SAMPLEABLE();
@@ -48,7 +48,7 @@ function openDiscovery({ preset = [], replaceKey = null } = {}) {
   });
   sync();
 }
-// Mėginukų kainos grąžinimas (settings.sampleCredit): po apmokėjimo Stripe sukuria vienkartinį nuolaidos kodą (api/_lib.js)
+// Mėginukų kainos grąžinimas (settings.sampleCredit): po apmokėjimo Stripe sukuria vienkartinį nuolaidos kodą (shop.js – ensureCredit)
 function creditText() {
   const c = SET.sampleCredit;
   return c ? `Mėginukų kainą grąžinsime nuolaidos kodu – panaudokite jį perkant buteliuką per ${c.days} d.` : "Išbandykite namuose prieš pirkdami buteliuką.";

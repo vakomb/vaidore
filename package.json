@@ -1,8 +1,8 @@
 {
   "name": "vaidore",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Vaidore.com – kvepalų e-parduotuvė (mobile-first PWA, iOS stilius, Stripe apmokėjimas)",
+  "description": "Vaidore.com – kvepalų e-parduotuvė (PWA, Supabase duomenų bazė ir paskyros, Stripe apmokėjimas, administravimo skydelis)",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -12,7 +12,9 @@
     "build:site": "node tools/build-site.mjs",
     "serve": "node tools/serve.mjs",
     "check": "node tools/check.mjs",
-    "test": "node tools/check.mjs && node tools/test-api.mjs && node tools/test-smoke.mjs",
+    "test": "node tools/check.mjs && node tools/test-api.mjs && node tools/test-smoke.mjs && node tools/test-admin.mjs",
+    "test:admin": "node tools/test-admin.mjs",
+    "seed": "node tools/make-seed.mjs",
     "og": "node tools/make-og.mjs"
   },
   "devDependencies": {

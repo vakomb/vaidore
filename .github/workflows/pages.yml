@@ -1,6 +1,7 @@
-# GitHub Pages: po kiekvieno įkėlimo į main surenka parduotuvę (node tools/build-site.mjs → site/) ir paskelbia
-# adresu https://<vartotojas>.github.io/vaidore/. Įjungti: Settings → Pages → Source: „GitHub Actions“.
-# Pastaba: Pages rodo tik statinius failus – apmokėjimas (api/checkout.js) veikia tik per Vercel.
+# GitHub Pages: po kiekvieno įkėlimo į main (ir paspaudus „Atnaujinti svetainę“ administravimo skydelyje) surenka
+# parduotuvę (node tools/build-site.mjs → site/, katalogas – iš Supabase) ir paskelbia adresu https://<vartotojas>.github.io/vaidore/.
+# Įjungti: Settings → Pages → Source: „GitHub Actions“. Duomenų bazė, paskyros ir apmokėjimas veikia per Supabase,
+# todėl ir Pages kopijoje viskas veikia (Stripe grįžimo adresas vakomb.github.io/vaidore leidžiamas – shop.js pickSite).
 name: GitHub Pages
 
 on:
@@ -28,6 +29,7 @@ jobs:
       - name: Surinkti svetainę
         run: node tools/check.mjs && node tools/build-site.mjs
         env:
+          BASE_PATH: /${{ github.event.repository.name }}/ # svetainė poaplankyje: <vartotojas>.github.io/vaidore/
           NOINDEX: "1" # peržiūros kopija – paieškos sistemos indeksuoja tik vaidore.com
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
