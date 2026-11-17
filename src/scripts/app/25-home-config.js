@@ -5,7 +5,7 @@
 //                      eilučių – teiginiai su auksinėmis linijomis (kaip parfumada.lt), preset "claims".
 //                      preset "photo" – „Tik nuotrauka“: tik image (kompiuteriui) ir / ar imageM (telefonui), nebūtina
 //                      nuoroda href ir aprašymas title (tik skaitytuvams) – svetainė ant nuotraukos nieko neuždeda.
-//   settings.tiles   – „Kategorijos“ (plytelės): { key, on, title, image, focus, dark }; key – moterims / vyrams / unisex /
+//   settings.tiles   – „Produktai“ plytelės: { key, on, title, image, focus, dark }; key – moterims / vyrams / unisex /
 //                      meginukai / rinkinys / naujienos / kat-<kategorijos id>. Nėra lauko – numatytosios šešios.
 //   settings.slideSeconds – kas kiek sekundžių keičiasi skaidrės (0 – nesikeičia pačios).
 // Fonas: įkelta nuotrauka (kompiuteriui ir, nebūtinai, telefonui; „focus“ – kuri vieta lieka matoma) arba Vaidore
@@ -136,29 +136,25 @@ function homeSlides() {
   return raw.filter(s => s && s.on !== false).map(resolveSlide).filter(Boolean);
 }
 
-// Numatytosios kategorijų nuotraukos (tools/make-categories.py) – kol administratorius neįkėlė savos
-const TILE_IMG = { moterims: "img/kategorijos/moterims.webp", vyrams: "img/kategorijos/vyrams.webp", unisex: "img/kategorijos/unisex.webp", meginukai: "img/kategorijos/meginukai.webp", rinkinys: "img/kategorijos/rinkinys.webp", naujienos: "img/kategorijos/naujienos.webp" };
-const TILE_IMG_WIDE = { unisex: "img/kategorijos/unisex-platus.webp" };
-const TILE_DARK = new Set(["vyrams"]);
-// Plytelių šablonai: pavadinimas, adresas, scena, kvapai, trumpas paaiškinimas (sub)
+// Plytelių šablonai: pavadinimas, adresas, scena, kvapai
 function tilePreset(key) {
   const byRank = byRankAll();
   const of = g => byRank.filter(p => p.gender === g);
   if (key === "moterims" || key === "vyrams" || key === "unisex") {
     const st = { moterims: "women", vyrams: "men", unisex: "unisex" }[key];
-    return { name: GENDER_NAME[key], href: key, stage: st, list: of(key), sub: plural(of(key).length, "kvapas", "kvapai", "kvapų"), primary: true };
+    return { name: GENDER_NAME[key], href: key, stage: st, list: of(key) };
   }
-  if (key === "meginukai") return { name: "Mėginukai", href: "meginukai", stage: "vials", list: byRank.slice(3), sub: `2 ml – nuo ${eur(Math.min(...PRODUCTS.map(p => p.sample)))}` };
-  if (key === "rinkinys") return DISC ? { name: "Rinkiniai", href: "rinkinys", stage: "set", list: byRank.slice(6), sub: `${DISC.count} kvapai už ${eurShort(DISC.price)}` } : null;
+  if (key === "meginukai") return { name: "Mėginukai", href: "meginukai", stage: "vials", list: byRank.slice(3) };
+  if (key === "rinkinys") return DISC ? { name: "Rinkiniai", href: "rinkinys", stage: "set", list: byRank.slice(6) } : null;
   if (key === "naujienos") {
     const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
-    return { name: "Naujienos", href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh, sub: "Naujausi kvapai" };
+    return { name: "Naujienos", href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh };
   }
   if (key.startsWith("kat-")) {
     const c = CATEGORY.get(key.slice(4));
     if (!c || c.visible === false) return null;
     const list = byRank.filter(p => (p.categories || []).includes(c.id));
-    return { name: c.name, href: `kategorija/${c.id}`, stage: categoryStageName(c.id), list, image: c.image || "", sub: plural(list.length, "kvapas", "kvapai", "kvapų") };
+    return { name: c.name, href: `kategorija/${c.id}`, stage: categoryStageName(c.id), list, image: c.image || "" };
   }
   return null;
 }
@@ -169,16 +165,7 @@ function homeTiles() {
     .map(t => {
       const p = tilePreset(t.key);
       if (!p || !p.list.length) return null;
-      const own = t.image || p.image || "";
-      return {
-        ...p,
-        key: t.key,
-        name: t.title || p.name,
-        image: own || TILE_IMG[t.key] || "",
-        imageWide: own ? "" : TILE_IMG_WIDE[t.key] || "",
-        focus: t.focus || "50% 50%",
-        dark: own ? !!t.dark : TILE_DARK.has(t.key)
-      };
+      return { ...p, key: t.key, name: t.title || p.name, image: t.image || p.image || "", focus: t.focus || "50% 50%", dark: !!t.dark };
     })
     .filter(Boolean);
 }

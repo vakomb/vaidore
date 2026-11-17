@@ -28,7 +28,7 @@ ${fld("tagline", "Šūkis", S.tagline, { hint: "Viena eilutė pradžios puslapyj
 <div class="fieldRow">${fld("freeShippingFrom", "Nemokamai nuo, €", dec(S.freeShippingFrom), { mode: "decimal" })}${fld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1–2 d. d.", max: 30 })}</div>
 <div class="fieldRow">${fld("returnDays", "Grąžinimas per, d.", S.returnDays, { mode: "numeric" })}${fld("maxQty", "Daugiausia vnt. eilutėje", S.maxQty, { mode: "numeric" })}</div>
 </section>
-<section class="admCard"><h2>Pradžios puslapis</h2><p class="admNote">Juosta virš header'io, skaidrės ir kategorijos – skyriuje <a href="admin/pradzia" data-nav>Pradžia</a>.</p></section>
+<section class="admCard"><h2>Pradžios puslapis</h2><p class="admNote">Skaidrės, jų nuotraukos ir „Produktai“ plytelės – skyriuje <a href="admin/pradzia" data-nav>Pradžia</a>.</p></section>
 <section class="admCard" id="korteles"><h2>Prekių kortelės</h2>
 <label class="admToggleRow"><span><b>Širdelė („Į mėgstamus“)</b><small>Kortelės paveikslo kampe. Parfumada.lt jos neturi; išjungus – mėgstamus pirkėjai žymi kvapo puslapyje</small></span><input type="checkbox" name="cardHeart" class="admSwitchInp"${attr(S.cards?.heart !== false, "checked")} /></label>
 <label class="admToggleRow"><span><b>Ženkliukai („Naujiena“, „Akcija“…)</b><small>Kortelės paveikslo kampe. Išjungus – nuolaida matoma tik iš raudonos kainos (kaip parfumada.lt)</small></span><input type="checkbox" name="cardBadges" class="admSwitchInp"${attr(S.cards?.badges !== false, "checked")} /></label>

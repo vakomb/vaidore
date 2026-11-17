@@ -149,7 +149,7 @@ async function run(viewport) {
   const slideHrefs = await page.locator("#homeHero .slide").evaluateAll(a => a.map(x => x.getAttribute("href")));
   check(slideHrefs.length === 4 && slideHrefs.includes("meginukai") && slideHrefs.includes("rinkinys"), "pradžia: skaidrės (kolekcija, teiginiai, mėginukai, rinkinys)");
   check((await page.locator("#homeHero .heroClaims li").count()) >= 3, "skaidrė su teiginiais ir auksinėmis linijomis");
-  check((await page.locator("#homeTiles .catCard .tileName").first().evaluate(e => [getComputedStyle(e).textTransform, e.offsetHeight > 0].join())) === "uppercase,true", "kategorijos: pavadinimas ant kortelės (didžiosiomis)");
+  check((await page.locator("#homeTiles .tile .tileName").first().evaluate(e => [getComputedStyle(e).fontWeight, getComputedStyle(e).textTransform, e.offsetHeight > 0].join())) === "700,uppercase,true", "plytelės: pavadinimas virš paveikslo (700, didžiosiomis)");
   check((await page.locator("#homeHero h1").count()) === 1, "pradžia: vienas h1");
   // v7: skaidrės ir kategorijos – scenos su Vaidore buteliukais be fono, kiekviena skaidrė – vienas veiksmas
   const heroInfo = await page.evaluate(() =>
@@ -164,14 +164,9 @@ async function run(viewport) {
   const firstLoaded = await until(() => page.evaluate(() => [...document.querySelectorAll("#homeHero .slide:first-child .stage img")].every(i => i.complete && i.naturalWidth > 0)));
   check(firstLoaded, "skaidrės: pirmos skaidrės buteliukai įsikėlė");
   check(
-    await page.evaluate(() => [...document.querySelectorAll("#homeTiles .catCard")].map(t => t.querySelector(".tileName").textContent).join() === "Moterims,Vyrams,Unisex"),
-    "kategorijos: Moterims, Vyrams, Unisex – didelės kortelės"
+    await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].every(t => t.querySelector(".stage") && t.querySelectorAll(".stage img").length >= 2)),
+    "kategorijos: kiekviena plytelė – scena su buteliukais"
   );
-  check(
-    await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].every(t => /^img\/kategorijos\/[a-z-]+\.webp$/.test(t.querySelector(".scenePic img")?.getAttribute("src") || ""))),
-    "kategorijos: kiekviena – studijos nuotrauka"
-  );
-  check((await page.locator("#homeTiles .catList .catRow").count()) === 3 && (await page.locator(".catSec .band").textContent()) === "Kategorijos", "kategorijos: sąrašas (mėginukai, rinkiniai, naujienos), antraštė „Kategorijos“");
   const heroBox = await page.locator("#homeHero").boundingBox();
   await page.locator("#homeHero .heroRail").evaluate(r => r.scrollTo({ left: r.clientWidth }));
   await page.waitForTimeout(400);
