@@ -13,8 +13,15 @@ function heroHTML() {
   return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
     .map((x, i) => {
       const H = i ? "h2" : "h1";
-      if (x.textless)
-        return `<a class="slide hasPhoto textless" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<${i ? "h2" : "h1"} class="sr">${esc(x.title)}</${i ? "h2" : "h1"}></a>`;
+      if (x.textless) {
+        // Tik nuotrauka: su nuoroda – visa skaidrė paspaudžiama, be nuorodos – tiesiog paveikslas
+        const tag = x.href ? "a" : "div";
+        const H2 = i ? "h2" : "h1";
+        return `<${tag} class="slide hasPhoto textless"${x.href ? ` href="${esc(x.href)}" data-nav` : ""} aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(
+          x,
+          i
+        )}<${H2} class="sr">${esc(x.title)}</${H2}></${tag}>`;
+      }
       return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
 <div class="heroTxt">${x.eyebrow ? `<p class="eyebrow">${esc(x.eyebrow)}</p>` : ""}<${H} class="heroTitle">${esc(x.title)}</${H}>
 ${x.text ? `<p class="heroLine">${esc(x.text)}</p>` : ""}

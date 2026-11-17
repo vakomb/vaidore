@@ -1326,3 +1326,16 @@
 .heSeg3 button {
   padding: 0 8px;
 }
+
+.heThumbEmpty {
+  display: grid;
+  place-items: center;
+  color: var(--ink3);
+}
+.heThumbEmpty svg {
+  width: 22px;
+  height: 22px;
+}
+.heFirst {
+  margin-top: 12px;
+}

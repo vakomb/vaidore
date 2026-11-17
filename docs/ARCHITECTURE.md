@@ -136,6 +136,9 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 - **Scenos** visada su buteliukais be fono (`cutoutOf`, `VAIDORE_CUTOUTS` – surinkimas įrašo, kurie
   `img/kvapai/<id>-1.webp` yra), net jei kvapo nuotrauka pakeista į nuotrauką su fonu.
 - **Skaidrė „Be teksto“** (`textless`) – kai tekstas jau yra pačioje nuotraukoje: svetainė savo teksto neuždeda.
+- **Skaidrė „Tik nuotrauka“** (`preset: "photo"`, pirmas mygtukas „Pradžia“ skyriuje) – be kvapo, scenos ir tekstų: nuotrauka
+  kompiuteriui (2400 × 900) ir / ar telefonui (4:5, 1170 × 1500; jei tik viena – naudojama abiem), nebūtina nuoroda
+  (be jos – paveikslas `div`, ne nuoroda) ir nerodomas aprašymas skaitytuvams.
 - Neutralios pilkos vietoje melsvų (šešėliai, neaktyvūs mygtukai – `--disabled`).
 
 ## Pradžios puslapis iš administravimo (v8: admin/pradzia)
