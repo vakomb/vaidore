@@ -29,11 +29,12 @@ const SHAPES = [
 const BADGES = ["", "Populiaru", "Naujiena", "Riboto leidimo"];
 
 async function renderProducts(main, param, seq) {
+  if (param === "importas") return renderImport(main, seq);
   if (param) return renderProductEdit(main, param, seq);
   main.innerHTML = pageHead("Kvapai") + loading();
   prodState.rows = (await sbRest("products?select=*&order=rank.asc,name.asc")) || [];
   if (stale(seq)) return;
-  main.innerHTML = `${pageHead("Kvapai", plural(prodState.rows.length, "kvapas", "kvapai", "kvapų"), `<a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas kvapas</a>`)}
+  main.innerHTML = `${pageHead("Kvapai", plural(prodState.rows.length, "kvapas", "kvapai", "kvapų"), `<a class="btn ghost small" href="admin/kvapai/importas" data-nav>${glyph("spark")}Iš Allegro</a><a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas kvapas</a>`)}
 <div class="admToolbar"><div class="seg admSeg" role="tablist">${PROD_FILTERS.map(
     ([id, name, fn]) => `<button role="tab" type="button" data-pf="${id}" aria-selected="${prodState.filter === id}">${name} <small>${prodState.rows.filter(fn).length}</small></button>`
   ).join("")}</div>
@@ -179,6 +180,16 @@ async function renderProductEdit(main, id, seq) {
           const b = blankProduct();
           if (r?.[0] && !("inspired" in r[0])) delete b.inspired;
           if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
+          // Iš „Importuoti iš Allegro“ – užpildyta forma (kaina, likutis, nuotraukos – įrašomi čia)
+          const x = A.importDraft;
+          A.importDraft = null;
+          if (x) {
+            for (const k of ["name", "id", "gender", "conc", "family", "tagline", "description", "notes", "longevity", "sillage", "seasons", "times"]) b[k] = x[k];
+            for (const k of ["inspired", "ingredients"]) if (k in b) b[k] = x[k] || "";
+            if (x.sizes?.length) b.sizes = x.sizes;
+            b.look = { ...b.look, ...x.look };
+            b.fromImport = true;
+          }
           return [b];
         })
       : sbRest(`products?select=*&id=eq.${encodeURIComponent(id)}`),
@@ -199,7 +210,7 @@ async function renderProductEdit(main, id, seq) {
   const levels = cur => [1, 2, 3, 4, 5].map(i => opt(i, `${i} – ${VD.LEVEL[i]}`, cur)).join("");
   const lasts = cur => [1, 2, 3, 4, 5].map(i => opt(i, `${i} – ${VD.LASTS[i]}`, cur)).join("");
   main.innerHTML = `<nav class="crumbs admCrumbs"><a href="admin/kvapai" data-nav>${glyph("chev-left")}Kvapai</a></nav>
-${pageHead(isNew ? "Naujas kvapas" : p.name, isNew ? "Užpildykite ir išsaugokite – kvapas iškart atsiras parduotuvėje." : `vaidore.com/kvepalai/${esc(p.id)}`, isNew ? "" : `<a class="btn ghost small" href="kvepalai/${esc(p.id)}" target="_blank" rel="noopener">${glyph("eye")}Peržiūrėti</a>`)}
+${pageHead(isNew ? "Naujas kvapas" : p.name, isNew ? (p.fromImport ? "Užpildyta iš Allegro – patikrinkite, įrašykite kainas, nuotraukas ir išsaugokite." : "Užpildykite ir išsaugokite – kvapas iškart atsiras parduotuvėje.") : `vaidore.com/kvepalai/${esc(p.id)}`, isNew ? "" : `<a class="btn ghost small" href="kvepalai/${esc(p.id)}" target="_blank" rel="noopener">${glyph("eye")}Peržiūrėti</a>`)}
 <form class="admEdit admForm" id="prodForm" novalidate>
 <div class="admEditCols"><div class="admEditMain">
 <section class="admCard"><h2>Pagrindinė informacija</h2>

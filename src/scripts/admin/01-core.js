@@ -6,7 +6,8 @@
 // Skyriai (adresai):
 //   admin                    Apžvalga – pajamos, kas laukia, maži likučiai, perkamiausi
 //   admin/uzsakymai          Užsakymai – supakuota / išsiųsta (+ laiškas) / pristatyta / grąžinti pinigus, CSV buhalterijai
-//   admin/kvapai[/<id>]      Kvapai – sąrašas, redagavimas, nuotraukos, likučiai, rodymas; admin/kvapai/naujas
+//   admin/kvapai[/<id>]      Kvapai – sąrašas, redagavimas, nuotraukos, likučiai, rodymas; admin/kvapai/naujas;
+//                            admin/kvapai/importas – „Importuoti iš Allegro“ (13-import.js)
 //   admin/pradzia            Pradžios puslapis – skaidrės (nuotraukos, tekstai, nuorodos, eilė) ir „Produktai“ plytelės, su peržiūra
 //   admin/kategorijos        Kategorijos ir kvapo šeimos
 //   admin/atsiliepimai       Atsiliepimų peržiūra (paskelbti / paslėpti / ištrinti)

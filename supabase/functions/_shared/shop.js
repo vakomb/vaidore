@@ -2,8 +2,11 @@
 // Grynas JS: tik fetch ir Web Crypto; aplinkos kintamieji perduodami (env), todėl veikia ir be Deno.
 // Paslaptys – tik Supabase → Edge Functions → Secrets (niekada repozitorijoje):
 //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, (nebūtina) RESEND_API_KEY, MAIL_FROM, ORDER_EMAIL_TO, SITE_URL,
-//   GITHUB_TOKEN + GITHUB_REPO (svetainės perrinkimui), VERCEL_DEPLOY_HOOK.
+//   GITHUB_TOKEN + GITHUB_REPO (svetainės perrinkimui), VERCEL_DEPLOY_HOOK,
+//   ANTHROPIC_API_KEY (+ IMPORT_MODEL) – „Importuoti iš Allegro“ tekstus rašo Claude (be rakto – šablonai, import.js).
 // SUPABASE_URL ir raktai (SUPABASE_SECRET_KEYS / SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEYS / SUPABASE_ANON_KEY) – suteikia Supabase.
+
+import { sourceFromHtml, isBlocked, factsFrom, draftFromFacts, aiDraft, mergeDraft, importUrl } from "./import.js";
 
 export const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -410,6 +413,50 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
     }
   }
 
+  // ── Kvapo importas iš Allegro skelbimo (administravimas → Kvapai → „Iš Allegro“) ──
+  // Šaltinis: žymelės surinkti duomenys (data), serverio parsisiųstas puslapis (url) arba nukopijuotas tekstas (text).
+  // Allegro dažnai blokuoja serverius (DataDome) – tada grąžinama blocked:true ir prašoma žymelės ar teksto.
+  async function importProduct(body) {
+    let src = null;
+    let blocked = false;
+    const text = clean(body.text, 20000) ? String(body.text).slice(0, 20000) : "";
+    if (body.data && typeof body.data === "object") {
+      const d = body.data;
+      src = { url: clean(d.url, 300), title: clean(d.title, 200), brand: clean(d.brand, 80), gtin: clean(d.gtin, 20), price: clean(d.price, 12), currency: clean(d.cur, 5), desc: String(d.desc || "").slice(0, 8000), params: {}, inci: clean(d.inci, 2000), text: String(d.text || "").slice(0, 20000) };
+    } else if (body.url) {
+      const url = importUrl(body.url);
+      if (!url) return json(400, { error: "Tinka tik allegro.pl skelbimo nuoroda (https://allegro.pl/oferta/…)" });
+      try {
+        const r = await fetch(url, {
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36", Accept: "text/html,application/xhtml+xml", "Accept-Language": "pl-PL,pl;q=0.9" },
+          redirect: "follow",
+          signal: AbortSignal.timeout(12000)
+        });
+        const html = await r.text();
+        if (isBlocked(r.status, html) || !r.ok) blocked = true;
+        else src = sourceFromHtml(html, url);
+      } catch {
+        blocked = true;
+      }
+      if (src && !src.desc && !Object.keys(src.params).length) (blocked = true), (src = null);
+      if (!src && text) src = { url, title: "", brand: "", desc: "", params: {}, inci: "", text };
+      if (!src) return json(422, { error: "Allegro neleido serveriui atidaryti skelbimo. Naudokite žymelę „Į Vaidore“ arba įklijuokite skelbimo tekstą.", blocked: true });
+    } else if (text) src = { url: "", title: text.split("\n").find(l => l.trim().length > 8)?.trim() || "", brand: "", desc: "", params: {}, inci: "", text };
+    else return json(400, { error: "Įklijuokite nuorodą arba skelbimo tekstą" });
+    const facts = factsFrom(src);
+    const found = facts.notes.top.length + facts.notes.heart.length + facts.notes.base.length;
+    if (!found && !facts.name) return json(422, { error: "Skelbime neradau kvapo duomenų (natų, pavadinimo). Patikrinkite nuorodą ar tekstą." });
+    const base = draftFromFacts(facts);
+    let ai = null;
+    let aiError = "";
+    if (env.ANTHROPIC_API_KEY) {
+      const examples = ((await db("products?select=name,tagline,description&visible=eq.true&order=rank.asc&limit=3").catch(() => [])) || []).filter(p => p.description);
+      ai = await aiDraft(facts, env, examples).catch(e => ((aiError = e.message), null));
+    }
+    const { params, desc, text: _t, ...shown } = facts;
+    return json(200, { ok: true, draft: mergeDraft(base, ai), facts: { ...shown, params }, blocked, ai: !!env.ANTHROPIC_API_KEY, aiError });
+  }
+
   // ── Administratoriaus veiksmai (teisę tikrina is_admin()) ──
   async function admin(req) {
     const user = await userFrom(req);
@@ -461,6 +508,8 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
       return json(200, { ok: true, sent, total: list.length, mail: !!env.RESEND_API_KEY });
     }
     if (body.action === "newsletter-send") return sendNewsletter(S, { ...body, to: user.email });
+    if (body.action === "import-status") return json(200, { ok: true, ai: !!env.ANTHROPIC_API_KEY });
+    if (body.action === "import") return importProduct(body);
     if (body.action === "rebuild") {
       const done = [];
       if (env.GITHUB_TOKEN) {
