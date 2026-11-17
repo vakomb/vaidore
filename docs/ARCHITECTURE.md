@@ -150,6 +150,9 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
   scena (kompozicija + kvapas), tekstas juodas / baltas (`dark`), antraštė, pavadinimas, tekstas, mygtukas, nuoroda (puslapis,
   kvapas, kategorija ar savas adresas). Tušti tekstai – iš šablono (kainos visada tikros). Skaidrių kiekis – kiek pridėta
   (0 – pradžia prasideda plytelėmis), `slideSeconds` – kas kiek sekundžių keičiasi (0 – nesikeičia).
+- **„Tik nuotrauka“** (`preset: "photo"`): tik nuotrauka kompiuteriui (2880 × 934) ir / ar telefonui (1080 × 1080), be kvapo
+  ir be svetainės teksto ar mygtuko (tekstas, jei reikia, – pačioje nuotraukoje); nuoroda ir aprašymas (tik skaitytuvams) –
+  nebūtini. Be nuorodos skaidrė – tiesiog paveikslas (`div.slide.textless`).
 - **Plytelė:** rodoma, eilė, pavadinimas, nuotrauka (ta pati – ir grupės puslapio viršuje); galima pridėti kategorijas
   (`kat-<id>`; be nuotraukos – kategorijos paveikslas iš „Kategorijos“, o jei nėra – scena).
 - Duomenys – `settings.slides`, `settings.tiles`, `settings.slideSeconds` (formatas – `25-home-config.js`). Nėra – rodomi

@@ -1319,3 +1319,17 @@
     height: 30px;
   }
 }
+
+/* „Tik nuotrauka“ – tuščia miniatiūra ir pirmas užrašas formoje */
+.heThumbEmpty {
+  display: grid;
+  place-items: center;
+  color: var(--ink3);
+}
+.heThumbEmpty svg {
+  width: 22px;
+  height: 22px;
+}
+.heFirst {
+  margin-top: 12px;
+}

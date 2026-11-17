@@ -291,6 +291,10 @@
 .slide.onDark .heroLine {
   color: rgba(255, 255, 255, 0.9);
 }
+/* „Tik nuotrauka“ – be permatomo sluoksnio (ant jos nėra svetainės teksto) */
+.slide.textless .scenePic::after {
+  display: none;
+}
 /* Katalogo antraštė: telefone tekstas po nuotrauka (be permatomo sluoksnio), kompiuteryje – ant jos */
 .pageHead .scenePic::after {
   display: none;

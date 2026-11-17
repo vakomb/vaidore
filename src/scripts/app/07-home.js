@@ -13,6 +13,13 @@ function heroHTML() {
   return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
     .map((x, i) => {
       const H = i ? "h2" : "h1";
+      // Tik nuotrauka: su nuoroda – visa skaidrė paspaudžiama, be nuorodos – tiesiog paveikslas; pavadinimas – skaitytuvams
+      if (x.textless) {
+        const tag = x.href ? "a" : "div";
+        return `<${tag} class="slide hasPhoto textless"${x.href ? ` href="${esc(x.href)}" data-nav` : ""} aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(
+          x.title
+        )}">${slideBg(x, i)}<${H} class="sr">${esc(x.title)}</${H}></${tag}>`;
+      }
       return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
 <div class="heroTxt">${x.eyebrow ? `<p class="eyebrow">${esc(x.eyebrow)}</p>` : ""}<${H} class="heroTitle">${esc(x.title)}</${H}>
 ${x.text ? `<p class="heroLine">${esc(x.text)}</p>` : ""}
