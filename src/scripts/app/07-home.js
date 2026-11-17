@@ -80,11 +80,11 @@ function marqueeHTML() {
   const row = hidden => `<ul class="mqRow"${hidden ? ' aria-hidden="true"' : ""}>${items.map(([i, t]) => `<li>${glyph(i)}<span>${esc(t)}</span></li>`).join("")}</ul>`;
   return `<div class="mqTrack">${row(false)}${row(true)}</div>`;
 }
-// Kategorijos plytelė (v10, kaip parfumada.lt): paveikslas 4:5 su apvalintais kampais (scena su tos grupės
-// buteliukais – 24-stage.js – arba nuotrauka), pavadinimas – PO paveikslu, stambiomis didžiosiomis, su rodykle.
+// Kategorijos plytelė (v10, kaip parfumada.lt): tik paveikslas 4:5 su apvalintais kampais (nuotrauka arba scena su tos
+// grupės buteliukais – 24-stage.js). Pavadinimas – pačioje nuotraukoje; svetainėje jis tik skaitytuvams (.sr).
 function tileHTML({ name, href, list, stage, image, focus, dark }) {
   const bg = image ? photoHTML({ image, focus }, { cls: "tileStage" }) : stageHTML(stage, list, { cls: "tileStage" });
-  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileArt">${bg}</span><span class="tileTxt"><span class="tileName">${esc(name)}</span>${glyph("arrow")}</span></a>`;
+  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileArt">${bg}</span><span class="tileName sr">${esc(name)}</span></a>`;
 }
 // Skyrius su juosta ir karusele (kompiuteryje – rodyklės ir „1/3“)
 function railHTML(cards) {

@@ -128,8 +128,8 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
   kompiuteryje 95 px, logotipas centre (≈ 300 px), tamsi meniu juosta 45 px, nuorodos 16 px / 700,
   „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“ (`#genderBtn`).
 - Pradžia: skaidrė telefone – kvadratas (nuotrauka 1080 × 1080), kompiuteryje 462 px (2880 × 934); bėganti juosta
-  balta, 59 px; skyrių juostos 52 / 65 px; plytelės – paveikslas 4:5 (16 px kampai), pavadinimas po juo su rodykle,
-  kompiuteryje visos vienoje eilėje (iki 246 px); „… | Peržiūrėti“ – 22 px, linijos #ccc; karuselės – kortelė 284 px
+  balta, 59 px; skyrių juostos 52 / 65 px; plytelės – tik paveikslas 4:5 (16 px kampai, 1000 × 1250), pavadinimas –
+  pačioje nuotraukoje (svetainėje tik skaitytuvams), kompiuteryje visos vienoje eilėje (iki 246 px); „… | Peržiūrėti“ – 22 px, linijos #ccc; karuselės – kortelė 284 px
   telefone (29 px kraštai), 3 per visą plotį kompiuteryje, skaitiklis „1 / iš 3“.
 - Kortelė: PAVADINIMAS · natos · kaina (be „Įkvėpti …“ ir greitų mygtukų); katalogo tinklelyje paveikslas 4:5;
   akcija – rožinis „Akcija“ ženkliukas, nubraukta kaina 16,9 px ir nauja 20,8 px / 700.

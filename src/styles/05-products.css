@@ -246,8 +246,8 @@
   margin-top: 24px;
 }
 
-/* ── Kategorijų plytelės (v10, kaip parfumada.lt): paveikslas 4:5 su 16 px kampais, pavadinimas po juo
-   (22 px, storas, didžiosiomis) su rodykle; telefone – slenkama eilė, kompiuteryje – 5 vienoje eilėje ── */
+/* ── Kategorijų plytelės (v10, kaip parfumada.lt): tik paveikslas 4:5 su 16 px kampais (pavadinimas – pačioje
+   nuotraukoje); telefone – slenkama eilė, kompiuteryje – visos vienoje eilėje ── */
 .catTiles {
   display: grid;
   grid-auto-flow: column;
@@ -265,9 +265,7 @@
 }
 .tile {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: block;
   color: #000;
   scroll-snap-align: start;
 }
@@ -289,30 +287,6 @@
   --uh: 0.74;
   --uw: 0.84;
   --fl: 9cqh;
-}
-.tileTxt {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-.tileName {
-  min-width: 0;
-  font-size: clamp(17px, 5vw, 22px);
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-.tileTxt svg {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
-  stroke-width: 1.6;
-  transition: transform 0.3s var(--spring);
-}
-.tile:hover .tileTxt svg {
-  transform: translateX(4px);
 }
 .tile:active {
   transform: scale(var(--press));
