@@ -79,7 +79,7 @@
   --r-field: 12px;
   --r-sm: 12px;
   --r-hero: 28px;
-  --heroAR: 1; /* v10: pradžios skaidrė telefone – kvadratas (kaip parfumada.lt), nuotrauka 1080 × 1080 */
+  --heroAR: 0.75; /* pradžios skaidrė telefone – stati 3:4, nuotrauka 1080 × 1440 (idealiai 1290 × 1720) */
   --heroH: 420px; /* skaidrės aukštis nuo 700 px (≥ 1024 px – 462 px, 09-desktop.css) */
   --r-photo: 5px; /* v10: prekės paveikslo kampai (karuselėse) */
   --r-tileArt: 16px; /* v10: kategorijų plytelių paveikslo kampai */

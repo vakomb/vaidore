@@ -36,7 +36,7 @@ async function renderHomeEditor(main, _param, seq) {
 <div class="heEdit">
 ${topbarSectionHTML(S)}
 <section class="admCard"><div class="heSecHead"><h2>Skaidrės</h2><label class="heSecs">Keičiasi kas <input type="number" inputmode="numeric" min="0" max="30" value="${HE.secs}" data-he-secs aria-label="Sekundės" /> s</label></div>
-<p class="admNote">Rodoma iš eilės, pirmoji – svarbiausia. Nuotrauka – kompiuteriui plati (2880 × 934), telefonui – kvadratinė (1080 × 1080; nebūtina – nėra, naudojama ta pati). „Tik nuotrauka“ – be jokių užrašų ant jos. 0 s – skaidrės nesikeičia pačios.</p>
+<p class="admNote">Rodoma iš eilės, pirmoji – svarbiausia. Nuotrauka – kompiuteriui plati (2880 × 934), telefonui – stati 3:4 (1080 × 1440; nebūtina – nėra, naudojama ta pati). „Tik nuotrauka“ – be jokių užrašų ant jos. 0 s – skaidrės nesikeičia pačios.</p>
 <div class="heList" id="heSlides"></div>
 <div class="heAdd"><span class="admMuted">Pridėti:</span>${Object.entries(VD.SLIDE_PRESETS)
     .map(([k, p]) => `<button class="btn ${k === "photo" ? "primary" : "ghost"} small" type="button" data-he-add="${k}">${glyph(k === "photo" ? "upload" : "plus")}${esc(p.name)}</button>`)
@@ -149,7 +149,7 @@ function photoSlideFormHTML(s) {
   const custom = s.href && !isKnownLink(s.href) ? s.href : "";
   return `<div class="heForm admForm">
 <p class="admNote heFirst">Įkelkite nuotrauką kompiuteriui ir (nebūtinai) telefonui. Svetainė ant jos nieko neuždeda – jei reikia teksto, jis turi būti pačioje nuotraukoje.</p>
-<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2880 × 934", s.image, s.focus)}${imgZone("imageM", "Telefonui", "kvadratinė, 1080 × 1080", s.imageM, s.focusM)}</div>
+<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2880 × 934", s.image, s.focus)}${imgZone("imageM", "Telefonui", "stati 3:4, 1080 × 1440", s.imageM, s.focusM)}</div>
 <label class="field"><span>Nuoroda (nebūtina)</span><select name="hrefSel">${linkOptions(s.href || "", "Be nuorodos")}</select><small>Paspaudus skaidrę – atidaromas šis puslapis</small></label>
 <label class="field heCustom"${attr(!custom, "hidden")}><span>Adresas</span><input name="hrefCustom" maxlength="200" value="${esc(custom)}" placeholder="pvz. kvepalai?seima=gurmaniski" /><small>Svetainės adresas be „/“ pradžioje</small></label>
 <label class="field"><span>Aprašymas (nebūtina)</span><input name="title" maxlength="80" value="${esc(s.title || "")}" placeholder="pvz. Žiemos kolekcija – Ventor" /><small>Nerodomas – skaitytuvams ir šiam sąrašui</small></label>
@@ -167,7 +167,7 @@ function slideFormHTML(s, r) {
 <div class="seg heSeg" role="tablist" aria-label="Fonas"><button type="button" role="tab" data-he-bg="photo" aria-selected="${!!(s.image || s.bg === "photo")}">Nuotrauka</button><button type="button" role="tab" data-he-bg="scene" aria-selected="${!(s.image || s.bg === "photo")}">Vaidore scena</button></div>
 ${
   s.image || s.bg === "photo"
-    ? `<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2880 × 934", s.image, s.focus)}${imgZone("imageM", "Telefonui (nebūtina)", "kvadratinė, 1080 × 1080", s.imageM, s.focusM)}</div>
+    ? `<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2880 × 934", s.image, s.focus)}${imgZone("imageM", "Telefonui (nebūtina)", "stati 3:4, 1080 × 1440", s.imageM, s.focusM)}</div>
 <div class="seg heSeg" role="tablist" aria-label="Tekstas"><button type="button" role="tab" data-he-dark="0" aria-selected="${!s.dark}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!s.dark}">Baltas tekstas</button></div>`
     : `<label class="field"><span>Kompozicija</span><select name="scene">${Object.keys(SCENE_NAMES)
         .map(k => `<option value="${k}"${sel((s.scene || d.scene) === k)}>${SCENE_NAMES[k]}</option>`)
