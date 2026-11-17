@@ -11,9 +11,8 @@
   --ink4: #a3a3a3; /* tik ikonoms ir skyrikliams, ne tekstui */
   --line: #ececec; /* plonos skiriamosios linijos */
   --line2: #d6d6d6; /* laukų ir mygtukų kontūras */
-  --disabled: #ececec; /* neaktyvus mygtukas (tekstas – --ink3) */
   --field: #f4f4f4;
-  --hair: rgba(17, 17, 17, 0.06);
+  --hair: rgba(15, 23, 42, 0.06);
 
   /* Akcentas – juoda (v7: mėlynos nebėra). Mygtukai, aktyvios būsenos, ženkliukai, pasirinkimai, juostos. */
   --brand: #111111; /* baltas tekstas ant jos – 18,9:1 */
@@ -48,7 +47,7 @@
   --st-dark: #232323; /* tamsus blokas, dovanų dėžutė */
   --st-shadow: rgba(30, 24, 16, 0.32); /* kontaktinis šešėlis po daiktais */
   /* Buteliuko šešėlis (prekių kortelės, galerija, krepšelis, paieška) – švelnus, vienodas visur */
-  --bottle-shadow: drop-shadow(0 1px 1px rgba(17, 17, 17, 0.08)) drop-shadow(0 14px 14px rgba(17, 17, 17, 0.13));
+  --bottle-shadow: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.08)) drop-shadow(0 14px 14px rgba(15, 23, 42, 0.13));
   --photo-bg: transparent; /* v8: prekės nuotrauka – tik buteliukas, be jokio kvadrato (kaip parfumada.lt) */
   --gold: #b08a3e;
   --gold-soft: #f3ead8;
@@ -60,10 +59,10 @@
   --pink: #db2777;
 
   /* Šešėliai – daugiasluoksniai, labai švelnūs; be rėmelių (žiedas – šešėliu, kad niekas nepasislinktų) */
-  --elev-1: 0 0 0 1px rgba(17, 17, 17, 0.05), 0 1px 2px rgba(17, 17, 17, 0.04), 0 4px 12px -6px rgba(17, 17, 17, 0.08);
-  --elev-2: 0 0 0 1px rgba(17, 17, 17, 0.04), 0 2px 4px rgba(17, 17, 17, 0.04), 0 12px 28px -10px rgba(17, 17, 17, 0.16);
-  --elev-3: 0 0 0 1px rgba(17, 17, 17, 0.04), 0 8px 16px -4px rgba(17, 17, 17, 0.08), 0 28px 56px -12px rgba(17, 17, 17, 0.24);
-  --elev-btn: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 1px 2px rgba(17, 17, 17, 0.25), 0 10px 20px -10px rgba(17, 17, 17, 0.55);
+  --elev-1: 0 0 0 1px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px -6px rgba(15, 23, 42, 0.08);
+  --elev-2: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 2px 4px rgba(15, 23, 42, 0.04), 0 12px 28px -10px rgba(15, 23, 42, 0.16);
+  --elev-3: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 8px 16px -4px rgba(15, 23, 42, 0.08), 0 28px 56px -12px rgba(15, 23, 42, 0.24);
+  --elev-btn: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 1px 2px rgba(15, 23, 42, 0.25), 0 10px 20px -10px rgba(15, 23, 42, 0.55);
   /* senesni pavadinimai (langų turinys) */
   --sh: var(--elev-1);
   --sh2: var(--elev-2);
@@ -90,9 +89,6 @@
   --navH: 0px; /* kompiuteryje – tamsi kategorijų juosta (09-desktop.css) */
   --hdrAll: calc(var(--hdrH) + var(--navH)); /* visas prilipęs header'is – lipniems elementams */
   --safeB: env(safe-area-inset-bottom, 0px);
-  --tabH: 58px;
-  --fs-h1: 32px; /* puslapių antraštės (≥ 700 px – 44 px) */
-  --fs-h2: 22px; /* skyrių antraštės (≥ 700 px – 28 px) */ /* apatinė juosta telefone (be saugios zonos) */
   --safeT: env(safe-area-inset-top, 0px);
 
   /* Jost – geometrinis šriftas (SIL OFL, src/public/fonts), kol įsikelia – sistemos šriftas */

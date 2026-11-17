@@ -13,15 +13,6 @@ function heroHTML() {
   return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
     .map((x, i) => {
       const H = i ? "h2" : "h1";
-      if (x.textless) {
-        // Tik nuotrauka: su nuoroda – visa skaidrė paspaudžiama, be nuorodos – tiesiog paveikslas
-        const tag = x.href ? "a" : "div";
-        const H2 = i ? "h2" : "h1";
-        return `<${tag} class="slide hasPhoto textless"${x.href ? ` href="${esc(x.href)}" data-nav` : ""} aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(
-          x,
-          i
-        )}<${H2} class="sr">${esc(x.title)}</${H2}></${tag}>`;
-      }
       return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
 <div class="heroTxt">${x.eyebrow ? `<p class="eyebrow">${esc(x.eyebrow)}</p>` : ""}<${H} class="heroTitle">${esc(x.title)}</${H}>
 ${x.text ? `<p class="heroLine">${esc(x.text)}</p>` : ""}
@@ -70,15 +61,17 @@ function startHeroAuto() {
     rail.scrollTo({ left: end ? 0 : rail.scrollLeft + rail.clientWidth, behavior: "smooth" });
   }, secs * 1000);
 }
-// Privalumai po skaidrėmis – keturi trumpi punktai (tikri parduotuvės nustatymai)
 function marqueeHTML() {
   const items = [
     ["drop", "Mėginukai 2 ml"],
-    ["truck", `Nemokamai nuo ${eurShort(SET.freeShippingFrom)}`],
-    ["clock", `Išsiunčiame ${SET.dispatch || "1–2 d. d."}`],
-    ["return", `Grąžinimas ${SET.returnDays || 14} d.`]
+    ["truck", `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`],
+    ["clock", `Išsiunčiame per ${SET.dispatch || "1–2 d. d."}`],
+    ["return", `Grąžinimas per ${SET.returnDays || 14} d.`],
+    ["lock", "Saugus apmokėjimas"],
+    ["spark", "Nišiniai kvapai"]
   ];
-  return `<ul class="perks">${items.map(([i, t]) => `<li>${glyph(i)}<span>${esc(t)}</span></li>`).join("")}</ul>`;
+  const row = hidden => `<ul class="mqRow"${hidden ? ' aria-hidden="true"' : ""}>${items.map(([i, t]) => `<li>${glyph(i)}<span>${esc(t)}</span></li>`).join("")}</ul>`;
+  return `<div class="mqTrack">${row(false)}${row(true)}</div>`;
 }
 // Kategorijos plytelė (v7): visa plytelė – scena su tos grupės buteliukais (24-stage.js), pavadinimas ant sienos viršuje
 function tileHTML({ name, href, list, sub, stage, image, focus, dark }) {
@@ -93,14 +86,10 @@ function railHTML(cards) {
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
-// Skyriaus antraštė (vienoda visur): pavadinimas, po juo – trumpa eilutė, dešinėje – „Visi“
-function secHeadHTML(title, { sub = "", href = "", more = "Visi" } = {}) {
-  return `<div class="secHead"><div class="secHeadT"><h2>${esc(title)}</h2>${sub ? `<p class="secSub">${esc(sub)}</p>` : ""}</div>${
-    href ? `<a class="more" href="${esc(href)}" data-nav>${esc(more)}${glyph("chev-right")}</a>` : ""
-  }</div>`;
-}
 function railSecHTML({ title, line, href, list, sample = false }) {
-  return `<section class="hsec"><div class="wrap">${secHeadHTML(title, { sub: line, href })}${railHTML(list.map(p => cardHTML(p, { sample })).join(""))}</div></section>`;
+  return `<section class="hsec"><h2 class="band">${esc(title)}</h2><div class="wrap">${
+    line ? `<p class="secLine"><span>${esc(line)}</span><a href="${href}" data-nav>Peržiūrėti</a></p>` : ""
+  }${railHTML(list.map(p => cardHTML(p, { sample })).join(""))}</div></section>`;
 }
 function syncRail(wrap) {
   const rail = $(".rail", wrap);
@@ -151,7 +140,7 @@ function renderHome() {
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 
   const sec = [
-    { title: "Kvapnios naujienos", line: "Naujausi Vaidore kvapai", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
+    { title: "Kvapnios naujienos", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
     { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },
     { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
     { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") },
@@ -161,7 +150,7 @@ function renderHome() {
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
   bindRails($("#view-home"));
 
-  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Pirkėjų atsiliepimai", line: "Tikri – rašo tik pirkę" });
+  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai – rašo tik pirkę" });
   startHeroAuto();
 }
 // Pardavėjo rekvizitai (settings.company) – neužpildyti laukai „[…]“ nerodomi
@@ -190,7 +179,9 @@ function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct
   const all = reviewsOf(list).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
   el.hidden = !all.length;
   if (!all.length) return (el.innerHTML = "");
-  const head = band ? `<div class="wrap">${secHeadHTML(title, { sub: line })}` : secHeadHTML(title);
+  const head = band
+    ? `<h2 class="band">${esc(title)}</h2><div class="wrap">${line ? `<p class="revLine">${esc(line)}</p>` : ""}`
+    : `<div class="secHead"><h2>${esc(title)}</h2></div>`;
   el.innerHTML = `${head}<div class="reviews">${all
     .slice(0, 9)
     .map(

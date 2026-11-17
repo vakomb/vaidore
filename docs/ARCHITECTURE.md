@@ -120,27 +120,6 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
-## Programėlės pojūtis (v9)
-
-- **Apatinė juosta telefone** (< 700 px, `partials/tabbar.html`, `03-layout.css`): Pradžia · Kvepalai · Paieška ·
-  Mėgstami · Krepšelis (su skaičiukais), aktyvi skiltis – `showView()` (14-router). Header'yje telefone – meniu, logotipas,
-  paskyra. „Į krepšelį“ kvapo puslapyje prilimpa virš juostos; saugi iPhone zona – `--safeB`, juostos aukštis – `--tabH`.
-- **Skyrių antraštės** – viena `secHeadHTML(title, { sub, href })` (07-home): pavadinimas, trumpa eilutė, „Visi ›“;
-  tamsių juostų per visą plotį nebėra. Dydžiai – `--fs-h1` (32 / 44 px), `--fs-h2` (22 / 28 px).
-- **Privalumai po skaidrėmis** – rami 4 punktų eilutė (`.perks`), be bėgančios aukso juostos.
-- **Karuselės** – telefone dvi kortelės ir trečios kraštelis (braukiama, be rodyklių), kompiuteryje – keturios su
-  rodyklėmis. Kortelės tekstas vienodas tinklelyje ir karuselėje.
-- **Kvapo puslapis** – kaip programėlėje: galerija → pavadinimas, „Įkvėpti …“, natos → kaina, tūris, kiekis ir
-  „Į krepšelį“ vienoje eilėje → aprašymas, natos, savybės.
-- **Poraštė** – telefone nuorodų grupės išskleidžiamos (`details`), kompiuteryje – atviri stulpeliai.
-- **Scenos** visada su buteliukais be fono (`cutoutOf`, `VAIDORE_CUTOUTS` – surinkimas įrašo, kurie
-  `img/kvapai/<id>-1.webp` yra), net jei kvapo nuotrauka pakeista į nuotrauką su fonu.
-- **Skaidrė „Be teksto“** (`textless`) – kai tekstas jau yra pačioje nuotraukoje: svetainė savo teksto neuždeda.
-- **Skaidrė „Tik nuotrauka“** (`preset: "photo"`, pirmas mygtukas „Pradžia“ skyriuje) – be kvapo, scenos ir tekstų: nuotrauka
-  kompiuteriui (2400 × 900) ir / ar telefonui (4:5, 1170 × 1500; jei tik viena – naudojama abiem), nebūtina nuoroda
-  (be jos – paveikslas `div`, ne nuoroda) ir nerodomas aprašymas skaitytuvams.
-- Neutralios pilkos vietoje melsvų (šešėliai, neaktyvūs mygtukai – `--disabled`).
-
 ## Pradžios puslapis iš administravimo (v8: admin/pradzia)
 
 - **Skyrius „Pradžia“** (`src/scripts/admin/10-home.js`, stiliai `admin.css` „Pradžios puslapis“): skaidrės ir „Produktai“

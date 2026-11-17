@@ -262,16 +262,6 @@ await page.locator("#heSlides .heItem").nth(2).locator("[data-he-on]").click();
 await page.locator("#heSlides .heItem").nth(1).locator('[data-he-move="-1"]').click();
 await page.click('[data-he-add="custom"]');
 check((await page.locator("#heSlides .heItem").count()) === 4, "nauja skaidrė pridėta");
-// „Tik nuotrauka“ – be kvapo ir tekstų: tik nuotrauka telefonui (kompiuteryje – ta pati), be nuorodos
-await page.click('[data-he-add="photo"]');
-check((await page.locator('#heSlides .heItem.open select[name="product"], #heSlides .heItem.open input[name="eyebrow"]').count()) === 0, "„Tik nuotrauka“: be kvapo ir tekstų laukų");
-await page.setInputFiles('#heSlides .heItem.open [data-he-file="imageM"]', path.join(root, "src/public/og/home.jpg"));
-await page.waitForSelector('#heSlides .heItem.open [data-he-focus="imageM"] img');
-if (shots) {
-  await page.locator("#heSlides .heItem.open").scrollIntoViewIfNeeded();
-  await page.waitForTimeout(600);
-  await page.screenshot({ path: path.join(shotDir, "admin-pradzia-nuotrauka.png") });
-}
 await page.locator('#heTiles [data-he-tile="naujienos"] [data-he-on]').click();
 await page.click('[data-he-addtile="kat-vakarui"]');
 await shot(page, "pradzia");
@@ -279,15 +269,14 @@ await page.click("[data-he-save]");
 check(await until(() => Array.isArray(sb.db.settings[0].data.slides)), "pradžia išsaugota");
 const hs = sb.db.settings[0].data;
 check(
-  hs.slides.length === 5 && hs.slides[4].preset === "photo" && /pradzia\/skaidres/.test(hs.slides[4].imageM) && !hs.slides[4].image && !hs.slides[4].href && hs.slides[0].preset === "samples" && hs.slides[1].title === "Žiemos vakarai" && /pradzia\/skaidres/.test(hs.slides[1].image) && hs.slides[1].dark === true && !/^50% 50%$/.test(hs.slides[1].focus) && hs.slides[2].on === false,
+  hs.slides.length === 4 && hs.slides[0].preset === "samples" && hs.slides[1].title === "Žiemos vakarai" && /pradzia\/skaidres/.test(hs.slides[1].image) && hs.slides[1].dark === true && !/^50% 50%$/.test(hs.slides[1].focus) && hs.slides[2].on === false,
   "skaidrių eilė, nuotrauka, matoma vieta, tamsus tekstas ir paslėpimas išsaugoti"
 );
 check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "naujienos").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
 const front = await newPage({ width: 1440, height: 900 });
 await front.goto(BASE);
 await front.waitForLoadState("networkidle").catch(() => {});
-check(await until(async () => (await front.locator("#homeHero .slide").count()) === 4, 6000), "parduotuvėje: 4 rodomos skaidrės (viena paslėpta)");
-check((await front.locator("#homeHero div.slide.textless .scenePic img").count()) === 1 && (await front.locator("#homeHero div.slide.textless .heroTxt").count()) === 0, "parduotuvėje: „Tik nuotrauka“ – tik paveikslas, be teksto ir nuorodos");
+check(await until(async () => (await front.locator("#homeHero .slide").count()) === 3, 6000), "parduotuvėje: 3 rodomos skaidrės (viena paslėpta)");
 check(
   (await front.locator("#homeHero .slide").nth(1).locator(".heroTitle").textContent()) === "Žiemos vakarai" &&
     (await front.locator("#homeHero .slide.onDark.hasPhoto img").count()) === 1,

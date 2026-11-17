@@ -154,9 +154,6 @@ function bindHeader() {
   renderHeaderNav();
   $("#menuBtn").addEventListener("click", openDrawer);
   $("#searchBtn").addEventListener("click", openSearchSheet);
-  // Apatinė juosta (telefone): paieška ir krepšelis – tie patys langai kaip header'yje
-  $('#tabbar [data-tab="search"]').addEventListener("click", openSearchSheet);
-  $('#tabbar [data-tab="cart"]').addEventListener("click", () => (ui.view === "cart" ? window.scrollTo({ top: 0, behavior: "smooth" }) : navigate("krepselis")));
   // „Kvepalai“ meniu: paspaudus arba užvedus (kompiuteryje)
   const hdr = $("#hdr");
   let megaT = 0;
@@ -224,23 +221,17 @@ function updateNavCurrent(path) {
   $$("#hdrNav [data-path]").forEach(a => (a.dataset.path === path ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   setMega(false);
 }
-// Poraštė: telefone nuorodų grupės suskleistos (kaip programėlėje), kompiuteryje – atviros
 function renderFooter() {
   const cats = visibleCategories().slice(0, 4);
-  const open = window.matchMedia("(min-width: 700px)").matches ? " open" : "";
-  const col = (title, links) => `<details class="ftrCol"${open}><summary><h3>${title}</h3>${glyph("chev-down")}</summary><div class="ftrLinks">${links}</div></details>`;
   $("#ftrIn").innerHTML = `<div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><p>${esc(SET.tagline || "")}</p>
 <div class="ftrPerks"><span>${glyph("drop")}Kiekvienas kvapas – ir 2 ml mėginuku</span><span>${glyph("truck")}Nemokamai nuo ${eurShort(SET.freeShippingFrom)} · Omniva, DPD</span><span>${glyph("return")}Grąžinimas per ${SET.returnDays || 14} d.</span></div></div>
 <div class="ftrCols">
-${col(
-  "Parduotuvė",
-  `<a href="kvepalai" data-nav>Visi kvepalai</a><a href="moterims" data-nav>Moterims</a><a href="vyrams" data-nav>Vyrams</a><a href="unisex" data-nav>Unisex</a>${cats
+<div class="ftrCol"><h3>Parduotuvė</h3><a href="kvepalai" data-nav>Visi kvepalai</a><a href="moterims" data-nav>Moterims</a><a href="vyrams" data-nav>Vyrams</a><a href="unisex" data-nav>Unisex</a>${cats
     .map(c => `<a href="kategorija/${c.id}" data-nav>${esc(c.name)}</a>`)
-    .join("")}<a href="meginukai" data-nav>Mėginukai</a>`
-)}
-${col("Pagalba", `<a href="pagalba#pristatymas" data-nav>Pristatymas</a><a href="pagalba#grazinimas" data-nav>Grąžinimas</a><a href="pagalba#duk" data-nav>DUK</a><a href="pagalba#kontaktai" data-nav>Kontaktai</a><button type="button" data-quiz>Rask savo kvapą</button>`)}
-${col("Įmonė", `<a href="apie-mus" data-nav>Apie mus</a><a href="paskyra" data-nav>Mano paskyra</a><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a>`)}
-${col("Teisė", `<a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumo politika</a><a href="pagalba#grazinimas" data-nav>Grąžinimo tvarka</a>`)}
+    .join("")}<a href="meginukai" data-nav>Mėginukai</a></div>
+<div class="ftrCol"><h3>Pagalba</h3><a href="pagalba#pristatymas" data-nav>Pristatymas</a><a href="pagalba#grazinimas" data-nav>Grąžinimas</a><a href="pagalba#duk" data-nav>DUK</a><a href="pagalba#kontaktai" data-nav>Kontaktai</a><button type="button" data-quiz>Rask savo kvapą</button></div>
+<div class="ftrCol"><h3>Įmonė</h3><a href="apie-mus" data-nav>Apie mus</a><a href="paskyra" data-nav>Mano paskyra</a><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></div>
+<div class="ftrCol"><h3>Teisė</h3><a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumo politika</a><a href="pagalba#grazinimas" data-nav>Grąžinimo tvarka</a></div>
 </div>
 <div class="ftrBottom"><span>${companyLine()}</span><span class="payMarks" aria-label="Mokėjimo būdai"><span>VISA</span><span>Mastercard</span><span>Apple Pay</span><span>Google Pay</span></span></div>`;
 }

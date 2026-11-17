@@ -39,8 +39,7 @@ vp("vanor").images = ["img/kvapai/vanor-1.webp", "img/kvapai/safrane-1.webp", "o
 variant.settings.slides = [
   { id: "a", on: true, preset: "samples" },
   { id: "b", on: true, preset: "custom", title: "Ruduo", text: "Šilti kvapai", cta: "Žiūrėti", href: "vyrams", image: "og/home.jpg", focus: "30% 40%", dark: true },
-  { id: "c", on: false, preset: "gift" },
-  { id: "d", on: true, preset: "custom", title: "Tik nuotrauka", image: "og/home.jpg", textless: true, href: "unisex" }
+  { id: "c", on: false, preset: "gift" }
 ];
 variant.settings.tiles = [
   { key: "vyrams", on: true, image: "og/home.jpg", title: "Jam" },
@@ -48,8 +47,6 @@ variant.settings.tiles = [
   { key: "naujienos", on: false }
 ];
 variant.settings.slideSeconds = 0;
-// Kvapo nuotrauka su fonu (pvz. su ingredientais) – scenose vis tiek buteliukas be fono
-vp("arven").images = ["og/arven.jpg"];
 vp("safrane").sizes.forEach(s => (s.was = s.price + 20)); // akcija (sena kaina) // akcija (sena kaina)
 vp("vanor").reviews = [
   { name: "Ona K.", text: "Gaivus ir švelnus, puikiai tinka darbui.", rating: 5, date: "2026-11-01", verified: true },
@@ -131,11 +128,8 @@ async function run(viewport) {
   await page.waitForSelector("#homeTiles a");
   const tileHrefs = await page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
   check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
-  check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .perks li").count()) === 4, "pradžia: skaidrė ir keturi privalumai");
-  // v9: telefone – apatinė juosta kaip programėlėje (Pradžia aktyvi, krepšelio skaičiukas joje), kompiuteryje – nėra
-  const tabs = await page.locator("#tabbar").isVisible();
-  check(viewport.width < 700 ? tabs && (await page.locator('#tabbar [data-tab="home"][aria-current="page"]').count()) === 1 : !tabs, "apatinė juosta: telefone matoma, kompiuteryje – ne");
-  check((await page.locator("#homeRails .secHead h2").count()) >= 4, "pradžia: skyriai su antraštėmis (naujienos, moterims, vyrams, unisex, mėginukai)");
+  check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .mqRow li").count()) >= 10, "pradžia: kolekcijos paveikslas ir bėganti privalumų juosta");
+  check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex, mėginukai)");
   const noteOk = await page.evaluate(async () => {
     const el = document.querySelector("#topNoteTxt");
     const bar = document.querySelector("#topNote");
@@ -269,7 +263,6 @@ async function run(viewport) {
     (await page.locator('#cartBtn [data-badge="cart"]').evaluate(b => getComputedStyle(b).backgroundColor)) === "rgb(209, 16, 43)",
     "krepšelio skaičiukas – raudonas"
   );
-  if (viewport.width < 700) check((await page.locator('#tabbar [data-badge="cart"]').textContent()) === "1", "apatinė juosta: krepšelio skaičiukas");
   await shot(page, `${tag}-mini`);
   await page.locator("#mini [data-sheet-close]").first().click();
   await page.waitForTimeout(350);
@@ -410,17 +403,11 @@ async function run(viewport) {
   await open(v.page, B);
   check(await until(() => v.page.locator("#homeReviews").isVisible()), "pradžia: atsiliepimai (kai yra tikrų)");
   const vs = await v.page.evaluate(() =>
-    [...document.querySelectorAll("#homeHero .slide")].map(s => ({ t: s.querySelector(".heroTitle, .sr").textContent, href: s.getAttribute("href"), dark: s.classList.contains("onDark"), img: s.querySelector(".scenePic img")?.getAttribute("src") || "" }))
+    [...document.querySelectorAll("#homeHero .slide")].map(s => ({ t: s.querySelector(".heroTitle").textContent, href: s.getAttribute("href"), dark: s.classList.contains("onDark"), img: s.querySelector(".scenePic img")?.getAttribute("src") || "" }))
   );
-  check(vs.length === 3 && vs[0].t === "Pirma išbandykite" && vs[1].t === "Ruduo" && vs[1].href === "vyrams" && vs[1].dark && vs[1].img === "og/home.jpg", "pradžia iš nustatymų: skaidrių eilė, nuotrauka, tekstai, paslėpta nerodoma");
-  check(
-    (await v.page.locator("#homeHero .slide.textless").count()) === 1 && (await v.page.locator("#homeHero .slide.textless .heroTxt").count()) === 0 && vs[2].href === "unisex",
-    "skaidrė „Be teksto“ – tik nuotrauka (tekstas – pačioje nuotraukoje), visa skaidrė – nuoroda"
-  );
+  check(vs.length === 2 && vs[0].t === "Pirma išbandykite" && vs[1].t === "Ruduo" && vs[1].href === "vyrams" && vs[1].dark && vs[1].img === "og/home.jpg", "pradžia iš nustatymų: skaidrių eilė, nuotrauka, tekstai, paslėpta nerodoma");
   const vt = await v.page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => `${x.getAttribute("href")}:${x.querySelector(".tileName").textContent}:${!!x.querySelector(".scenePic")}`));
   check(vt.length === 2 && vt[0] === "vyrams:Jam:true" && vt[1].startsWith("kategorija/vakarui:Vakarui:false"), "pradžia iš nustatymų: plytelės (nuotrauka, pavadinimas, kategorija)");
-  const stageSrc = await v.page.locator("#homeTiles .stage img, #homeHero .stage img").evaluateAll(a => a.map(i => i.getAttribute("src")));
-  check(stageSrc.length > 0 && stageSrc.every(s => /^img\/(kvapai\/[a-z0-9-]+-1|meginukas)\.webp$/.test(s)), "scenose – tik buteliukai be fono, net jei kvapo nuotrauka su fonu");
   await open(v.page, `${B}vyrams`);
   check((await v.page.locator("#shopHead.hasStage .scenePic img").getAttribute("src")) === "og/home.jpg", "grupės puslapyje – ta pati nuotrauka");
   await shot(v.page, `${tag}-variantas`);

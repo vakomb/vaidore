@@ -71,7 +71,7 @@ function renderCart() {
     const pop = [...PRODUCTS].filter(inStock).sort((a, b) => a.rank - b.rank).slice(0, 4);
     const acc = SB && !auth.user ? `<h3 class="emptyAcc">Turite paskyrą?</h3><p><a href="paskyra" data-nav>Prisijunkite</a> ir atsiskaitysite greičiau.</p>` : "";
     root.innerHTML = `<div class="empty">${emptyBagSVG()}<h2>Jūsų krepšelis tuščias</h2><p>Pradėkite nuo mėginukų – 2 ml užtenka kelioms dienoms.</p><a class="btn primary" href="kvepalai" data-nav>Tęsti apsipirkimą</a>${acc}</div>
-<section class="sec cartMore">${secHeadHTML("Populiariausi", { href: "kvepalai" })}<div class="grid">${pop.map(p => cardHTML(p)).join("")}</div></section>`;
+<section class="sec cartMore"><h2 class="band">Populiariausi</h2><div class="grid">${pop.map(p => cardHTML(p)).join("")}</div></section>`;
     return;
   }
   root.classList.add("has");
@@ -91,7 +91,7 @@ ${gift ? `<div class="sumRow"><span>Dovanų pakavimas</span><b class="money">${e
 <p class="payNote">${glyph("card")}Kortelė, Apple Pay, Google Pay · per Stripe</p></div></aside>`;
 }
 function emptyBagSVG() {
-  return '<svg viewBox="0 0 84 84" fill="none" stroke="#a3a3a3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 30h44l-3.5 38.5a4.5 4.5 0 0 1-4.5 4H28a4.5 4.5 0 0 1-4.5-4z"/><path d="M32 30v-4a10 10 0 0 1 20 0v4"/><path d="M36 50c2 2.6 10 2.6 12 0" opacity=".6"/></svg>';
+  return '<svg viewBox="0 0 84 84" fill="none" stroke="#94A3B8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 30h44l-3.5 38.5a4.5 4.5 0 0 1-4.5 4H28a4.5 4.5 0 0 1-4.5-4z"/><path d="M32 30v-4a10 10 0 0 1 20 0v4"/><path d="M36 50c2 2.6 10 2.6 12 0" opacity=".6"/></svg>';
 }
 // Mini krepšelis (šoninis langas) – atsidaro įdėjus prekę arba paspaudus krepšelio ikoną
 function miniHTML(added) {

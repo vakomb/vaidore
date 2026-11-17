@@ -1,6 +1,6 @@
 // 25 – Pradžios puslapio turinys iš nustatymų (keičiamas administravimo skydelyje „Pradžia“, admin/pradzia):
 //   settings.slides  – skaidrės (eilė = rodymo tvarka): { id, on, preset, image, imageM, focus, focusM, scene, product,
-//                      eyebrow, title, text, cta, href, dark, textless }. Nėra lauko – rodomos numatytosios trys (DEFAULT_SLIDES).
+//                      eyebrow, title, text, cta, href, dark }. Nėra lauko – rodomos numatytosios trys (DEFAULT_SLIDES).
 //                      Tušti tekstai imami iš šablono (preset): kainos ir pavadinimai visada tikri.
 //   settings.tiles   – „Produktai“ plytelės: { key, on, title, image, focus, dark }; key – moterims / vyrams / unisex /
 //                      meginukai / rinkinys / naujienos / kat-<kategorijos id>. Nėra lauko – numatytosios šešios.
@@ -19,13 +19,6 @@ const DEFAULT_TILES = ["moterims", "vyrams", "unisex", "meginukai", "rinkinys", 
 
 // Skaidrių šablonai – numatytieji tekstai ir scena (galioja, kol administratorius neįrašė savo)
 const SLIDE_PRESETS = {
-  // Tik nuotrauka: be kvapo ir be svetainės teksto (tekstas, jei reikia, – pačioje nuotraukoje); nuoroda – nebūtina
-  photo: {
-    name: "Tik nuotrauka",
-    make() {
-      return { scene: "collection", eyebrow: "", title: SET.shop || "Vaidore", text: "", cta: "", href: "" };
-    }
-  },
   collection: {
     name: "Kolekcija (kvapas)",
     make(p) {
@@ -70,22 +63,6 @@ function slideDefaults(s) {
   return (SLIDE_PRESETS[s.preset] || SLIDE_PRESETS.custom).make(p);
 }
 function resolveSlide(s) {
-  if (s.preset === "photo") {
-    const image = s.image || s.imageM;
-    if (!image) return null;
-    return {
-      id: s.id,
-      title: s.title || SET.shop || "Vaidore",
-      href: s.href || "",
-      image,
-      imageM: s.imageM && s.image ? s.imageM : "",
-      focus: s.focus || "50% 50%",
-      focusM: s.focusM || s.focus || "50% 50%",
-      dark: false,
-      textless: true,
-      list: []
-    };
-  }
   const p = slideProduct(s);
   if (!p) return null;
   const d = slideDefaults(s);
@@ -104,8 +81,7 @@ function resolveSlide(s) {
     imageM: s.imageM || "",
     focus: s.focus || "50% 50%",
     focusM: s.focusM || s.focus || "50% 50%",
-    dark: !!s.dark,
-    textless: !!(s.textless && s.image) // tekstas – pačioje nuotraukoje: svetainė savo teksto neuždeda
+    dark: !!s.dark
   };
 }
 function homeSlides() {

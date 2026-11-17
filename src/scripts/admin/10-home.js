@@ -38,7 +38,7 @@ async function renderHomeEditor(main, _param, seq) {
 <p class="admNote">Rodoma iš eilės, pirmoji – svarbiausia. Nuotrauka – kompiuteriui plati (pvz. 2400 × 1000), telefonui – stati (nebūtina; nėra – naudojama ta pati). 0 s – skaidrės nesikeičia pačios.</p>
 <div class="heList" id="heSlides"></div>
 <div class="heAdd"><span class="admMuted">Pridėti:</span>${Object.entries(VD.SLIDE_PRESETS)
-    .map(([k, p]) => `<button class="btn ${k === "photo" ? "primary" : "ghost"} small" type="button" data-he-add="${k}">${glyph(k === "photo" ? "upload" : "plus")}${esc(p.name)}</button>`)
+    .map(([k, p]) => `<button class="btn ghost small" type="button" data-he-add="${k}">${glyph("plus")}${esc(p.name)}</button>`)
     .join("")}</div>
 </section>
 <section class="admCard"><h2>„Produktai“ plytelės</h2>
@@ -97,10 +97,10 @@ function linkGroups() {
   ];
 }
 const isKnownLink = v => linkGroups().some(([, l]) => l.some(([x]) => x === v));
-function linkOptions(cur, empty = "Pagal šabloną") {
+function linkOptions(cur) {
   const groups = linkGroups();
   const known = isKnownLink(cur);
-  return `<option value="">${esc(empty)}</option>${groups
+  return `<option value="">Pagal šabloną</option>${groups
     .map(([g, l]) => `<optgroup label="${esc(g)}">${l.map(([v, n]) => `<option value="${esc(v)}"${sel(v === cur)}>${esc(n)}</option>`).join("")}</optgroup>`)
     .join("")}<option value="__custom"${sel(cur && !known)}>Kitas adresas…</option>`;
 }
@@ -113,15 +113,9 @@ function slideRow(s, i) {
   const preset = VD.SLIDE_PRESETS[s.preset] || VD.SLIDE_PRESETS.custom;
   return `<article class="heItem${open ? " open" : ""}${s.on === false ? " off" : ""}" data-he-slide="${esc(s.id)}">
 <div class="heRow">
-<button class="heRowMain" type="button" data-he-open aria-expanded="${open}">${
-    s.preset === "photo" && !s.image && !s.imageM ? `<span class="heThumb heThumbEmpty">${glyph("upload")}</span>` : thumbHTML(r.stage, r.list || [], s.image || s.imageM, s.focus)
-  }<span class="heRowTxt"><b>${i + 1}. ${esc(s.preset === "photo" ? s.title || "Nuotrauka" : r.title || "Be pavadinimo")}</b><small>${esc(preset.name)} · ${
-    s.preset === "photo"
-      ? [s.image && "kompiuteriui", s.imageM && "telefonui"].filter(Boolean).join(" ir ") || "įkelkite nuotrauką"
-      : s.image
-        ? "nuotrauka"
-        : "scena"
-  }${s.textless && s.preset !== "photo" ? " · be teksto" : ""}${s.on === false ? " · paslėpta" : ""}</small></span></button>
+<button class="heRowMain" type="button" data-he-open aria-expanded="${open}">${thumbHTML(r.stage, r.list || [], s.image, s.focus)}<span class="heRowTxt"><b>${i + 1}. ${esc(r.title || "Be pavadinimo")}</b><small>${esc(preset.name)} · ${
+    s.image ? "nuotrauka" : "scena"
+  }${s.on === false ? " · paslėpta" : ""}</small></span></button>
 <div class="heRowActs"><button class="roundBtn" type="button" data-he-move="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-he-move="1" aria-label="Žemiau"${attr(
     i === HE.slides.length - 1,
     "disabled"
@@ -142,20 +136,7 @@ ${
 }
 </div>`;
 }
-// „Tik nuotrauka“: dvi nuotraukos (kompiuteriui / telefonui), nebūtina nuoroda ir aprašymas skaitytuvams – be kvapo ir tekstų
-function photoSlideFormHTML(s) {
-  const custom = s.href && !isKnownLink(s.href) ? s.href : "";
-  return `<div class="heForm admForm">
-<p class="admNote heFirst">Įkelkite nuotrauką kompiuteriui ir (nebūtinai) telefonui. Svetainė ant jos nieko neuždeda – jei reikia teksto, jis turi būti pačioje nuotraukoje.</p>
-<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2400 × 900", s.image, s.focus)}${imgZone("imageM", "Telefonui", "stati 4:5, 1170 × 1500", s.imageM, s.focusM)}</div>
-<label class="field"><span>Nuoroda (nebūtina)</span><select name="hrefSel">${linkOptions(s.href || "", "Be nuorodos")}</select><small>Paspaudus skaidrę – atidaromas šis puslapis</small></label>
-<label class="field heCustom"${attr(!custom, "hidden")}><span>Adresas</span><input name="hrefCustom" maxlength="200" value="${esc(custom)}" placeholder="pvz. kvepalai?seima=gurmaniski" /><small>Svetainės adresas be „/“ pradžioje</small></label>
-<label class="field"><span>Aprašymas (nebūtina)</span><input name="title" maxlength="80" value="${esc(s.title || "")}" placeholder="pvz. Žiemos kolekcija – Ventor" /><small>Nerodomas – skaitytuvams ir šiam sąrašui</small></label>
-<div class="heFormActs"><button class="btn ghost small" type="button" data-he-dup>${glyph("copy")}Kopijuoti</button><button class="btn danger small" type="button" data-he-del>${glyph("trash")}Ištrinti</button></div>
-</div>`;
-}
 function slideFormHTML(s, r) {
-  if (s.preset === "photo") return photoSlideFormHTML(s);
   const d = VD.slideDefaults(s);
   const custom = s.href && !isKnownLink(s.href) ? s.href : "";
   const prods = VD.CAT.products;
@@ -166,8 +147,7 @@ function slideFormHTML(s, r) {
 ${
   s.image || s.bg === "photo"
     ? `<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, ~2400 × 1000", s.image, s.focus)}${imgZone("imageM", "Telefonui (nebūtina)", "stati, ~1200 × 1500", s.imageM, s.focusM)}</div>
-<div class="seg heSeg heSeg3" role="tablist" aria-label="Tekstas ant nuotraukos"><button type="button" role="tab" data-he-dark="0" aria-selected="${!s.dark && !s.textless}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!s.dark && !s.textless}">Baltas tekstas</button><button type="button" role="tab" data-he-textless aria-selected="${!!s.textless}">Be teksto</button></div>
-${s.textless ? `<p class="admNote">Tekstas – pačioje nuotraukoje: svetainė jo neuždeda, visa skaidrė veda nuoroda. Pavadinimas žemiau – tik skaitytuvams ir šiam sąrašui.</p>` : ""}`
+<div class="seg heSeg" role="tablist" aria-label="Tekstas"><button type="button" role="tab" data-he-dark="0" aria-selected="${!s.dark}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!s.dark}">Baltas tekstas</button></div>`
     : `<label class="field"><span>Kompozicija</span><select name="scene">${Object.keys(SCENE_NAMES)
         .map(k => `<option value="${k}"${sel((s.scene || d.scene) === k)}>${SCENE_NAMES[k]}</option>`)
         .join("")}</select></label>`
@@ -321,18 +301,12 @@ function bindHomeEditor(main) {
         x.bg = "scene";
         delete x.image;
         delete x.imageM;
-        delete x.textless;
       } else x.bg = "photo";
-      return changed({ repaint: "slides", slide: it.i });
-    }
-    if (t.closest("[data-he-textless]")) {
-      x.textless = true;
       return changed({ repaint: "slides", slide: it.i });
     }
     const dk = t.closest("[data-he-dark]");
     if (dk) {
       x.dark = dk.dataset.heDark === "1";
-      delete x.textless;
       return changed({ repaint: it.kind, slide: isSlide ? it.i : null, scroll: isSlide ? "" : "tiles" });
     }
     const rm = t.closest("[data-he-rmimg]");
@@ -448,7 +422,6 @@ async function saveHome() {
   const err = $(".admSaveBar .formErr");
   const problems = [];
   HE.slides.forEach((s, i) => {
-    if (s.preset === "photo" && !s.image && !s.imageM) problems.push(`${i + 1} skaidrė: įkelkite nuotrauką (kompiuteriui ar telefonui)`);
     if (s.bg === "photo" && !s.image) problems.push(`${i + 1} skaidrė: įkelkite nuotrauką arba pasirinkite „Vaidore scena“`);
     if (s.href && /^(https?:)?\/\//.test(s.href) && !/^https:\/\//.test(s.href)) problems.push(`${i + 1} skaidrė: nuoroda turi prasidėti https://`);
   });
