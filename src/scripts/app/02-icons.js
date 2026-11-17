@@ -7,6 +7,7 @@ const GLYPH = {
   "chev-down": '<path d="m7 10 5 5 5-5"/>',
   "chev-right": '<path d="m10 7 5 5-5 5"/>',
   "chev-left": '<path d="m14 7-5 5 5 5"/>',
+  "arrow-right": '<path d="M4.5 12h15M14 6.5l5.5 5.5-5.5 5.5"/>',
   plus: '<path d="M12 6v12M6 12h12"/>',
   minus: '<path d="M6 12h12"/>',
   check: '<path d="m5.5 12.5 4 4 9-9.5"/>',

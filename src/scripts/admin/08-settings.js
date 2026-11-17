@@ -29,6 +29,10 @@ ${fld("tagline", "Šūkis", S.tagline, { hint: "Viena eilutė pradžios puslapyj
 <div class="fieldRow">${fld("returnDays", "Grąžinimas per, d.", S.returnDays, { mode: "numeric" })}${fld("maxQty", "Daugiausia vnt. eilutėje", S.maxQty, { mode: "numeric" })}</div>
 </section>
 <section class="admCard"><h2>Pradžios puslapis</h2><p class="admNote">Skaidrės, jų nuotraukos ir „Produktai“ plytelės – skyriuje <a href="admin/pradzia" data-nav>Pradžia</a>.</p></section>
+<section class="admCard" id="korteles"><h2>Prekių kortelės</h2>
+<label class="admToggleRow"><span><b>Širdelė („Į mėgstamus“)</b><small>Kortelės paveikslo kampe. Parfumada.lt jos neturi; išjungus – mėgstamus pirkėjai žymi kvapo puslapyje</small></span><input type="checkbox" name="cardHeart" class="admSwitchInp"${attr(S.cards?.heart !== false, "checked")} /></label>
+<label class="admToggleRow"><span><b>Ženkliukai („Naujiena“, „Akcija“…)</b><small>Kortelės paveikslo kampe. Išjungus – nuolaida matoma tik iš raudonos kainos (kaip parfumada.lt)</small></span><input type="checkbox" name="cardBadges" class="admSwitchInp"${attr(S.cards?.badges !== false, "checked")} /></label>
+</section>
 <section class="admCard" id="ikvepti"><h2>„Įkvėpti …“</h2>
 <label class="admToggleRow"><span><b>Rodyti, kokiu kvapu įkvėpta</b><small>Kortelėse ir kvapo puslapyje, pvz. „Įkvėpti Tom Ford – Tobacco Vanille“ (laukas „Įkvėpta“ kvapo kortelėje)</small></span><input type="checkbox" name="insShow" class="admSwitchInp"${attr(ins.show !== false, "checked")} /></label>
 ${area("insNote", "Pastaba apie prekių ženklus", ins.note, "Rodoma kvapo puslapyje po „Į krepšelį“ smulkiu šriftu")}
@@ -130,7 +134,8 @@ ${fld("plausible", "Plausible domenas", an.plausible, { ph: "vaidore.com", hint:
         },
         story: { ...st, title: v("storyTitle"), text: v("storyText"), image: storyImage },
         analytics: { ...an, plausible: v("plausible"), vercel: f.vercelAn.checked },
-        inspired: { ...ins, show: f.insShow.checked, note: v("insNote") }
+        inspired: { ...ins, show: f.insShow.checked, note: v("insNote") },
+        cards: { ...(S.cards || {}), heart: f.cardHeart.checked, badges: f.cardBadges.checked }
       };
       if (!(next.freeShippingFrom >= 0)) errors.push("Nemokamo pristatymo riba – skaičius");
       if (shipping.some(o => !(o.price >= 0))) errors.push("Pristatymo kaina – skaičius");

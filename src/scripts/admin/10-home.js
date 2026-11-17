@@ -176,7 +176,7 @@ ${
     .join("")}</select><small>Jo buteliukas scenoje ir numatytieji tekstai</small></label>
 ${fld("eyebrow", "Antraštė virš pavadinimo", d.eyebrow, 40)}
 ${fld("title", "Pavadinimas", d.title, 60)}
-${fld("text", "Tekstas", d.text, 160)}
+<label class="field"><span>Tekstas</span><textarea name="text" rows="${String(d.text || "").includes("\n") ? 4 : 2}" maxlength="240" placeholder="${esc(d.text || "")}">${esc(s.text || "")}</textarea><small>Kelios eilutės – teiginiai su auksinėmis linijomis (kaip parfumada.lt). Tuščia – numatytasis tekstas</small></label>
 <div class="fieldRow">${fld("cta", "Mygtukas", d.cta, 30)}<label class="field"><span>Nuoroda</span><select name="hrefSel">${linkOptions(s.href || "")}</select><small>Tuščia – „${esc(d.href)}“</small></label></div>
 <label class="field heCustom"${attr(!custom, "hidden")}><span>Adresas</span><input name="hrefCustom" maxlength="200" value="${esc(custom)}" placeholder="pvz. kvepalai?seima=gurmaniski" /><small>Svetainės adresas be „/“ pradžioje</small></label>
 <div class="heFormActs"><button class="btn ghost small" type="button" data-he-dup>${glyph("copy")}Kopijuoti</button><button class="btn danger small" type="button" data-he-del>${glyph("trash")}Ištrinti</button></div>
@@ -210,7 +210,7 @@ function tileRow(t, i) {
 ${
   open
     ? `<div class="heForm admForm">
-<label class="field"><span>Pavadinimas</span><input name="title" maxlength="30" value="${esc(t.title || "")}" placeholder="${esc(p?.name || tileName(t))}" /><small>Svetainėje nerodomas (užrašas – pačioje nuotraukoje): skaitytuvams ir šiam sąrašui. Tuščia – „${esc(p?.name || tileName(t))}“</small></label>
+<label class="field"><span>Pavadinimas</span><input name="title" maxlength="30" value="${esc(t.title || "")}" placeholder="${esc(p?.name || tileName(t))}" /><small>Rodomas virš plytelės didžiosiomis raidėmis (kaip parfumada.lt). Tuščia – „${esc(p?.name || tileName(t))}“</small></label>
 <div class="heZones one">${imgZone("image", "Nuotrauka", "stati 4:5, 1000 × 1250; užrašas – pačioje nuotraukoje", t.image, t.focus)}</div>
 ${
   t.image

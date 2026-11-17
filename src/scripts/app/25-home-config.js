@@ -1,7 +1,8 @@
 // 25 – Pradžios puslapio turinys iš nustatymų (keičiamas administravimo skydelyje „Pradžia“, admin/pradzia):
 //   settings.slides  – skaidrės (eilė = rodymo tvarka): { id, on, preset, image, imageM, focus, focusM, scene, product,
 //                      eyebrow, title, text, cta, href, dark }. Nėra lauko – rodomos numatytosios trys (DEFAULT_SLIDES).
-//                      Tušti tekstai imami iš šablono (preset): kainos ir pavadinimai visada tikri.
+//                      Tušti tekstai imami iš šablono (preset): kainos ir pavadinimai visada tikri. Tekstas iš kelių
+//                      eilučių – teiginiai su auksinėmis linijomis (kaip parfumada.lt), preset "claims".
 //                      preset "photo" – „Tik nuotrauka“: tik image (kompiuteriui) ir / ar imageM (telefonui), nebūtina
 //                      nuoroda href ir aprašymas title (tik skaitytuvams) – svetainė ant nuotraukos nieko neuždeda.
 //   settings.tiles   – „Produktai“ plytelės: { key, on, title, image, focus, dark }; key – moterims / vyrams / unisex /
@@ -15,7 +16,8 @@ const byRankAll = () => [...PRODUCTS].sort((a, b) => a.rank - b.rank);
 const DEFAULT_SLIDES = [
   { id: "kolekcija", on: true, preset: "collection" },
   { id: "meginukai", on: true, preset: "samples" },
-  { id: "dovana", on: true, preset: "gift" }
+  { id: "dovana", on: true, preset: "gift" },
+  { id: "teiginiai", on: true, preset: "claims" }
 ];
 const DEFAULT_TILES = ["moterims", "vyrams", "unisex", "meginukai", "rinkinys", "naujienos"].map(key => ({ key, on: true }));
 
@@ -33,6 +35,26 @@ const SLIDE_PRESETS = {
     make(p) {
       const h = SET.hero || {};
       return { scene: "collection", eyebrow: h.eyebrow || "Kolekcija", title: p.name, text: p.tagline, cta: `Atrasti ${p.name}`, href: productUrl(p) };
+    }
+  },
+  // Teiginiai su auksinėmis linijomis (kaip antroji parfumada.lt skaidrė): kiekviena teksto eilutė – atskiras teiginys.
+  // Numatytieji – tik tikri parduotuvės nustatymai (mėginukai, išsiuntimas, nemokamas pristatymas, grąžinimas)
+  claims: {
+    name: "Teiginiai su linijomis",
+    make() {
+      return {
+        scene: "collection",
+        eyebrow: "",
+        title: SET.shop || "Vaidore",
+        text: [
+          `Kiekvienas kvapas – ir 2 ml mėginuku`,
+          `Išsiunčiame per ${SET.dispatch || "1–2 d. d."}`,
+          `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`,
+          `Grąžinimas per ${SET.returnDays || 14} d.`
+        ].join("\n"),
+        cta: "Visi kvepalai",
+        href: "kvepalai"
+      };
     }
   },
   samples: {

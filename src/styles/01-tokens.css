@@ -26,6 +26,7 @@
   --focus: rgba(17, 17, 17, 0.6);
   --ink-grad: #111111;
   --band: #111111; /* juostos, žinutės, skyrių antraštės */
+  --sale: #cc0000; /* akcijos kaina (kaip parfumada.lt) – ant baltos 5,9:1 */
   --badge: #d1102b; /* krepšelio skaičiukas – raudonas, baltas tekstas 5,5:1 */
   --on-dark-link: #f3ead8;
   --ease: 0.22s ease; /* spalvų perėjimai (mygtukai, būsenos) */

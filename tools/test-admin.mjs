@@ -242,11 +242,23 @@ await go(page, "admin/laukia");
 check((await page.locator('.admRestock[data-pid="arven"] .pill.green').count()) === 1, "laukiantys: Jūrai – visiems pranešta");
 check(await page.locator('.admRestock[data-pid="noirelle"] [data-notify]').isDisabled(), "išparduotam kvapui pranešti negalima");
 
+// Naujienlaiškis: prenumeratoriai, bandomasis laiškas, laiškas visiems
+sb.db.newsletter.push({ id: "nl-1", email: "pirkeja@example.com", source: "footer", token: "00000000-0000-4000-9000-000000000001", created_at: "2026-11-16T10:00:00Z", welcomed_at: null, unsubscribed_at: null });
+await go(page, "admin/naujienlaiskis");
+check((await page.locator(".admEmails li").count()) === 1, "naujienlaiškis: prenumeratorių sąrašas");
+await page.fill('#newsForm input[name="subject"]', "Naujas kvapas");
+await page.fill('#newsForm textarea[name="text"]', "Sveiki!\n\nTurime naują kvapą.");
+await page.click("[data-news-test]");
+check(await until(() => sb.calls.some(c => c.name === "newsletter-sent" && c.body.test)), "naujienlaiškis: bandomasis laiškas sau");
+await page.click('#newsForm button[type="submit"]');
+await page.click("[data-confirm-ok]");
+check(await until(() => sb.calls.some(c => c.name === "newsletter-sent" && !c.body.test && c.body.to.includes("pirkeja@example.com"))), "naujienlaiškis: laiškas visiems prenumeratoriams");
+
 // Pradžia: skaidrės ir plytelės su gyva peržiūra
 await go(page, "admin/pradzia");
-check((await page.locator("#heSlides .heItem").count()) === 3, "pradžia: 3 numatytosios skaidrės");
+check((await page.locator("#heSlides .heItem").count()) === 4, "pradžia: 4 numatytosios skaidrės");
 const pv = page.frameLocator("#heFrame");
-check(await until(async () => (await pv.locator("#homeHero .slide").count()) === 3, 9000), "peržiūra: tikra parduotuvė su 3 skaidrėmis");
+check(await until(async () => (await pv.locator("#homeHero .slide").count()) === 4, 9000), "peržiūra: tikra parduotuvė su 4 skaidrėmis");
 await page.click("#heSlides .heItem:first-child [data-he-open]");
 await page.fill('#heSlides .heItem.open input[name="title"]', "Žiemos vakarai");
 check(await until(async () => (await pv.locator("#homeHero .slide .heroTitle").first().textContent()) === "Žiemos vakarai"), "peržiūra: pavadinimas keičiasi iškart");
@@ -261,7 +273,7 @@ if (shots) await page.screenshot({ path: path.join(shotDir, "admin-pradzia-skaid
 await page.locator("#heSlides .heItem").nth(2).locator("[data-he-on]").click();
 await page.locator("#heSlides .heItem").nth(1).locator('[data-he-move="-1"]').click();
 await page.click('[data-he-add="custom"]');
-check((await page.locator("#heSlides .heItem").count()) === 4, "nauja skaidrė pridėta");
+check((await page.locator("#heSlides .heItem").count()) === 5, "nauja skaidrė pridėta");
 // „Tik nuotrauka“ – be kvapo ir tekstų: tik nuotrauka telefonui (kompiuteryje – ta pati), be nuorodos
 await page.click('[data-he-add="photo"]');
 check((await page.locator('#heSlides .heItem.open select[name="product"], #heSlides .heItem.open input[name="eyebrow"]').count()) === 0, "„Tik nuotrauka“: be kvapo ir tekstų laukų");
@@ -279,14 +291,14 @@ await page.click("[data-he-save]");
 check(await until(() => Array.isArray(sb.db.settings[0].data.slides)), "pradžia išsaugota");
 const hs = sb.db.settings[0].data;
 check(
-  hs.slides.length === 5 && hs.slides[4].preset === "photo" && /pradzia\/skaidres/.test(hs.slides[4].imageM) && !hs.slides[4].image && !hs.slides[4].href && hs.slides[0].preset === "samples" && hs.slides[1].title === "Žiemos vakarai" && /pradzia\/skaidres/.test(hs.slides[1].image) && hs.slides[1].dark === true && !/^50% 50%$/.test(hs.slides[1].focus) && hs.slides[2].on === false,
+  hs.slides.length === 6 && hs.slides[5].preset === "photo" && /pradzia\/skaidres/.test(hs.slides[5].imageM) && !hs.slides[5].image && !hs.slides[5].href && hs.slides[3].preset === "claims" && hs.slides[0].preset === "samples" && hs.slides[1].title === "Žiemos vakarai" && /pradzia\/skaidres/.test(hs.slides[1].image) && hs.slides[1].dark === true && !/^50% 50%$/.test(hs.slides[1].focus) && hs.slides[2].on === false,
   "skaidrių eilė, nuotrauka, matoma vieta, tamsus tekstas ir paslėpimas išsaugoti"
 );
 check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "naujienos").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
 const front = await newPage({ width: 1440, height: 900 });
 await front.goto(BASE);
 await front.waitForLoadState("networkidle").catch(() => {});
-check(await until(async () => (await front.locator("#homeHero .slide").count()) === 4, 6000), "parduotuvėje: 4 rodomos skaidrės (viena paslėpta)");
+check(await until(async () => (await front.locator("#homeHero .slide").count()) === 5, 6000), "parduotuvėje: 5 rodomos skaidrės (viena paslėpta)");
 check((await front.locator("#homeHero div.slide.textless .scenePic img").count()) === 1 && (await front.locator("#homeHero div.slide.textless .heroTxt").count()) === 0, "parduotuvėje: „Tik nuotrauka“ – tik paveikslas, be teksto ir nuorodos");
 check(
   (await front.locator("#homeHero .slide").nth(1).locator(".heroTitle").textContent()) === "Žiemos vakarai" &&

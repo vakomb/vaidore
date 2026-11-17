@@ -120,6 +120,25 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
+## v11: dar arčiau parfumada.lt (2026-11-17)
+
+- Plytelės: pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis; kompiuteryje 23,4 px), administravime – „Pavadinimas“.
+- Kortelės: katalogo tinklelyje paveikslas 4:5, buteliukas per visą aukštį (`object-fit: cover`); akcijos kaina raudona
+  (`--sale`); širdelė ir ženkliukai – Nustatymai → „Prekių kortelės“ (galima išjungti).
+- Katalogas: kompiuteryje 3 stulpeliai; filtrai – Pagal lytį · Kategorijos · Kvapo pobūdis · Natos · Proga · Sezonas ·
+  Koncentracija · Kaina (nuo–iki, `?kaina=20-40`) · Likutis (`?likutis=yra`) · Formatas; grupės suskleistos (atidaryta tik
+  „Pagal lytį“ ir tos, kuriose yra pasirinkimų).
+- Header'is kompiuteryje: ☰ · logotipas · paieška (piktograma → laukas header'yje) · paskyra · mėgstami · krepšelis;
+  meniu juosta telpa vienoje eilutėje – netelpančios nuorodos slepiamos pagal `data-fit` (`fitHeaderNav`).
+- Karuselių skaitiklis „1/5“. Skaidrė „Teiginiai su linijomis“ (preset `claims`): kelių eilučių tekstas – teiginiai su
+  auksinėmis linijomis.
+- Nauji puslapiai: `/bestselleriai` (8 populiariausi pagal `rank`), `/nuolaidos` (tik su tikra sena kaina, didžiausia
+  nuolaida pirma), `/atsiliepimai` (visi tikri atsiliepimai, vidurkis), `/verslui` (užklausa laišku), `/naujienlaiskis`.
+- Poraštė: naujienlaiškis viršuje → nuorodos be antraščių (3 stulpeliai) → mokėjimo būdai → © ir teisinės nuorodos.
+- Naujienlaiškis: lentelė `newsletter` (migracija 20261117000100; pirkėjas gali tik įrašyti el. paštą), Edge Function
+  `shop/newsletter` (pasisveikinimo laiškas, atsisakymas pagal raktą), administravime – `admin/naujienlaiskis`
+  (sąrašas, CSV, bandomasis laiškas, laiškas visiems per Resend batch su „List-Unsubscribe“).
+
 ## Dizainas (v10: dydžiai ir sandara – kaip parfumada.lt, išmatuota 390 ir 1440 px pločio)
 
 - Tekstas 19,5 px (`--fs`), 75 % juodos (`--text`), antraštės – #000. Spalvos ir dydžiai – `01-tokens.css`.

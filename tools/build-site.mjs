@@ -222,6 +222,18 @@ page("pagalba.html", {
   desc: `Pristatymas per ${S.dispatch || "1–2 d. d."}, nemokamai nuo ${S.freeShippingFrom} €, grąžinimas per ${S.returnDays || 14} d.`
 });
 page("apie-mus.html", { route: "apie-mus", title: `Apie mus | ${S.shop}`, desc: S.story?.text || S.tagline });
+const ranked = [...products].sort((a, b) => a.rank - b.rank);
+page("bestselleriai.html", { route: "bestselleriai", title: `Bestselleriai – populiariausi kvepalai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
+const onSaleList = products.filter(p => p.sizes.some(s => s.was > s.price));
+page("nuolaidos.html", {
+  route: "nuolaidos",
+  title: `Didžiausios nuolaidos | ${S.shop}`,
+  desc: onSaleList.length ? listDesc(onSaleList) : `Kvepalų nuolaidos ${S.shop}. Nuolaidas skelbiame naujienlaiškyje.`,
+  noindex: !onSaleList.length
+});
+page("atsiliepimai.html", { route: "atsiliepimai", title: `Atsiliepimai | ${S.shop}`, desc: `Tikri ${S.shop} pirkėjų atsiliepimai – rašo tik pirkę.` });
+page("verslui.html", { route: "verslui", title: `Verslui – kvepalai įmonių dovanoms | ${S.shop}`, desc: S.business?.text || `Kvepalai ir mėginukų rinkiniai įmonių dovanoms, renginiams ir partneriams. Pasiūlymas per 1 d. d.` });
+page("naujienlaiskis.html", { route: "naujienlaiskis", title: `Naujienlaiškis | ${S.shop}`, noindex: true });
 for (const [f, t] of [
   ["krepselis", "Krepšelis"],
   ["megstami", "Mėgstami"],

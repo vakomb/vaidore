@@ -18,7 +18,9 @@ Prekes, kainas, likučius, užsakymus ir nustatymus valdote administravimo skyde
        supabase/migrations/20261115000300_vaidore_kvapai.sql   (laukas „Įkvėpta“, pavyzdiniai kvapai pašalinami,
                                                                 nuotraukų įkėlimo teisė)
        supabase/seed.sql            (10 Vaidore kvapų ir nustatymai – vėliau keisite skydelyje)
-   - Jei bazė jau veikia: paleiskite tik 20261115000300_vaidore_kvapai.sql ir supabase/seed.sql.
+       supabase/migrations/20261117000100_newsletter.sql       (naujienlaiškis)
+   - Jei bazė jau veikia: paleiskite tik naujus failus (20261115000300_vaidore_kvapai.sql, supabase/seed.sql,
+     20261117000100_newsletter.sql) ir iš naujo įdiekite funkciją „shop“ (žr. žemiau) – naujienlaiškio laiškams.
    - Administratorius: el. paštas vakomb@gmail.com jau įrašytas (lentelė admin_emails). Kitą pridėti:
        insert into public.admin_emails (email) values ('kitas@pastas.lt');
 

@@ -24,6 +24,7 @@ const SECTIONS = [
   { id: "kategorijos", name: "Kategorijos", ico: "grid", render: renderCategories },
   { id: "atsiliepimai", name: "Atsiliepimai", ico: "star", render: renderReviews, count: "reviews" },
   { id: "laukia", name: "Laukiantys", ico: "bell", render: renderRestock, count: "restock" },
+  { id: "naujienlaiskis", name: "Naujienlaiškis", ico: "mail", render: renderNewsletter },
   { id: "nustatymai", name: "Nustatymai", ico: "gear", render: renderSettings },
   { id: "zurnalas", name: "Žurnalas", ico: "clock", render: renderLog }
 ];

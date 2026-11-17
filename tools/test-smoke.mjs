@@ -147,7 +147,9 @@ async function run(viewport) {
   await page.click('[data-note-step="1"]');
   check((await page.locator("#topNoteTxt").textContent()) !== note1, "informacinė juosta: rodyklės keičia žinutę");
   const slideHrefs = await page.locator("#homeHero .slide").evaluateAll(a => a.map(x => x.getAttribute("href")));
-  check(slideHrefs.length === 3 && slideHrefs.includes("meginukai") && slideHrefs.includes("rinkinys"), "pradžia: skaidrės (kolekcija, mėginukai, rinkinys)");
+  check(slideHrefs.length === 4 && slideHrefs.includes("meginukai") && slideHrefs.includes("rinkinys"), "pradžia: skaidrės (kolekcija, teiginiai, mėginukai, rinkinys)");
+  check((await page.locator("#homeHero .heroClaims li").count()) >= 3, "skaidrė su teiginiais ir auksinėmis linijomis");
+  check((await page.locator("#homeTiles .tile .tileName").first().evaluate(e => [getComputedStyle(e).fontWeight, getComputedStyle(e).textTransform, e.offsetHeight > 0].join())) === "700,uppercase,true", "plytelės: pavadinimas virš paveikslo (700, didžiosiomis)");
   check((await page.locator("#homeHero h1").count()) === 1, "pradžia: vienas h1");
   // v7: skaidrės ir kategorijos – scenos su Vaidore buteliukais be fono, kiekviena skaidrė – vienas veiksmas
   const heroInfo = await page.evaluate(() =>
@@ -224,9 +226,14 @@ async function run(viewport) {
   const floral = cat.products.filter(p => p.family === "geliu").length;
   if (mobile) {
     await page.click("#shopFilterBtn");
+    await page.locator("#sheetBody .fGroup summary", { hasText: "Kvapo pobūdis" }).click(); // grupės suskleistos (kaip parfumada.lt)
     await page.locator('#sheetBody [data-f="families"][value="geliu"], #sheetBody input[data-f][value="geliu"]').first().check();
     await page.click("[data-f-apply]");
-  } else await page.locator('#shopFilters input[data-f][value="geliu"]').check();
+  } else {
+    await page.locator("#shopFilters .fGroup summary", { hasText: "Kvapo pobūdis" }).click();
+    await page.locator('#shopFilters input[data-f][value="geliu"]').check();
+    check(await page.locator("#shopFilters .fGroup", { hasText: "Kvapo pobūdis" }).evaluate(d => d.open), "filtrų grupė lieka atskleista perpiešus");
+  }
   check(await until(async () => (await page.locator("#shopGrid .card").count()) === floral), `filtras „Gėlių“: ${floral}`);
   check(await until(() => new URL(page.url()).search.includes("geliu")), "filtras įrašomas į adresą (galima dalintis)");
   await open(page, `${A}kvepalai`);
@@ -362,6 +369,27 @@ async function run(viewport) {
   check(await page.locator('.authForm input[name="email"]').isVisible(), "paskyra: prisijungimo forma");
   await open(page, `${A}pagalba`);
   check((await view(page)) === "info" && (await page.locator(".infoSec").count()) >= 3, "pagalba: pristatymas, grąžinimas, DUK");
+  // Nauji puslapiai (kaip parfumada.lt): bestselleriai, nuolaidos, atsiliepimai, verslui
+  await open(page, `${A}bestselleriai`);
+  check((await view(page)) === "shop" && (await page.locator("#shopGrid .card").count()) === 8 && (await page.locator("#shopTitle").textContent()) === "Bestselleriai", "/bestselleriai: 8 populiariausi");
+  await open(page, `${A}nuolaidos`);
+  check((await view(page)) === "shop" && (await page.locator("#shopGrid").textContent()).includes("nuolaidų nėra"), "/nuolaidos: be nuolaidų – aiškus pranešimas");
+  await open(page, `${A}atsiliepimai`);
+  check((await view(page)) === "info" && (await page.locator("#infoRoot h1").textContent()) === "Atsiliepimai", "/atsiliepimai");
+  await open(page, `${A}verslui`);
+  check((await view(page)) === "info" && (await page.locator('#infoRoot a[href^="mailto:"]').count()) >= 1, "/verslui: užklausa laišku");
+  // Kaina nuo–iki ir likutis (adrese)
+  await open(page, `${A}kvepalai?kaina=-25`);
+  const under25 = cat.products.filter(p => Math.min(...p.sizes.map(s => s.price)) <= 25).length;
+  check((await page.locator("#shopGrid .card").count()) === under25 && (await page.locator('#shopActive [data-unset="price"]').count()) === 1, `kaina iki 25 €: ${under25} kvapai, filtras matomas`);
+  // Naujienlaiškis poraštėje
+  await page.fill('#ftr input[name="email"]', "naujienos@example.com");
+  await page.click("#ftr .newsField button");
+  check(await until(async () => (await page.locator("#ftr .newsMsg").textContent()).includes("Ačiū")), "naujienlaiškis: prenumerata poraštėje");
+  check(await until(() => sb.db.newsletter.some(r => r.email === "naujienos@example.com" && r.welcomed_at)), "naujienlaiškis: įrašyta ir išsiųstas pasisveikinimas");
+  const tok = sb.db.newsletter.find(r => r.email === "naujienos@example.com")?.token;
+  await open(page, `${A}naujienlaiskis?atsisakyti=${tok}`);
+  check(await until(async () => (await page.locator("#newsUnsub").textContent()).includes("atsisakėte")), "naujienlaiškis: atsisakymas pagal nuorodą");
   await open(page, `${A}nera-tokio-puslapio`);
   check((await view(page)) === "404", "nežinomas adresas – „Puslapis nerastas“");
   await open(page, `${A}#/kvepalai/vanor`);
@@ -377,6 +405,9 @@ async function run(viewport) {
   if (!mobile) {
     // Paieška antraštėje
     await open(page, A);
+    await page.click("#searchBtn");
+    await page.waitForSelector("#hdrSearch input:visible");
+    check((await page.locator(".hdrSearch").evaluate(e => getComputedStyle(e).display)) === "flex", "kompiuteryje paieška – piktograma, laukas atsiveria paspaudus");
     await page.fill("#hdrQ", "vanor");
     await page.waitForSelector("#searchPop:not([hidden])");
     check((await page.locator("#searchPop").textContent()).includes("Vanor"), "antraštės paieška: pasiūlymai");

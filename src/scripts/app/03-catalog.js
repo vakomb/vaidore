@@ -54,6 +54,13 @@ const wasOf = (p, ml) => {
 };
 const cheapestSize = p => p.sizes.reduce((a, b) => (b.price < a.price ? b : a), p.sizes[0]);
 const onSale = p => p.sizes.some(s => s.was > s.price);
+// Didžiausia nuolaida, % (pagal tikrą seną kainą – sizes[].was)
+const salePct = p => Math.max(0, ...p.sizes.filter(s => s.was > s.price).map(s => Math.round((1 - s.price / s.was) * 100)));
+// „Didžiausios nuolaidos“ – turimi kvapai su nuolaida, didžiausia nuolaida pirma
+const saleList = () => PRODUCTS.filter(p => inStock(p) && onSale(p)).sort((a, b) => salePct(b) - salePct(a) || a.rank - b.rank);
+// „Bestselleriai“ – populiariausi (eilė „rank“ – administravimo skydelyje)
+const BEST_N = 8;
+const bestList = () => [...PRODUCTS].sort((a, b) => a.rank - b.rank).slice(0, BEST_N);
 // Trys būdingiausios natos (po vieną iš viršutinių, širdies, bazinių) – kortelėse ir kvapo puslapyje
 const keyNotes = p => [p.notes.top[0], p.notes.heart[0], p.notes.base[0]].filter(Boolean);
 // Vidutinis įvertinimas iš tikrų atsiliepimų (be įvertinimo – null)

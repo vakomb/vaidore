@@ -9,7 +9,6 @@
       <button class="iconBtn menuBtn" id="menuBtn" aria-label="Meniu" aria-controls="drawer" aria-expanded="false">
         <span data-glyph="menu"></span>
       </button>
-      <button class="iconBtn searchBtn" id="searchBtn" aria-label="Paieška"><span data-glyph="search"></span></button>
       <form class="hdrSearch" id="hdrSearch" role="search" action="kvepalai">
         <span data-glyph="search" aria-hidden="true"></span>
         <input id="hdrQ" name="q" type="search" placeholder="Ieškoti kvapo ar natos" autocomplete="off" enterkeyhint="search" aria-label="Paieška" />
@@ -18,6 +17,7 @@
     </div>
     <a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span data-logo><!-- @partial partials/logo.svg --></span></a>
     <div class="hdrTools">
+      <button class="iconBtn searchBtn" id="searchBtn" aria-label="Paieška" aria-controls="hdrSearch" aria-expanded="false"><span data-glyph="search"></span></button>
       <a class="iconBtn accBtn" href="paskyra" data-nav aria-label="Paskyra"><span data-glyph="user"></span><i class="accDot" id="accDot" hidden></i></a>
       <a class="iconBtn favBtn" href="megstami" data-nav aria-label="Mėgstami"><span data-glyph="heart"></span><b class="countBadge soft" data-badge="fav" hidden></b></a>
       <button class="iconBtn cartBtn" id="cartBtn" aria-label="Krepšelis"><span data-glyph="bag"></span><b class="countBadge" data-badge="cart" hidden></b></button>

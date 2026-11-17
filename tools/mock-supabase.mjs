@@ -44,6 +44,7 @@ export function dbFromCatalog(cat) {
       (p.reviews || []).map((r, i) => ({ id: `rv-${p.id}-${i}`, product_id: p.id, user_id: null, name: r.name, text: r.text, rating: r.rating ?? null, status: "approved", verified: r.verified !== false, created_at: `${r.date || "2026-11-01"}T12:00:00Z` }))
     ),
     restock_requests: [],
+    newsletter: [],
     orders: [],
     profiles: [
       { id: ADMIN.id, email: ADMIN.email, name: "Vaida", phone: "", address: null, locker: null, favorites: [], stripe_customer: null },
@@ -54,7 +55,7 @@ export function dbFromCatalog(cat) {
 }
 
 const ADMIN_ONLY_WRITE = new Set(["products", "families", "categories", "product_categories", "settings", "orders", "audit_log"]);
-const ADMIN_ONLY_READ = new Set(["restock_requests", "audit_log"]);
+const ADMIN_ONLY_READ = new Set(["restock_requests", "audit_log", "newsletter"]);
 
 export function mockSupabase({ url, catalog, fail = {} }) {
   const db = dbFromCatalog(catalog);
@@ -147,6 +148,19 @@ export function mockSupabase({ url, catalog, fail = {} }) {
       if (name === "checkout") return route.fulfill(json(200, { id: "cs_test_mock", url: `${u.origin}/__stripe?ok=1` }));
       if (name === "order") return route.fulfill(json(200, { paid: true, ref: "MOCK1234", total: 69.99, credit: { code: "VD-MOCK1234", amount: 490, expires: Math.floor(Date.now() / 1000) + 30 * 86400 } }));
       if (name === "account") return route.fulfill(user ? json(200, { ok: true }) : json(401, { error: "Prisijunkite" }));
+      if (name === "newsletter") {
+        if (b.action === "welcome") {
+          const r = db.newsletter.find(x => x.email === String(b.email || "").toLowerCase());
+          if (r && !r.welcomed_at && !r.unsubscribed_at) r.welcomed_at = new Date().toISOString();
+          return route.fulfill(json(200, { ok: true, mailed: !!r }));
+        }
+        if (b.action === "unsubscribe") {
+          const r = db.newsletter.find(x => x.token === b.token && !x.unsubscribed_at);
+          if (r) r.unsubscribed_at = new Date().toISOString();
+          return route.fulfill(json(200, { ok: true, done: !!r }));
+        }
+        return route.fulfill(json(400, { error: "Nežinomas veiksmas" }));
+      }
       if (name === "admin") {
         if (!isAdmin(user)) return route.fulfill(json(403, { error: "Tik administratoriui" }));
         const o = db.orders.find(x => x.id === b.order_id);
@@ -167,6 +181,11 @@ export function mockSupabase({ url, catalog, fail = {} }) {
           return route.fulfill(json(200, { ok: true, sent: list.length, total: list.length, mail: true }));
         }
         if (b.action === "rebuild") return route.fulfill(json(200, { ok: true, done: ["GitHub Pages"] }));
+        if (b.action === "newsletter-send") {
+          const list = b.test ? [user.email] : db.newsletter.filter(r => !r.unsubscribed_at).map(r => r.email);
+          calls.push({ name: "newsletter-sent", body: { ...b, to: list } });
+          return route.fulfill(json(200, { ok: true, sent: list.length, total: list.length }));
+        }
         return route.fulfill(json(400, { error: "Nežinomas veiksmas" }));
       }
       return route.fulfill(json(404, { error: "Nėra tokio veiksmo" }));
@@ -204,6 +223,7 @@ export function mockSupabase({ url, catalog, fail = {} }) {
     const writeOk =
       isAdmin(user) ||
       (table === "restock_requests" && method === "POST") ||
+      (table === "newsletter" && method === "POST") ||
       (table === "reviews" && method === "POST" && !!user) ||
       (table === "profiles" && method === "PATCH" && !!user);
     if (!writeOk || (ADMIN_ONLY_WRITE.has(table) && !isAdmin(user))) return route.fulfill(json(403, { code: "42501", message: `new row violates row-level security policy for table "${table}"` }));
@@ -212,11 +232,12 @@ export function mockSupabase({ url, catalog, fail = {} }) {
       const rows = (Array.isArray(b) ? b : [b]).map(r => ({
         ...(table === "reviews" ? { status: "pending", verified: true } : {}),
         ...(table === "restock_requests" ? { notified: false } : {}),
-        ...(["reviews", "restock_requests", "orders"].includes(table) ? { id: `00000000-0000-4000-8000-${String(seq++).padStart(12, "0")}`, created_at: new Date().toISOString() } : {}),
+        ...(table === "newsletter" ? { token: `00000000-0000-4000-9000-${String(seq).padStart(12, "0")}`, welcomed_at: null, unsubscribed_at: null } : {}),
+        ...(["reviews", "restock_requests", "orders", "newsletter"].includes(table) ? { id: `00000000-0000-4000-8000-${String(seq++).padStart(12, "0")}`, created_at: new Date().toISOString() } : {}),
         ...(table === "products" ? { created_at: new Date().toISOString(), updated_at: new Date().toISOString() } : {}),
         ...r
       }));
-      const key = table === "product_categories" ? r => `${r.product_id}|${r.category_id}` : table === "restock_requests" ? r => `${r.product_id}|${r.email}` : r => r.id;
+      const key = table === "product_categories" ? r => `${r.product_id}|${r.category_id}` : table === "restock_requests" ? r => `${r.product_id}|${r.email}` : table === "newsletter" ? r => String(r.email).toLowerCase() : r => r.id;
       for (const r of rows) if (db[table].some(x => key(x) === key(r))) return route.fulfill(json(409, { code: "23505", message: `duplicate key value violates unique constraint "${table}_pkey"` }));
       db[table].push(...rows);
       rows.forEach(r => audit(user, "insert", table, r, r));

@@ -460,6 +460,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
       }
       return json(200, { ok: true, sent, total: list.length, mail: !!env.RESEND_API_KEY });
     }
+    if (body.action === "newsletter-send") return sendNewsletter(S, { ...body, to: user.email });
     if (body.action === "rebuild") {
       const done = [];
       if (env.GITHUB_TOKEN) {
@@ -480,6 +481,73 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
     return json(400, { error: "Nežinomas veiksmas" });
   }
 
+  // ── Naujienlaiškis: sveikinimo laiškas (vieną kartą) ir atsisakymas pagal raktą iš laiško ──
+  const unsubUrl = token => `${siteUrl()}/naujienlaiskis?atsisakyti=${encodeURIComponent(token)}`;
+  const newsFooter = (S, token) =>
+    `<p style="margin-top:28px;font-size:12px;color:#6b6b6b">Gavote šį laišką, nes užsiprenumeravote ${escHtml(S.shop || "Vaidore")} naujienlaiškį. <a href="${unsubUrl(token)}" style="color:#6b6b6b">Atsisakyti</a></p>`;
+  async function newsletter(req) {
+    const body = (await req.json().catch(() => null)) || {};
+    if (body.action === "welcome") {
+      const email = clean(body.email, 254).toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return json(400, { error: "Blogas el. paštas" });
+      const row = (await db(`newsletter?email=ilike.${encodeURIComponent(email)}&select=id,email,token,welcomed_at,unsubscribed_at`))?.[0];
+      if (!row || row.welcomed_at || row.unsubscribed_at) return json(200, { ok: true });
+      const { S } = await loadShop();
+      const ok = await sendMail({
+        to: row.email,
+        subject: `Sveiki prisijungę prie ${S.shop || "Vaidore"}!`,
+        html: wrapMail(`<p>Sveiki!</p><p>Ačiū, kad užsiprenumeravote. Pirmi sužinosite apie naujus kvapus ir nuolaidas – laiškų siunčiame retai.</p><p><a href="${siteUrl()}/kvepalai" style="color:#000;font-weight:700">Peržiūrėti kvapus</a></p>${newsFooter(S, row.token)}`),
+        idem: `vd-news-welcome-${row.id}`
+      });
+      if (ok) await db(`newsletter?id=eq.${row.id}`, { method: "PATCH", body: { welcomed_at: new Date().toISOString() } });
+      return json(200, { ok: true, mailed: ok });
+    }
+    if (body.action === "unsubscribe") {
+      const token = String(body.token || "");
+      if (!/^[0-9a-f-]{36}$/i.test(token)) return json(400, { error: "Bloga nuoroda" });
+      const rows = await db(`newsletter?token=eq.${token}&unsubscribed_at=is.null`, { method: "PATCH", body: { unsubscribed_at: new Date().toISOString() }, prefer: "return=representation" });
+      return json(200, { ok: true, done: !!rows?.length });
+    }
+    return json(400, { error: "Nežinomas veiksmas" });
+  }
+  // Laiškas visiems prenumeratoriams (administratorius): Resend „batch“ – po 100 laiškų viename užklausime
+  async function sendNewsletter(S, { subject, text, test, to }) {
+    subject = clean(subject, 150);
+    text = String(text || "").slice(0, 20000);
+    if (!subject || !text.trim()) return json(400, { error: "Įrašykite temą ir tekstą" });
+    if (!env.RESEND_API_KEY) return json(409, { error: "Laiškų siuntimas neprijungtas (RESEND_API_KEY)" });
+    const html = token =>
+      wrapMail(
+        `${text
+          .split(/\n{2,}/)
+          .map(p => `<p>${escHtml(p).replace(/\n/g, "<br />")}</p>`)
+          .join("")}<p><a href="${siteUrl()}/kvepalai" style="color:#000;font-weight:700">Apsilankyti ${escHtml(S.shop || "Vaidore")}</a></p>${newsFooter(S, token)}`
+      );
+    const list = test
+      ? [{ email: to, token: "00000000-0000-4000-8000-000000000000" }]
+      : (await db("newsletter?unsubscribed_at=is.null&select=email,token&order=created_at.asc")) || [];
+    let sent = 0;
+    for (let i = 0; i < list.length; i += 100) {
+      const chunk = list.slice(i, i + 100);
+      const r = await fetch("https://api.resend.com/emails/batch", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify(
+          chunk.map(x => ({
+            from: env.MAIL_FROM || "Vaidore <onboarding@resend.dev>",
+            to: [x.email],
+            subject,
+            html: html(x.token),
+            headers: { "List-Unsubscribe": `<${unsubUrl(x.token)}>` }
+          }))
+        )
+      });
+      if (r.ok) sent += chunk.length;
+      else console.error("Resend batch", r.status, await r.text().catch(() => ""));
+    }
+    return json(200, { ok: true, sent, total: list.length });
+  }
+
   // ── Paskyra: ištrynimas (BDAR) ─────────────────────────
   async function account(req) {
     const user = await userFrom(req);
@@ -491,7 +559,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
     return json(200, { ok: true });
   }
 
-  return { checkout, orderInfo, webhook, admin, account, ensureCredit, recordOrder };
+  return { checkout, orderInfo, webhook, admin, account, newsletter, ensureCredit, recordOrder };
 }
 
 // Stripe-Signature „t=…,v1=…“: HMAC-SHA256(secret, `${t}.${neapdorotas tekstas}`), ±5 min. Web Crypto – veikia Deno ir Node.

@@ -409,3 +409,50 @@
     gap: 40px;
   }
 }
+
+/* /atsiliepimai – visi tikri atsiliepimai tinklelyje; vidurkis po antrašte */
+.revSum {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 14px;
+  font-size: 18px;
+  color: var(--ink2);
+}
+.revSum b {
+  font-size: 24px;
+  font-weight: 500;
+  color: #000;
+}
+.revGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: 8px;
+}
+.revGrid .review {
+  height: 100%;
+}
+@media (min-width: 700px) {
+  .revGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .revGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+/* /verslui */
+.bizPts {
+  margin: 8px 0 40px;
+}
+.bizCta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+  margin-top: 26px;
+}

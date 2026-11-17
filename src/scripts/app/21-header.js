@@ -59,15 +59,38 @@ function renderTopNote() {
 }
 // Kompiuteryje – antra header'io eilutė (tamsi juosta su kategorijomis). v10 (kaip parfumada.lt): 16 px / 700,
 // „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“, kad visos nuorodos tilptų vienoje eilutėje.
+// Visos nuorodos vienoje eilutėje: jei netelpa (siauresnis kompiuteris, yra „Nuolaidos“), slepiamos mažiausiai svarbios
+// (data-fit – kuo didesnis, tuo anksčiau slepiama); jos lieka šoniniame meniu ir poraštėje
 function renderHeaderNav() {
-  const link = (href, name, path = href) => `<a href="${href}" data-nav data-path="${path}">${name}</a>`;
+  const fit = { verslui: 3, "apie-mus": 4, atsiliepimai: 5, naujienos: 2, bestselleriai: 1 };
+  const link = (href, name, path = href) => `<a href="${href}" data-nav data-path="${path}"${fit[path] ? ` data-fit="${fit[path]}"` : ""}>${name}</a>`;
   $("#hdrNav").innerHTML = `<div class="hdrNavIn"><button type="button" id="megaBtn" aria-expanded="false" aria-controls="mega">Visi kvepalai${glyph("chev-down")}</button>
 <div class="navDd" id="navDd"><button type="button" id="genderBtn" aria-expanded="false" aria-controls="genderMenu">Pagal lytį${glyph("chev-down")}</button><div class="navDdMenu" id="genderMenu" hidden>${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}</div></div>
-${link("meginukai", "Mėginukai")}${DISC ? link("rinkinys", esc(DISC.name)) : ""}${link("kvepalai?rikiuoti=new", "Naujienos", "naujienos")}${visibleCategories()
-    .slice(0, 2)
+${saleList().length ? link("nuolaidos", "Nuolaidos") : ""}${DISC ? link("rinkinys", "Rinkiniai") : ""}${link("meginukai", "Mėginukai")}${link("bestselleriai", "Bestselleriai")}${link(
+    "kvepalai?rikiuoti=new",
+    "Naujienos",
+    "naujienos"
+  )}${visibleCategories()
+    .slice(0, 1)
     .map(c => link(`kategorija/${c.id}`, esc(c.name)))
-    .join("")}<button type="button" data-quiz>Rask savo kvapą</button>${link("apie-mus", "Apie mus")}</div>`;
+    .join("")}<button type="button" data-quiz data-fit="6">Rask savo kvapą</button>${link("verslui", "Verslui")}${link("apie-mus", "Mūsų istorija", "apie-mus")}${link("atsiliepimai", "Atsiliepimai")}</div>`;
+  fitHeaderNav();
 }
+function fitHeaderNav() {
+  const n = $("#hdrNav .hdrNavIn");
+  if (!n) return;
+  const items = $$("[data-fit]", n).sort((a, b) => b.dataset.fit - a.dataset.fit);
+  items.forEach(a => (a.hidden = false));
+  if (!matchMedia("(min-width: 1024px)").matches) return;
+  for (const a of items) {
+    if (n.scrollWidth <= n.clientWidth + 1) break;
+    a.hidden = true;
+  }
+}
+window.addEventListener("resize", () => {
+  clearTimeout(window.__vdNavT);
+  window.__vdNavT = setTimeout(fitHeaderNav, 120);
+});
 function setGender(open) {
   const btn = $("#genderBtn");
   if (!btn) return;
@@ -104,7 +127,9 @@ function drawerHTML() {
     `<li><a href="${href}" data-nav${cur === href ? ' aria-current="page"' : ""}>${ico ? glyph(ico) : ""}${esc(name)}<span class="chevR">${glyph("chev-right")}</span></a></li>`;
   return `<header class="drawerHead"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><button class="iconBtn" type="button" data-sheet-close aria-label="Uždaryti meniu">${glyph("x")}</button></header>
 <div class="drawerBody">
-<ul class="navList">${link("kvepalai", "Visi kvepalai", "grid")}${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}</ul>
+<ul class="navList">${link("kvepalai", "Visi kvepalai", "grid")}${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}${
+    saleList().length ? link("nuolaidos", "Didžiausios nuolaidos") : ""
+  }${link("bestselleriai", "Bestselleriai")}${link("kvepalai?rikiuoti=new", "Naujienos")}</ul>
 ${cats.length ? `<p class="navSub">Kategorijos</p><ul class="navList">${cats.map(c => link(`kategorija/${c.id}`, c.name)).join("")}</ul>` : ""}
 <div class="navSep"></div>
 <ul class="navList">${link("meginukai", "Mėginukai 2 ml", "drop")}${DISC ? `<li><button type="button" data-disc>${glyph("box")}${esc(DISC.name)}</button></li>` : ""}<li><button type="button" data-quiz>${glyph("spark")}Rask savo kvapą</button></li></ul>
@@ -113,7 +138,10 @@ ${cats.length ? `<p class="navSub">Kategorijos</p><ul class="navList">${cats.map
     auth.isAdmin ? link("admin", "Administravimas", "gear") : ""
   }</ul>
 <div class="navSep"></div>
-<ul class="navList">${link("pagalba", "Pristatymas ir grąžinimas")}${link("apie-mus", "Apie mus")}<li><a class="small" href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></li></ul>
+<ul class="navList">${link("pagalba", "Pristatymas ir grąžinimas")}${link("verslui", "Verslui")}${link("apie-mus", "Mūsų istorija")}${link("atsiliepimai", "Atsiliepimai")}${link(
+    "pagalba#kontaktai",
+    "Susisiekite"
+  )}<li><a class="small" href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></li></ul>
 </div>
 <footer class="drawerFoot"><div class="ship${shipLeft() <= 0 && state.cart.length ? " done" : ""}"><div class="shipTxt">${glyph("truck")}<span>${
     !state.cart.length
@@ -159,7 +187,8 @@ function bindHeader() {
   renderTopNote();
   renderHeaderNav();
   $("#menuBtn").addEventListener("click", openDrawer);
-  $("#searchBtn").addEventListener("click", openSearchSheet);
+  // Paieška: kompiuteryje (kaip parfumada.lt) – tik piktograma, paspaudus header'yje atsiveria laukas; telefone – langas
+  $("#searchBtn").addEventListener("click", () => (matchMedia("(min-width: 1024px)").matches ? setHdrSearch(true) : openSearchSheet()));
   // „Kvepalai“ meniu: paspaudus arba užvedus (kompiuteryje)
   const hdr = $("#hdr");
   let megaT = 0;
@@ -209,21 +238,31 @@ function bindHeader() {
   q.addEventListener("keydown", e => {
     if (e.key === "Escape") {
       pop.hidden = true;
-      q.blur();
+      setHdrSearch(false);
+      $("#searchBtn").focus();
     }
   });
-  form.addEventListener("focusout", () => setTimeout(() => !form.contains(document.activeElement) && (pop.hidden = true), 120));
+  form.addEventListener("focusout", () =>
+    setTimeout(() => {
+      if (form.contains(document.activeElement)) return;
+      pop.hidden = true;
+      if (!q.value) setHdrSearch(false);
+    }, 150)
+  );
   form.addEventListener("submit", e => {
     e.preventDefault();
     const v = q.value.trim();
     pop.hidden = true;
     q.blur();
+    q.value = "";
+    setHdrSearch(false);
     navigate(v ? `kvepalai?q=${encodeURIComponent(v)}` : "kvepalai");
   });
   pop.addEventListener("click", e => {
     if (e.target instanceof Element && e.target.closest("a")) {
       pop.hidden = true;
       q.value = "";
+      setHdrSearch(false);
     }
   });
   // Užslinkus – matinis stiklas
@@ -235,23 +274,30 @@ function bindHeader() {
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 }
+function setHdrSearch(open) {
+  $("#hdr").classList.toggle("searchOpen", open);
+  $("#searchBtn").setAttribute("aria-expanded", String(open));
+  if (open) requestAnimationFrame(() => $("#hdrQ").focus());
+}
 function updateNavCurrent(path) {
   $$("#hdrNav [data-path]").forEach(a => (a.dataset.path === path ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   $("#genderBtn")?.toggleAttribute("data-current", ["moterims", "vyrams", "unisex"].includes(path));
   setMega(false);
   setGender(false);
 }
+// Poraštė (kaip parfumada.lt): naujienlaiškis viršuje → nuorodos be antraščių (3 stulpeliai kompiuteryje, vienas – telefone)
+// → mokėjimo būdai → © ir smulkios teisinės nuorodos
 function renderFooter() {
-  const cats = visibleCategories().slice(0, 4);
-  $("#ftrIn").innerHTML = `<div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><p>${esc(SET.tagline || "")}</p>
-<div class="ftrPerks"><span>${glyph("drop")}Kiekvienas kvapas – ir 2 ml mėginuku</span><span>${glyph("truck")}Nemokamai nuo ${eurShort(SET.freeShippingFrom)} · Omniva, DPD</span><span>${glyph("return")}Grąžinimas per ${SET.returnDays || 14} d.</span></div></div>
-<div class="ftrCols">
-<div class="ftrCol"><h3>Parduotuvė</h3><a href="kvepalai" data-nav>Visi kvepalai</a><a href="moterims" data-nav>Moterims</a><a href="vyrams" data-nav>Vyrams</a><a href="unisex" data-nav>Unisex</a>${cats
-    .map(c => `<a href="kategorija/${c.id}" data-nav>${esc(c.name)}</a>`)
-    .join("")}<a href="meginukai" data-nav>Mėginukai</a></div>
-<div class="ftrCol"><h3>Pagalba</h3><a href="pagalba#pristatymas" data-nav>Pristatymas</a><a href="pagalba#grazinimas" data-nav>Grąžinimas</a><a href="pagalba#duk" data-nav>DUK</a><a href="pagalba#kontaktai" data-nav>Kontaktai</a><button type="button" data-quiz>Rask savo kvapą</button></div>
-<div class="ftrCol"><h3>Įmonė</h3><a href="apie-mus" data-nav>Apie mus</a><a href="paskyra" data-nav>Mano paskyra</a><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></div>
-<div class="ftrCol"><h3>Teisė</h3><a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumo politika</a><a href="pagalba#grazinimas" data-nav>Grąžinimo tvarka</a></div>
+  const a = (href, name, nav = true) => `<a href="${href}"${nav ? " data-nav" : ""}>${name}</a>`;
+  $("#ftrIn").innerHTML = `<div class="ftrNews">${newsletterFormHTML("footer")}</div>
+<div class="ftrLinks">
+<div class="ftrCol">${a("apie-mus", "Mūsų istorija")}${a("pagalba#kontaktai", "Susisiekite")}${a("atsiliepimai", "Atsiliepimai")}${a("verslui", "Verslui")}</div>
+<div class="ftrCol">${a("salygos", "Pirkimo – pardavimo sąlygos", false)}${a("pagalba#pristatymas", "Prekių pristatymas")}${a("pagalba#grazinimas", "Prekių grąžinimas")}${a("pagalba#duk", "DUK")}</div>
+<div class="ftrCol">${a("privatumas", "Privatumo politika", false)}${a("kvepalai", "Produktai")}${a("bestselleriai", "Bestselleriai")}${a("paskyra", "Mano paskyra")}</div>
 </div>
-<div class="ftrBottom"><span>${companyLine()}</span><span class="payMarks" aria-label="Mokėjimo būdai"><span>VISA</span><span>Mastercard</span><span>Apple Pay</span><span>Google Pay</span></span></div>`;
+<div class="ftrPay" aria-label="Mokėjimo būdai">${PAY_MARKS}</div>
+<div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", "Paslaugų teikimo sąlygos", false)}${a("privatumas", "Privatumo politika", false)}${a("pagalba#grazinimas", "Grąžinimo politika")}${a("pagalba#pristatymas", "Siuntimo politika")}${a("pagalba#kontaktai", "Kontaktinė informacija")}</small></div>`;
 }
+// Mokėjimo būdų ženkliukai (tekstiniai – be svetimų logotipų failų)
+const PAY_MARKS = ["VISA", "Mastercard", "Apple Pay", "Google Pay", "Stripe"].map(t => `<span>${t}</span>`).join("");
+

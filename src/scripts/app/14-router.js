@@ -1,5 +1,6 @@
 // 14 – maršrutai (tikri adresai, History API): „“ (Pradžia), kvepalai, moterims, vyrams, unisex, meginukai,
-// kategorija/<id>, kvepalai/<id>, krepselis, megstami, paskyra, admin, pagalba, apie-mus, testas, rinkinys.
+// kategorija/<id>, kvepalai/<id>, bestselleriai, nuolaidos, krepselis, megstami, paskyra, admin, pagalba, apie-mus,
+// atsiliepimai, verslui, naujienlaiskis (atsisakymas), testas, rinkinys.
 // Kiekvienam adresui build-site.mjs sukuria statinį HTML (paieškos sistemoms); nežinomus adresus aptarnauja 404.html –
 // ta pati programėlė, kuri pati nusprendžia, ką rodyti (pvz. naujas kvapas, pridėtas administravimo skydelyje).
 // Seni adresai #/… (iki v3) nukreipiami į naujus.
@@ -14,7 +15,7 @@ function currentPath() {
 }
 function matchRoute(path) {
   if (path === "") return { view: "home" };
-  if (["kvepalai", "moterims", "vyrams", "unisex", "meginukai"].includes(path)) return { view: "shop", base: path };
+  if (["kvepalai", "moterims", "vyrams", "unisex", "meginukai", "bestselleriai", "nuolaidos"].includes(path)) return { view: "shop", base: path };
   let m = path.match(/^kategorija\/([a-z0-9-]+)$/);
   if (m) return CATEGORY.get(m[1]) ? { view: "shop", base: path } : { view: "404" };
   m = path.match(/^kvepalai\/([a-z0-9-]+)$/);
@@ -23,7 +24,7 @@ function matchRoute(path) {
   if (path === "megstami") return { view: "fav" };
   if (path === "paskyra" || path.startsWith("paskyra/")) return { view: "account", sub: path.split("/")[1] || "" };
   if (path === "admin" || path.startsWith("admin/")) return { view: "admin", sub: path.slice(6) };
-  if (path === "pagalba" || path === "apie-mus") return { view: "info", kind: path };
+  if (["pagalba", "apie-mus", "atsiliepimai", "verslui", "naujienlaiskis"].includes(path)) return { view: "info", kind: path };
   if (path === "testas" || path === "rinkinys") return { view: "home", open: path };
   return { view: "404" };
 }

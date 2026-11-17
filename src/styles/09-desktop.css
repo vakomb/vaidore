@@ -89,18 +89,22 @@
     gap: 16px;
     padding: 6px var(--pad) 18px;
   }
-  .ftrIn {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 3fr);
-    gap: 48px;
-    padding-top: 56px;
+  /* Poraštė: nuorodos – 3 stulpeliai (kaip parfumada.lt), apačioje © kairėje, teisinės nuorodos dešinėje */
+  .ftrLinks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 40px;
+    padding-top: 44px;
   }
-  .ftrCols {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-top: 0;
+  .ftrCol a,
+  .ftrCol button {
+    min-height: 42px;
   }
   .ftrBottom {
-    grid-column: 1 / -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 40px;
   }
   .pageHead h1 {
     font-size: 52px;
@@ -111,9 +115,6 @@
   }
   .drawer {
     width: min(460px, 100vw);
-  }
-  .ftrCols {
-    gap: 26px 28px;
   }
   .secHead h2 {
     font-size: 27px;
@@ -173,11 +174,8 @@
     --hdrH: 95px; /* v10: kaip parfumada.lt – 95 px eilutė su logotipu centre, 45 px tamsi meniu juosta */
     --navH: 45px;
   }
-  /* Header'is: 1 eilutė – paieška · logotipas · įrankiai; 2 eilutė – tamsi kategorijų juosta */
-  .menuBtn,
-  .searchBtn {
-    display: none;
-  }
+  /* Header'is (kaip parfumada.lt): 1 eilutė – ☰ · logotipas centre · paieška, paskyra, mėgstami, krepšelis (tik
+     piktogramos; paieškos laukas atsiveria paspaudus); 2 eilutė – tamsi kategorijų juosta */
   .hdrIn {
     gap: 24px;
     padding: 0 var(--pad);
@@ -293,21 +291,30 @@
     gap: 6px;
   }
   .hdrSearch {
-    position: relative;
-    display: flex;
+    position: absolute;
+    top: calc((var(--hdrH) - 58px) / 2);
+    left: 50%;
+    z-index: 6;
+    display: none;
     align-items: center;
-    gap: 8px;
-    width: min(320px, 100%);
-    height: 44px;
-    padding: 0 16px;
-    border-radius: 999px;
-    background: var(--field);
-    color: var(--ink3);
-    transition: box-shadow 0.2s ease, background-color 0.2s ease;
-  }
-  .hdrSearch:focus-within {
+    gap: 10px;
+    width: min(640px, calc(100% - 2 * var(--pad)));
+    height: 58px;
+    padding: 0 20px;
+    border-radius: 20px;
     background: #fff;
-    box-shadow: inset 0 0 0 1.5px var(--ink);
+    box-shadow: inset 0 0 0 1px #000, 0 12px 32px -18px rgba(0, 0, 0, 0.4);
+    color: #000;
+    transform: translateX(-50%);
+  }
+  .hdr.searchOpen .hdrSearch {
+    display: flex;
+    animation: vdSearchIn 0.28s var(--spring) both;
+  }
+  .hdrSearch > [data-glyph] svg,
+  .hdrSearch > svg {
+    width: 22px;
+    height: 22px;
   }
   .hdrSearch input {
     flex: 1;
@@ -315,8 +322,9 @@
     border: 0;
     outline: 0;
     background: transparent;
-    font-size: 15px;
-    color: var(--ink);
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    color: #000;
   }
   .hdrSearch input::placeholder {
     color: var(--ink3);
@@ -353,6 +361,7 @@
   }
   /* Plytelės – visos vienoje eilėje, ne platesnės nei 246 px (kaip parfumada.lt), centre */
   .catTiles {
+    --tileFs: 23.4px;
     grid-auto-flow: column;
     grid-auto-columns: minmax(0, 246px);
     justify-content: center;
@@ -493,16 +502,18 @@
     margin-top: 8px;
   }
 }
-@media (min-width: 1400px) {
+/* Katalogas kompiuteryje – 3 didelės kortelės eilėje (kaip parfumada.lt), filtrai – 338 px kairėje */
+@media (min-width: 1280px) {
+  .shopLayout {
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 56px;
+  }
   .shopLayout .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 48px 26px;
   }
 }
-/* Siauresniame kompiuteryje „Apie mus“ – tik poraštėje, kad meniu tilptų */
-@media (min-width: 1024px) and (max-width: 1279.98px) {
-  .hdrNav [data-path="apie-mus"] {
-    display: none;
-  }
+.hdrNav [hidden] {
+  display: none !important;
 }
 /* Gulsčias telefonas – mažiau vertikalios erdvės */
 @media (orientation: landscape) and (max-height: 500px) {
@@ -545,5 +556,28 @@
   }
   .topNote {
     display: none;
+  }
+}
+
+@keyframes vdSearchIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+@media (min-width: 700px) {
+  .heroClaims {
+    max-width: 440px;
+    margin-left: 0;
+  }
+  .heroClaims li {
+    font-size: 15px;
+    padding: 10px 0 11px;
+  }
+}
+@media (min-width: 1024px) {
+  .heroClaims li {
+    font-size: 17px;
+    padding: 12px 0 13px;
   }
 }

@@ -20,9 +20,9 @@ function heroHTML() {
           x.title
         )}">${slideBg(x, i)}<${H} class="sr">${esc(x.title)}</${H}></${tag}>`;
       }
-      return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
+      return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}${/\n\s*\S/.test(x.text || "") ? " claims" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
 <div class="heroTxt">${x.eyebrow ? `<p class="eyebrow">${esc(x.eyebrow)}</p>` : ""}<${H} class="heroTitle">${esc(x.title)}</${H}>
-${x.text ? `<p class="heroLine">${esc(x.text)}</p>` : ""}
+${heroTextHTML(x.text)}
 ${x.cta ? `<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span>` : ""}</div>
 </div></a>`;
     })
@@ -33,6 +33,15 @@ ${x.cta ? `<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span>` : "
           .join("")}</div>`
       : ""
   }</section>`;
+}
+// Skaidrės tekstas: viena eilutė – sakinys; kelios – teiginiai su auksinėmis linijomis (kaip parfumada.lt)
+function heroTextHTML(text) {
+  const lines = String(text || "")
+    .split(/\n+/)
+    .map(t => t.trim())
+    .filter(Boolean);
+  if (!lines.length) return "";
+  return lines.length === 1 ? `<p class="heroLine">${esc(lines[0])}</p>` : `<ul class="heroClaims">${lines.map(t => `<li>${esc(t)}</li>`).join("")}</ul>`;
 }
 // Taškai po skaidrėmis: rodo aktyvią, paspaudus – pereina
 function syncHeroDots() {
@@ -80,13 +89,13 @@ function marqueeHTML() {
   const row = hidden => `<ul class="mqRow"${hidden ? ' aria-hidden="true"' : ""}>${items.map(([i, t]) => `<li>${glyph(i)}<span>${esc(t)}</span></li>`).join("")}</ul>`;
   return `<div class="mqTrack">${row(false)}${row(true)}</div>`;
 }
-// Kategorijos plytelė (v10, kaip parfumada.lt): tik paveikslas 4:5 su apvalintais kampais (nuotrauka arba scena su tos
-// grupės buteliukais – 24-stage.js). Pavadinimas – pačioje nuotraukoje; svetainėje jis tik skaitytuvams (.sr).
+// Kategorijos plytelė (kaip parfumada.lt): pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis), po juo – paveikslas
+// 4:5 su apvalintais kampais (nuotrauka arba scena su tos grupės buteliukais – 24-stage.js).
 function tileHTML({ name, href, list, stage, image, focus, dark }) {
   const bg = image ? photoHTML({ image, focus }, { cls: "tileStage" }) : stageHTML(stage, list, { cls: "tileStage" });
-  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileArt">${bg}</span><span class="tileName sr">${esc(name)}</span></a>`;
+  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileName">${esc(name)}</span><span class="tileArt">${bg}</span></a>`;
 }
-// Skyrius su juosta ir karusele (kompiuteryje – rodyklės ir „1/3“)
+// Skyrius su juosta ir karusele (rodyklės ir „1/3“, kaip parfumada.lt)
 function railHTML(cards) {
   return `<div class="railWrap"><div class="rail">${cards}</div><div class="railNav" hidden><button class="railBtn" type="button" data-rail-step="-1" aria-label="Atgal">${glyph(
     "chev-left"
@@ -104,7 +113,8 @@ function syncRail(wrap) {
   const pages = Math.max(1, Math.round(rail.scrollWidth / Math.max(1, rail.clientWidth)));
   nav.hidden = pages < 2;
   const cur = Math.min(pages, Math.round(rail.scrollLeft / Math.max(1, rail.clientWidth)) + 1);
-  $(".railPage", nav).textContent = `${cur} / iš ${pages}`;
+  $(".railPage", nav).textContent = `${cur}/${pages}`;
+  $(".railPage", nav).setAttribute("aria-label", `${cur} iš ${pages}`);
   $('[data-rail-step="-1"]', nav).disabled = cur <= 1;
   $('[data-rail-step="1"]', nav).disabled = cur >= pages;
 }
@@ -150,7 +160,7 @@ function renderHome() {
     { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },
     { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
     { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") },
-    { title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "kvepalai", list: byRank.filter(p => inStock(p) && onSale(p)) },
+    { title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() },
     { title: "Mėginukai 2 ml", line: SET.sampleCredit ? "Išbandykite prieš pirkdami – kainą grąžinsime perkant buteliuką" : "Išbandykite namuose prieš pirkdami", href: "meginukai", list: byRank.filter(inStock).slice(0, 8), sample: true }
   ].filter(x => x.list.length >= 2);
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
