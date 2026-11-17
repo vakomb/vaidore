@@ -21,9 +21,9 @@ body {
   margin: 0;
   min-height: 100dvh;
   background: var(--bg);
-  color: var(--ink);
+  color: var(--text);
   font-family: var(--font);
-  font-size: 18px;
+  font-size: var(--fs);
   line-height: 1.55;
   letter-spacing: var(--track);
   font-variant-numeric: tabular-nums;
@@ -35,6 +35,20 @@ h2,
 h3,
 p {
   margin: 0;
+}
+/* v10: antraštės – visiškai juodos, tekstas – 75 % juodos (tamsiuose blokuose spalvą paveldi iš bloko) */
+:where(h1, h2, h3) {
+  color: #000;
+}
+:where(
+  .promo.dark h1,
+  .promo.dark h2,
+  .promo.dark h3,
+  .ftr h1,
+  .ftr h2,
+  .ftr h3
+) {
+  color: inherit;
 }
 h1 {
   font-size: 34px;

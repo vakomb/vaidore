@@ -15,6 +15,7 @@ export function dbFromCatalog(cat) {
     family: p.family,
     tagline: p.tagline,
     description: p.desc,
+    ingredients: p.ingredients || "",
     notes: p.notes,
     longevity: p.longevity,
     sillage: p.sillage,

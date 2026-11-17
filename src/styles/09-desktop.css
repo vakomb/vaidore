@@ -4,7 +4,6 @@
 @media (min-width: 700px) {
   :root {
     --pad: 32px;
-    --hdrH: 60px;
     --logoH: 22px;
   }
   .grid {
@@ -59,11 +58,12 @@
     font-size: 16.5px;
   }
   .band {
-    min-height: 64px;
-    font-size: 30px;
+    min-height: 65px;
+    font-size: 31px;
   }
   .secLine {
-    font-size: 22px;
+    margin: 24px 0;
+    padding: 18px 8px;
   }
   .catTiles {
     grid-auto-columns: calc((100% - 3 * 14px) / 4);
@@ -170,8 +170,8 @@
 @media (min-width: 1024px) {
   :root {
     --pad: 40px;
-    --hdrH: 84px;
-    --navH: 48px;
+    --hdrH: 95px; /* v10: kaip parfumada.lt – 95 px eilutė su logotipu centre, 45 px tamsi meniu juosta */
+    --navH: 45px;
   }
   /* Header'is: 1 eilutė – paieška · logotipas · įrankiai; 2 eilutė – tamsi kategorijų juosta */
   .menuBtn,
@@ -182,13 +182,21 @@
     gap: 24px;
     padding: 0 var(--pad);
   }
+  .hdrIn .iconBtn {
+    width: 57px;
+    height: 57px;
+  }
   :root {
-    --logoH: 25px;
+    --logoH: 46px; /* logotipas ≈ 300 px pločio */
     --hdrIcon: 29px;
-    --noteH: 38px;
+    --noteH: 49px;
+    --noteFs: 17px;
+  }
+  .topNote {
+    grid-template-columns: 56px minmax(0, 1fr) 56px;
   }
   .noteTrack {
-    font-size: 14px;
+    max-height: calc(var(--noteFs) * 1.3);
   }
   .hdrNav {
     display: block;
@@ -202,7 +210,7 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    min-height: 48px;
+    min-height: var(--navH);
   }
   .hdrNav a,
   .hdrNav button {
@@ -210,12 +218,12 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    height: 48px;
+    height: var(--navH);
     padding: 0 14px;
     color: #fff;
-    font-size: 14.5px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     white-space: nowrap;
   }
   .hdrNav a::after,
@@ -224,9 +232,9 @@
     position: absolute;
     left: 14px;
     right: 14px;
-    bottom: 10px;
+    bottom: 9px;
     height: 1.5px;
-    background: var(--gold-soft);
+    background: #fff;
     transform: scaleX(0);
     transition: transform 0.3s var(--spring);
   }
@@ -237,7 +245,40 @@
     transform: scaleX(1);
   }
   .hdrNav [aria-current="page"] {
-    color: var(--gold-soft);
+    color: #fff;
+  }
+  .hdrNav [data-current]::after {
+    transform: scaleX(1);
+  }
+  /* „Pagal lytį“ – baltas sąrašas po juosta */
+  .navDd {
+    position: relative;
+  }
+  .navDdMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 5;
+    min-width: 200px;
+    padding: 8px 0;
+    background: #fff;
+    box-shadow: var(--elev-3);
+    animation: vdMega 0.22s var(--spring) both;
+  }
+  .hdrNav .navDdMenu a {
+    display: flex;
+    height: 46px;
+    padding: 0 20px;
+    color: #000;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .hdrNav .navDdMenu a::after {
+    display: none;
+  }
+  .hdrNav .navDdMenu a:hover,
+  .hdrNav .navDdMenu a[aria-current="page"] {
+    background: var(--bg-soft);
   }
   .hdrNav svg {
     width: 15px;
@@ -291,7 +332,7 @@
 
   /* Pradžia */
   :root {
-    --heroH: 540px;
+    --heroH: 462px; /* v10: kaip parfumada.lt (nuotrauka 2880 × 934) */
   }
   .heroTitle {
     font-size: 60px;
@@ -304,30 +345,28 @@
     padding: 0 24px 0 28px;
     font-size: 16px;
   }
+  /* v10 (kaip parfumada.lt): pradžios skyriai – per visą ekrano plotį, 19 px kraštai */
+  .hsec > .wrap {
+    max-width: none;
+    padding: 0 19px;
+  }
+  /* Plytelės – visos vienoje eilėje, ne platesnės nei 246 px (kaip parfumada.lt), centre */
   .catTiles {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 246px);
+    justify-content: center;
     margin: 0;
     padding: 0;
     overflow: visible;
     gap: 16px;
   }
-  .tileName {
-    font-size: 20px;
-  }
-  .tileTxt {
-    padding-top: 20px;
-  }
-  /* Karuselė – 3 didelės kortelės (kaip parfumada), rodyklės ir „1/3“ */
+  /* Karuselė – 3 didelės kortelės (kaip parfumada: 451 px 1440 px ekrane), rodyklės ir „1 / iš 3“ */
   .rail {
     grid-auto-columns: calc((100% - 2 * 16px) / 3);
     gap: 16px;
     margin: 0;
     padding: 2px 0 8px;
     scroll-padding: 0;
-  }
-  .rail .cardName {
-    font-size: 23.4px;
   }
   .railNav {
     margin-top: 14px;
@@ -366,16 +405,6 @@
   }
   .card:hover .art:not(:has(img.photo)) {
     box-shadow: var(--elev-2);
-  }
-  .card:hover .quick {
-    display: flex;
-    animation: vdQuick 0.3s var(--spring) both;
-  }
-  @keyframes vdQuick {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
   }
   .cardName {
     font-size: 17px;

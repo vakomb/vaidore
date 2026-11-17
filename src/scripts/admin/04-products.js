@@ -149,6 +149,7 @@ const blankProduct = () => ({
   family: VD.CAT.families[0]?.id || "",
   tagline: "",
   description: "",
+  ingredients: "",
   notes: { top: [], heart: [], base: [] },
   longevity: 3,
   sillage: 3,
@@ -171,11 +172,13 @@ async function renderProductEdit(main, id, seq) {
   const isNew = id === "naujas";
   main.innerHTML = pageHead(isNew ? "Naujas kvapas" : "Kvapas") + loading();
   const [rows, fams, cats, links] = await Promise.all([
-    // Naujam kvapui laukas „Įkvėpta“ rodomas tik jei duomenų bazėje jau yra stulpelis inspired (migracija 0300)
+    // Naujam kvapui laukai „Įkvėpta“ ir „Ingredientai“ rodomi tik jei duomenų bazėje jau yra stulpeliai inspired
+    // (migracija 0300) ir ingredients (20261117000000)
     isNew
       ? sbRest("products?select=*&limit=1").then(r => {
           const b = blankProduct();
           if (r?.[0] && !("inspired" in r[0])) delete b.inspired;
+          if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
           return [b];
         })
       : sbRest(`products?select=*&id=eq.${encodeURIComponent(id)}`),
@@ -213,7 +216,12 @@ ${"inspired" in p ? `<label class="field"><span>Įkvėpta</span><input name="ins
     .join("")}</select></label>
 <label class="field"><span>Kvapo šeima</span><select name="family">${fams.map(f => opt(f.id, f.name, p.family)).join("")}</select></label></div>
 <label class="field"><span>Trumpas aprašymas</span><input name="tagline" maxlength="90" value="${esc(p.tagline)}" placeholder="pvz. Ryto gaiva ant baltųjų rožių" /><small>Rodomas kortelėje ir paieškoje</small></label>
-<label class="field"><span>Aprašymas</span><textarea name="description" rows="5" maxlength="1500">${esc(p.description)}</textarea></label>
+<label class="field"><span>Aprašymas</span><textarea name="description" rows="5" maxlength="1500">${esc(p.description)}</textarea></label>${
+  "ingredients" in p
+    ? `
+<label class="field"><span>Ingredientai (INCI)</span><textarea name="ingredients" rows="3" maxlength="1500" placeholder="pvz. Alcohol Denat., Parfum, Aqua, Linalool, Limonene">${esc(p.ingredients || "")}</textarea><small>Kaip ant pakuotės. Rodoma kvapo puslapyje skiltyje „Ingredientai“; tuščia – skiltis nerodoma</small></label>`
+    : ""
+}
 </section>
 <section class="admCard"><h2>Natos ir savybės</h2>
 <label class="field"><span>Viršutinės natos</span><input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" /><small>Atskirkite kableliais</small></label>
@@ -385,6 +393,7 @@ function readProduct(ed, form) {
     family: f.family.value,
     tagline: f.tagline.value.trim(),
     description: f.description.value.trim(),
+    ...(f.ingredients ? { ingredients: f.ingredients.value.trim() } : {}),
     notes,
     longevity: Number(f.longevity.value),
     sillage: Number(f.sillage.value),

@@ -2,8 +2,8 @@
 // telefone – langas), informacinė juosta ir poraštė. Kategorijos ir šeimos – iš katalogo (administravimo skydelio).
 // Informacinė juosta – kelios trumpos žinutės, keičiasi vietoje kas 5 s (rodyklės – rankiniu būdu; sustoja užvedus,
 // fokusuojant ir jei įjungtas „mažiau judesio“). Visos žinutės – tikri parduotuvės nustatymai.
-// Juostos aukštis fiksuotas (--noteH), tekstas – VISADA vienoje eilutėje: kiekviena žinutė turi ilgą ir trumpą
-// variantą; jei ilgas netelpa (siauras telefonas, nuo 360 px), rodomas trumpas.
+// Juostos aukštis fiksuotas (--noteH), tekstas – iki 2 eilučių (v10, kaip parfumada.lt): kiekviena žinutė turi ilgą
+// ir trumpą variantą; jei ilgas netelpa (siauras telefonas, nuo 360 px), rodomas trumpesnis.
 const note = { i: 0, t: 0, paused: false };
 function noteMessages() {
   const free = eurShort(SET.freeShippingFrom);
@@ -18,14 +18,14 @@ function noteMessages() {
     [`Grąžinimas per <b>${ret}</b> · Saugus apmokėjimas`, `Grąžinimas per <b>${ret}</b>`, `Grąžinimas per <b>${ret}</b>`]
   ].filter(Boolean);
 }
-// Įrašo ilgiausią telpantį variantą (be perkėlimo į kitą eilutę)
+// Įrašo ilgiausią telpantį variantą (ne daugiau kaip 2 eilutės)
 function fitNote() {
   const el = $("#topNoteTxt");
   const v = noteMessages()[note.i];
   if (!el || !v) return;
   for (const t of v) {
     el.innerHTML = t;
-    if (el.scrollWidth <= el.clientWidth + 1) return;
+    if (el.scrollHeight <= el.clientHeight + 1 && el.scrollWidth <= el.clientWidth + 1) return;
   }
 }
 function showNote(step = 0) {
@@ -57,16 +57,22 @@ function renderTopNote() {
   clearInterval(note.t);
   if (!reduceMotion()) note.t = setInterval(() => !note.paused && !document.hidden && showNote(1), 5000);
 }
-// Kompiuteryje – antra header'io eilutė (tamsi juosta su kategorijomis)
+// Kompiuteryje – antra header'io eilutė (tamsi juosta su kategorijomis). v10 (kaip parfumada.lt): 16 px / 700,
+// „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“, kad visos nuorodos tilptų vienoje eilutėje.
 function renderHeaderNav() {
   const link = (href, name, path = href) => `<a href="${href}" data-nav data-path="${path}">${name}</a>`;
   $("#hdrNav").innerHTML = `<div class="hdrNavIn"><button type="button" id="megaBtn" aria-expanded="false" aria-controls="mega">Visi kvepalai${glyph("chev-down")}</button>
-${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}${link("meginukai", "Mėginukai")}${
-    DISC ? link("rinkinys", esc(DISC.name)) : ""
-  }${link("kvepalai?rikiuoti=new", "Naujienos", "naujienos")}${visibleCategories()
+<div class="navDd" id="navDd"><button type="button" id="genderBtn" aria-expanded="false" aria-controls="genderMenu">Pagal lytį${glyph("chev-down")}</button><div class="navDdMenu" id="genderMenu" hidden>${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}</div></div>
+${link("meginukai", "Mėginukai")}${DISC ? link("rinkinys", esc(DISC.name)) : ""}${link("kvepalai?rikiuoti=new", "Naujienos", "naujienos")}${visibleCategories()
     .slice(0, 2)
     .map(c => link(`kategorija/${c.id}`, esc(c.name)))
     .join("")}<button type="button" data-quiz>Rask savo kvapą</button>${link("apie-mus", "Apie mus")}</div>`;
+}
+function setGender(open) {
+  const btn = $("#genderBtn");
+  if (!btn) return;
+  $("#genderMenu").hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
 }
 function megaHTML() {
   const h = SET.hero || {};
@@ -159,9 +165,17 @@ function bindHeader() {
   let megaT = 0;
   hdr.addEventListener("click", e => {
     const t = e.target instanceof Element ? e.target : null;
-    if (t?.closest("#megaBtn")) return setMega($("#mega").hidden);
+    if (t?.closest("#megaBtn")) return setGender(false), setMega($("#mega").hidden);
     if (t?.closest("#mega a")) setMega(false);
+    if (t?.closest("#genderBtn")) return setMega(false), setGender($("#genderMenu").hidden);
+    if (t?.closest("#genderMenu a")) setGender(false);
   });
+  // „Pagal lytį“ – užvedus atsidaro, nuėjus – užsidaro; paspaudus kitur – užsidaro
+  let ddT = 0;
+  const dd = $("#navDd");
+  dd.addEventListener("mouseenter", () => (clearTimeout(ddT), setMega(false), setGender(true)));
+  dd.addEventListener("mouseleave", () => (ddT = setTimeout(() => setGender(false), 180)));
+  document.addEventListener("click", e => e.target instanceof Element && !e.target.closest("#navDd") && setGender(false));
   hdr.addEventListener("mouseover", e => {
     if (!(e.target instanceof Element)) return;
     clearTimeout(megaT);
@@ -177,7 +191,11 @@ function bindHeader() {
       megaT = setTimeout(() => setMega(false), 120);
     }
   });
-  document.addEventListener("keydown", e => e.key === "Escape" && !$("#mega").hidden && setMega(false));
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if (!$("#mega").hidden) setMega(false);
+    if (!$("#genderMenu").hidden) setGender(false), $("#genderBtn").focus();
+  });
   // Kompiuterio paieška
   const form = $("#hdrSearch");
   const q = $("#hdrQ");
@@ -219,7 +237,9 @@ function bindHeader() {
 }
 function updateNavCurrent(path) {
   $$("#hdrNav [data-path]").forEach(a => (a.dataset.path === path ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+  $("#genderBtn")?.toggleAttribute("data-current", ["moterims", "vyrams", "unisex"].includes(path));
   setMega(false);
+  setGender(false);
 }
 function renderFooter() {
   const cats = visibleCategories().slice(0, 4);

@@ -136,13 +136,13 @@ async function run(viewport) {
     if (getComputedStyle(bar).display === "none") return true;
     const h = bar.getBoundingClientRect().height;
     for (let i = 0; i < 6; i++) {
-      if (el.scrollWidth > el.clientWidth + 1 || bar.getBoundingClientRect().height !== h) return false;
+      if (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1 || bar.getBoundingClientRect().height !== h) return false;
       document.querySelector('[data-note-step="1"]').click();
       await new Promise(r => setTimeout(r, 30));
     }
     return true;
   });
-  check(noteOk, "informacinė juosta: kiekviena žinutė – vienoje eilutėje, aukštis nesikeičia");
+  check(noteOk, "informacinė juosta: kiekviena žinutė telpa (iki 2 eilučių), aukštis nesikeičia");
   const note1 = await page.locator("#topNoteTxt").textContent();
   await page.click('[data-note-step="1"]');
   check((await page.locator("#topNoteTxt").textContent()) !== note1, "informacinė juosta: rodyklės keičia žinutę");
@@ -203,7 +203,10 @@ async function run(viewport) {
     await page.click("#menuBtn");
     await page.waitForSelector("#drawerWrap:not([hidden]) #drawer a[href='moterims']");
     await page.click("#drawer a[href='moterims']");
-  } else await page.click('#hdrNav a[href="moterims"]');
+  } else {
+    await page.click("#genderBtn");
+    await page.click('#hdrNav a[href="moterims"]');
+  }
   await page.waitForURL(/\/moterims$/);
   check((await page.locator("#shopTitle").textContent()) === "Kvepalai moterims", "meniu → „Moterims“");
   const women = cat.products.filter(p => p.gender === "moterims").length;

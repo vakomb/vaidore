@@ -201,6 +201,7 @@ function catalogFromDb(rows) {
       family: p.family,
       tagline: p.tagline,
       desc: p.description,
+      ingredients: p.ingredients || "",
       notes: { top: p.notes?.top || [], heart: p.notes?.heart || [], base: p.notes?.base || [] },
       longevity: p.longevity,
       sillage: p.sillage,

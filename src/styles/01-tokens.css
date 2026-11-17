@@ -6,6 +6,7 @@
   --bg-soft: #f5f5f5; /* tik subtiliai: paveikslų fonai, laukai, aktyvi eilutė */
   --card: #ffffff;
   --ink: #121212;
+  --text: rgba(0, 0, 0, 0.75); /* v10: pagrindinis tekstas – 75 % juodos (kaip parfumada.lt), antraštės – #000 */
   --ink2: #4a4a4a;
   --ink3: #6b6b6b; /* ≥ 4,5:1 ant balto ir --bg-soft (WCAG AA) */
   --ink4: #a3a3a3; /* tik ikonoms ir skyrikliams, ne tekstui */
@@ -73,8 +74,12 @@
   --r-field: 12px;
   --r-sm: 12px;
   --r-hero: 28px;
-  --heroAR: 0.78; /* pradžios skaidrė telefone (plotis / aukštis) */
-  --heroH: 440px; /* skaidrės aukštis nuo 700 px (≥ 1024 px – 09-desktop.css) */
+  --heroAR: 1; /* v10: pradžios skaidrė telefone – kvadratas (kaip parfumada.lt), nuotrauka 1080 × 1080 */
+  --heroH: 420px; /* skaidrės aukštis nuo 700 px (≥ 1024 px – 462 px, 09-desktop.css) */
+  --r-photo: 5px; /* v10: prekės paveikslo kampai (karuselėse) */
+  --r-tileArt: 16px; /* v10: kategorijų plytelių paveikslo kampai */
+  --sale-bg: #ffe6e6; /* v10: „Akcija“ ženkliukas – švelniai rožinis, juodas tekstas (kaip parfumada.lt) */
+  --lineSoft: #cccccc; /* v10: eilutės „… | Peržiūrėti“ linijos */
 
   --spring: cubic-bezier(0.22, 1, 0.36, 1);
   --press: 0.975;
@@ -82,10 +87,13 @@
   --gap: 16px;
   --pad: 20px; /* puslapio kraštai: 20 px telefone, 40 px kompiuteryje (09-desktop.css) */
   --maxW: 1280px;
-  --hdrH: 54px; /* v7: mažiau tuščios vietos viršuje ir apačioje (kompiuteryje – 09-desktop.css) */
-  --hdrIcon: 28px; /* header'io ikonos (mygtukas – 44 px) */
+  --hdrH: 57px; /* v10: kaip parfumada.lt (kompiuteryje 95 px – 09-desktop.css) */
+  --hdrBtn: 57px; /* header'io mygtukų paspaudimo zona */
+  --hdrIcon: 28px; /* header'io ikonos */
   --logoH: 19px; /* VAIDORE logotipo aukštis (didžiųjų raidžių) */
-  --noteH: 36px; /* juosta virš header'io – fiksuotas aukštis, tekstas vienoje eilutėje */
+  --noteH: 66px; /* v10: juosta virš header'io – fiksuotas aukštis, tekstas iki 2 eilučių (kompiuteryje 49 px) */
+  --noteFs: 19.5px;
+  --fs: 19.5px; /* v10: pagrindinis teksto dydis (kaip parfumada.lt) */
   --navH: 0px; /* kompiuteryje – tamsi kategorijų juosta (09-desktop.css) */
   --hdrAll: calc(var(--hdrH) + var(--navH)); /* visas prilipęs header'is – lipniems elementams */
   --safeB: env(safe-area-inset-bottom, 0px);

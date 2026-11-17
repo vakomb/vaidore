@@ -89,26 +89,25 @@ function homeSlides() {
   return raw.filter(s => s && s.on !== false).map(resolveSlide).filter(Boolean);
 }
 
-// Plytelių šablonai: pavadinimas, adresas, scena, kvapai, paantraštė
-const kvapaiN = n => plural(n, "kvapas", "kvapai", "kvapų");
+// Plytelių šablonai: pavadinimas, adresas, scena, kvapai
 function tilePreset(key) {
   const byRank = byRankAll();
   const of = g => byRank.filter(p => p.gender === g);
   if (key === "moterims" || key === "vyrams" || key === "unisex") {
     const st = { moterims: "women", vyrams: "men", unisex: "unisex" }[key];
-    return { name: GENDER_NAME[key], href: key, stage: st, list: of(key), sub: kvapaiN(of(key).length) };
+    return { name: GENDER_NAME[key], href: key, stage: st, list: of(key) };
   }
-  if (key === "meginukai") return { name: "Mėginukai", href: "meginukai", stage: "vials", list: byRank.slice(3), sub: `2 ml nuo ${eur(sampleFrom())}` };
-  if (key === "rinkinys") return DISC ? { name: "Rinkiniai", href: "rinkinys", stage: "set", list: byRank.slice(6), sub: `${DISC.count} × 2 ml už ${eur(DISC.price)}` } : null;
+  if (key === "meginukai") return { name: "Mėginukai", href: "meginukai", stage: "vials", list: byRank.slice(3) };
+  if (key === "rinkinys") return DISC ? { name: "Rinkiniai", href: "rinkinys", stage: "set", list: byRank.slice(6) } : null;
   if (key === "naujienos") {
     const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
-    return { name: "Naujienos", href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh, sub: "Naujausi kvapai" };
+    return { name: "Naujienos", href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh };
   }
   if (key.startsWith("kat-")) {
     const c = CATEGORY.get(key.slice(4));
     if (!c || c.visible === false) return null;
     const list = byRank.filter(p => (p.categories || []).includes(c.id));
-    return { name: c.name, href: `kategorija/${c.id}`, stage: categoryStageName(c.id), list, sub: kvapaiN(list.length), image: c.image || "" };
+    return { name: c.name, href: `kategorija/${c.id}`, stage: categoryStageName(c.id), list, image: c.image || "" };
   }
   return null;
 }

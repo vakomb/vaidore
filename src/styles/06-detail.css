@@ -15,10 +15,10 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-height: 48px;
+  min-height: 35px;
   padding: 0 2px;
   color: #000;
-  font-size: 19px;
+  font-size: 19.5px;
   font-weight: 400;
   letter-spacing: 0.04em;
 }
@@ -34,8 +34,8 @@
 }
 .toolbar .count {
   margin-left: auto;
-  font-size: 17px;
-  color: var(--ink2);
+  font-size: 16.9px;
+  color: var(--text);
 }
 .toolbar .sortSel {
   display: none;
@@ -107,6 +107,16 @@
 .fCheck:hover {
   color: var(--ink);
 }
+/* „Natos“ – ilgas sąrašas slenka savo lauke */
+.fScroll {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 300px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
 .fSheet .fGroup:first-child summary {
   padding-top: 0;
 }
@@ -156,36 +166,6 @@
     opacity: 0;
     transform: translate(-50%, 18px) scale(0.96);
   }
-}
-.pdTools {
-  position: absolute;
-  z-index: 2;
-  top: 14px;
-  right: 14px;
-  display: flex;
-  gap: 8px;
-}
-.pdTools .roundBtn,
-.pdTools .heart {
-  position: static;
-  width: 42px;
-  height: 42px;
-  background: rgba(255, 255, 255, 0.86);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.05);
-}
-.pdBadges {
-  position: absolute;
-  z-index: 2;
-  left: 16px;
-  bottom: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.hasPhoto .pdBadges {
-  bottom: 44px;
 }
 /* Antraštė virš visko: PAVADINIMAS tarp linijų, po juo – trys natos (kaip parfumada.lt) */
 .pdHead {
@@ -273,15 +253,25 @@
   margin-top: 26px;
 }
 .pdPrice b {
-  font-size: 22px;
+  font-size: 20.8px;
   font-weight: 400;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   color: #000;
 }
+.pdPrice b.sale {
+  font-weight: 700;
+}
 .pdPrice s {
-  font-size: 17.5px;
-  letter-spacing: 0.07em;
-  color: var(--ink2);
+  font-size: 16.9px;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+.pdPrice .pill {
+  align-self: center;
+  height: 30px;
+  padding: 0 14px;
+  font-size: 15.5px;
+  font-weight: 400;
 }
 .pdPrice small {
   font-size: 15px;
@@ -305,19 +295,41 @@
 }
 .pdBuy .btn.primary {
   width: 100%;
-  min-height: 62px;
-  font-size: 19px;
+  min-height: 63px;
+  font-size: 19.5px;
 }
-.pdBuy .heartBtn {
-  width: 54px;
-  min-height: 54px;
-  padding: 0;
+/* „Į mėgstamus“ · „Dalintis“ – ramios teksto nuorodos po pirkimu (ne ant nuotraukos) */
+.pdActs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin-top: 14px;
 }
-.pdBuy .heartBtn[aria-pressed="true"] {
-  color: #e11d48;
+.pdAct {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: #000;
+  font-size: 16px;
+  letter-spacing: 0.03em;
 }
-.pdBuy .heartBtn[aria-pressed="true"] svg {
-  fill: currentColor;
+.pdAct svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+.pdAct[data-fav]::after {
+  content: "Į mėgstamus";
+}
+.pdAct[data-fav][aria-pressed="true"]::after {
+  content: "Mėgstamas";
+}
+.pdAct[aria-pressed="true"] svg {
+  fill: #e11d48;
+  stroke: #e11d48;
 }
 /* Kiekis – apvalus keitiklis (kaip parfumada) */
 .qty {
@@ -390,8 +402,8 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 62px;
-  font-size: 19px;
+  min-height: 65px;
+  font-size: 19.5px;
   font-weight: 400;
   letter-spacing: 0.03em;
   color: #000;

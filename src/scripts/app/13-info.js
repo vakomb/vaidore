@@ -16,8 +16,7 @@ function infoHelpHTML() {
         `<div class="row"><span class="rowIco">${glyph(o.id === "omniva" ? "locker" : "truck")}</span><span class="rowTxt">${esc(o.name)}<small>${esc(o.days)}</small></span><b class="money">${eur(o.price)}</b></div>`
     )
     .join("");
-  return `<nav class="crumbs" aria-label="Naršymo kelias">${crumbsHTML([{ name: "Pradžia", href: "./" }, { name: "Pagalba" }])}</nav>
-<header class="pageHead"><h1>Pagalba</h1><p class="pageSub">Pristatymas, grąžinimas, apmokėjimas ir dažniausi klausimai.</p></header>
+  return `<header class="pageHead"><h1>Pagalba</h1><p class="pageSub">Pristatymas, grąžinimas, apmokėjimas ir dažniausi klausimai.</p></header>
 <div class="infoGrid">
 <nav class="infoToc" aria-label="Turinys"><a href="pagalba#pristatymas">Pristatymas</a><a href="pagalba#grazinimas">Grąžinimas</a><a href="pagalba#apmokejimas">Apmokėjimas</a><a href="pagalba#duk">DUK</a><a href="pagalba#kontaktai">Kontaktai</a></nav>
 <div class="infoBody">
@@ -48,8 +47,7 @@ function infoHelpHTML() {
 function infoAboutHTML() {
   const st = SET.story || {};
   const trio = [...PRODUCTS].sort((a, b) => a.rank - b.rank).slice(0, 3);
-  return `<nav class="crumbs" aria-label="Naršymo kelias">${crumbsHTML([{ name: "Pradžia", href: "./" }, { name: "Apie mus" }])}</nav>
-<header class="pageHead"><h1>${esc(st.title || "Apie mus")}</h1><p class="pageSub">${esc(SET.tagline || "")}</p></header>
+  return `<header class="pageHead"><h1>${esc(st.title || "Apie mus")}</h1><p class="pageSub">${esc(SET.tagline || "")}</p></header>
 <section class="story about">
 <div class="storyArt">${st.image ? `<img src="${esc(st.image)}" alt="" loading="lazy" decoding="async" />` : stageHTML("collection", trio, { cls: "storyStage" })}</div>
 <div class="storyTxt"><p>${esc(st.text || "")}</p></div>

@@ -275,7 +275,6 @@
   pointer-events: none;
 }
 .slide,
-.tile,
 .pageHead {
   --scrim: rgba(255, 255, 255, 0.5);
 }
@@ -283,15 +282,13 @@
   --scrim: rgba(0, 0, 0, 0.42);
 }
 .slide.onDark,
-.tile.onDark,
 .slide.onDark .heroTitle {
   color: #fff;
 }
 .slide.onDark .eyebrow {
   color: var(--gold-soft);
 }
-.slide.onDark .heroLine,
-.tile.onDark small {
+.slide.onDark .heroLine {
   color: rgba(255, 255, 255, 0.9);
 }
 /* Katalogo antraštė: telefone tekstas po nuotrauka (be permatomo sluoksnio), kompiuteryje – ant jos */

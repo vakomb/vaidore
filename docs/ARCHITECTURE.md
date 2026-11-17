@@ -120,6 +120,26 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
+## Dizainas (v10: dydžiai ir sandara – kaip parfumada.lt, išmatuota 390 ir 1440 px pločio)
+
+- Tekstas 19,5 px (`--fs`), 75 % juodos (`--text`), antraštės – #000. Spalvos ir dydžiai – `01-tokens.css`.
+- Juosta virš header'io: telefone 66 px, 19,5 px, iki 2 eilučių; kompiuteryje 49 px (`--noteH`, `--noteFs`, `fitNote`).
+- Header'is: telefone 57 px, ☰ · logotipas · paieška · krepšelis (mygtukai 57 × 57, paskyra – šoniniame meniu);
+  kompiuteryje 95 px, logotipas centre (≈ 300 px), tamsi meniu juosta 45 px, nuorodos 16 px / 700,
+  „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“ (`#genderBtn`).
+- Pradžia: skaidrė telefone – kvadratas (nuotrauka 1080 × 1080), kompiuteryje 462 px (2880 × 934); bėganti juosta
+  balta, 59 px; skyrių juostos 52 / 65 px; plytelės – paveikslas 4:5 (16 px kampai), pavadinimas po juo su rodykle,
+  kompiuteryje visos vienoje eilėje (iki 246 px); „… | Peržiūrėti“ – 22 px, linijos #ccc; karuselės – kortelė 284 px
+  telefone (29 px kraštai), 3 per visą plotį kompiuteryje, skaitiklis „1 / iš 3“.
+- Kortelė: PAVADINIMAS · natos · kaina (be „Įkvėpti …“ ir greitų mygtukų); katalogo tinklelyje paveikslas 4:5;
+  akcija – rožinis „Akcija“ ženkliukas, nubraukta kaina 16,9 px ir nauja 20,8 px / 700.
+- Katalogas: be naršymo kelio; filtrai – Pagal lytį, Kategorijos, Kvapo pobūdis, Natos (`?natos=`), Proga
+  (`?proga=`), Sezonas (`?sezonas=`), Koncentracija, Kaina (`SET_FILTERS`, `08-shop.js`).
+- Kvapo puslapis: be naršymo kelio ir ženkliukų ant nuotraukos; išskleidžiamos eilutės 65 px; „Ingredientai“ –
+  laukas `products.ingredients` (migracija `20261117000000_ingredients.sql`, administravime – „Ingredientai (INCI)“),
+  rodoma tik jei užpildyta; „Įdėti į krepšelį“ 63 px; „Į mėgstamus“ / „Dalintis“ – po pirkimu.
+- Poraštė: nuorodų eilutės 55 px, 18,2 px.
+
 ## Pradžios puslapis iš administravimo (v8: admin/pradzia)
 
 - **Skyrius „Pradžia“** (`src/scripts/admin/10-home.js`, stiliai `admin.css` „Pradžios puslapis“): skaidrės ir „Produktai“

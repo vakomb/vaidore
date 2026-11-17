@@ -6,6 +6,7 @@ const GLYPH = {
   filter: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
   "chev-down": '<path d="m7 10 5 5 5-5"/>',
   "chev-right": '<path d="m10 7 5 5-5 5"/>',
+  arrow: '<path d="M4 12h15M13.5 6.5 19 12l-5.5 5.5"/>',
   "chev-left": '<path d="m14 7-5 5 5 5"/>',
   plus: '<path d="M12 6v12M6 12h12"/>',
   minus: '<path d="M6 12h12"/>',

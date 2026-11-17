@@ -73,12 +73,11 @@ function marqueeHTML() {
   const row = hidden => `<ul class="mqRow"${hidden ? ' aria-hidden="true"' : ""}>${items.map(([i, t]) => `<li>${glyph(i)}<span>${esc(t)}</span></li>`).join("")}</ul>`;
   return `<div class="mqTrack">${row(false)}${row(true)}</div>`;
 }
-// Kategorijos plytelė (v7): visa plytelė – scena su tos grupės buteliukais (24-stage.js), pavadinimas ant sienos viršuje
-function tileHTML({ name, href, list, sub, stage, image, focus, dark }) {
+// Kategorijos plytelė (v10, kaip parfumada.lt): paveikslas 4:5 su apvalintais kampais (scena su tos grupės
+// buteliukais – 24-stage.js – arba nuotrauka), pavadinimas – PO paveikslu, stambiomis didžiosiomis, su rodykle.
+function tileHTML({ name, href, list, stage, image, focus, dark }) {
   const bg = image ? photoHTML({ image, focus }, { cls: "tileStage" }) : stageHTML(stage, list, { cls: "tileStage" });
-  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav>${bg}<span class="tileTxt"><span class="tileName">${esc(name)}</span>${
-    sub ? `<small>${esc(sub)}</small>` : ""
-  }</span></a>`;
+  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileArt">${bg}</span><span class="tileTxt"><span class="tileName">${esc(name)}</span>${glyph("arrow")}</span></a>`;
 }
 // Skyrius su juosta ir karusele (kompiuteryje – rodyklės ir „1/3“)
 function railHTML(cards) {
@@ -98,7 +97,7 @@ function syncRail(wrap) {
   const pages = Math.max(1, Math.round(rail.scrollWidth / Math.max(1, rail.clientWidth)));
   nav.hidden = pages < 2;
   const cur = Math.min(pages, Math.round(rail.scrollLeft / Math.max(1, rail.clientWidth)) + 1);
-  $(".railPage", nav).textContent = `${cur}/${pages}`;
+  $(".railPage", nav).textContent = `${cur} / iš ${pages}`;
   $('[data-rail-step="-1"]', nav).disabled = cur <= 1;
   $('[data-rail-step="1"]', nav).disabled = cur >= pages;
 }

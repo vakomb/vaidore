@@ -47,7 +47,7 @@ async function openAdmin(sub = "") {
 // Bendros funkcijos administravimo skydeliui (assets/admin.js)
 window.VD = {
   $, $$, esc, eur, eurShort, plural, fold, slugify, fmtDate, fmtDateTime, glyph, GLYPH, hydrateIcons, bottleSVG, artImg, toast, openSheet, closeSheet,
-  askConfirm, navigate, sbRest, sbFn, sbUpload, auth, refreshCatalog, emit, crumbsHTML, logError, absUrl,
+  askConfirm, navigate, sbRest, sbFn, sbUpload, auth, refreshCatalog, emit, logError, absUrl,
   get CAT() {
     return CAT;
   },
