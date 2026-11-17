@@ -77,18 +77,26 @@ function startHeroAuto() {
     rail.scrollTo({ left: end ? 0 : rail.scrollLeft + rail.clientWidth, behavior: "smooth" });
   }, secs * 1000);
 }
+// Bėganti juosta (kaip parfumada.lt): emoji + tikri parduotuvės privalumai (iš nustatymų)
 function marqueeHTML() {
+  const allEdp = PRODUCTS.length && PRODUCTS.every(p => p.conc === "EDP");
   const items = [
-    ["drop", "Mėginukai 2 ml"],
-    ["truck", `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`],
-    ["clock", `Išsiunčiame per ${SET.dispatch || "1–2 d. d."}`],
-    ["return", `Grąžinimas per ${SET.returnDays || 14} d.`],
-    ["lock", "Saugus apmokėjimas"],
-    ["spark", "Nišiniai kvapai"]
+    ["💧", allEdp ? "Eau de Parfum koncentracija" : "Mėginukai 2 ml"],
+    ["🚚", `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`],
+    ["⏳", `Išsiunčiame per ${SET.dispatch || "1–2 d. d."}`],
+    ["✨", allEdp ? "Mėginukai 2 ml" : "Nišiniai kvapai"],
+    ["↩️", `Grąžinimas per ${SET.returnDays || 14} d.`],
+    ["🔒", "Saugus apmokėjimas"]
   ];
-  const row = hidden => `<ul class="mqRow"${hidden ? ' aria-hidden="true"' : ""}>${items.map(([i, t]) => `<li>${glyph(i)}<span>${esc(t)}</span></li>`).join("")}</ul>`;
+  const row = hidden => `<ul class="mqRow"${hidden ? ' aria-hidden="true"' : ""}>${items.map(([i, t]) => `<li><span class="mqIco" aria-hidden="true">${i}</span>${esc(t)}</li>`).join("")}</ul>`;
   return `<div class="mqTrack">${row(false)}${row(true)}</div>`;
 }
+// Greitis kaip parfumada.lt (~41 px/s), nepriklausomai nuo teksto ilgio
+function syncMarquee() {
+  const row = $("#homeMarquee .mqRow");
+  if (row) $("#homeMarquee").style.setProperty("--mqDur", `${Math.max(12, row.scrollWidth / 41).toFixed(1)}s`);
+}
+
 // Kategorijos plytelė (kaip parfumada.lt): pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis), po juo – paveikslas
 // 4:5 su apvalintais kampais (nuotrauka arba scena su tos grupės buteliukais – 24-stage.js).
 function tileHTML({ name, href, list, stage, image, focus, dark }) {
@@ -148,6 +156,8 @@ window.addEventListener("resize", () => {
 function renderHome() {
   $("#homeHero").innerHTML = heroHTML();
   $("#homeMarquee").innerHTML = marqueeHTML();
+  requestAnimationFrame(syncMarquee);
+  document.fonts?.ready.then(syncMarquee);
   const byRank = [...PRODUCTS].sort((a, b) => a.rank - b.rank);
   const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
   const of = g => byRank.filter(p => p.gender === g);

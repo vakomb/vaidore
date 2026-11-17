@@ -131,16 +131,25 @@
   background: var(--brand);
 }
 
-/* ── Bėganti privalumų juosta (v10, kaip parfumada.lt): balta, 59 px, tamsus storas tekstas su ženkliukais ── */
+/* ── Bėganti privalumų juosta (kaip parfumada.lt): aukso gradientas, 1 px linijos viršuje ir apačioje, 13 px kraštai,
+   16–20 px / 800 didžiosiomis, ženkliukai – emoji; greitis kaip parfumadoje (≈ 41 px/s, --mqDur skaičiuojamas JS),
+   užvedus – sustoja ── */
 .marquee {
+  display: flex;
+  align-items: center;
+  min-height: 59px;
   overflow: hidden;
-  background: #fff;
-  color: #1a1a1a;
+  padding: 13px 0;
+  background: var(--mq-bg);
+  border-top: 1px solid var(--mq-line);
+  border-bottom: 1px solid var(--mq-line);
+  color: var(--mq-ink);
 }
 .mqTrack {
   display: flex;
   width: max-content;
-  animation: vdMarquee 34s linear infinite;
+  animation: vdMarquee var(--mqDur, 30s) linear infinite;
+  will-change: transform;
 }
 .marquee:hover .mqTrack {
   animation-play-state: paused;
@@ -157,22 +166,18 @@
   list-style: none;
 }
 .mqRow li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 20px 22px;
-  font-size: 16px;
+  padding: 0 9px;
+  font-size: clamp(16px, 2vw, 20px);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   white-space: nowrap;
 }
-.mqRow svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2.2;
-  color: #1a1a1a;
+.mqRow .mqIco {
+  margin-right: 0.3em;
+  font-weight: 400;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
 }
 @media (prefers-reduced-motion: reduce) {
   .mqTrack {

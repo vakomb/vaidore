@@ -52,6 +52,10 @@
   --bottle-shadow: drop-shadow(0 1px 1px rgba(15, 23, 42, 0.08)) drop-shadow(0 14px 14px rgba(15, 23, 42, 0.13));
   --photo-bg: transparent; /* v8: prekės nuotrauka – tik buteliukas, be jokio kvadrato (kaip parfumada.lt) */
   --gold: #b08a3e;
+  /* Bėganti juosta pradžioje (kaip parfumada.lt): aukso gradientas, tamsus tekstas – 6,3:1 */
+  --mq-bg: linear-gradient(90deg, #b8974a 0%, #d8be74 50%, #b8974a 100%);
+  --mq-ink: #1a1a1a;
+  --mq-line: rgba(26, 26, 26, 0.18);
   --gold-soft: #f3ead8;
   --gold-ink: #6b4f16;
   --caps: 0.08em; /* didžiųjų raidžių tarpai (juostos, pavadinimai) */
