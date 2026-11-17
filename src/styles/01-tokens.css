@@ -82,7 +82,11 @@
   --heroAR: 1; /* v10: pradžios skaidrė telefone – kvadratas (kaip parfumada.lt), nuotrauka 1080 × 1080 */
   --heroH: 420px; /* skaidrės aukštis nuo 700 px (≥ 1024 px – 462 px, 09-desktop.css) */
   --r-photo: 5px; /* v10: prekės paveikslo kampai (karuselėse) */
-  --r-tileArt: 16px; /* v10: kategorijų plytelių paveikslo kampai */
+  --r-tileArt: 16px;
+  --r-cat: 22px; /* „Kategorijos“: didelės kortelės (iOS) */
+  --r-cat-list: 18px; /* „Kategorijos“: sugrupuotas sąrašas */
+  --elev-cat: 0 1px 2px rgba(0, 0, 0, 0.05), 0 10px 24px -14px rgba(0, 0, 0, 0.28);
+  --cat-sub: rgba(17, 17, 17, 0.68); /* paaiškinimas ant šviesios nuotraukos – ≥ 5:1 */ /* v10: kategorijų plytelių paveikslo kampai */
   --sale-bg: #ffe6e6; /* v10: „Akcija“ ženkliukas – švelniai rožinis, juodas tekstas (kaip parfumada.lt) */
   --lineSoft: #cccccc; /* v10: eilutės „… | Peržiūrėti“ linijos */
 

@@ -1,4 +1,4 @@
-// 10 – Pradžios puslapis (admin/pradzia): juosta virš header'io (12-topbar.js), skaidrės ir „Produktai“ plytelės su gyva peržiūra (telefonas / kompiuteris).
+// 10 – Pradžios puslapis (admin/pradzia): juosta virš header'io (12-topbar.js), skaidrės ir kategorijos su gyva peržiūra (telefonas / kompiuteris).
 // Skaidrė: rodoma / paslėpta, eilė, fonas – nuotrauka (kompiuteriui ir, nebūtinai, telefonui; spustelėjus nurodoma vieta,
 // kuri turi likti matoma) arba Vaidore scena su pasirinkto kvapo buteliukais; tekstai (tušti – iš šablono), mygtukas,
 // nuoroda, tekstas šviesus / tamsus. Plytelė: rodoma, eilė, pavadinimas, nuotrauka. Saugoma settings.slides / tiles /
@@ -31,7 +31,7 @@ async function renderHomeEditor(main, _param, seq) {
   HE.open = null;
   HE.openTile = null;
   HE.ready = false;
-  main.innerHTML = `${pageHead("Pradžios puslapis", "Juosta virš header'io, skaidrės ir „Produktai“ plytelės. Peržiūra – kaip pirkėjui, dar prieš išsaugant.")}
+  main.innerHTML = `${pageHead("Pradžios puslapis", "Juosta virš header'io, skaidrės ir kategorijos. Peržiūra – kaip pirkėjui, dar prieš išsaugant.")}
 <div class="heLayout">
 <div class="heEdit">
 ${topbarSectionHTML(S)}
@@ -42,8 +42,8 @@ ${topbarSectionHTML(S)}
     .map(([k, p]) => `<button class="btn ${k === "photo" ? "primary" : "ghost"} small" type="button" data-he-add="${k}">${glyph(k === "photo" ? "upload" : "plus")}${esc(p.name)}</button>`)
     .join("")}</div>
 </section>
-<section class="admCard"><h2>„Produktai“ plytelės</h2>
-<p class="admNote">Kategorijų plytelės po skaidrėmis: pavadinimas virš plytelės (kaip parfumada.lt), po juo – nuotrauka (4:5, 1000 × 1250). Be nuotraukos – Vaidore scena su tos grupės buteliukais. Ta pati nuotrauka rodoma ir grupės puslapio viršuje.</p>
+<section class="admCard"><h2>Kategorijos</h2>
+<p class="admNote">Skyrius po skaidrėmis. Moterims, Vyrams, Unisex – didelės kortelės su nuotrauka (4:5, 1200 × 1500; užrašas – viršuje kairėje, palikite ten ramų foną), kitos – sąrašas su miniatiūra. Be savos nuotraukos – Vaidore studijos nuotrauka (Moterims, Vyrams, Unisex, Mėginukai, Rinkiniai, Naujienos) arba scena.</p>
 <div class="heList" id="heTiles"></div>
 <div class="heAdd" id="heTileAdd"></div>
 </section>

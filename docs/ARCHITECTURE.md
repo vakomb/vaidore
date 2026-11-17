@@ -120,6 +120,14 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
+## „Kategorijos“ pradžioje (2026-11-17)
+
+Buvęs „Produktai“. Moterims · Vyrams · Unisex – didelės iOS stiliaus kortelės (22 px kampai, užrašas viršuje kairėje,
+kiekis, apvalus „›“; telefone dvi greta + trečia per visą plotį 2:1, nuo 700 px – trys eilėje 4:5). Kitos plytelės
+(Mėginukai, Rinkiniai, Naujienos, kategorijos) – sugrupuotas sąrašas su miniatiūra (kompiuteryje – kortelės eilėje).
+Nuotraukos – `img/kategorijos/<raktas>.webp` (+ `unisex-platus.webp`), kuriamos `python3 tools/make-categories.py`
+iš tikrų buteliukų (vienas studijos stilius). Administratoriaus įkelta nuotrauka pakeičia numatytąją.
+
 ## Juosta virš header'io (settings.topbar)
 
 Administravimas → Pradžia → „Juosta virš header'io“ (12-topbar.js, gyva peržiūra): žinutės (tekstas su `*paryškinimu*`,

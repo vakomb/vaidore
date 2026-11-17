@@ -1,6 +1,6 @@
 // 24 – Vaidore scenos: vieno stiliaus kompozicijos iš tikrų buteliukų be fono (img/kvapai/<id>-1.webp), 2 ml mėginukų
 // (img/meginukas.webp) ir CSS formų – arka, cilindras, blokas, diskas, juoda dovanų dėžutė su VAIDORE logotipu.
-// Naudoja: pradžios skaidrės (07-home), kategorijų plytelės „Produktai“ (07-home), katalogo antraštė (08-shop).
+// Naudoja: pradžios skaidrės (07-home), kategorijų plytelės be nuotraukos (07-home), katalogo antraštė (08-shop).
 // Išdėstymas ir spalvos – 12-stage.css ir 01-tokens.css (--st-*). Matai – „u“: 100u ≈ scenos aukštis
 // (siauroje ar žemoje scenoje kompozicija proporcingai sumažėja, todėl niekas nenukerpama ir niekas nepasislenka).
 //   [tipas, x, y, w|s, h, spalva]  x – centro poslinkis nuo kompozicijos ašies, y – apačia virš grindų,

@@ -1,5 +1,5 @@
 // 07 – Pradžia: skaidrės, bėganti juosta, produktų plytelės, karuselės, atsiliepimai (tik tikri).
-// Pradžia (kaip parfumada.lt): skaidrės (kolekcija · mėginukai · rinkinys) → bėganti privalumų juosta → „Produktai“
+// Pradžia (kaip parfumada.lt): skaidrės (kolekcija · mėginukai · rinkinys) → bėganti privalumų juosta → „Kategorijos“
 // (plytelės) → karuselės (naujienos, populiariausi moterims / vyrams / unisex, nuolaidos, mėginukai) → atsiliepimai.
 // Skyrių antraštės – tamsios juostos per visą plotį.
 const sampleFrom = () => Math.min(...PRODUCTS.map(p => p.sample));
@@ -97,11 +97,29 @@ function syncMarquee() {
   if (row) $("#homeMarquee").style.setProperty("--mqDur", `${Math.max(12, row.scrollWidth / 41).toFixed(1)}s`);
 }
 
-// Kategorijos plytelė (kaip parfumada.lt): pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis), po juo – paveikslas
-// 4:5 su apvalintais kampais (nuotrauka arba scena su tos grupės buteliukais – 24-stage.js).
-function tileHTML({ name, href, list, stage, image, focus, dark }) {
-  const bg = image ? photoHTML({ image, focus }, { cls: "tileStage" }) : stageHTML(stage, list, { cls: "tileStage" });
-  return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileName">${esc(name)}</span><span class="tileArt">${bg}</span></a>`;
+// „Kategorijos“ (iOS stiliaus): pagrindinės – Moterims · Vyrams · Unisex – didelės kortelės su nuotrauka ir užrašu
+// viršuje kairėje (telefone: dvi greta + Unisex per visą plotį; kompiuteryje – trys eilėje); kitos (Mėginukai, Rinkiniai,
+// Naujienos, kategorijos) – sugrupuotas sąrašas su miniatiūra, paaiškinimu ir „›“ (kompiuteryje – kortelės eilėje).
+function tileBg({ image, imageWide, focus, stage, list, wide }, cls) {
+  if (!image) return stageHTML(stage, list, { cls });
+  // Telefone per visą plotį (2:1) – plati versija, jei yra; kitaip ta pati nuotrauka, matoma vidurinė dalis
+  return photoHTML(wide && imageWide ? { image, imageM: imageWide, focus } : { image, focus, focusM: wide ? "50% 62%" : focus }, { cls });
+}
+function tileHTML(t) {
+  const cls = `tile ${t.primary ? "catCard" : "catRow"}${t.wide ? " wide" : ""}${t.dark ? " onDark" : ""}${t.image ? " hasPhoto" : ""}`;
+  return t.primary
+    ? `<a class="${cls}" href="${t.href}" data-nav><span class="tileArt">${tileBg(t, "tileStage")}</span><span class="catTxt"><span class="tileName">${esc(t.name)}</span>${
+        t.sub ? `<small>${esc(t.sub)}</small>` : ""
+      }</span><span class="catGo" aria-hidden="true">${glyph("chev-right")}</span></a>`
+    : `<a class="${cls}" href="${t.href}" data-nav><span class="tileArt">${tileBg({ ...t, imageWide: "" }, "tileStage")}</span><span class="catTxt"><span class="tileName">${esc(t.name)}</span>${
+        t.sub ? `<small>${esc(t.sub)}</small>` : ""
+      }</span><span class="chev" aria-hidden="true">${glyph("chev-right")}</span></a>`;
+}
+function catsHTML(tiles) {
+  const main = tiles.filter(t => t.primary);
+  const rest = tiles.filter(t => !t.primary);
+  const odd = main.length % 2 === 1;
+  return `${main.length ? `<div class="catMain n${main.length}">${main.map((t, i) => tileHTML({ ...t, wide: odd && i === main.length - 1 })).join("")}</div>` : ""}${rest.length ? `<div class="catList">${rest.map(tileHTML).join("")}</div>` : ""}`;
 }
 // Skyrius su juosta ir karusele (rodyklės ir „1/3“, kaip parfumada.lt)
 function railHTML(cards) {
@@ -162,7 +180,7 @@ function renderHome() {
   const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
   const of = g => byRank.filter(p => p.gender === g);
   const tiles = homeTiles();
-  $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
+  $("#homeTiles").innerHTML = catsHTML(tiles);
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 
   const sec = [

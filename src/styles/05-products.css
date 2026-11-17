@@ -243,65 +243,31 @@
 .secLine a:hover {
   color: var(--gold-ink);
 }
-.hsec > .wrap > .catTiles:first-child {
-  margin-top: 0;
+.hsec > .wrap > .cats:first-child {
+  margin-top: 18px;
 }
 .hsec > .wrap > .railWrap:first-child,
 .hsec > .wrap > .reviews:first-child {
   margin-top: 24px;
 }
 
-/* ── Kategorijų plytelės (kaip parfumada.lt): pavadinimas virš paveikslo (22,75 px / 700, didžiosiomis, juodas),
-   po juo – paveikslas 4:5 su 16 px kampais; telefone – slenkama eilė, kompiuteryje – visos vienoje eilėje ── */
-.catTiles {
+/* ── „Kategorijos“ (iOS stiliaus, minimalistinė): pagrindinės – didelės kortelės su nuotrauka, užrašas viršuje kairėje,
+   apvalus „›“ apačioje dešinėje (telefone – dvi greta, trečia per visą plotį 2:1; nuo 700 px – trys eilėje 4:5);
+   kitos – sugrupuotas sąrašas (miniatiūra 56 px, pavadinimas, paaiškinimas, „›“), kompiuteryje – kortelės eilėje ── */
+.cats {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 40%;
   gap: 12px;
-  margin: 0 calc(var(--pad) * -1);
-  padding: 2px var(--pad) 6px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding: 0 var(--pad);
-  scrollbar-width: none;
-}
-.catTiles::-webkit-scrollbar {
-  display: none;
 }
 .tile {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  color: #000;
-  scroll-snap-align: start;
-}
-.tileName {
-  display: block;
-  padding: 17px 0 16px;
-  overflow: hidden;
-  font-size: var(--tileFs, 22.75px);
-  font-weight: 700;
-  line-height: 30px;
-  letter-spacing: 0.03em;
-  text-align: center;
-  text-transform: uppercase;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #000;
-}
-.tile:hover .tileName {
-  text-decoration: underline;
-  text-underline-offset: 6px;
-  text-decoration-thickness: 2px;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
 }
 .tileArt {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--r-tileArt);
   overflow: hidden;
   background: var(--st-stone);
-  transition: transform 0.5s var(--spring);
 }
 .tile .scenePic::after {
   display: none;
@@ -313,8 +279,149 @@
   --uw: 0.84;
   --fl: 9cqh;
 }
-.tile:active {
-  transform: scale(var(--press));
+.tileStage img {
+  transition: transform 0.9s var(--ease-out, ease);
+}
+.catMain {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.catCard {
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-cat);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: var(--elev-cat);
+}
+.catCard.wide {
+  grid-column: 1 / -1;
+  aspect-ratio: 2 / 1;
+}
+.catCard .tileArt {
+  position: absolute;
+  inset: 0;
+}
+.catTxt {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 1;
+  display: grid;
+  gap: 3px;
+  pointer-events: none;
+}
+.catCard .tileName {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.catCard small {
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  color: var(--cat-sub);
+}
+.catCard.onDark .tileName {
+  color: #fff;
+}
+.catCard.onDark small {
+  color: rgba(255, 255, 255, 0.78);
+}
+.catGo {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  color: var(--ink);
+  transition: transform 0.42s var(--spring), background-color 0.2s ease;
+}
+.catGo svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2;
+}
+.catCard.onDark .catGo {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+@media (hover: hover) {
+  .catCard:hover .tileStage img {
+    transform: scale(1.035);
+  }
+  .catCard:hover .catGo {
+    transform: translateX(2px);
+  }
+}
+/* Sugrupuotas sąrašas (kaip iOS nustatymai): įtraukta skiriamoji linija nuo teksto */
+.catList {
+  border-radius: var(--r-cat-list);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--hair2, rgba(0, 0, 0, 0.08));
+  overflow: hidden;
+}
+.catRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  padding: 10px 14px 10px 10px;
+}
+.catRow + .catRow::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 80px;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.07);
+}
+.catRow .tileArt {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+}
+.catRow .catTxt {
+  position: static;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+}
+.catRow .tileName {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #000;
+}
+.catRow small {
+  font-size: 14.5px;
+  color: var(--ink3);
+}
+.catRow .chev {
+  display: grid;
+  color: var(--ink4);
+}
+.catRow .chev svg {
+  width: 20px;
+  height: 20px;
+}
+@media (hover: hover) {
+  .catRow:hover {
+    background: var(--bg-soft);
+  }
 }
 
 /* ── Buteliuko paveikslas (SVG) arba nuotrauka ── */
@@ -944,9 +1051,6 @@
   }
   .heroTitle {
     font-size: 34px;
-  }
-  .catTiles {
-    grid-auto-columns: 46%;
   }
 }
 
