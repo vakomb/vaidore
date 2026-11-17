@@ -1,4 +1,4 @@
-// 10 – Pradžios puslapis (admin/pradzia): skaidrės ir „Produktai“ plytelės su gyva peržiūra (telefonas / kompiuteris).
+// 10 – Pradžios puslapis (admin/pradzia): juosta virš header'io (12-topbar.js), skaidrės ir „Produktai“ plytelės su gyva peržiūra (telefonas / kompiuteris).
 // Skaidrė: rodoma / paslėpta, eilė, fonas – nuotrauka (kompiuteriui ir, nebūtinai, telefonui; spustelėjus nurodoma vieta,
 // kuri turi likti matoma) arba Vaidore scena su pasirinkto kvapo buteliukais; tekstai (tušti – iš šablono), mygtukas,
 // nuoroda, tekstas šviesus / tamsus. Plytelė: rodoma, eilė, pavadinimas, nuotrauka. Saugoma settings.slides / tiles /
@@ -31,9 +31,10 @@ async function renderHomeEditor(main, _param, seq) {
   HE.open = null;
   HE.openTile = null;
   HE.ready = false;
-  main.innerHTML = `${pageHead("Pradžios puslapis", "Skaidrės ir „Produktai“ plytelės. Peržiūra – kaip pirkėjui, dar prieš išsaugant.")}
+  main.innerHTML = `${pageHead("Pradžios puslapis", "Juosta virš header'io, skaidrės ir „Produktai“ plytelės. Peržiūra – kaip pirkėjui, dar prieš išsaugant.")}
 <div class="heLayout">
 <div class="heEdit">
+${topbarSectionHTML(S)}
 <section class="admCard"><div class="heSecHead"><h2>Skaidrės</h2><label class="heSecs">Keičiasi kas <input type="number" inputmode="numeric" min="0" max="30" value="${HE.secs}" data-he-secs aria-label="Sekundės" /> s</label></div>
 <p class="admNote">Rodoma iš eilės, pirmoji – svarbiausia. Nuotrauka – kompiuteriui plati (2880 × 934), telefonui – kvadratinė (1080 × 1080; nebūtina – nėra, naudojama ta pati). „Tik nuotrauka“ – be jokių užrašų ant jos. 0 s – skaidrės nesikeičia pačios.</p>
 <div class="heList" id="heSlides"></div>
@@ -42,7 +43,7 @@ async function renderHomeEditor(main, _param, seq) {
     .join("")}</div>
 </section>
 <section class="admCard"><h2>„Produktai“ plytelės</h2>
-<p class="admNote">Kategorijų plytelės po skaidrėmis – tik nuotrauka (4:5, 1000 × 1250), pavadinimas turi būti pačioje nuotraukoje. Be nuotraukos – Vaidore scena su tos grupės buteliukais. Ta pati nuotrauka rodoma ir grupės puslapio viršuje.</p>
+<p class="admNote">Kategorijų plytelės po skaidrėmis: pavadinimas virš plytelės (kaip parfumada.lt), po juo – nuotrauka (4:5, 1000 × 1250). Be nuotraukos – Vaidore scena su tos grupės buteliukais. Ta pati nuotrauka rodoma ir grupės puslapio viršuje.</p>
 <div class="heList" id="heTiles"></div>
 <div class="heAdd" id="heTileAdd"></div>
 </section>
@@ -59,10 +60,11 @@ async function renderHomeEditor(main, _param, seq) {
   paintTiles();
   fitFrame();
   bindHomeEditor(main);
+  bindTopbar(main);
 }
 
 // ── Peržiūra ──────────────────────────────────────────
-const draft = () => ({ slides: HE.slides, tiles: HE.tiles, slideSeconds: HE.secs });
+const draft = () => ({ slides: HE.slides, tiles: HE.tiles, slideSeconds: HE.secs, ...(TB.cfg ? { topbar: topbarData() } : {}) });
 let previewT = 0;
 function sendPreview(extra = {}) {
   clearTimeout(previewT);
@@ -445,12 +447,16 @@ async function saveHome() {
     if (s.bg === "photo" && !s.image) problems.push(`${i + 1} skaidrė: įkelkite nuotrauką arba pasirinkite „Vaidore scena“`);
     if (s.href && /^(https?:)?\/\//.test(s.href) && !/^https:\/\//.test(s.href)) problems.push(`${i + 1} skaidrė: nuoroda turi prasidėti https://`);
   });
+  if (TB.cfg && topbarData().on !== false && !topbarData().items.some(x => x.on !== false)) problems.push("Juosta virš header'io: įjunkite bent vieną žinutę arba išjunkite juostą");
+  TB.cfg?.items.forEach((x, i) => {
+    if (x.href && /^(https?:)?\/\//.test(x.href) && !/^https:\/\//.test(x.href)) problems.push(`${i + 1} žinutė: nuoroda turi prasidėti https://`);
+  });
   err.hidden = !problems.length;
   err.textContent = problems.join(" · ");
   if (problems.length) return;
   const slides = HE.slides.map(({ bg, ...s }) => ({ ...s, ...(s.image ? {} : { focus: undefined, focusM: undefined }) }));
   const [cur] = (await sbRest("settings?select=data&id=eq.1")) || [];
-  const data = { ...(cur?.data || VD.SET), slides: clone(slides), tiles: clone(HE.tiles), slideSeconds: HE.secs };
+  const data = { ...(cur?.data || VD.SET), slides: clone(slides), tiles: clone(HE.tiles), slideSeconds: HE.secs, topbar: topbarData() };
   const saved = await sbRest("settings?id=eq.1", { method: "PATCH", body: { data }, prefer: "return=representation" });
   if (!saved?.length) throw new Error("Nustatymų įrašo nėra – paleiskite supabase/seed.sql");
   await catalogChanged("Pradžios puslapis išsaugotas");

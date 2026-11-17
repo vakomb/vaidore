@@ -4,19 +4,70 @@
 // fokusuojant ir jei įjungtas „mažiau judesio“). Visos žinutės – tikri parduotuvės nustatymai.
 // Juostos aukštis fiksuotas (--noteH), tekstas – iki 2 eilučių (v10, kaip parfumada.lt): kiekviena žinutė turi ilgą
 // ir trumpą variantą; jei ilgas netelpa (siauras telefonas, nuo 360 px), rodomas trumpesnis.
+// Visa juosta valdoma administravime (Pradžia → „Juosta virš header'io“), settings.topbar:
+//   { on, seconds, arrows, anim: "slide" | "fade" | "none",
+//     items: [{ id, on, text, short, href }]  – tekste *žodis* paryškinamas (akcento spalva); short – trumpesnis variantas,
+//                                              rodomas, jei ilgas netelpa; href – nuoroda (santykinė arba https://)
+//     style: { bg, bg2, grad: "solid" | "lr" | "mid", color, accent, fs, fsD, weight, ls, upper, h, hD, line } }
+//   Nėra items – automatinės žinutės iš parduotuvės nustatymų (žemiau). Visos reikšmės – CSS kintamieji ant #topNote.
 const note = { i: 0, t: 0, paused: false };
-function noteMessages() {
+const fmtNote = t => esc(t).replace(/\*([^*]+)\*/g, "<b>$1</b>");
+// Numatytosios žinutės (tikri nustatymai) – tokiu pat formatu kaip administravime
+function autoNoteItems() {
   const free = eurShort(SET.freeShippingFrom);
   const sample = eur(Math.min(...PRODUCTS.map(p => p.sample)));
-  const days = esc(SET.dispatch || "1–2 d. d.");
+  const days = SET.dispatch || "1–2 d. d.";
   const ret = `${SET.returnDays || 14} d.`;
   return [
-    [`Nemokamas pristatymas nuo <b>${free}</b>`, `Nemokamas pristatymas nuo <b>${free}</b>`, `Nemokamai nuo <b>${free}</b>`],
-    [`Kiekvieną kvapą – ir <b>2 ml mėginuku</b> nuo ${sample}`, `<b>2 ml mėginukai</b> nuo ${sample}`, `Mėginukai nuo <b>${sample}</b>`],
-    [`Išsiunčiame per <b>${days}</b> · Omniva ir DPD`, `Išsiunčiame per <b>${days}</b>`, `Išsiunčiame per <b>${days}</b>`],
-    SET.sampleCredit ? [`Mėginukų kainą <b>grąžiname</b> perkant buteliuką`, `Mėginuko kainą <b>grąžiname</b>`, `Mėginuko kaina <b>grąžinama</b>`] : null,
-    [`Grąžinimas per <b>${ret}</b> · Saugus apmokėjimas`, `Grąžinimas per <b>${ret}</b>`, `Grąžinimas per <b>${ret}</b>`]
+    { id: "free", text: `Nemokamas pristatymas nuo *${free}*`, short: `Nemokamai nuo *${free}*` },
+    { id: "samples", text: `Kiekvieną kvapą – ir *2 ml mėginuku* nuo ${sample}`, short: `*2 ml mėginukai* nuo ${sample}` },
+    { id: "dispatch", text: `Išsiunčiame per *${days}* · Omniva ir DPD`, short: `Išsiunčiame per *${days}*` },
+    SET.sampleCredit ? { id: "credit", text: `Mėginukų kainą *grąžiname* perkant buteliuką`, short: `Mėginuko kainą *grąžiname*` } : null,
+    { id: "returns", text: `Grąžinimas per *${ret}* · Saugus apmokėjimas`, short: `Grąžinimas per *${ret}*` }
   ].filter(Boolean);
+}
+const topbarCfg = () => SET.topbar || {};
+const noteItems = () => {
+  const c = topbarCfg();
+  const list = Array.isArray(c.items) ? c.items : autoNoteItems();
+  return list.filter(x => x && x.on !== false && String(x.text || "").trim());
+};
+// Žinutė → HTML variantai (ilgas, trumpas); su nuoroda – visa žinutė paspaudžiama
+function noteMessages() {
+  return noteItems().map(x => {
+    const wrap = h => {
+      if (!x.href) return h;
+      const ext = /^https?:\/\//.test(x.href);
+      return `<a href="${esc(x.href)}"${ext ? ' target="_blank" rel="noopener"' : " data-nav"}>${h}</a>`;
+    };
+    return [x.text, x.short].filter(t => String(t || "").trim()).map(t => wrap(fmtNote(t)));
+  });
+}
+// Stilius → CSS kintamieji (tušti – numatytieji iš 01-tokens.css)
+function applyTopbarStyle() {
+  const bar = $("#topNote");
+  if (!bar) return;
+  const c = topbarCfg();
+  const st = c.style || {};
+  const set = (k, v) => (v === "" || v == null ? bar.style.removeProperty(k) : bar.style.setProperty(k, String(v)));
+  const hex = v => (/^#[0-9a-f]{6}$/i.test(v || "") ? v : "");
+  const bg = hex(st.bg);
+  const bg2 = hex(st.bg2) || bg;
+  set("--nbg", !bg ? "" : st.grad === "lr" ? `linear-gradient(90deg, ${bg} 0%, ${bg2} 100%)` : st.grad === "mid" ? `linear-gradient(90deg, ${bg} 0%, ${bg2} 50%, ${bg} 100%)` : bg);
+  set("--nfg", hex(st.color));
+  set("--nacc", hex(st.accent));
+  const num = (v, lo, hi) => (v === "" || v == null || !isFinite(v) ? "" : Math.min(hi, Math.max(lo, Number(v))));
+  set("--nfs", num(st.fs, 10, 30) !== "" ? `${num(st.fs, 10, 30)}px` : "");
+  set("--nfsd", num(st.fsD, 10, 30) !== "" ? `${num(st.fsD, 10, 30)}px` : "");
+  set("--nw", num(st.weight, 300, 800));
+  set("--nls", num(st.ls, 0, 0.3) !== "" ? `${num(st.ls, 0, 0.3)}em` : "");
+  set("--ntt", st.upper ? "uppercase" : "");
+  set("--nh", num(st.h, 30, 110) !== "" ? `${num(st.h, 30, 110)}px` : "");
+  set("--nhd", num(st.hD, 30, 110) !== "" ? `${num(st.hD, 30, 110)}px` : "");
+  bar.classList.toggle("line", !!st.line);
+  bar.classList.toggle("noArrows", c.arrows === false);
+  bar.dataset.anim = c.anim || "slide";
+  bar.hidden = c.on === false || !noteItems().length;
 }
 // Įrašo ilgiausią telpantį variantą (ne daugiau kaip 2 eilutės)
 function fitNote() {
@@ -30,32 +81,37 @@ function fitNote() {
 }
 function showNote(step = 0) {
   const msgs = noteMessages();
+  if (!msgs.length) return;
   note.i = (note.i + step + msgs.length) % msgs.length;
   const el = $("#topNoteTxt");
   el.classList.remove("in");
   void el.offsetWidth;
   fitNote();
-  el.classList.add("in");
+  if (($("#topNote").dataset.anim || "slide") !== "none") el.classList.add("in");
 }
 window.addEventListener("resize", () => {
   clearTimeout(note.r);
   note.r = setTimeout(fitNote, 120);
 });
 function renderTopNote() {
+  applyTopbarStyle();
+  note.i = Math.min(note.i, Math.max(0, noteMessages().length - 1));
   showNote(0);
   const bar = $("#topNote");
-  if (bar.dataset.bound) return;
-  bar.dataset.bound = "1";
-  bar.addEventListener("click", e => {
-    const b = e.target instanceof Element && e.target.closest("[data-note-step]");
-    if (b) showNote(Number(b.dataset.noteStep));
-  });
-  bar.addEventListener("mouseenter", () => (note.paused = true));
-  bar.addEventListener("mouseleave", () => (note.paused = false));
-  bar.addEventListener("focusin", () => (note.paused = true));
-  bar.addEventListener("focusout", () => (note.paused = false));
+  if (!bar.dataset.bound) {
+    bar.dataset.bound = "1";
+    bar.addEventListener("click", e => {
+      const b = e.target instanceof Element && e.target.closest("[data-note-step]");
+      if (b) showNote(Number(b.dataset.noteStep));
+    });
+    bar.addEventListener("mouseenter", () => (note.paused = true));
+    bar.addEventListener("mouseleave", () => (note.paused = false));
+    bar.addEventListener("focusin", () => (note.paused = true));
+    bar.addEventListener("focusout", () => (note.paused = false));
+  }
   clearInterval(note.t);
-  if (!reduceMotion()) note.t = setInterval(() => !note.paused && !document.hidden && showNote(1), 5000);
+  const secs = Number(topbarCfg().seconds ?? 5);
+  if (!reduceMotion() && secs > 0 && noteMessages().length > 1) note.t = setInterval(() => !note.paused && !document.hidden && showNote(1), secs * 1000);
 }
 // Kompiuteryje – antra header'io eilutė (tamsi juosta su kategorijomis). v10 (kaip parfumada.lt): 16 px / 700,
 // „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“, kad visos nuorodos tilptų vienoje eilutėje.

@@ -40,32 +40,62 @@
 
 /* Informacinė juosta – tamsi, žinutės keičiasi (21-header.js), rodyklės kraštuose. v10 (kaip parfumada.lt):
    telefone 66 px, 19,5 px tekstas iki 2 eilučių; kompiuteryje 49 px (09-desktop.css). Aukštis fiksuotas. */
+/* Juosta virš header'io – visos reikšmės keičiamos administravime (settings.topbar → CSS kintamieji --n…, 21-header.js);
+   numatytosios – žemiau (tamsi, 19,5 px; kompiuteryje 17 px, 49 px) */
 .topNote {
+  --noteFsNow: var(--nfs, var(--noteFs));
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
-  height: var(--noteH);
+  height: var(--nh, var(--noteH));
   overflow: hidden;
-  background: var(--band);
-  color: rgba(255, 255, 255, 0.75);
+  background: var(--nbg, var(--band));
+  color: var(--nfg, rgba(255, 255, 255, 0.75));
+}
+.topNote[hidden] {
+  display: none;
+}
+.topNote.line {
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+.topNote.noArrows {
+  grid-template-columns: 12px minmax(0, 1fr) 12px;
+}
+.topNote.noArrows .noteArrow {
+  visibility: hidden;
 }
 .noteTrack {
   min-width: 0;
-  max-height: calc(var(--noteFs) * 1.3 * 2);
+  max-height: calc(var(--noteFsNow) * 1.3 * 2);
   overflow: hidden;
-  font-size: var(--noteFs);
-  font-weight: 400;
+  font-size: var(--noteFsNow);
+  font-weight: var(--nw, 400);
   line-height: 1.3;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--nls, 0.04em);
+  text-transform: var(--ntt, none);
   text-align: center;
   text-wrap: balance;
 }
 .noteTrack b {
-  font-weight: 600;
-  color: #fff;
+  font-weight: max(600, var(--nw, 400));
+  color: var(--nacc, #fff);
+}
+.noteTrack a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 .noteTrack.in {
   animation: vdNoteIn 0.45s var(--spring) both;
+}
+.topNote[data-anim="fade"] .noteTrack.in {
+  animation: vdNoteFade 0.5s ease both;
+}
+@keyframes vdNoteFade {
+  from {
+    opacity: 0;
+  }
 }
 @keyframes vdNoteIn {
   from {
@@ -75,13 +105,14 @@
 }
 .noteArrow {
   width: 44px;
-  height: var(--noteH);
+  height: var(--nh, var(--noteH));
   display: grid;
   place-items: center;
-  color: rgba(255, 255, 255, 0.75);
+  color: inherit;
+  opacity: 0.85;
 }
 .noteArrow:hover {
-  color: #fff;
+  opacity: 1;
 }
 .noteArrow svg {
   width: 18px;

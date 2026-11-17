@@ -198,13 +198,15 @@ if (PREVIEW) {
     if (e.origin !== location.origin || e.data?.type !== "vd-home-preview") return;
     window.__vdPreviewSet = e.data.settings || {}; // setCatalog() jį pritaiko ir po katalogo atnaujinimo
     Object.assign(SET, window.__vdPreviewSet);
+    if ("topbar" in window.__vdPreviewSet) renderTopNote();
     if (ui.view === "home") {
       const rail = $("#homeHero .heroRail");
       const i = Number(e.data.slide);
       renderHome();
       const r = $("#homeHero .heroRail");
       if (r && i >= 0) r.scrollLeft = i * r.clientWidth;
-      if (e.data.scroll === "tiles") $("#homeTiles")?.scrollIntoView({ block: "center" });
+      if (e.data.scroll === "top") window.scrollTo(0, 0);
+      else if (e.data.scroll === "tiles") $("#homeTiles")?.scrollIntoView({ block: "center" });
       else if (!rail) window.scrollTo(0, 0);
     }
   });

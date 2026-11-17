@@ -120,6 +120,15 @@ Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu a
 `settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
 „Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
 
+## Juosta virš header'io (settings.topbar)
+
+Administravimas → Pradžia → „Juosta virš header'io“ (12-topbar.js, gyva peržiūra): žinutės (tekstas su `*paryškinimu*`,
+trumpas variantas siauram telefonui, nuoroda, rodoma / paslėpta, eilė), 7 paruošti dizainai + savos spalvos (fonas,
+gradientas → / ↔, tekstas, paryškintas tekstas), šriftas telefone / kompiuteryje, storis, tarpai tarp raidžių,
+DIDŽIOSIOS, aukštis telefone / kompiuteryje, linija apačioje, keitimosi laikas, animacija, rodyklės, įjungta / išjungta.
+Kontrastas tikrinamas (≥ 4,5:1). Svetainėje – CSS kintamieji `--nbg --nfg --nacc --nfs --nfsd --nw --nls --ntt --nh --nhd`
+ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės žinutės iš nustatymų (`autoNoteItems`).
+
 ## v11: dar arčiau parfumada.lt (2026-11-17)
 
 - Plytelės: pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis; kompiuteryje 23,4 px), administravime – „Pavadinimas“.
