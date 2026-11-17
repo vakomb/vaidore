@@ -61,7 +61,7 @@ const TILE_ICO = {
   moterims:
     '<svg viewBox="0 0 48 48"><circle cx="24" cy="19" r="7.5" fill="#F9A8C0"/><circle cx="17" cy="23" r="7" fill="#F48FB1"/><circle cx="31" cy="23" r="7" fill="#F48FB1"/><circle cx="20.5" cy="29.5" r="7" fill="#EC6F9A"/><circle cx="27.5" cy="29.5" r="7" fill="#EC6F9A"/><circle cx="24" cy="25" r="4.2" fill="#FDE68A"/><path d="M24 36v8" stroke="#4CA867" stroke-width="2.6" stroke-linecap="round"/></svg>',
   vyrams:
-    '<svg viewBox="0 0 48 48"><rect x="18" y="5" width="12" height="9" rx="2" fill="#1E293B"/><rect x="21" y="13" width="6" height="4" fill="#94A3B8"/><rect x="10" y="17" width="28" height="27" rx="5" fill="#BFD4EE"/><rect x="13" y="24" width="22" height="17" rx="3" fill="#4C78B8"/><rect x="13.5" y="19.5" width="3" height="20" rx="1.5" fill="#fff" fill-opacity=".7"/><rect x="17" y="29" width="14" height="6" rx="1.5" fill="#fff" fill-opacity=".9"/></svg>',
+    '<svg viewBox="0 0 48 48"><rect x="18" y="5" width="12" height="9" rx="2" fill="#262626"/><rect x="21" y="13" width="6" height="4" fill="#a3a3a3"/><rect x="10" y="17" width="28" height="27" rx="5" fill="#BFD4EE"/><rect x="13" y="24" width="22" height="17" rx="3" fill="#4C78B8"/><rect x="13.5" y="19.5" width="3" height="20" rx="1.5" fill="#fff" fill-opacity=".7"/><rect x="17" y="29" width="14" height="6" rx="1.5" fill="#fff" fill-opacity=".9"/></svg>',
   unisex:
     '<svg viewBox="0 0 48 48"><circle cx="19" cy="24" r="12" fill="#A5B4FC" fill-opacity=".9"/><circle cx="29" cy="24" r="12" fill="#F0ABFC" fill-opacity=".8"/><path d="M24 13.6a12 12 0 0 1 0 20.8 12 12 0 0 1 0-20.8z" fill="#C084FC"/><circle cx="24" cy="24" r="2.6" fill="#fff"/></svg>',
   meginukai:

@@ -14,11 +14,6 @@
   .rail {
     grid-auto-columns: calc((100% - 2 * 18px) / 3);
     gap: 18px;
-    padding: 2px var(--pad) 8px;
-    scroll-padding: 0 var(--pad);
-  }
-  .rail .card {
-    scroll-snap-align: start;
   }
   .moods {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -102,12 +97,9 @@
   .ftrBottom {
     grid-column: 1 / -1;
   }
-  .pageHead h1 {
-    font-size: 52px;
-  }
   .empty h1,
   .empty h2 {
-    font-size: 48px;
+    font-size: 36px;
   }
   .drawer {
     width: min(460px, 100vw);
@@ -115,20 +107,27 @@
   .ftrCols {
     gap: 26px 28px;
   }
-  .secHead h2 {
-    font-size: 27px;
+  :root {
+    --fs-h1: 44px;
+    --fs-h2: 28px;
+  }
+  .perks {
+    padding: 16px var(--pad);
+  }
+  .perks li {
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
   }
   .sec {
     margin-top: 64px;
   }
   .hsec {
-    margin-top: 44px;
-  }
-  .marquee + .hsec {
-    margin-top: 0;
+    margin-top: 64px;
   }
   .pdH1 {
-    font-size: 40px;
+    font-size: 32px;
   }
   /* Langai – centre, ne iš apačios */
   .backdrop {
@@ -195,14 +194,19 @@
     background: var(--band);
   }
   .hdrNavIn {
-    max-width: var(--maxW);
+    max-width: none;
     margin: 0 auto;
     padding: 0 var(--pad);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: safe center;
     gap: 4px;
     min-height: 48px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .hdrNavIn::-webkit-scrollbar {
+    display: none;
   }
   .hdrNav a,
   .hdrNav button {
@@ -318,16 +322,13 @@
   .tileTxt {
     padding-top: 20px;
   }
-  /* Karuselė – 3 didelės kortelės (kaip parfumada), rodyklės ir „1/3“ */
+  /* Karuselė – 4 kortelės, rodyklės ir „1/3“ */
   .rail {
-    grid-auto-columns: calc((100% - 2 * 16px) / 3);
-    gap: 16px;
+    grid-auto-columns: calc((100% - 3 * 20px) / 4);
+    gap: 20px;
     margin: 0;
     padding: 2px 0 8px;
     scroll-padding: 0;
-  }
-  .rail .cardName {
-    font-size: 23.4px;
   }
   .railNav {
     margin-top: 14px;
@@ -378,7 +379,16 @@
     }
   }
   .cardName {
-    font-size: 17px;
+    font-size: 16px;
+  }
+  .cardInsp {
+    font-size: 13.5px;
+  }
+  .cardNotes {
+    font-size: 12px;
+  }
+  .cardPrice {
+    font-size: 16.5px;
   }
 
   /* Katalogas: filtrai kairėje (išskleidžiamos grupės), viršuje – paieška, kiekis ir rūšiavimas */
@@ -436,7 +446,7 @@
     padding-top: 4px;
   }
   .pdH1 {
-    font-size: 46px;
+    font-size: 36px;
   }
   .buyBar {
     display: none;
@@ -461,6 +471,28 @@
   }
   .cartSide .sum {
     margin-top: 8px;
+  }
+}
+/* 1024–1599 px – meniu punktai glaudžiau, kad tilptų visi (iki 1279 px – be „Apie mus“, jis poraštėje ir meniu) */
+@media (min-width: 1024px) and (max-width: 1599px) {
+  .hdrNav a,
+  .hdrNav button {
+    padding: 0 8px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  .hdrNav a::after,
+  .hdrNav button::after {
+    left: 8px;
+    right: 8px;
+  }
+  .hdrNavIn {
+    padding: 0 16px;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hdrNav a[href="apie-mus"] {
+    display: none;
   }
 }
 @media (min-width: 1400px) {

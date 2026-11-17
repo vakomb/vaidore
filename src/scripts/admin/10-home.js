@@ -115,7 +115,7 @@ function slideRow(s, i) {
 <div class="heRow">
 <button class="heRowMain" type="button" data-he-open aria-expanded="${open}">${thumbHTML(r.stage, r.list || [], s.image, s.focus)}<span class="heRowTxt"><b>${i + 1}. ${esc(r.title || "Be pavadinimo")}</b><small>${esc(preset.name)} · ${
     s.image ? "nuotrauka" : "scena"
-  }${s.on === false ? " · paslėpta" : ""}</small></span></button>
+  }${s.textless ? " · be teksto" : ""}${s.on === false ? " · paslėpta" : ""}</small></span></button>
 <div class="heRowActs"><button class="roundBtn" type="button" data-he-move="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-he-move="1" aria-label="Žemiau"${attr(
     i === HE.slides.length - 1,
     "disabled"
@@ -147,7 +147,8 @@ function slideFormHTML(s, r) {
 ${
   s.image || s.bg === "photo"
     ? `<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, ~2400 × 1000", s.image, s.focus)}${imgZone("imageM", "Telefonui (nebūtina)", "stati, ~1200 × 1500", s.imageM, s.focusM)}</div>
-<div class="seg heSeg" role="tablist" aria-label="Tekstas"><button type="button" role="tab" data-he-dark="0" aria-selected="${!s.dark}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!s.dark}">Baltas tekstas</button></div>`
+<div class="seg heSeg heSeg3" role="tablist" aria-label="Tekstas ant nuotraukos"><button type="button" role="tab" data-he-dark="0" aria-selected="${!s.dark && !s.textless}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!s.dark && !s.textless}">Baltas tekstas</button><button type="button" role="tab" data-he-textless aria-selected="${!!s.textless}">Be teksto</button></div>
+${s.textless ? `<p class="admNote">Tekstas – pačioje nuotraukoje: svetainė jo neuždeda, visa skaidrė veda nuoroda. Pavadinimas žemiau – tik skaitytuvams ir šiam sąrašui.</p>` : ""}`
     : `<label class="field"><span>Kompozicija</span><select name="scene">${Object.keys(SCENE_NAMES)
         .map(k => `<option value="${k}"${sel((s.scene || d.scene) === k)}>${SCENE_NAMES[k]}</option>`)
         .join("")}</select></label>`
@@ -301,12 +302,18 @@ function bindHomeEditor(main) {
         x.bg = "scene";
         delete x.image;
         delete x.imageM;
+        delete x.textless;
       } else x.bg = "photo";
+      return changed({ repaint: "slides", slide: it.i });
+    }
+    if (t.closest("[data-he-textless]")) {
+      x.textless = true;
       return changed({ repaint: "slides", slide: it.i });
     }
     const dk = t.closest("[data-he-dark]");
     if (dk) {
       x.dark = dk.dataset.heDark === "1";
+      delete x.textless;
       return changed({ repaint: it.kind, slide: isSlide ? it.i : null, scroll: isSlide ? "" : "tiles" });
     }
     const rm = t.closest("[data-he-rmimg]");

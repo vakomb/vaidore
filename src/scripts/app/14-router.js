@@ -30,6 +30,9 @@ function matchRoute(path) {
 function showView(name) {
   $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === name));
   ui.view = name;
+  // Apatinė juosta (telefone): aktyvi skiltis
+  const tab = { home: "home", shop: "shop", product: "shop", fav: "fav", cart: "cart" }[name] || "";
+  $$("#tabbar [data-tab]").forEach(t => (t.dataset.tab === tab ? t.setAttribute("aria-current", "page") : t.removeAttribute("aria-current")));
 }
 const TITLES = { home: null, cart: "Krepšelis", fav: "Mėgstami", account: "Paskyra", admin: "Administravimas", 404: "Puslapis nerastas" };
 function route({ restoreY = null } = {}) {
@@ -94,7 +97,7 @@ function renderFav() {
   $("#favSub").textContent = list.length ? plural(list.length, "kvapas", "kvapai", "kvapų") : "";
   $("#favGrid").innerHTML = list.length
     ? list.map(p => cardHTML(p)).join("")
-    : `<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 84 84" fill="none" stroke="#94A3B8" stroke-width="2.2" stroke-linejoin="round"><path d="M42 68S16 53 16 34a13.5 13.5 0 0 1 26-5 13.5 13.5 0 0 1 26 5c0 19-26 34-26 34z"/></svg><h3>Dar nieko nepažymėjote</h3><p>Spauskite širdelę ant kvapo – jis atsiras čia${
+    : `<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 84 84" fill="none" stroke="#a3a3a3" stroke-width="2.2" stroke-linejoin="round"><path d="M42 68S16 53 16 34a13.5 13.5 0 0 1 26-5 13.5 13.5 0 0 1 26 5c0 19-26 34-26 34z"/></svg><h3>Dar nieko nepažymėjote</h3><p>Spauskite širdelę ant kvapo – jis atsiras čia${
         auth.user ? "" : ". Prisijungę matysite mėgstamus visuose įrenginiuose"
       }.</p><a class="btn primary" href="kvepalai" data-nav>Į katalogą</a></div>`;
 }

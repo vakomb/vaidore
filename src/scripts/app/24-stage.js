@@ -118,6 +118,13 @@ function categoryStageName(id) {
   const i = Math.max(0, visibleCategories().findIndex(c => c.id === id));
   return STAGE_CYCLE[i % STAGE_CYCLE.length];
 }
+// Buteliuko paveikslas scenai – visada BE fono: kvapo nuotrauka, jei ji pati be fono (img/kvapai/<id>-1.webp), kitaip –
+// tokia pati iš repozitorijos (surinkimas įrašo sąrašą į VAIDORE_CUTOUTS), kitaip – nupieštas buteliukas.
+const BOTTLE_CUTOUTS = new Set(window.VAIDORE_CUTOUTS || []);
+function cutoutOf(p) {
+  const own = (p.images || []).find(x => /(^|\/)img\/kvapai\/[a-z0-9-]+-1\.webp$/.test(x));
+  return own || (BOTTLE_CUTOUTS.has(p.id) ? `img/kvapai/${p.id}-1.webp` : "");
+}
 // list – kvapai, kurių buteliukai rodomi (n-tas elementas – ["b", …, n]); eager – pirmo ekrano scena (be lazy)
 function stageHTML(name, list, { eager = false, cls = "" } = {}) {
   const st = STAGES[name] || STAGES.unisex;
@@ -129,7 +136,8 @@ function stageHTML(name, list, { eager = false, cls = "" } = {}) {
       if (t === "b") {
         const p = ps.length ? ps[b % ps.length] : null;
         if (!p) return "";
-        const art = p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="" ${load} />` : bottleSVG(p);
+        const src = cutoutOf(p);
+        const art = src ? `<img src="${esc(src)}" alt="" ${load} />` : bottleSVG(p);
         return `<span class="sb" style="${pos(x, y)};--s:${a}">${art}</span>`;
       }
       if (t === "v") return `<span class="sv" style="${pos(x, y)};--s:${a}"><img src="img/meginukas.webp" alt="" ${load} /></span>`;

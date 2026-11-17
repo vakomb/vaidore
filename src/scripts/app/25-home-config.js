@@ -1,6 +1,6 @@
 // 25 – Pradžios puslapio turinys iš nustatymų (keičiamas administravimo skydelyje „Pradžia“, admin/pradzia):
 //   settings.slides  – skaidrės (eilė = rodymo tvarka): { id, on, preset, image, imageM, focus, focusM, scene, product,
-//                      eyebrow, title, text, cta, href, dark }. Nėra lauko – rodomos numatytosios trys (DEFAULT_SLIDES).
+//                      eyebrow, title, text, cta, href, dark, textless }. Nėra lauko – rodomos numatytosios trys (DEFAULT_SLIDES).
 //                      Tušti tekstai imami iš šablono (preset): kainos ir pavadinimai visada tikri.
 //   settings.tiles   – „Produktai“ plytelės: { key, on, title, image, focus, dark }; key – moterims / vyrams / unisex /
 //                      meginukai / rinkinys / naujienos / kat-<kategorijos id>. Nėra lauko – numatytosios šešios.
@@ -81,7 +81,8 @@ function resolveSlide(s) {
     imageM: s.imageM || "",
     focus: s.focus || "50% 50%",
     focusM: s.focusM || s.focus || "50% 50%",
-    dark: !!s.dark
+    dark: !!s.dark,
+    textless: !!(s.textless && s.image) // tekstas – pačioje nuotraukoje: svetainė savo teksto neuždeda
   };
 }
 function homeSlides() {

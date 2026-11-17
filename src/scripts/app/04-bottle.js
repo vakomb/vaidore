@@ -5,7 +5,7 @@ let bottleSeq = 0;
 const CAP_TONES = {
   gold: ["#F6E7B4", "#D4AF5A", "#9C7A2E"],
   black: ["#4B5563", "#1F2937", "#0B0F17"],
-  silver: ["#F8FAFC", "#C3CCD8", "#7C8796"],
+  silver: ["#fafafa", "#C3CCD8", "#7C8796"],
   wood: ["#D2AE87", "#94694A", "#5C3D25"]
 };
 const BOTTLE_SHAPES = {
@@ -45,8 +45,8 @@ function bottleSVG(p, cls = "") {
 <linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".25" stop-color="#fff" stop-opacity=".12"/><stop offset=".8" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#fff" stop-opacity=".4"/></linearGradient>
 <clipPath id="${id}k"><rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${br}"/></clipPath>
 </defs>
-<ellipse cx="60" cy="${by + bh + 3}" rx="${bw * 0.46}" ry="4" fill="#0F172A" fill-opacity=".1"/>
-<rect x="${nx}" y="${ny}" width="${nw}" height="${nh + 4}" rx="2" fill="#E7EBF1" stroke="#0F172A" stroke-opacity=".12"/>
+<ellipse cx="60" cy="${by + bh + 3}" rx="${bw * 0.46}" ry="4" fill="#111111" fill-opacity=".1"/>
+<rect x="${nx}" y="${ny}" width="${nw}" height="${nh + 4}" rx="2" fill="#E7EBF1" stroke="#111111" stroke-opacity=".12"/>
 <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${br}" fill="#fff" fill-opacity=".55"/>
 <g clip-path="url(#${id}k)">
 <rect x="${bx}" y="${fillTop}" width="${bw}" height="${by + bh - fillTop}" fill="url(#${id}l)" fill-opacity=".92"/>
@@ -58,10 +58,10 @@ function bottleSVG(p, cls = "") {
 <rect x="${bx + 14}" y="${by + 12}" width="1.6" height="${bh * 0.42}" rx=".8" fill="#fff" fill-opacity=".45"/>
 <rect x="${bx + bw - 8}" y="${by + 14}" width="2.2" height="${bh - 40}" rx="1.1" fill="#fff" fill-opacity=".3"/>
 </g>
-<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${br}" fill="none" stroke="#0F172A" stroke-opacity=".12"/>
+<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${br}" fill="none" stroke="#111111" stroke-opacity=".12"/>
 <rect x="${labX}" y="${labY}" width="${labW}" height="27" rx="3" fill="#fff" fill-opacity=".9"/>
-<text x="60" y="${labY + 10.2}" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-size="4.6" letter-spacing="1.5" fill="#0F172A" fill-opacity=".55">VAIDORE</text>
-<text x="60" y="${labY + 20.4}" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-size="7.4" font-weight="700" fill="#0F172A"${
+<text x="60" y="${labY + 10.2}" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-size="4.6" letter-spacing="1.5" fill="#111111" fill-opacity=".55">VAIDORE</text>
+<text x="60" y="${labY + 20.4}" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif" font-size="7.4" font-weight="700" fill="#111111"${
     name.length * 4.9 > labW - 8 ? ` textLength="${fitLen}" lengthAdjust="spacingAndGlyphs"` : ""
   }>${esc(name)}</text>
 <rect x="${cx}" y="${cy}" width="${cw}" height="${ch}" rx="${cr}" fill="url(#${id}c)"/>

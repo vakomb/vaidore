@@ -45,16 +45,16 @@
   filter: brightness(1.18);
 }
 .btn.primary:disabled {
-  background: #cbd5e1;
+  background: var(--disabled);
   box-shadow: none;
-  color: #fff;
+  color: var(--ink3);
   filter: none;
 }
 /* Šviesus mygtukas ant tamsaus fono (pradžios paveikslas, juostos) */
 .btn.light {
   background: #fff;
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2), 0 10px 24px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.2), 0 10px 24px -12px rgba(0, 0, 0, 0.5);
 }
 .btn.light:hover {
   background: var(--gold-soft);
@@ -66,12 +66,6 @@
 }
 .btn.outlineLight:hover {
   background: rgba(255, 255, 255, 0.14);
-}
-.btn.primary:disabled {
-  background: #cbd5e1;
-  box-shadow: none;
-  color: #fff;
-  filter: none;
 }
 .btn.ghost {
   background: #fff;
@@ -170,29 +164,7 @@
 .sec {
   margin-top: 44px;
 }
-.secHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.secHead h2 {
-  font-size: 26px;
-  font-weight: 400;
-  letter-spacing: 0.03em;
-}
-.more {
-  font-size: 17px;
-  font-weight: 400;
-  text-decoration: underline;
-  text-underline-offset: 5px;
-  white-space: nowrap;
-}
-.more:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
+/* .secHead / .more – 05-products.css (vienoda skyrių antraštė) */
 .block {
   margin-top: 32px;
 }
@@ -241,7 +213,7 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   color: var(--ink);
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.05);
 }
 
 /* Žymių mygtukai (filtrai) */
@@ -460,7 +432,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.28);
+  background: rgba(17, 17, 17, 0.28);
   animation: vdFade 0.25s ease both;
 }
 .backdrop.closing::before {
@@ -495,7 +467,7 @@
   height: 5px;
   margin-left: -19px;
   border-radius: 3px;
-  background: rgba(15, 23, 42, 0.16);
+  background: rgba(17, 17, 17, 0.16);
 }
 .sheetBody {
   overflow-y: auto;
@@ -650,7 +622,7 @@ a.row:hover {
 }
 .empty h1,
 .empty h2 {
-  font-size: 39px;
+  font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: 0.02em;
@@ -712,13 +684,13 @@ a.row:hover {
   min-height: 46px;
   padding: 10px 18px 10px 12px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.94);
+  background: rgba(17, 17, 17, 0.94);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   color: #fff;
   font-size: 15px;
   font-weight: 500;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 14px 34px -8px rgba(15, 23, 42, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 14px 34px -8px rgba(17, 17, 17, 0.4);
   animation: vdToastIn 0.5s var(--spring) backwards;
   transition: opacity 0.3s ease, transform 0.4s var(--spring);
   pointer-events: auto;

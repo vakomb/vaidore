@@ -44,7 +44,10 @@ export function buildApp(opts = {}) {
   html = html.replace(/<!-- @catalog -->/, () => {
     const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));
     const sb = opts.supabase === undefined ? JSON.parse(read("data/supabase.json")) : opts.supabase;
-    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};</script>`;
+    // Buteliukai be fono (img/kvapai/<id>-1.webp) – scenoms (24-stage.js), net jei kvapo nuotrauka pakeista kita
+    const kv = path.join(src, "public/img/kvapai");
+    const cutouts = fs.existsSync(kv) ? fs.readdirSync(kv).filter(f => /-1\.webp$/.test(f)).map(f => f.slice(0, -7)) : [];
+    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};window.VAIDORE_CUTOUTS=${JSON.stringify(cutouts)};</script>`;
   });
   html = html.replace(/<!-- @lockers -->/, () => `<script>window.VAIDORE_LOCKERS=${Number(opts.lockers) || 0};</script>`);
   html = html.replace(/<!-- @app ([\w./-]+) -->/, (_, dir) => {

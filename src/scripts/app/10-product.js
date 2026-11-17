@@ -1,6 +1,7 @@
-// 10 – kvapo puslapis /kvepalai/<id>: naršymo kelias, galerija (nuotraukos braukiant arba buteliukas), pavadinimas,
-// „Tiks …“, kaina, tūris / mėginukas, „Į krepšelį“ (telefone – ir prilipęs apačioje), pristatymo eilutė, mėginuko kainos
-// grąžinimas, aprašymas, natų piramidė, savybės, atsiliepimai (tik tikri), „Jums gali patikti“; išparduotam – „Pranešti, kai bus“.
+// 10 – kvapo puslapis /kvepalai/<id>: naršymo kelias, galerija (nuotraukos braukiant arba buteliukas), tada – kaip
+// programėlėje – pavadinimas, „Įkvėpti …“, natos, kaina, tūris, kiekis, „Į krepšelį“ (telefone – ir prilipęs apačioje),
+// pristatymo eilutė, mėginuko kainos grąžinimas; žemiau – aprašymas, natų piramidė, savybės, atsiliepimai (tik tikri),
+// „Jums gali patikti“; išparduotam – „Pranešti, kai bus“.
 function meter(n) {
   return `<div class="meter" aria-hidden="true">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`;
 }
@@ -62,11 +63,6 @@ function productPageHTML(p, ml) {
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(o.days)})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
   const use = `<ul class="accList"><li>Purkškite ant pulsuojančių vietų – riešų, kaklo, už ausų – iš 15–20 cm atstumo.</li><li>Netrinkite – leiskite kvapui atsiskleisti pačiam.</li><li>Ant švarios, sudrėkintos odos kvapas išsilaiko ilgiau.</li><li>Laikykite vėsioje, nuo saulės apsaugotoje vietoje.</li></ul>`;
   return `<nav class="crumbs" aria-label="Naršymo kelias">${crumbsHTML(crumbs)}</nav>
-<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
-    inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
-  }<p class="pdKey">${keyNotes(p).map(esc).join(" · ")}</p>${
-    rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
-  }</header>
 <article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
 <div class="pdGal${p.images?.length ? " hasPhoto" : ""}">
 <div class="pdTools"><button class="roundBtn" type="button" data-share="${p.id}" aria-label="Dalintis">${glyph("share")}</button>${heartBtn(p)}</div>
@@ -76,8 +72,25 @@ ${galleryHTML(p)}
   }</div>
 </div>
 <div class="pdInfo">
+<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
+    inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
+  }<p class="pdKey">${keyNotes(p).map(esc).join(" · ")}</p>${
+    rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
+  }</header>
+<div class="pdPrice">${sold ? `<b>Laikinai išparduota</b>` : priceBlockHTML(p, ml)}</div>
+<p class="pdLabel">Tūris</p>
+<div class="sizes" role="radiogroup" aria-label="Tūris">${sizes.map(sizeBtn).join("")}</div>
+<div class="pdBuy" data-buy-anchor>${
+    sold
+      ? ""
+      : `<div class="qty" role="group" aria-label="Kiekis"><button type="button" data-qty-step="-1" aria-label="Mažiau">${glyph("minus")}</button><output data-qty>1</output><button type="button" data-qty-step="1" aria-label="Daugiau">${glyph("plus")}</button></div>`
+  }${buyBtn}</div>
+<p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
+<div data-note-slot>${ml === SAMPLE_ML && !sold ? sampleNoteHTML() : ""}</div>
+<div class="pdAbout">
 <p class="pdTag"><b>${esc(p.name)}</b> – ${esc(p.tagline)}.</p>
 <p class="pdDesc">${esc(p.desc)}</p>
+</div>
 <div class="accs">
 ${accHTML("user", "Kam skirti", who)}
 ${accHTML("drop", "Natos", notes, { id: "pdNotesH" })}
@@ -85,26 +98,15 @@ ${accHTML("chart", "Savybės", facts, { id: "pdFactsH" })}
 ${accHTML("spark", "Panaudojimo būdas", use)}
 ${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
 </div>
-<div class="pdPrice">${sold ? `<b>Laikinai išparduota</b>` : priceBlockHTML(p, ml)}</div>
-<p class="pdLabel">Tūris</p>
-<div class="sizes" role="radiogroup" aria-label="Tūris">${sizes.map(sizeBtn).join("")}</div>
-${sold ? "" : `<p class="pdLabel">Kiekis</p>`}
-<div class="pdBuy" data-buy-anchor>${
-    sold
-      ? ""
-      : `<div class="qty" role="group" aria-label="Kiekis"><button type="button" data-qty-step="-1" aria-label="Mažiau">${glyph("minus")}</button><output data-qty>1</output><button type="button" data-qty-step="1" aria-label="Daugiau">${glyph("plus")}</button></div>`
-  }${buyBtn}</div>
-<p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
 ${inspiredOf(p) && SET.inspired?.note ? `<p class="pdLegal">${esc(SET.inspired.note)}</p>` : ""}
-<div data-note-slot>${ml === SAMPLE_ML && !sold ? sampleNoteHTML() : ""}</div>
 </div>
 <div class="pdBelow">
 <section class="sec" id="pdReviews" data-pd-reviews hidden></section>
 ${
   similar.length
-    ? `<section class="hsec pdSimilar"><h2 class="band">Jums gali patikti</h2><div class="wrap"><p class="secLine"><span>${esc(familyName(p.family))} ir panašūs kvapai</span><a href="kvepalai?seima=${encodeURIComponent(
-        p.family
-      )}" data-nav>Peržiūrėti</a></p>${railHTML(similar.map(x => cardHTML(x)).join(""))}</div></section>`
+    ? `<section class="hsec pdSimilar"><div class="wrap">${secHeadHTML("Jums gali patikti", { sub: `${familyName(p.family)} ir panašūs kvapai`, href: `kvepalai?seima=${encodeURIComponent(p.family)}` })}${railHTML(
+        similar.map(x => cardHTML(x)).join("")
+      )}</div></section>`
     : ""
 }
 </div>
