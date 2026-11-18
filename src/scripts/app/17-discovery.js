@@ -51,7 +51,7 @@ function openDiscovery({ preset = [], replaceKey = null } = {}) {
 // Mėginukų kainos grąžinimas (settings.sampleCredit): po apmokėjimo Stripe sukuria vienkartinį nuolaidos kodą (shop.js – ensureCredit)
 function creditText() {
   const c = SET.sampleCredit;
-  return c ? `Mėginukų kainą grąžinsime nuolaidos kodu – panaudokite jį perkant buteliuką per ${c.days} d.` : "Išbandykite namuose prieš pirkdami buteliuką.";
+  return c ? `Mėginukų kainą grąžinsime nuolaidos kodu – panaudokite jį perkant buteliuką per ${c.days} d.` : "Išbandykite namuose prieš pirkdami buteliuką.";
 }
 document.addEventListener("click", e => {
   const t = e.target instanceof Element ? e.target : null;

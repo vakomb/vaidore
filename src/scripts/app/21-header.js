@@ -16,8 +16,8 @@ const fmtNote = t => esc(t).replace(/\*([^*]+)\*/g, "<b>$1</b>");
 function autoNoteItems() {
   const free = eurShort(SET.freeShippingFrom);
   const sample = eur(Math.min(...PRODUCTS.map(p => p.sample)));
-  const days = SET.dispatch || "1–2 d. d.";
-  const ret = `${SET.returnDays || 14} d.`;
+  const days = nb(SET.dispatch || "1–2 d. d.");
+  const ret = `${SET.returnDays || 14} d.`;
   return [
     { id: "free", text: `Nemokamas pristatymas nuo *${free}*`, short: `Nemokamai nuo *${free}*` },
     { id: "samples", text: `Kiekvieną kvapą – ir *2 ml mėginuku* nuo ${sample}`, short: `*2 ml mėginukai* nuo ${sample}` },
@@ -206,7 +206,7 @@ ${cats.length ? `<p class="navSub">Kategorijos</p><ul class="navList">${cats.map
     favN ? ` <b>${favN}</b>` : ""
   }</span></a></div><p class="navShip">${glyph("truck")}<span>${
     !state.cart.length
-      ? `Nemokamas pristatymas nuo <b>${eur(SET.freeShippingFrom)}</b>`
+      ? `Nemokamas pristatymas nuo <b>${eurShort(SET.freeShippingFrom)}</b>`
       : shipLeft() > 0
         ? `Iki nemokamo pristatymo liko <b>${eur(shipLeft())}</b>`
         : "<b>Pristatymas nemokamas</b>"
@@ -381,7 +381,7 @@ ${grp("Vaidore", [a("apie-mus", "Mūsų istorija"), a("atsiliepimai", "Atsiliepi
 <div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="${esc(SET.shop)} – pradžia"><span>${logoHTML()}</span></a>
 <ul class="ftrContact"><li>${glyph("mail")}<a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></li>${
     ph ? `<li>${glyph("phone")}<a href="tel:${esc(ph.replace(/\s+/g, ""))}">${esc(ph)}</a></li>` : ""
-  }<li>${glyph("truck")}<span>Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")} · nemokamai nuo ${eurShort(SET.freeShippingFrom)}</span></li></ul></div>
+  }<li>${glyph("truck")}<span>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))} · nemokamai nuo ${eurShort(SET.freeShippingFrom)}</span></li></ul></div>
 </div>
 <div class="ftrPay" aria-label="Mokėjimo būdai">${PAY_MARKS}</div>
 <div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", "Pirkimo sąlygos", false)}${a("privatumas", "Privatumo politika", false)}</small></div>`;

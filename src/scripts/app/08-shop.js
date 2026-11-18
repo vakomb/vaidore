@@ -193,7 +193,7 @@ function renderShop() {
   $("#shopHead").classList.toggle("onDark", !!photo?.dark);
   const discRow =
     shop.samples && DISC
-      ? `<button class="discBanner" type="button" data-disc><span class="rowIco" style="background:var(--pink)">${glyph("drop")}</span><span class="rowTxt"><b>${esc(DISC.name)}</b><small>Bet kurie ${DISC.count} mėginukai už ${eur(DISC.price)}</small></span><span class="chev">${glyph("chev-right")}</span></button>`
+      ? `<button class="discBanner" type="button" data-disc><span class="rowIco">${glyph("drop")}</span><span class="rowTxt"><b>${esc(DISC.name)}</b><small>Bet kurie ${DISC.count} mėginukai už ${eur(DISC.price)}</small></span><span class="chev">${glyph("chev-right")}</span></button>`
       : "";
   const shown = list.slice(0, shop.limit);
   $("#shopGrid").innerHTML = list.length

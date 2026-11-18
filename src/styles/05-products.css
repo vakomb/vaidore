@@ -374,6 +374,7 @@
   opacity: 0.55;
 }
 .cardTxt {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -393,7 +394,7 @@
 }
 .cardNotes {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 13px;
@@ -408,7 +409,8 @@
   align-items: baseline;
   justify-content: center;
   gap: 2px 12px;
-  margin-top: 4px;
+  margin-top: auto;
+  padding-top: 4px;
   font-size: 20.8px;
   font-weight: 400;
   letter-spacing: 0.06em;

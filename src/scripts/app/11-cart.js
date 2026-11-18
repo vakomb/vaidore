@@ -38,7 +38,7 @@ function deliveryHTML() {
           ? state.ship.locker
             ? `${state.ship.locker.name}`
             : "Pasirinkite paštomatą"
-          : o.days;
+          : nb(o.days);
       return `<button class="row" role="radio" aria-checked="${on}" data-ship="${o.id}"><span class="radio" aria-hidden="true"></span><span class="rowTxt">${esc(o.name)}<small${
         o.id === "omniva" && on && LOCKERS_N && !state.ship.locker ? ' class="warn"' : ""
       }>${esc(sub)}</small></span><b class="money">${free ? "0,00 €" : eur(o.price)}</b></button>${

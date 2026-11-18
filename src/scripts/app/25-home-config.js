@@ -48,9 +48,9 @@ const SLIDE_PRESETS = {
         title: SET.shop || "Vaidore",
         text: [
           `Kiekvienas kvapas – ir 2 ml mėginuku`,
-          `Išsiunčiame per ${SET.dispatch || "1–2 d. d."}`,
+          `Išsiunčiame per ${nb(SET.dispatch || "1–2 d. d.")}`,
           `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`,
-          `Grąžinimas per ${SET.returnDays || 14} d.`
+          `Grąžinimas per ${SET.returnDays || 14} d.`
         ].join("\n"),
         cta: "Visi kvepalai",
         href: "kvepalai"

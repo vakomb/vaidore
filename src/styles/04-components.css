@@ -45,7 +45,7 @@
   filter: brightness(1.18);
 }
 .btn.primary:disabled {
-  background: #cbd5e1;
+  background: #d4d4d4;
   box-shadow: none;
   color: #fff;
   filter: none;
@@ -68,7 +68,7 @@
   background: rgba(255, 255, 255, 0.14);
 }
 .btn.primary:disabled {
-  background: #cbd5e1;
+  background: #d4d4d4;
   box-shadow: none;
   color: #fff;
   filter: none;

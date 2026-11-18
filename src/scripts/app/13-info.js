@@ -2,10 +2,10 @@
 // (istorija, kaip renkamės, rekvizitai), /atsiliepimai (visi TIKRI atsiliepimai), /verslui (dovanos įmonėms, didesni
 // kiekiai) ir /naujienlaiskis (atsisakymas: ?atsisakyti=<raktas>). Tekstai – iš settings (administravimo „Nustatymai“).
 const FAQ = () => [
-  ["Kiek laiko išlieka kvapas?", "Priklauso nuo koncentracijos ir odos: Eau de Toilette – 3–5 val., Eau de Parfum – 5–8 val., Parfum – 8 val. ir ilgiau. Kiekvieno kvapo puslapyje rasite ilgaamžiškumo ir sklaidos skales."],
+  ["Kiek laiko išlieka kvapas?", "Priklauso nuo koncentracijos ir odos: Eau de Toilette – 3–5 val., Eau de Parfum – 5–8 val., Parfum – 8 val. ir ilgiau. Kiekvieno kvapo puslapyje nurodyta, kada ir kokiu metų laiku jis tinka labiausiai."],
   ["Kaip išsirinkti nematant kvapo?", `Pradėkite nuo „Rask savo kvapą“ (4 klausimai) arba 2 ml mėginukų. ${creditText()}`],
-  ["Ar galiu grąžinti atidarytus kvepalus?", `Dėl higienos grąžinami tik neatidaryti, neišpakuoti kvepalai su nepažeista plėvele per ${SET.returnDays || 14} d. Todėl siūlome pradėti nuo mėginuko.`],
-  ["Kada išsiųsite užsakymą?", `Per ${SET.dispatch || "1–2 d. d."} nuo apmokėjimo. Išsiuntę atsiųsime siuntos numerį el. paštu, jį matysite ir paskyroje.`],
+  ["Ar galiu grąžinti atidarytus kvepalus?", `Dėl higienos grąžinami tik neatidaryti, neišpakuoti kvepalai su nepažeista plėvele per ${SET.returnDays || 14} d. Todėl siūlome pradėti nuo mėginuko.`],
+  ["Kada išsiųsite užsakymą?", `Per ${nb(SET.dispatch || "1–2 d. d.")} nuo apmokėjimo. Išsiuntę atsiųsime siuntos numerį el. paštu, jį matysite ir paskyroje.`],
   ["Ar reikia kurti paskyrą?", "Ne – pirkti galima ir be jos. Paskyroje matysite užsakymų istoriją, siuntų būseną, mėgstamus kvapus ir nuolaidos kodus."],
   ["Ar galima supakuoti dovanai?", SET.gift ? `Taip – krepšelyje pažymėkite „Dovanų pakavimas“ (+${eur(SET.gift.price)}) ir, jei norite, parašykite rašteliuką. Kainos čekio pakuotėje nebus.` : "Parašykite mums – supakuosime."]
 ];
@@ -14,7 +14,7 @@ function infoHelpHTML() {
   const ship = SET.shipping
     .map(
       o =>
-        `<div class="row"><span class="rowIco">${glyph(o.id === "omniva" ? "locker" : "truck")}</span><span class="rowTxt">${esc(o.name)}<small>${esc(o.days)}</small></span><b class="money">${eur(o.price)}</b></div>`
+        `<div class="row"><span class="rowIco">${glyph(o.id === "omniva" ? "locker" : "truck")}</span><span class="rowTxt">${esc(o.name)}<small>${esc(nb(o.days))}</small></span><b class="money">${eur(o.price)}</b></div>`
     )
     .join("");
   return `<header class="pageHead"><h1>Pagalba</h1><p class="pageSub">Pristatymas, grąžinimas, apmokėjimas ir dažniausi klausimai.</p></header>
@@ -22,9 +22,9 @@ function infoHelpHTML() {
 <nav class="infoToc" aria-label="Turinys"><a href="pagalba#pristatymas">Pristatymas</a><a href="pagalba#grazinimas">Grąžinimas</a><a href="pagalba#apmokejimas">Apmokėjimas</a><a href="pagalba#duk">DUK</a><a href="pagalba#kontaktai">Kontaktai</a></nav>
 <div class="infoBody">
 <section id="pristatymas" class="infoSec"><h2>Pristatymas</h2>
-<div class="group">${ship}<div class="row"><span class="rowIco" style="background:var(--green)">${glyph("check")}</span><span class="rowTxt">Nemokamai<small>Užsakymams nuo ${eur(SET.freeShippingFrom)}</small></span></div></div>
-<p class="infoTxt">Siunčiame į ${SET.countries.map(c => ({ LT: "Lietuvą", LV: "Latviją", EE: "Estiją" })[c] || c).join(", ")}. Išsiunčiame per ${esc((SET.dispatch || "1–2 d. d.").replace(/\.$/, ""))}. Omniva paštomatą pasirenkate krepšelyje.</p></section>
-<section id="grazinimas" class="infoSec"><h2>Grąžinimas per ${days} d.</h2>
+<div class="group">${ship}<div class="row"><span class="rowIco" style="background:var(--green)">${glyph("check")}</span><span class="rowTxt">Nemokamai<small>Užsakymams nuo ${eurShort(SET.freeShippingFrom)}</small></span></div></div>
+<p class="infoTxt">Siunčiame į ${SET.countries.map(c => ({ LT: "Lietuvą", LV: "Latviją", EE: "Estiją" })[c] || c).join(", ")}. Išsiunčiame per ${esc((nb(SET.dispatch || "1–2 d. d.")).replace(/\.$/, ""))}. Omniva paštomatą pasirenkate krepšelyje.</p></section>
+<section id="grazinimas" class="infoSec"><h2>Grąžinimas per ${days} d.</h2>
 <ol class="group steps">
 <li class="row"><span class="stepNo">1</span><span class="rowTxt">Parašykite mums<small>${esc(SET.company.email)} – nurodykite užsakymo numerį</small></span></li>
 <li class="row"><span class="stepNo">2</span><span class="rowTxt">Išsiųskite prekę<small>Neatidarytą, su nepažeista plėvele – grąžinimo adresą nurodysime atsakyme</small></span></li>
@@ -57,7 +57,7 @@ function infoAboutHTML() {
 <div class="aboutPts">
 <div><span class="prIco">${glyph("drop")}</span><b>Pirma – mėginukas</b><p>Kiekvieną kvapą siūlome 2 ml mėginuku. ${esc(creditText())}</p></div>
 <div><span class="prIco">${glyph("spark")}</span><b>Natos be žargono</b><p>Aprašome, kaip kvapas skamba ir kada jis tinka – ne tik ingredientų sąrašą.</p></div>
-<div><span class="prIco">${glyph("truck")}</span><b>Greitai ir patogiai</b><p>Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")}, į Omniva paštomatą ar iki durų.</p></div>
+<div><span class="prIco">${glyph("truck")}</span><b>Greitai ir patogiai</b><p>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}, į Omniva paštomatą ar iki durų.</p></div>
 </div></section>
 <section class="sec"><div class="secHead"><h2>Rekvizitai</h2></div><p class="infoTxt">${companyParts().map(esc).join("<br />")}<br /><a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></p></section>`;
 }
@@ -93,7 +93,7 @@ function infoBusinessHTML() {
   const pts = [
     ["box", "Dovanos darbuotojams ir klientams", `Kvepalai ar ${DISC ? esc(DISC.name.toLowerCase()) : "mėginukų rinkiniai"} – supakuoti dovanai${SET.gift ? ", be kainos čekio" : ""}. Galime pridėti jūsų rašteliuką.`],
     ["drop", "Mėginukai renginiams", "2 ml mėginukai – svečiai išsirenka kvapą, kurį vėliau užsisako patys."],
-    ["truck", "Didesni kiekiai", `Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")} visoje Lietuvoje. Kaina – pagal kiekį, pasiūlymą atsiųsime laišku.`]
+    ["truck", "Didesni kiekiai", `Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))} visoje Lietuvoje. Kaina – pagal kiekį, pasiūlymą atsiųsime laišku.`]
   ];
   return `<header class="pageHead"><h1>Verslui</h1><p class="pageSub">${esc(b.text || "Kvapai įmonių dovanoms, renginiams ir partneriams. Parašykite, kiek ir kam reikia – per 1 d. d. atsiųsime pasiūlymą.")}</p></header>
 <div class="aboutPts bizPts">${pts.map(([i, t, d]) => `<div><span class="prIco">${glyph(i)}</span><b>${t}</b><p>${d}</p></div>`).join("")}</div>

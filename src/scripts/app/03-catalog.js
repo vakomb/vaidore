@@ -76,7 +76,7 @@ function ratingOf(p) {
 }
 const familyName = id => FAMILY?.get(id)?.name || "";
 const priceOf = (p, ml) => (ml === SAMPLE_ML ? p.sample : p.sizes.find(s => s.ml === ml)?.price);
-const sizeLabel = ml => (ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${ml} ml`);
+const sizeLabel = ml => (ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${ml} ml`);
 // „Įkvėpti Tom Ford – Tobacco Vanille“ – rodoma, jei kvapas turi lauką inspired ir nustatymuose neišjungta
 const inspiredOf = p => (SET.inspired?.show !== false && p.inspired) || "";
 const cardSub = p => `${familyName(p.family)} · ${p.conc}`;

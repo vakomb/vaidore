@@ -4,6 +4,8 @@ const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 const esc = v =>
   String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// Nelaužomi tarpai: „1–2 d. d.“, „30 d.“, „2 ml“, „5 val.“ niekada nelūžta per eilutę
+const nb = t => String(t ?? "").replace(/(\d) (?=d\.|ml\b|val\.|vnt\.)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)–(\d)/g, "$1\u2060–\u2060$2");
 const fold = s =>
   String(s || "")
     .toLowerCase()

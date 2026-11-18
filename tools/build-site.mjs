@@ -23,6 +23,8 @@ import { dbCatalog } from "./db-catalog.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "src");
 const site = process.env.OUT ? path.resolve(process.env.OUT) : path.join(root, "site");
+// Nelaužomi tarpai (kaip programėlėje – 01-util.js)
+const nb = t => String(t ?? "").replace(/(\d) (?=d\.|ml\b|val\.|vnt\.)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)–(\d)/g, "$1\u2060–\u2060$2");
 const fileCatalog = JSON.parse(fs.readFileSync(process.env.CATALOG ? path.resolve(process.env.CATALOG) : path.join(src, "data", "catalog.json"), "utf8"));
 const sb = JSON.parse(fs.readFileSync(path.join(src, "data", "supabase.json"), "utf8"));
 const useDb = !process.env.CATALOG && process.env.NO_DB !== "1";
@@ -278,8 +280,8 @@ const fill = s =>
     .replace(/\{\{companyLine\}\}/g, () => companyLine)
     .replace(/\{\{freeShippingFrom\}\}/g, String(S.freeShippingFrom))
     .replace(/\{\{returnDays\}\}/g, String(S.returnDays || 14))
-    .replace(/\{\{dispatch\}\}/g, esc(S.dispatch || "1–2 d. d."))
-    .replace(/\{\{shipping\}\}/g, () => S.shipping.map(o => `<li>${esc(o.name)} – ${money(o.price)} (${esc(o.days)})</li>`).join(""))
+    .replace(/\{\{dispatch\}\}/g, esc(nb(S.dispatch || "1–2 d. d.")))
+    .replace(/\{\{shipping\}\}/g, () => S.shipping.map(o => `<li>${esc(o.name)} – ${money(o.price)} (${esc(nb(o.days))})</li>`).join(""))
     .replace(/\{\{supabase\}\}/g, () => JSON.stringify(sb))
     .replace(/\{\{year\}\}/g, String(new Date().getFullYear()))
     .replace(/\{\{logo\}\}/g, () => fs.readFileSync(path.join(src, "partials", "logo.svg"), "utf8").trim());

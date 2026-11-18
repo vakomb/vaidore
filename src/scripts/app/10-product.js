@@ -14,7 +14,7 @@ function galleryHTML(p) {
     .join("")}</div>${imgs.length > 1 ? `<div class="galDots" aria-hidden="true">${imgs.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}`;
 }
 const shipLine = () =>
-  `Išsiunčiame per ${SET.dispatch || "1–2 d. d."} · Nemokamai nuo ${eurShort(SET.freeShippingFrom)} · Grąžinimas ${SET.returnDays || 14} d.`;
+  `Išsiunčiame per ${nb(SET.dispatch || "1–2 d. d.")} · Nemokamai nuo ${eurShort(SET.freeShippingFrom)} · Grąžinimas per ${SET.returnDays || 14} d.`;
 function sampleNoteHTML() {
   return `<p class="pdNote" data-sample-note>${glyph("return")}<span>${esc(creditText())}${
     DISC ? ` <button class="linkBtn" type="button" data-disc>Arba ${DISC.count} mėginukai už ${eur(DISC.price)}</button>` : ""
@@ -43,7 +43,7 @@ function productPageHTML(p, ml) {
     ? `<button class="btn primary" type="button" data-notify="${p.id}">${glyph("bell")}Pranešti, kai bus</button>`
     : `<button class="btn primary" type="button" data-add>Įdėti į krepšelį</button>`;
   // Natos – trys eilutės (kaip parfumada.lt): „Viršutinės natos: …“
-  const noteRow = (lab, list) => `<div><dt>${lab}</dt><dd>${list.map(esc).join(", ")}</dd></div>`;
+  const noteRow = (lab, list) => `<div><dt>${lab}</dt><dd>${list.map(esc).join(" · ")}</dd></div>`;
   const notes = `<dl class="pdNotes">${noteRow("Viršutinės natos", p.notes.top)}${noteRow("Širdies natos", p.notes.heart)}${noteRow("Bazinės natos", p.notes.base)}</dl>`;
   // Kam skirti – kiekvienas faktas po kartą: lytis, kvapų šeima, kada, metų laikai
   const { when, seasons } = suitsParts(p);
@@ -57,7 +57,7 @@ function productPageHTML(p, ml) {
     .filter(Boolean)
     .map(t => `<li>${esc(t)}</li>`)
     .join("")}</ul>`;
-  const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(o.days)})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
+  const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
   return `<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
     inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
   }<p class="pdKey">${keyNotes(p).map(esc).join(" · ")}</p>${
