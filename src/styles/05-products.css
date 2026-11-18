@@ -188,9 +188,13 @@
 .hsec > .wrap > .catTiles:first-child {
   margin-top: 0;
 }
-/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) – nedidelis tarpas viršuje */
+/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) – mažas tarpas viršuje
+   (iki pavadinimo raidžių ~14 px: tik pavadinimo viršutinė paraštė) */
 #homeTilesSec {
-  padding-top: 22px;
+  padding-top: 0;
+}
+#homeTilesSec .tileName {
+  padding-top: 10px;
 }
 .hsec > .wrap > .railWrap:first-child,
 .hsec > .wrap > .reviews:first-child {
