@@ -321,11 +321,11 @@ function bindHeader() {
       setHdrSearch(false);
     }
   });
-  // Užslinkus – matinis stiklas
-  let raf = 0;
+  // Užslinkus – švelnus šešėlis (klasė keičiama tik pasikeitus būsenai – slenkant nieko neperskaičiuojama)
+  let on = null;
   const onScroll = () => {
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => hdr.classList.toggle("scrolled", window.scrollY > 4));
+    const v = window.scrollY > 4;
+    if (v !== on) hdr.classList.toggle("scrolled", (on = v));
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();

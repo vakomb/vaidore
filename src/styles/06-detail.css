@@ -1,4 +1,4 @@
-/* Katalogas (įrankių juosta, filtrai) ir kvapo puslapis (galerija, pirkimas, natos, savybės). */
+/* Katalogas (įrankių juosta, filtrai) ir kvapo puslapis (galerija, aprašymas, natos, talpa, pirkimas, pirkimo juosta). */
 
 /* Katalogo įrankių juosta */
 .toolbar {
@@ -235,15 +235,15 @@
   padding-top: 26px;
 }
 .pdTag {
-  font-size: 18.5px;
-  line-height: 1.65;
-  color: var(--ink2);
+  font-size: var(--fs);
+  line-height: 1.6;
+  color: var(--text);
 }
 .pdTag b {
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--ink2);
+  color: var(--text);
 }
 .pdPrice {
   display: flex;
@@ -259,7 +259,9 @@
   color: #000;
 }
 .pdPrice b.sale {
+  font-size: 23.4px;
   font-weight: 700;
+  color: var(--sale);
 }
 .pdPrice s {
   font-size: 16.9px;
@@ -278,16 +280,16 @@
   color: var(--ink3);
 }
 .pdLabel {
-  margin: 20px 0 8px;
-  font-size: 17px;
-  letter-spacing: 0.03em;
-  color: var(--ink2);
+  margin: 22px 0 10px;
+  font-size: 16.9px;
+  letter-spacing: 0.04em;
+  color: var(--text);
 }
 .pdDesc {
-  margin-top: 16px;
-  font-size: 18.5px;
-  color: var(--ink2);
-  line-height: 1.65;
+  margin-top: 18px;
+  font-size: var(--fs);
+  line-height: 1.6;
+  color: var(--text);
 }
 .pdBuy {
   display: grid;
@@ -430,10 +432,10 @@
   color: #000;
 }
 .accBody {
-  padding: 0 0 20px;
-  font-size: 17px;
-  line-height: 1.65;
-  color: var(--ink2);
+  padding: 0 0 22px 42px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text);
 }
 .accBody p + p {
   margin-top: 6px;
@@ -450,129 +452,108 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-/* Skyriai po pirkimu: natos, savybės (be dėžučių – linijos) */
-.pyrRow {
+/* Natos – trys eilutės (kaip parfumada.lt): spalvotas taškas, „Viršutinės natos:“ ir natos vientisu tekstu */
+.pdNotes {
   display: grid;
-  grid-template-columns: 96px 1fr;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
+  gap: 10px;
+  margin: 0;
 }
-.pyrRow + .pyrRow {
-  box-shadow: inset 0 1px 0 var(--line);
+.pdNotes > div {
+  position: relative;
+  padding-left: 18px;
 }
-.pyrLab {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink3);
-}
-.pyrLab i {
-  display: block;
+.pdNotes > div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.66em;
+  width: 8px;
   height: 8px;
-  border-radius: 4px;
-  background: var(--liquid, var(--brand));
+  border-radius: 50%;
+  background: var(--liquid, #000);
 }
-.pyrRow:nth-child(1) .pyrLab i {
-  width: 10px;
-  opacity: 0.45;
+.pdNotes dt,
+.pdNotes dd {
+  display: inline;
+  margin: 0;
 }
-.pyrRow:nth-child(2) .pyrLab i {
-  width: 16px;
-  opacity: 0.7;
-}
-.pyrRow:nth-child(3) .pyrLab i {
-  width: 22px;
-}
-.pyrNotes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.pyrNotes span {
-  padding: 5px 11px;
-  border-radius: 999px;
-  background: var(--tint, #f3f5f8);
-  font-size: 14.5px;
-  font-weight: 500;
-  color: var(--ink);
-}
-.facts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px 24px;
-}
-.fact small {
-  display: block;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--ink3);
-}
-.fact b {
-  display: block;
-  margin-top: 3px;
-  font-size: 16px;
+.pdNotes dt {
   font-weight: 600;
+  color: #000;
 }
-.meter {
-  display: flex;
-  gap: 4px;
-  margin-top: 9px;
-}
-.meter i {
-  flex: 1;
-  height: 6px;
-  border-radius: 3px;
-  background: #e7ebf2;
-}
-.meter i.on {
-  background: var(--ink);
+.pdNotes dt::after {
+  content: ": ";
 }
 
-/* Telefone – prilipęs „Į krepšelį“ */
+/* Prilipusi pirkimo juosta – telefone ir planšetėje: kaina + mygtukas (praslinkus pagrindinį mygtuką); kompiuteryje –
+   nuotrauka, pavadinimas, kaina, kiekis, mygtukas (09-desktop.css). Balta, be matinio stiklo – slinkimas lieka sklandus. */
 .buyBar {
   position: fixed;
   z-index: 30;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
   padding: 10px var(--pad) calc(10px + var(--safeB));
-  background: rgba(255, 255, 255, 0.88);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  backdrop-filter: blur(20px) saturate(170%);
-  box-shadow: 0 -1px 0 var(--hair), 0 -10px 30px -18px rgba(15, 23, 42, 0.25);
+  background: #fff;
+  box-shadow: 0 -1px 0 var(--line), 0 -12px 28px -20px rgba(0, 0, 0, 0.35);
   transform: translateY(110%);
-  transition: transform 0.45s var(--spring);
+  transition: transform 0.5s var(--spring);
 }
 .buyBar.show {
   transform: none;
+}
+.bbIn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.bbProd,
+.bbQty {
+  display: none;
 }
 .buyBar .price {
   display: flex;
   flex-direction: column;
   line-height: 1.15;
 }
+.bbNow {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.bbNow s {
+  font-size: 14px;
+  color: var(--text);
+}
 .buyBar .price b {
-  font-size: 20px;
+  font-size: 20.8px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.buyBar .price b.sale {
+  color: var(--sale);
   font-weight: 700;
-  letter-spacing: 0.01em;
 }
 .buyBar .price small {
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 13px;
   font-weight: 500;
   color: var(--ink3);
 }
 .buyBar .btn {
   flex: 1;
+  min-height: 54px;
+  font-size: 18px;
 }
 /* Lange (rinkinys) – lipnus juostos variantas */
 .sheet .buyBar {
   position: sticky;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   transform: none;
   margin-top: 22px;
 }

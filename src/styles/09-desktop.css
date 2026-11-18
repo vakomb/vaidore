@@ -151,6 +151,22 @@
   .pdGal svg.bottle {
     height: 78%;
   }
+  /* Kvapo puslapis planšetėje – du stulpeliai: lipni nuotrauka kairėje, informacija dešinėje */
+  .pd {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 40px;
+    align-items: start;
+  }
+  .pdGal {
+    position: sticky;
+    top: calc(var(--hdrAll) + 20px);
+  }
+  .pdInfo {
+    padding-top: 0;
+  }
+  .pdHead {
+    padding: 18px 0 30px;
+  }
   .discGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -465,30 +481,94 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  /* Kvapo puslapis – galerija kairėje (lipni), informacija dešinėje */
+  /* Kvapo puslapis kompiuteryje (kaip parfumada.lt): per visą plotį – nuotrauka 55 % kairėje (lipni), informacija 45 %
+     dešinėje su 64 px tarpu; antraštė tarp linijų per visą plotį; apačioje – prilipusi pirkimo juosta */
+  #view-product > .wrap {
+    max-width: 1520px;
+    padding: 0 64px;
+  }
   .pd {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    gap: 64px;
-    align-items: start;
+    grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+    column-gap: 64px;
   }
   .pdGal {
-    position: sticky;
-    top: calc(var(--hdrAll) + 16px);
+    top: calc(var(--hdrAll) + 24px);
   }
-  .pdInfo {
-    padding-top: 4px;
+  .pdHead {
+    padding: 22px 0 34px;
   }
   .pdH1 {
-    font-size: 46px;
+    margin: 0 -64px;
+    font-size: 40px;
+  }
+  .pdInfo {
+    max-width: 560px;
+    padding-bottom: 24px;
   }
   .buyBar {
+    padding: 0;
+    box-shadow: 0 -1px 0 var(--line), 0 -6px 24px -8px rgba(0, 0, 0, 0.18);
+  }
+  .bbIn {
+    max-width: 1520px;
+    height: 76px;
+    margin: 0 auto;
+    padding: 0 64px;
+    gap: 22px;
+  }
+  .bbProd {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .bbThumb {
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+  }
+  .bbThumb img,
+  .bbThumb svg {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .bbProd b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #000;
+  }
+  .buyBar .price small {
     display: none;
+  }
+  .bbQty {
+    display: inline-flex;
+    height: 48px;
+    border-radius: 14px;
+  }
+  .bbQty button {
+    width: 42px;
+    height: 48px;
+  }
+  .bbQty output {
+    font-size: 17px;
+  }
+  .buyBar .btn {
+    flex: 0 0 280px;
+    min-height: 48px;
+    border-radius: 14px;
+    font-size: 17px;
   }
   .sheet .buyBar {
     display: flex;
-  }
-  .pdBelow {
-    grid-column: 1 / -1;
   }
 
   /* Krepšelis – prekės ir lipni suvestinė */

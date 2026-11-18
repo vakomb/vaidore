@@ -299,7 +299,26 @@ async function run(viewport) {
   await open(page, `${A}kvepalai/vanor`);
   await page.waitForSelector("#productRoot h1");
   check((await page.locator("#productRoot h1").textContent()).includes("Vanor"), "kvapo puslapis: pavadinimas");
-  check((await page.locator("#productRoot .sizeOpt").count()) === vanor.sizes.length + 1, "kvapo puslapis: tūriai + mėginukas 2 ml");
+  check(
+    (await page.locator("#productRoot .sizeOpt").allTextContents()).join() === "33 ml,100 ml,2 ml mėginukas",
+    "kvapo puslapis: talpos – tik 33 ml, 100 ml ir 2 ml mėginukas"
+  );
+  const accs = await page.locator("#productRoot .acc summary").allTextContents();
+  check(
+    !accs.some(t => /Savybės|Panaudojimo/.test(t)) && accs[0] === "Kam skirti" && accs.includes("Natos"),
+    `kvapo puslapis: be „Savybės“ ir „Panaudojimo būdas“ (${accs.join(", ")})`
+  );
+  const who = await page.locator("#productRoot .acc").first().locator("li").allTextContents();
+  check(who.length >= 3 && new Set(who.map(t => t.toLowerCase())).size === who.length && !/Tiks|tinka/.test(who.join()), `„Kam skirti“ – be pasikartojimų (${who.join(" · ")})`);
+  if (viewport.width >= 1024) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(300);
+    const bar = await page.evaluate(() => {
+      const b = document.querySelector("#buyBar");
+      return { show: b.classList.contains("show"), thumb: !!b.querySelector(".bbThumb img, .bbThumb svg"), qty: getComputedStyle(b.querySelector(".bbQty")).display !== "none" };
+    });
+    check(bar.show && bar.thumb && bar.qty, "kompiuteryje – prilipusi pirkimo juosta su nuotrauka ir kiekiu (kaip parfumada.lt)");
+  }
   const s30 = vanor.sizes[0];
   await page.click(`#productRoot .sizeOpt[data-ml="${s30.ml}"]`);
   check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(s30.price), `tūris ${s30.ml} ml – kaina ${s30.price} €`);
@@ -315,15 +334,18 @@ async function run(viewport) {
   await page.waitForTimeout(350);
   await page.click('#productRoot .sizeOpt[data-ml="2"]');
   check(money(await page.locator("#buyBar [data-buy-price]").textContent()) === eur(vanor.sample), "mėginukas 2 ml – kaina");
-  await page.click('#productRoot [data-qty-step="1"]');
-  check((await page.locator("#productRoot [data-qty]").textContent()) === "2", "kiekis kvapo puslapyje: 2");
+  await page.click('#productRoot .pdBuy [data-qty-step="1"]');
+  check((await page.locator("#productRoot .pdBuy [data-qty]").textContent()) === "2", "kiekis kvapo puslapyje: 2");
   await page.locator("#productRoot [data-add]").first().click();
   await page.waitForSelector("#miniWrap:not([hidden])");
   await page.keyboard.press("Escape");
   await page.waitForTimeout(350);
   check((await cartBadge(page)) === "3", "2 mėginukai pridėti (3)");
-  check((await page.locator("#productRoot [data-qty]").textContent()) === "1", "kiekis po įdėjimo – vėl 1");
-  check((await page.locator("#productRoot .acc").count()) === 5 && (await page.locator("#productRoot .acc[open]").count()) === 0, "kvapo puslapis: 5 išskleidžiamos dalys");
+  check((await page.locator("#productRoot .pdBuy [data-qty]").textContent()) === "1", "kiekis po įdėjimo – vėl 1");
+  check(
+    (await page.locator("#productRoot .acc").count()) === (vanor.ingredients ? 4 : 3) && (await page.locator("#productRoot .acc[open]").count()) === 0,
+    "kvapo puslapis: išskleidžiamos dalys – Kam skirti, Natos, (Ingredientai), Pristatymas"
+  );
 
   // Atradimų rinkinys
   await open(page, `${A}rinkinys`);

@@ -151,10 +151,9 @@ await page.click('.admTr[data-pid="vanor"] .admProd');
 await page.waitForSelector("#prodForm");
 check((await page.locator('#prodForm input[name="id"]').getAttribute("readonly")) !== null, "esamo kvapo adresas nekeičiamas");
 await page.fill('#prodForm input[name="tagline"]', "Ryto gaiva – nauja");
+check((await page.locator(".admSizeMl").allTextContents()).join() === "33 ml,100 ml", "talpos – tik 33 ml ir 100 ml (fiksuotos eilutės)");
+check((await page.locator("[data-size-add], [data-size-rm]").count()) === 0, "talpų pridėti / šalinti negalima");
 await page.locator("[data-size-price]").nth(1).fill("69,50");
-await page.click("[data-size-add]");
-await page.locator("[data-size-ml]").last().fill("10");
-await page.locator("[data-size-price]").last().fill("19");
 await page.locator('.admCheck:has(input[value="vasaros-gaiva"])').click();
 await page.locator('.admCheck:has(input[value="vakarui"])').click();
 const imgs0 = sb.db.products.find(x => x.id === "vanor").images.length;
@@ -170,7 +169,7 @@ check(
   "kvapas išsaugotas"
 );
 const vanor = sb.db.products.find(x => x.id === "vanor");
-check(JSON.stringify(vanor.sizes) === JSON.stringify([{ ml: 10, price: 19 }, { ml: 30, price: 29.9 }, { ml: 50, price: 69.5 }, { ml: 100, price: 59.9 }]), "tūriai: pridėtas 10 ml, kaina su kableliu, surikiuota");
+check(JSON.stringify(vanor.sizes) === JSON.stringify([{ ml: 33, price: 29.9 }, { ml: 100, price: 69.5 }]), "talpos: 33 ml ir 100 ml, kaina su kableliu");
 const rasaCats = () => sb.db.product_categories.filter(l => l.product_id === "vanor").map(l => l.category_id);
 check(await until(() => rasaCats().sort().join() === "vasaros-gaiva,ziemos-kolekcija"), "kategorijos atnaujintos");
 check(await toastHas(page, "Atnaujinti svetainę"), "po išsaugojimo – pasiūlymas atnaujinti svetainę");

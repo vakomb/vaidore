@@ -168,6 +168,22 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
   rodoma tik jei užpildyta; „Įdėti į krepšelį“ 63 px; „Į mėgstamus“ / „Dalintis“ – po pirkimu.
 - Poraštė: nuorodų eilutės 55 px, 18,2 px.
 
+## Kvapo puslapis ir slinkimas (v11, kaip parfumada.lt)
+
+- **Turinys** (`10-product.js`): pavadinimas tarp linijų, „Įkvėpti …“, trys natos; nuotrauka; aprašymas (19,5 px, 75 % juodos);
+  išskleidžiamos dalys – „Kam skirti“ (sąrašas: lytis · kvapų šeima · kada · metų laikai, kiekvienas po kartą – `suitsParts`),
+  „Natos“ („Viršutinės / Širdies / Bazinės natos: …“), „Ingredientai“ (jei įrašyti), „Pristatymas ir grąžinimas“.
+  „Savybės“ ir „Panaudojimo būdas“ pašalinti. Kaina (akcija – raudona `--sale`), **Talpa**: 33 ml · 100 ml · 2 ml mėginukas.
+- **Išdėstymas**: telefone – vienas stulpelis; planšetėje (700–1023 px) – du lygūs stulpeliai, nuotrauka lipni; kompiuteryje –
+  per visą plotį (iki 1520 px, kraštai 64 px), nuotrauka 55 % / informacija 45 % (iki 560 px). „Jums gali patikti“ – už
+  `article.pd` ribų (kitaip lipni nuotrauka slinktų per jį), karuselė – kaip pradžioje (didelė kortelė centre, be širdelių).
+- **Pirkimo juosta** `#buyBar`: telefone / planšetėje – kaina + mygtukas, kai pagrindinis mygtukas išslenka viršun;
+  kompiuteryje – nuotrauka, pavadinimas, kaina, kiekis, mygtukas, kai pagrindinio mygtuko nesimato. Kiekis bendras (`pdState.qty`).
+- **Slinkimas**: parfumada.lt naudoja įprastą naršyklės slinkimą – sklandumą lemia tai, kad slenkant nieko nereikia perpiešti.
+  Todėl: header'is ir pirkimo juosta – balti (be `backdrop-filter`), kortelės be `content-visibility`, header'io klasė
+  keičiama tik pasikeitus būsenai. Kompiuteryje pelės ratukas – `27-smooth-scroll.js` (tolygus „nuplaukimas“, ~10 % likusio
+  kelio per kadrą); liečiamas kilimėlis, telefonas, klaviatūra, vidiniai slenkami laukai ir „mažiau judesio“ – natūralūs.
+
 ## Pradžios puslapis iš administravimo (v8: admin/pradzia)
 
 - **Skyrius „Pradžia“** (`src/scripts/admin/10-home.js`, stiliai `admin.css` „Pradžios puslapis“): skaidrės ir „Produktai“

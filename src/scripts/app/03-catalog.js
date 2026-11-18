@@ -3,6 +3,8 @@
 // Visi kintamieji – let: po atnaujinimo perskaičiuojami (BY_ID, paieškos indeksas…).
 let CAT, SET, PRODUCTS, ALL_PRODUCTS, BY_ID, FAMILY, CATEGORY, SEARCH_IX, DISC;
 const SAMPLE_ML = 2;
+// Buteliukų talpos – tik 33 ml ir 100 ml (+ 2 ml mėginukas). Kitos (seni 30 / 50 ml įrašai) parduotuvėje nerodomos.
+const BOTTLE_ML = [33, 100];
 
 const GENDER_NAME = { moterims: "Moterims", vyrams: "Vyrams", unisex: "Unisex" };
 const GENDER_TITLE = { moterims: "Kvepalai moterims", vyrams: "Kvepalai vyrams", unisex: "Unisex kvepalai" };
@@ -13,6 +15,10 @@ const LASTS = ["", "2–3 val.", "3–5 val.", "5–7 val.", "7–9 val.", "9+ v
 
 function setCatalog(c) {
   CAT = c;
+  for (const p of c.products) {
+    const ok = (p.sizes || []).filter(s => BOTTLE_ML.includes(Number(s.ml)));
+    if (ok.length) p.sizes = ok;
+  }
   SET = window.__vdPreviewSet ? { ...c.settings, ...window.__vdPreviewSet } : c.settings; // administravimo peržiūra (25)
   ALL_PRODUCTS = c.products;
   PRODUCTS = c.products.filter(p => p.visible !== false);
@@ -83,7 +89,8 @@ const SAMPLEABLE = () => PRODUCTS.filter(inStock);
 
 // „Tiks …“ – viena eilutė kvapo puslapyje iš laukų time, sillage, seasons (be naujų duomenų)
 const SEASON_DAT = { pavasaris: "pavasariui", vasara: "vasarai", ruduo: "rudeniui", žiema: "žiemai" };
-function suitsLine(p) {
+// „Kam skirti“ (kvapo puslapis): kada ir kokiu metų laiku – po vieną kartą, be pasikartojimų
+function suitsParts(p) {
   const when = p.time.includes("vakaras")
     ? p.time.includes("diena")
       ? "dienai ir vakarui"
@@ -101,7 +108,7 @@ function suitsLine(p) {
           .map(x => SEASON_DAT[x])
           .join(" ir ")
           .replace(/ ir (?=.* ir )/g, ", ");
-  return seasons ? `Tiks ${when} · ${seasons}` : `Tiks ${when}`;
+  return { when, seasons };
 }
 
 function matches(p, q) {

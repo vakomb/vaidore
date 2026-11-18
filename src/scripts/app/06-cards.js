@@ -17,7 +17,7 @@ function artImg(p, { eager = false } = {}) {
     ? `<img class="photo" src="${esc(src)}" alt="${esc(p.name)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />`
     : bottleSVG(p);
 }
-const defaultMl = p => (p.sizes.find(s => s.ml === 50) || p.sizes[0]).ml;
+const defaultMl = p => (p.sizes.find(s => s.ml === BOTTLE_ML[0]) || p.sizes[0]).ml;
 function cardPriceHTML(p, sample) {
   if (sample) return `<span class="money">${eur(p.sample)}</span><small>· 2 ml</small>`;
   const c = cheapestSize(p);

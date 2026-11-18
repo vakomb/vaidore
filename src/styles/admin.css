@@ -553,17 +553,16 @@
 }
 .admSize {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 40px;
+  grid-template-columns: 76px 1fr 1fr;
   align-items: end;
   gap: 10px;
 }
-.admSize .roundBtn {
-  margin-bottom: 18px;
-  box-shadow: none;
-  background: var(--bg-soft);
-  color: var(--ink2);
+.admSizeMl {
+  align-self: center;
+  margin-top: 10px;
+  font-size: 17px;
+  font-weight: 600;
 }
-.admSize .roundBtn svg,
 .admTaxoImg .roundBtn svg {
   width: 18px;
   height: 18px;

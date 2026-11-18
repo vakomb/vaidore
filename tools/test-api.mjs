@@ -152,16 +152,16 @@ check(r.status === 400, "checkout: neegzistuojantis tūris → 400");
 r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: D.id, qty: 1, picks: ["vanor", "vanor", "arven", "noirelle", "bellara"] }] } })));
 check(r.status === 400, "checkout: rinkinys su pasikartojančiu kvapu → 400");
 db.products.find(p => p.id === "arven").stock = 0;
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 50, qty: 1 }] } })));
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 33, qty: 1 }] } })));
 check(r.status === 409 && /išparduotas/.test(r.body.error), "checkout: stock 0 → 409 „išparduotas“");
 r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: D.id, qty: 1, picks: ["vanor", "arven", "safrane", "noirelle", "bellara"] }] } })));
 check(r.status === 409, "checkout: rinkinys su išparduotu kvapu → 409");
 db.products.find(p => p.id === "arven").stock = 2;
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 50, qty: 3 }] } })));
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 33, qty: 3 }] } })));
 check(r.status === 409 && /liko tik 2/.test(r.body.error), "checkout: daugiau nei likutis → 409 „liko tik 2“");
 db.products.find(p => p.id === "arven").stock = null;
 db.products.find(p => p.id === "bellara").visible = false;
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "bellara", ml: 50, qty: 1 }] } })));
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "bellara", ml: 33, qty: 1 }] } })));
 check(r.status === 400, "checkout: paslėptas kvapas – nepirktinas");
 db.products.find(p => p.id === "bellara").visible = true;
 
@@ -196,14 +196,14 @@ check(b.get("success_url") === "https://vakomb.github.io/vaidore/aciu?s={CHECKOU
 check(!b.has("customer") && !b.has("metadata[user_id]"), "checkout: svečias – be paskyros");
 
 calls.length = 0;
-await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 50, qty: 1 }], shipping: { method: "dpd" }, site: "https://piktas.example" } }));
+await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 33, qty: 1 }], shipping: { method: "dpd" }, site: "https://piktas.example" } }));
 let cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(cb.get("shipping_address_collection[allowed_countries][0]") === "LT" && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "499", "checkout: kurjeris – adresas, 4,99 €");
 check(cb.get("success_url").startsWith("https://vaidore.com/aciu"), "checkout: svetimas grįžimo adresas – nenaudojamas");
 check(!cb.has("metadata[sample_credit_cents]"), "checkout: be mėginukų – kodo nėra");
 
 calls.length = 0;
-await shop.checkout(req(`${F}/checkout`, { token: "eyJ.user", body: { items: [{ id: "arven", ml: 50, qty: 1 }], shipping: { method: "dpd" } } }));
+await shop.checkout(req(`${F}/checkout`, { token: "eyJ.user", body: { items: [{ id: "arven", ml: 33, qty: 1 }], shipping: { method: "dpd" } } }));
 cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(cb.get("metadata[user_id]") === "u1" && cb.get("customer") === "cus_1" && db.profiles[0].stripe_customer === "cus_1", "checkout: prisijungęs – susieta su paskyra, Stripe klientas sukurtas ir išsaugotas");
 check(calls.find(c => c.url === "https://api.stripe.com/v1/customers")?.body.get("shipping[address][line1]") === "Gedimino pr. 1", "checkout: išsaugotas adresas perduodamas Stripe");

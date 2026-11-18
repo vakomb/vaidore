@@ -24,7 +24,7 @@
 }
 .view.active {
   display: block;
-  animation: vdView 0.32s var(--spring) both;
+  animation: vdView 0.32s var(--spring) backwards; /* ne „both“: pasibaigus nelieka transform – kitaip fixed vaikai (pirkimo juosta) prilimpa ne prie ekrano */
 }
 @keyframes vdView {
   from {
@@ -119,21 +119,19 @@
   height: 18px;
 }
 
-/* Header'is: telefone – meniu ir paieška kairėje, logotipas centre, paskyra ir krepšelis dešinėje;
-   kompiuteryje – ta pati eilutė (paieškos laukas) + tamsi kategorijų juosta (09-desktop.css). Užslinkus – matinis stiklas. */
+/* Header'is: telefone – ☰ · logotipas · paieška · krepšelis; kompiuteryje – ta pati eilutė + tamsi kategorijų juosta
+   (09-desktop.css). Baltas, be matinio stiklo (kaip parfumada.lt) – slenkant naršyklei nereikia kiekviename kadre
+   perskaičiuoti suliejimo, todėl slinkimas sklandus. Užslinkus – tik švelnus šešėlis. */
 .hdr {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(255, 255, 255, 0.98);
+  background: #fff;
   box-shadow: 0 1px 0 var(--line);
-  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  transition: box-shadow 0.3s ease;
 }
 .hdr.scrolled {
-  background: rgba(255, 255, 255, 0.86);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  backdrop-filter: blur(20px) saturate(170%);
-  box-shadow: 0 1px 0 var(--hair), 0 8px 24px -16px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 1px 0 var(--hair), 0 8px 24px -18px rgba(0, 0, 0, 0.22);
 }
 .hdrIn {
   max-width: var(--maxW);

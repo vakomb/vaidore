@@ -310,9 +310,7 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.86);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.94);
   color: var(--ink2);
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.05);
   transition: transform 0.42s var(--spring), color 0.2s ease;
@@ -349,8 +347,6 @@
   flex-direction: column;
   gap: 12px;
   color: var(--ink);
-  content-visibility: auto;
-  contain-intrinsic-size: 340px;
 }
 /* Paveikslas virš nuorodos (judant – transform), bet paspaudimai pereina į nuorodą; širdelė ir greitas veiksmas – paspaudžiami */
 .card .art {
@@ -560,7 +556,6 @@
 }
 .rail .card {
   scroll-snap-align: start;
-  content-visibility: visible;
 }
 /* Pradžios karuselės telefone (kaip parfumada.lt): didelė kortelė centre (~73 % ekrano), kaimynės matosi kraštuose
    ir yra 0,85 dydžio; slenkant dydis keičiasi tolygiai pagal atstumą iki centro (07-home.js, coverScales). Sustoja
