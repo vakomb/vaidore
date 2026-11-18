@@ -1,3 +1,3 @@
--- v12: originalo („Įkvėpti …“) nuotrauka – mažas apvalus paveikslėlis pradžios kortelėse (įkelia administratorius).
--- Tuščia – rodoma namų monograma (pvz. „TF“).
+-- v12: originalo („Įkvėpti …“) nuotrauka. Šiuo metu parduotuvėje nerodoma (blokas atšauktas savininko prašymu),
+-- stulpelis ir įkelti duomenys palikti, kad nedingtų.
 alter table public.products add column if not exists inspired_image text not null default '';

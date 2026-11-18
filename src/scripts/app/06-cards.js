@@ -26,28 +26,6 @@ function cardPriceHTML(p, sample) {
     ? `<s class="money">${eur(c.was)}</s><span class="money sale">${from}${eur(c.price)}</span>`
     : `<span class="money">${from}${eur(c.price)}</span>`;
 }
-// „Įkvėpti …“ blokas (pradžios karuselės – vietoje natų; kvapo puslapis – po pavadinimu): „Tom Ford - Tobacco Vanille“ →
-// „ĮKVĖPTI · TOM FORD“ ir „Tobacco Vanille“; kairėje – kvadratinė originalo nuotrauka (administravime, laukas
-// inspired_image) arba namų monograma („TF“)
-const inspParts = s => {
-  const m = String(s || "").split(/\s+[-–—]\s+/);
-  return m.length > 1 ? { house: m[0].trim(), name: m.slice(1).join(" – ").trim() } : { house: "", name: String(s || "").trim() };
-};
-function inspMonogram(s) {
-  const { house, name } = inspParts(s);
-  const w = (house || name).split(/\s+/).filter(x => /\p{L}/u.test(x));
-  if (!w.length) return "V";
-  return (w.length > 1 ? w.map(x => x.match(/\p{L}/u)[0]).join("").slice(0, 3) : w[0].match(/\p{L}/u)[0]).toUpperCase();
-}
-function inspHTML(p, cls = "") {
-  const s = inspiredOf(p);
-  if (!s) return "";
-  const { house, name } = inspParts(s);
-  const mark = p.inspiredImage ? `<img src="${esc(p.inspiredImage)}" alt="" loading="lazy" decoding="async" />` : `<b>${esc(inspMonogram(s))}</b>`;
-  return `<span class="cardInsp${cls}"><span class="ciMark${p.inspiredImage ? " hasImg" : ""}">${mark}</span><span class="ciTxt"><small>Įkvėpti${
-    house ? ` · <span class="ciHouse">${esc(house)}</span>` : ""
-  }</small><span class="ciName">${esc(name)}</span></span></span>`;
-}
 function cardHTML(p, opts = {}) {
   const sample = !!opts.sample;
   const sold = !inStock(p);
@@ -56,9 +34,7 @@ function cardHTML(p, opts = {}) {
 <div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${SET.cards?.badges !== false ? badgePill(p) : ""}${
     opts.heart !== false && SET.cards?.heart !== false ? heartBtn(p) : ""
   }</div>
-<div class="cardTxt"><span class="cardName">${esc(p.name)}</span>${
-    (opts.insp && inspHTML(p)) || `<span class="cardNotes">${keyNotes(p).map(esc).join(" · ")}</span>`
-  }<span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
+<div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardNotes">${keyNotes(p).map(esc).join(" · ")}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
     rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""
   }</div>
 <a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}${inspiredOf(p) ? `, įkvėpti ${esc(inspiredOf(p))}` : ""}, ${esc(cardSub(p))}"></a>

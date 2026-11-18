@@ -54,7 +54,7 @@ window.VD = {
   get SET() {
     return SET;
   },
-  GENDER_NAME, CONC_NAME, SEASON_NAME, LEVEL, LASTS, ORDER_STATUS, statusPill, FAMILY_LOOK, SAMPLE_ML, BOTTLE_ML, inspMonogram,
+  GENDER_NAME, CONC_NAME, SEASON_NAME, LEVEL, LASTS, ORDER_STATUS, statusPill, FAMILY_LOOK, SAMPLE_ML, BOTTLE_ML,
   catalogFromDb, fetchCatalog,
   // Pradžios puslapio redaktorius (admin/pradzia): šablonai, numatytieji, scenos, nuotraukos
   stageHTML, photoHTML, slideDefaults, resolveSlide, tilePreset, productUrl, autoNoteItems, fmtNote,

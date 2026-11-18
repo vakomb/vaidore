@@ -92,7 +92,7 @@ function railHTML(cards, { cover = false } = {}) {
 function railSecHTML({ title, line, href, list }) {
   return `<section class="hsec"><h2 class="band">${esc(title)}</h2><div class="wrap">${
     line ? `<p class="secLine"><span>${esc(line)}</span><a href="${href}" data-nav>Peržiūrėti</a></p>` : ""
-  }${railHTML(list.map(p => cardHTML(p, { heart: false, insp: true })).join(""), { cover: true })}</div></section>`;
+  }${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""), { cover: true })}</div></section>`;
 }
 // Pradžios karuselė telefone (kaip parfumada.lt): kortelės dydis 0,85–1 pagal atstumą nuo centro
 const coverMQ = matchMedia("(max-width: 699.98px)");

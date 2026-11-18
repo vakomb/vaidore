@@ -160,14 +160,11 @@ const imgs0 = sb.db.products.find(x => x.id === "vanor").images.length;
 await page.setInputFiles("[data-img-input]", path.join(root, "src/public/icons/icon-512.png"));
 check(await until(async () => (await page.locator(".admImg").count()) === imgs0 + 1), "nuotrauka pridėta prie esamų");
 check(sb.uploads.length === 1 && /image\/(webp|jpeg)/.test(sb.uploads[0].type), "nuotrauka sumažinta ir įkelta (WebP)");
-check((await page.locator("#inspPrev b").textContent()).length >= 1, "originalo nuotraukos vietoje – monograma");
-await page.setInputFiles("[data-insp-input]", path.join(root, "src/public/icons/icon-512.png"));
-check(await until(async () => (await page.locator("#inspPrev img").count()) === 1 && sb.uploads.length === 2 && /\/originalas\//.test(sb.uploads[1].path)), "originalo nuotrauka įkelta");
 await page.click("#prodForm button[type=submit]");
 check(
   await until(() => {
     const p = sb.db.products.find(x => x.id === "vanor");
-    return p.tagline === "Ryto gaiva – nauja" && p.images.length === imgs0 + 1 && !!p.inspired_image;
+    return p.tagline === "Ryto gaiva – nauja" && p.images.length === imgs0 + 1;
   }),
   "kvapas išsaugotas"
 );

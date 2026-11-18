@@ -12,7 +12,6 @@ export function dbFromCatalog(cat) {
     id: p.id,
     name: p.name,
     inspired: p.inspired || "",
-    inspired_image: p.inspiredImage || "",
     conc: p.conc,
     gender: p.gender,
     family: p.family,
