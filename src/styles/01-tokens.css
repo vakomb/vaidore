@@ -90,8 +90,11 @@
   --maxW: 1280px;
   --hdrH: 57px; /* v10: kaip parfumada.lt (kompiuteryje 95 px – 09-desktop.css) */
   --hdrBtn: 57px; /* header'io mygtukų paspaudimo zona */
-  --hdrIcon: 28px; /* header'io ikonos */
-  --logoH: 19px; /* VAIDORE logotipo aukštis (didžiųjų raidžių) */
+  /* header'io ikonos kaip parfumada.lt: matomas piešinys ≈ 24–25 px (mūsų glifai užima ~16 iš 24 vienetų → 36 px dėžutė),
+     linija ≈ 1,5 px (1 × 36/24) – telefone ir kompiuteryje vienodai */
+  --hdrIcon: 36px;
+  --hdrStroke: 1;
+  --logoH: 22px; /* VAIDORE logotipo aukštis (didžiųjų raidžių) – telefone ≈ 142 px pločio */
   --noteH: 66px; /* v10: juosta virš header'io – fiksuotas aukštis, tekstas iki 2 eilučių (kompiuteryje 49 px) */
   --noteFs: 19.5px;
   --fs: 19.5px; /* v10: pagrindinis teksto dydis (kaip parfumada.lt) */
