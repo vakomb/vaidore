@@ -519,26 +519,19 @@
 .rail .art {
   border-radius: var(--r-photo);
 }
-/* „Įkvėpti …“ ženkliukas (pradžios karuselės, vietoje natų): apvali originalo nuotrauka arba namų monograma aukso
-   žiede + smulki eilutė „ĮKVĖPTI · TOM FORD“ ir kvapas „Tobacco Vanille“. Kompaktiškas (44 px). Telefono karuselėje ryškėja
-   artėdamas į centrą (--focus 0–1, 07-home.js), centre – vienas švelnus aukso blyksnis per ženkliuką. */
-.card {
-  min-width: 0; /* ilgas „Įkvėpti …“ tekstas neplečia kortelės – sutrumpinamas „…“ */
-}
+/* „Įkvėpti …“ blokas (pradžios karuselės – vietoje natų; kvapo puslapis – .big): balta kortelė su plona linija,
+   kairėje kvadratinė originalo nuotrauka arba namų monograma, dešinėje „ĮKVĖPTI · NAMAI“ ir kvapas. 46 px aukščio. */
 .cardInsp {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   max-width: 100%;
   margin-top: 2px;
-  padding: 4px 16px 4px 4px;
-  border-radius: 999px;
-  background: var(--inspBg);
+  padding: 5px 14px 5px 5px;
+  border-radius: 10px;
+  background: #fff;
   box-shadow: inset 0 0 0 1px var(--inspLine);
-  overflow: hidden;
   text-align: left;
-  isolation: isolate;
 }
 .ciMark {
   flex: 0 0 auto;
@@ -547,25 +540,24 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--gold), 0 2px 6px -2px rgba(107, 79, 22, 0.35);
+  border-radius: 6px;
+  background: var(--inspBg);
 }
 .ciMark b {
   font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--gold-ink);
+  letter-spacing: 0.04em;
+  color: #000;
 }
 .ciMark img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 3px;
 }
 .ciTxt {
   display: flex;
   flex-direction: column;
+  gap: 1px;
   min-width: 0;
   line-height: 1.2;
 }
@@ -573,13 +565,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--gold-ink);
+  color: var(--ink3);
 }
 .ciHouse {
+  font-weight: 600;
   color: #000;
 }
 .ciName {
@@ -591,41 +584,26 @@
   letter-spacing: 0.02em;
   color: #000;
 }
-/* Aukso blyksnis – kai kortelė atsiduria centre (telefonas) arba užvedus pelę (kompiuteris) */
-.cardInsp::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(105deg, transparent 30%, rgba(201, 162, 86, 0.28) 50%, transparent 70%);
-  transform: translateX(-120%);
-  pointer-events: none;
+/* Kvapo puslapyje – didesnis, pavadinimas gali būti dviem eilutėmis */
+.cardInsp.big {
+  gap: 12px;
+  padding: 6px 18px 6px 6px;
 }
-.inFocus .cardInsp::after,
-.card:hover .cardInsp::after {
-  animation: vdInspShine 1.1s var(--spring) 0.12s both;
+.cardInsp.big .ciMark {
+  width: 48px;
+  height: 48px;
 }
-@keyframes vdInspShine {
-  to {
-    transform: translateX(120%);
-  }
+.cardInsp.big .ciMark b {
+  font-size: 15px;
 }
-@media (max-width: 699.98px) {
-  .railCover .cardInsp {
-    opacity: calc(0.4 + 0.6 * var(--focus, 1));
-    transform: translateY(calc((1 - var(--focus, 1)) * 6px));
-  }
-  .railCover .ciMark {
-    transform: rotate(calc((1 - var(--focus, 1)) * -24deg));
-  }
-  .railCover > .card:not(:first-child) {
-    --focus: 0;
-  }
+.cardInsp.big .ciTxt small {
+  white-space: normal;
+  font-size: 12px;
+  line-height: 1.35;
 }
-@media (prefers-reduced-motion: reduce) {
-  .cardInsp::after {
-    display: none;
-  }
+.cardInsp.big .ciName {
+  white-space: normal;
+  font-size: 18px;
 }
 /* Katalogo tinklelyje – paveikslas 4:5 (kaip parfumada.lt); buteliukas užima beveik visą aukštį (nuotrauka kvadratinė,
    buteliukas jos centre, todėl „cover“ nukerpa tik tuščius šonus) */

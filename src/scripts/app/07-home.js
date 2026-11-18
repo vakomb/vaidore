@@ -100,22 +100,14 @@ const coverOn = rail => rail.classList.contains("railCover") && coverMQ.matches;
 const coverStep = rail => (rail.children.length > 1 ? rail.children[1].offsetLeft - rail.children[0].offsetLeft : rail.clientWidth);
 function coverScales(rail) {
   const items = [...rail.children];
-  const reset = tf => items.forEach(it => {
-    it.style.transform = tf;
-    it.style.removeProperty("--focus");
-    it.classList.remove("inFocus");
-  });
-  if (!coverOn(rail)) return reset("");
-  if (reduceMotion()) return reset("none");
+  if (!coverOn(rail)) return items.forEach(it => (it.style.transform = ""));
+  if (reduceMotion()) return items.forEach(it => (it.style.transform = "none"));
   if (!rail.clientWidth) return; // paslėptas ekranas – pirmoji 1, kitos 0,85 (CSS)
   const mid = rail.scrollLeft + rail.clientWidth / 2;
   const max = rail.clientWidth / 2;
   for (const it of items) {
     const t = Math.max(0, 1 - Math.abs(mid - (it.offsetLeft + it.offsetWidth / 2)) / max);
     it.style.transform = `scale(${(0.85 + 0.15 * t).toFixed(3)}) translateZ(0)`;
-    // „Įkvėpti“ ženkliukas ryškėja artėjant į centrą; centre – vienas aukso blyksnis (05-products.css)
-    it.style.setProperty("--focus", t.toFixed(3));
-    it.classList.toggle("inFocus", t > 0.9);
   }
 }
 function syncRail(wrap) {

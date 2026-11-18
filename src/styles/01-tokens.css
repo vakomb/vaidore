@@ -80,8 +80,8 @@
   --r-photo: 5px; /* v10: prekės paveikslo kampai (karuselėse) */
   --r-tileArt: 16px; /* v10: kategorijų plytelių paveikslo kampai */
   --sale-bg: #ffe6e6; /* v10: „Akcija“ ženkliukas – švelniai rožinis, juodas tekstas (kaip parfumada.lt) */
-  --inspBg: #faf7f1; /* „Įkvėpti …“ ženkliukas kortelėse – šiltas, vos auksinis fonas */
-  --inspLine: rgba(176, 138, 62, 0.28);
+  --inspBg: #f4f4f4; /* „Įkvėpti …“ – nuotraukos / monogramos kvadratėlio fonas */
+  --inspLine: rgba(0, 0, 0, 0.12); /* „Įkvėpti …“ bloko plona linija */
   --ftrBg: #f6f5f3; /* poraštė – šviesi, šilta pilka */
   --ftrLine: rgba(0, 0, 0, 0.09);
   --lineSoft: #cccccc; /* v10: eilutės „… | Peržiūrėti“ linijos */

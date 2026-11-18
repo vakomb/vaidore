@@ -26,8 +26,9 @@ function cardPriceHTML(p, sample) {
     ? `<s class="money">${eur(c.was)}</s><span class="money sale">${from}${eur(c.price)}</span>`
     : `<span class="money">${from}${eur(c.price)}</span>`;
 }
-// „Įkvėpti …“ ženkliukas (pradžios karuselės – vietoje natų): „Tom Ford - Tobacco Vanille“ → namai „Tom Ford“ ir kvapas
-// „Tobacco Vanille“; kairėje – originalo nuotrauka (administravime, laukas inspired_image) arba namų monograma („TF“)
+// „Įkvėpti …“ blokas (pradžios karuselės – vietoje natų; kvapo puslapis – po pavadinimu): „Tom Ford - Tobacco Vanille“ →
+// „ĮKVĖPTI · TOM FORD“ ir „Tobacco Vanille“; kairėje – kvadratinė originalo nuotrauka (administravime, laukas
+// inspired_image) arba namų monograma („TF“)
 const inspParts = s => {
   const m = String(s || "").split(/\s+[-–—]\s+/);
   return m.length > 1 ? { house: m[0].trim(), name: m.slice(1).join(" – ").trim() } : { house: "", name: String(s || "").trim() };
@@ -38,12 +39,12 @@ function inspMonogram(s) {
   if (!w.length) return "V";
   return (w.length > 1 ? w.map(x => x.match(/\p{L}/u)[0]).join("").slice(0, 3) : w[0].match(/\p{L}/u)[0]).toUpperCase();
 }
-function inspHTML(p) {
+function inspHTML(p, cls = "") {
   const s = inspiredOf(p);
   if (!s) return "";
   const { house, name } = inspParts(s);
   const mark = p.inspiredImage ? `<img src="${esc(p.inspiredImage)}" alt="" loading="lazy" decoding="async" />` : `<b>${esc(inspMonogram(s))}</b>`;
-  return `<span class="cardInsp"><span class="ciMark${p.inspiredImage ? " hasImg" : ""}">${mark}</span><span class="ciTxt"><small>Įkvėpti${
+  return `<span class="cardInsp${cls}"><span class="ciMark${p.inspiredImage ? " hasImg" : ""}">${mark}</span><span class="ciTxt"><small>Įkvėpti${
     house ? ` · <span class="ciHouse">${esc(house)}</span>` : ""
   }</small><span class="ciName">${esc(name)}</span></span></span>`;
 }

@@ -217,13 +217,6 @@
 }
 .pdInsp {
   margin-top: 14px;
-  font-size: 17px;
-  letter-spacing: 0.03em;
-  color: var(--ink2);
-}
-.pdInsp b {
-  font-weight: 600;
-  color: #000;
 }
 .pdLegal {
   margin-top: 14px;
@@ -568,7 +561,7 @@
   padding: 0;
 }
 .pdInsp + .pdKey {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 /* Kaina nuo–iki (kaip parfumada.lt): du laukai su „€“ */
