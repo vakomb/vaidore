@@ -603,13 +603,14 @@
 .rail {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 85.5%; /* v10: 284 px kortelė 390 px ekrane, 29 px kraštai – matosi kitos kortelės kraštas */
-  gap: 8px;
+  /* Telefone ~1,6 kortelės: kitos kortelės buteliukas matosi iki pusės – aišku, kad galima slinkti */
+  grid-auto-columns: 62%;
+  gap: 12px;
   margin: 0 calc(var(--pad) * -1);
-  padding: 2px 29px 8px;
+  padding: 2px var(--pad) 8px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding: 0 29px;
+  scroll-padding: 0 var(--pad);
   scrollbar-width: none;
   overscroll-behavior-x: contain;
 }
