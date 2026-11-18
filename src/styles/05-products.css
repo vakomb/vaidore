@@ -262,18 +262,11 @@
 .tile:active {
   transform: scale(var(--press));
 }
-/* Telefone: ekrane lygiai dvi plytelės (Moterims ir Vyrams), kitos – braukiant; paveikslas beveik kvadratinis,
-   pavadinimas – santūrus, didžiosiomis, praretintas */
+/* Telefone: ekrane lygiai dvi plytelės, kitos – braukiant; paveikslas beveik kvadratinis.
+   Pavadinimas – tokio pat dydžio kaip visur (22,75 px / 700) */
 @media (max-width: 699.98px) {
   .catTiles {
     grid-auto-columns: calc((100% - 12px) / 2);
-  }
-  .tileName {
-    padding: 0 0 10px;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 22px;
-    letter-spacing: 0.14em;
   }
   .tileArt {
     aspect-ratio: 10 / 11;
