@@ -171,7 +171,7 @@ function renderHome() {
     { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
     { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") },
     { title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() }
-  ].filter(x => x.list.length >= 2);
+  ].filter(x => x.list.length); // skyrius rodomas, jei yra bent vienas kvapas
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
   bindRails($("#view-home"));
 
