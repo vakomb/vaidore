@@ -145,6 +145,7 @@ const blankProduct = () => ({
   id: "",
   name: "",
   inspired: "",
+  inspired_image: "",
   conc: "EDP",
   gender: "unisex",
   family: VD.CAT.families[0]?.id || "",
@@ -177,6 +178,7 @@ async function renderProductEdit(main, id, seq) {
           const b = blankProduct();
           if (r?.[0] && !("inspired" in r[0])) delete b.inspired;
           if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
+          if (r?.[0] && !("inspired_image" in r[0])) delete b.inspired_image;
           // Iš „Importuoti iš Allegro“ – užpildyta forma (kaina, likutis, nuotraukos – įrašomi čia)
           const x = A.importDraft;
           A.importDraft = null;
@@ -200,7 +202,7 @@ async function renderProductEdit(main, id, seq) {
     main.innerHTML = pageHead("Kvapas nerastas") + emptyBox("Tokio kvapo nėra", "Galbūt jis ištrintas.", `<a class="btn primary" href="admin/kvapai" data-nav>Visi kvapai</a>`);
     return;
   }
-  const ed = { p: structuredClone(p), isNew, cats: new Set(links.map(l => l.category_id)), images: [...(p.images || [])] };
+  const ed = { p: structuredClone(p), isNew, cats: new Set(links.map(l => l.category_id)), images: [...(p.images || [])], inspImg: p.inspired_image || "" };
   const n = p.notes || {};
   const check = (name, value, on, label) => `<label class="admCheck"><input type="checkbox" name="${name}" value="${esc(value)}"${attr(on, "checked")} /><span>${esc(label)}</span></label>`;
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
@@ -212,7 +214,11 @@ ${pageHead(isNew ? "Naujas kvapas" : p.name, isNew ? (p.fromImport ? "Užpildyta
 <div class="admEditCols"><div class="admEditMain">
 <section class="admCard"><h2>Pagrindinė informacija</h2>
 <label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(p.name)}" /><small>Užrašomas ir ant buteliuko etiketės, pvz. VANOR</small></label>
-${"inspired" in p ? `<label class="field"><span>Įkvėpta</span><input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="pvz. Tom Ford – Tobacco Vanille" /><small>Prekės ženklas – kvapas. Rodoma „Įkvėpti …“ kortelėse ir kvapo puslapyje</small></label>` : ""}
+${"inspired" in p ? `<label class="field"><span>Įkvėpta</span><input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="pvz. Tom Ford – Tobacco Vanille" /><small>Prekės ženklas – kvapas. Rodoma „Įkvėpti …“ kortelėse ir kvapo puslapyje</small></label>` : ""}${
+    "inspired_image" in p
+      ? `<div class="field admInspImg"><span>Originalo nuotrauka</span><div class="admInspRow"><span class="admInspPrev" id="inspPrev"></span><label class="btn ghost small admUpload">${glyph("upload")}Įkelti<input type="file" accept="image/*" hidden data-insp-input /></label><button class="btn ghost small" type="button" data-insp-rm hidden>${glyph("trash")}Pašalinti</button></div><small>Mažas apvalus paveikslėlis pradžios kortelėse šalia „Įkvėpti …“ (geriausia – buteliukas baltame arba permatomame fone). Įkelkite tik nuotrauką, kurią turite teisę naudoti. Tuščia – rodoma namų monograma (pvz. „TF“).</small></div>`
+      : ""
+  }
 <label class="field"><span>Adresas (id)</span><input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="${esc(p.id)}"${attr(!isNew, "readonly")} /><small>${
     isNew ? "Mažosios raidės, skaičiai ir „-“. Sukūrus nebekeičiamas." : "Nebekeičiamas – gali būti pirkėjų krepšeliuose ir nuorodose."
   }</small></label>
@@ -279,20 +285,28 @@ ${isNew ? "" : `<section class="admCard admDangerCard"><h2>Ištrinti</h2><p clas
   const form = $("#prodForm");
   paintSizes(form, ed.p.sizes || []);
   paintImages(ed);
+  paintInspImg(ed);
   paintBottle(form);
   form.addEventListener("input", e => {
     A.dirty = true;
     if (e.target.name === "name" && isNew && !form.elements.id.dataset.touched) form.elements.id.value = slugify(e.target.value);
     if (e.target.name === "id") form.elements.id.dataset.touched = "1";
     if (["liquid", "tint", "cap", "shape", "name"].includes(e.target.name)) paintBottle(form);
+    if (e.target.name === "inspired" && !ed.inspImg) paintInspImg(ed);
   });
   form.addEventListener("change", e => {
     if (e.target.matches("[data-img-input]")) addImages(ed, form, e.target);
+    else if (e.target.matches("[data-insp-input]")) addInspImg(ed, form, e.target);
     else A.dirty = true;
     if (["cap", "shape"].includes(e.target.name)) paintBottle(form);
   });
   form.addEventListener("click", e => {
     const t = e.target instanceof Element ? e.target : null;
+    if (t?.closest("[data-insp-rm]")) {
+      ed.inspImg = "";
+      paintInspImg(ed);
+      A.dirty = true;
+    }
     const im = t?.closest("[data-img]");
     if (im) {
       const i = Number(im.closest("[data-img-i]").dataset.imgI);
@@ -387,6 +401,7 @@ function readProduct(ed, form) {
     tagline: f.tagline.value.trim(),
     description: f.description.value.trim(),
     ...(f.ingredients ? { ingredients: f.ingredients.value.trim() } : {}),
+    ...("inspired_image" in ed.p ? { inspired_image: ed.inspImg || "" } : {}),
     notes,
     longevity: Number(f.longevity.value),
     sillage: Number(f.sillage.value),
@@ -454,5 +469,32 @@ async function deleteProduct(p) {
     navigate("admin/kvapai", { replace: true });
   } catch (err) {
     toast(errText(err), { icon: "info", ms: 4200 });
+  }
+}
+
+// Originalo („Įkvėpti …“) nuotrauka – peržiūra, įkėlimas (iki 400 px), pašalinimas
+function paintInspImg(ed) {
+  const box = $("#inspPrev");
+  if (!box) return;
+  box.innerHTML = ed.inspImg ? `<img src="${esc(ed.inspImg)}" alt="" />` : `<b>${esc(VD.inspMonogram(($("#prodForm")?.elements.inspired?.value || "").trim()))}</b>`;
+  $("[data-insp-rm]").hidden = !ed.inspImg;
+}
+async function addInspImg(ed, form, input) {
+  const file = input.files[0];
+  input.value = "";
+  if (!file) return;
+  const id = form.elements.id.value.trim();
+  if (!/^[a-z0-9-]+$/.test(id)) return toast("Pirma įrašykite pavadinimą (adresą)", { icon: "info" });
+  const label = input.closest("label");
+  label.classList.add("loading");
+  try {
+    [ed.inspImg] = await uploadImages([file], `${id}/originalas`, 400);
+    paintInspImg(ed);
+    A.dirty = true;
+    toast("Nuotrauka įkelta – neužmirškite išsaugoti", { icon: "check", ms: 3600 });
+  } catch (err) {
+    toast(errText(err), { icon: "info", ms: 4200 });
+  } finally {
+    label.classList.remove("loading");
   }
 }

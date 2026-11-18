@@ -31,6 +31,7 @@ export async function dbCatalog(sb, fallback) {
         id: p.id,
         name: p.name,
         inspired: p.inspired || "",
+        inspiredImage: p.inspired_image || "",
         conc: p.conc,
         gender: p.gender,
         family: p.family,

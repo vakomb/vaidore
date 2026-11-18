@@ -196,6 +196,7 @@ function catalogFromDb(rows) {
       id: p.id,
       name: p.name,
       inspired: p.inspired || "",
+      inspiredImage: p.inspired_image || "",
       conc: p.conc,
       gender: p.gender,
       family: p.family,

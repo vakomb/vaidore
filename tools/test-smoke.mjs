@@ -216,6 +216,11 @@ async function run(viewport) {
     check(await until(async () => (await nav.locator(".railPage").textContent()) !== before), `karuselė: rodyklė „pirmyn“ (${before} → kitas puslapis)`);
   }
   check((await page.locator("#homeRails .card [data-fav]").count()) === 0, "pradžia: karuselių kortelėse širdelių nėra");
+  const insp = await page.evaluate(() => {
+    const c = document.querySelector("#homeRails .card");
+    return { badge: !!c.querySelector(".cardInsp .ciMark") && !!c.querySelector(".ciName")?.textContent, notes: !!c.querySelector(".cardNotes"), h: c.querySelector(".cardInsp")?.offsetHeight, w: c.offsetWidth, rail: c.parentElement.clientWidth };
+  });
+  check(insp.badge && !insp.notes && insp.h <= 48, `pradžia: vietoje natų – „Įkvėpti …“ ženkliukas (${insp.h} px aukščio)`);
   if (mobile && viewport.width < 700) {
     // Kaip parfumada.lt: didelė kortelė centre, kaimynės 0,85; slenkant – po vieną kortelę, centre visada 1
     const rail = page.locator("#homeRails .rail").first();
