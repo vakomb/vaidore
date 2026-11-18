@@ -138,13 +138,13 @@ async function run(viewport) {
     await page.evaluate(() => {
       const rails = document.querySelector("#homeRails");
       const tiles = document.querySelector("#homeTiles").closest(".hsec");
-      return !!(rails.compareDocumentPosition(tiles) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return !!(tiles.compareDocumentPosition(rails) & Node.DOCUMENT_POSITION_FOLLOWING);
     }),
-    "pradžia: „Produktai“ plytelės – po unisex karuselės"
+    "pradžia: „Produktai“ plytelės – virš „Kvapnios naujienos“"
   );
   check(
-    await page.evaluate(() => Math.abs(document.querySelector("#homeRails .band").getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom) < 1),
-    "pradžia: „Kvapnios naujienos“ – iškart po pagrindine nuotrauka (be tarpo)"
+    await page.evaluate(() => Math.abs(document.querySelector("#homeTilesSec .band").getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom) < 1),
+    "pradžia: „Produktai“ – iškart po pagrindine nuotrauka (be tarpo)"
   );
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {

@@ -134,8 +134,9 @@
 .hsec {
   margin-top: 32px;
 }
-/* Iškart po pagrindine nuotrauka – be tarpo (pirmas skyrius: „Kvapnios naujienos“) */
-#homeHero + #homeRails > .hsec:first-child {
+/* Iškart po pagrindine nuotrauka – be tarpo (pirmas skyrius: „Produktai“, o jei jo nėra – „Kvapnios naujienos“) */
+#homeHero + .hsec,
+#homeHero + .hsec[hidden] + #homeRails > .hsec:first-child {
   margin-top: 0;
 }
 .hsec[hidden] {

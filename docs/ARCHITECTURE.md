@@ -232,8 +232,8 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
 
 ## Dizainas (v5: kaip parfumada.lt – matmenys perimti iš jos puslapių)
 
-- Pradžia: skaidrės (kolekcija · mėginukai · rinkinys, „‹ 1/3 ›“, keičiasi kas 6 s) → karuselės
-  juostose (naujienos, moterims, vyrams, unisex; mėginukų karuselės nėra) → „Produktai“ plytelės → nuolaidos (jei yra)
+- Pradžia: skaidrės (kolekcija · mėginukai · rinkinys, „‹ 1/3 ›“, keičiasi kas 6 s) → „Produktai“ plytelės (iškart po
+  skaidre) → karuselės juostose (naujienos, moterims, vyrams, unisex – rodoma, jei yra bent vienas kvapas) → nuolaidos (jei yra)
   → tikri atsiliepimai. Telefone karuselėje – ~1,6 kortelės (matosi kita), kompiuteryje – 3.
 - Tekstas 18 px, raidžių tarpai .04em; mygtukai juodi, kampai 20 px; laukai 58 px su juodu rėmeliu; tūriai ir kiekis –
   „piliulės“ su 1 px juodu rėmeliu. Kvapo puslapis: pavadinimas tarp linijų → paveikslas → aprašymas →

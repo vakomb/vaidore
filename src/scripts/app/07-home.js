@@ -162,8 +162,8 @@ function renderHome() {
   $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 
-  // Tvarka: naujienos → moterims → vyrams → unisex → „Produktai“ plytelės → nuolaidos (jei yra). Skyrius rodomas,
-  // jei jame yra bent vienas kvapas.
+  // Tvarka: „Produktai“ plytelės (view-home.html) → naujienos → moterims → vyrams → unisex → nuolaidos (jei yra).
+  // Skyrius rodomas, jei jame yra bent vienas kvapas.
   const sec = [
     { title: "Kvapnios naujienos", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
     { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },

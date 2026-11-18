@@ -116,7 +116,8 @@
   .hsec {
     margin-top: 44px;
   }
-  #homeHero + #homeRails > .hsec:first-child {
+  #homeHero + .hsec,
+  #homeHero + .hsec[hidden] + #homeRails > .hsec:first-child {
     margin-top: 0;
   }
   .pdH1 {
