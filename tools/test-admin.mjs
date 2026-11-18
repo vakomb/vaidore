@@ -153,6 +153,13 @@ check((await page.locator('#prodForm input[name="id"]').getAttribute("readonly")
 await page.fill('#prodForm input[name="tagline"]', "Ryto gaiva – nauja");
 check((await page.locator(".admSizeMl").allTextContents()).join() === "33 ml,100 ml", "talpos – tik 33 ml ir 100 ml (fiksuotos eilutės)");
 check((await page.locator("[data-size-add], [data-size-rm]").count()) === 0, "talpų pridėti / šalinti negalima");
+await page.selectOption('#prodForm select[name="type"]', "difuzoriai");
+check(
+  (await page.locator("#prodForm [data-size-ml-in]").count()) === 2 && (await page.locator("#prodForm .perfOnly:not([hidden])").count()) === 0,
+  "kategorija „Difuzoriai“: laisvas tūris, be lyties / koncentracijos / mėginuko"
+);
+await page.selectOption('#prodForm select[name="type"]', "kvepalai");
+check((await page.locator(".admSizeMl").allTextContents()).join() === "33 ml,100 ml" && (await page.locator("#prodForm .perfOnly[hidden]").count()) === 0, "atgal į „Kvepalai“ – 33 ml ir 100 ml");
 await page.locator("[data-size-price]").nth(1).fill("69,50");
 await page.locator('.admCheck:has(input[value="vasaros-gaiva"])').click();
 await page.locator('.admCheck:has(input[value="vakarui"])').click();
@@ -325,7 +332,8 @@ await page.locator('#tbStyle input[data-tb-st="fs"]').fill("16");
 check(await until(async () => (await pv.locator("#topNoteTxt").textContent()).includes("Žiemos akcija")), "juosta: peržiūroje – naujas tekstas");
 check(await until(async () => (await pv.locator("#topNote").evaluate(e => getComputedStyle(e).backgroundImage)).includes("gradient")), "juosta: peržiūroje – aukso gradientas");
 check((await page.locator("#tbStyle .tbContrast:not(.bad)").count()) === 1, "juosta: kontrastas tikrinamas");
-await page.locator('#heTiles [data-he-tile="naujienos"] [data-he-on]').click();
+check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,aliejai", "plytelės: numatytosios – Kvepalai, Difuzoriai, Aliejai");
+await page.locator('#heTiles [data-he-tile="aliejai"] [data-he-on]').click();
 await page.click('[data-he-addtile="kat-vakarui"]');
 await shot(page, "pradzia");
 await page.click("[data-he-save]");
@@ -336,7 +344,7 @@ check(
   "skaidrių eilė, nuotrauka, matoma vieta, tamsus tekstas ir paslėpimas išsaugoti"
 );
 check(hs.topbar?.items?.[0]?.text === "Žiemos akcija – *-20 %*" && hs.topbar.style.grad === "mid" && hs.topbar.style.fs === 16, "juosta: tekstas, dizainas ir dydis išsaugoti");
-check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "naujienos").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
+check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "aliejai").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
 const front = await newPage({ width: 1440, height: 900 });
 await front.goto(BASE);
 await front.waitForLoadState("networkidle").catch(() => {});

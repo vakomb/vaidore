@@ -145,6 +145,7 @@ const blankProduct = () => ({
   id: "",
   name: "",
   inspired: "",
+  type: "kvepalai",
   conc: "EDP",
   gender: "unisex",
   family: VD.CAT.families[0]?.id || "",
@@ -177,6 +178,7 @@ async function renderProductEdit(main, id, seq) {
           const b = blankProduct();
           if (r?.[0] && !("inspired" in r[0])) delete b.inspired;
           if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
+          if (r?.[0] && !("type" in r[0])) delete b.type;
           // Iš „Importuoti iš Allegro“ – užpildyta forma (kaina, likutis, nuotraukos – įrašomi čia)
           const x = A.importDraft;
           A.importDraft = null;
@@ -207,19 +209,23 @@ async function renderProductEdit(main, id, seq) {
   const levels = cur => [1, 2, 3, 4, 5].map(i => opt(i, `${i} – ${VD.LEVEL[i]}`, cur)).join("");
   const lasts = cur => [1, 2, 3, 4, 5].map(i => opt(i, `${i} – ${VD.LASTS[i]}`, cur)).join("");
   main.innerHTML = `<nav class="crumbs admCrumbs"><a href="admin/kvapai" data-nav>${glyph("chev-left")}Kvapai</a></nav>
-${pageHead(isNew ? "Naujas kvapas" : p.name, isNew ? (p.fromImport ? "Užpildyta iš Allegro – patikrinkite, įrašykite kainas, nuotraukas ir išsaugokite." : "Užpildykite ir išsaugokite – kvapas iškart atsiras parduotuvėje.") : `vaidore.com/kvepalai/${esc(p.id)}`, isNew ? "" : `<a class="btn ghost small" href="kvepalai/${esc(p.id)}" target="_blank" rel="noopener">${glyph("eye")}Peržiūrėti</a>`)}
+${pageHead(isNew ? "Naujas kvapas" : p.name, isNew ? (p.fromImport ? "Užpildyta iš Allegro – patikrinkite, įrašykite kainas, nuotraukas ir išsaugokite." : "Užpildykite ir išsaugokite – kvapas iškart atsiras parduotuvėje.") : `vaidore.com/${esc(p.type || "kvepalai")}/${esc(p.id)}`, isNew ? "" : `<a class="btn ghost small" href="${esc(p.type || "kvepalai")}/${esc(p.id)}" target="_blank" rel="noopener">${glyph("eye")}Peržiūrėti</a>`)}
 <form class="admEdit admForm" id="prodForm" novalidate>
 <div class="admEditCols"><div class="admEditMain">
 <section class="admCard"><h2>Pagrindinė informacija</h2>
-<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(p.name)}" /><small>Užrašomas ir ant buteliuko etiketės, pvz. VANOR</small></label>
+<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(p.name)}" /><small>Užrašomas ir ant buteliuko etiketės, pvz. VANOR</small></label>${
+    "type" in p
+      ? `<label class="field"><span>Kategorija</span><select name="type">${VD.TYPES.map(t => opt(t.id, t.name, p.type || "kvepalai")).join("")}</select><small>Kvepalai, difuzoriai ar aliejai – pagal tai prekė rodoma pradžios plytelėje, meniu ir puslapyje. Lytis, koncentracija ir mėginukas – tik kvepalams</small></label>`
+      : ""
+  }
 ${"inspired" in p ? `<label class="field"><span>Įkvėpta</span><input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="pvz. Tom Ford – Tobacco Vanille" /><small>Prekės ženklas – kvapas. Rodoma „Įkvėpti …“ kortelėse ir kvapo puslapyje</small></label>` : ""}
 <label class="field"><span>Adresas (id)</span><input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="${esc(p.id)}"${attr(!isNew, "readonly")} /><small>${
     isNew ? "Mažosios raidės, skaičiai ir „-“. Sukūrus nebekeičiamas." : "Nebekeičiamas – gali būti pirkėjų krepšeliuose ir nuorodose."
   }</small></label>
-<div class="fieldRow3"><label class="field"><span>Kam</span><select name="gender">${Object.entries(VD.GENDER_NAME)
+<div class="fieldRow3"><label class="field perfOnly"><span>Kam</span><select name="gender">${Object.entries(VD.GENDER_NAME)
     .map(([v, l]) => opt(v, l, p.gender))
     .join("")}</select></label>
-<label class="field"><span>Koncentracija</span><select name="conc">${Object.entries(VD.CONC_NAME)
+<label class="field perfOnly"><span>Koncentracija</span><select name="conc">${Object.entries(VD.CONC_NAME)
     .map(([v, l]) => opt(v, l, p.conc))
     .join("")}</select></label>
 <label class="field"><span>Kvapo šeima</span><select name="family">${fams.map(f => opt(f.id, f.name, p.family)).join("")}</select></label></div>
@@ -242,10 +248,8 @@ ${"inspired" in p ? `<label class="field"><span>Įkvėpta</span><input name="ins
 </section>
 <section class="admCard"><h2>Tūriai, kainos ir likutis</h2>
 <div class="admSizes" id="sizesBox"></div>
-<p class="admNote">Talpos – tik 33 ml ir 100 ml (ir 2 ml mėginukas). Tuščia kaina – ta talpa neparduodama. „Sena kaina“ – tik akcijai:
-parduotuvėje ji perbraukiama, o kaina rodoma raudonai. Įrašykite tikrą mažiausią kainą per paskutines 30 dienų (Omnibus direktyva);
-be akcijos palikite tuščią.</p>
-<div class="fieldRow" style="margin-top:16px"><label class="field"><span>Mėginukas 2 ml, €</span><input name="sample" inputmode="decimal" value="${esc(dec(p.sample))}" /></label>
+<p class="admNote" id="sizesNote"></p>
+<div class="fieldRow" style="margin-top:16px"><label class="field perfOnly"><span>Mėginukas 2 ml, €</span><input name="sample" inputmode="decimal" value="${esc(dec(p.sample))}" /><small>0 – mėginukas neparduodamas</small></label>
 <label class="field"><span>Likutis, vnt.</span><input name="stock" type="number" inputmode="numeric" min="0" step="1" value="${p.stock ?? ""}" placeholder="neskaičiuojamas" /><small>0 – išparduota; tuščia – neskaičiuojama</small></label></div>
 </section>
 <section class="admCard"><h2>Nuotraukos</h2>
@@ -287,6 +291,8 @@ ${isNew ? "" : `<section class="admCard admDangerCard"><h2>Ištrinti</h2><p clas
     if (["liquid", "tint", "cap", "shape", "name"].includes(e.target.name)) paintBottle(form);
   });
   form.addEventListener("change", e => {
+    // Pakeitus kategoriją – talpų eilutės ir kvepalų laukai perpiešiami (įvestos kainos lieka)
+    if (e.target.name === "type") paintSizes(form, readSizes(form).filter(s => s.price !== "" || s.was !== ""));
     if (e.target.matches("[data-img-input]")) addImages(ed, form, e.target);
     else A.dirty = true;
     if (["cap", "shape"].includes(e.target.name)) paintBottle(form);
@@ -310,17 +316,34 @@ ${isNew ? "" : `<section class="admCard admDangerCard"><h2>Ištrinti</h2><p clas
     busy($("button[type=submit]", form), () => saveProduct(ed, form));
   });
 }
-// Talpos fiksuotos (VD.BOTTLE_ML: 33 ir 100 ml) – kiekvienai eilutė su kaina ir sena kaina
+// Talpos: kvepalams – fiksuotos (VD.BOTTLE_ML: 33 ir 100 ml); difuzoriams ir aliejams – dvi eilutės su laisvu tūriu.
+// Kiekvienai – kaina ir sena kaina; tuščia kaina – ta talpa neparduodama
+const formType = form => form.elements.type?.value || "kvepalai";
 function paintSizes(form, sizes) {
-  $("#sizesBox", form).innerHTML = VD.BOTTLE_ML.map(ml => {
-    const s = sizes.find(x => Number(x.ml) === ml) || {};
-    return `<div class="admSize" data-size-ml="${ml}"><b class="admSizeMl">${ml} ml</b>
-<label class="field"><span>Kaina, €</span><input inputmode="decimal" data-size-price value="${esc(dec(s.price ?? ""))}" placeholder="neparduodama" /></label>
-<label class="field"><span>Sena kaina, €</span><input inputmode="decimal" data-size-was value="${esc(dec(s.was ?? ""))}" placeholder="—" /></label></div>`;
-  }).join("");
+  const perf = formType(form) === "kvepalai";
+  const price = s => `<label class="field"><span>Kaina, €</span><input inputmode="decimal" data-size-price value="${esc(dec(s.price ?? ""))}" placeholder="neparduodama" /></label>
+<label class="field"><span>Sena kaina, €</span><input inputmode="decimal" data-size-was value="${esc(dec(s.was ?? ""))}" placeholder="—" /></label>`;
+  const free = [...sizes.filter(s => s.ml !== "" && s.ml != null), {}, {}].slice(0, 2);
+  if (!perf && !free[0].ml) free[0] = { ...free[0], ml: 100 };
+  $("#sizesBox", form).innerHTML = perf
+    ? VD.BOTTLE_ML.map(ml => `<div class="admSize" data-size-ml="${ml}"><b class="admSizeMl">${ml} ml</b>${price(sizes.find(x => Number(x.ml) === ml) || {})}</div>`).join("")
+    : free
+        .map(
+          s =>
+            `<div class="admSize"><label class="field"><span>Tūris, ml</span><input inputmode="numeric" data-size-ml-in value="${esc(s.ml ?? "")}" placeholder="pvz. 100" /></label>${price(s)}</div>`
+        )
+        .join("");
+  $("#sizesNote", form).textContent = perf
+    ? "Talpos – tik 33 ml ir 100 ml (ir 2 ml mėginukas). Tuščia kaina – ta talpa neparduodama. „Sena kaina“ – tik akcijai: parduotuvėje ji perbraukiama, o kaina rodoma raudonai. Įrašykite tikrą mažiausią kainą per paskutines 30 dienų (Omnibus direktyva); be akcijos palikite tuščią."
+    : "Įrašykite tūrį ir kainą (antra eilutė – jei parduodate dviem dydžiais). Tuščia kaina – neparduodama. „Sena kaina“ – tik akcijai (mažiausia kaina per 30 dienų).";
+  $$(".perfOnly", form).forEach(el => (el.hidden = !perf));
 }
 const readSizes = form =>
-  $$(".admSize", form).map(r => ({ ml: r.dataset.sizeMl, price: $("[data-size-price]", r).value.trim(), was: $("[data-size-was]", r).value.trim() }));
+  $$(".admSize", form).map(r => ({
+    ml: r.dataset.sizeMl ?? $("[data-size-ml-in]", r)?.value.trim() ?? "",
+    price: $("[data-size-price]", r).value.trim(),
+    was: $("[data-size-was]", r).value.trim()
+  }));
 function paintImages(ed) {
   const box = $("#imgsBox");
   box.innerHTML = ed.images.length
@@ -381,6 +404,7 @@ function readProduct(ed, form) {
     id,
     name: f.name.value.trim(),
     ...(f.inspired ? { inspired: f.inspired.value.trim() } : {}),
+    ...(f.type ? { type: f.type.value } : {}),
     gender: f.gender.value,
     conc: f.conc.value,
     family: f.family.value,
@@ -407,7 +431,11 @@ function readProduct(ed, form) {
   if (ed.isNew && VD.CAT.products.some(p => p.id === id)) errors.push("Toks adresas jau užimtas – pakeiskite");
   if (VD.SET.discovery?.id === id) errors.push("Šis adresas skirtas atradimų rinkiniui");
   if (!row.family) errors.push("Pasirinkite kvapo šeimą");
-  if (!sizes.length) errors.push("Įrašykite kainą bent vienai talpai (33 ml arba 100 ml)");
+  const perf = (row.type || "kvepalai") === "kvepalai";
+  if (!perf) row.sample = 0;
+  if (!sizes.length) errors.push(perf ? "Įrašykite kainą bent vienai talpai (33 ml arba 100 ml)" : "Įrašykite tūrį ir kainą");
+  if (sizes.some(s => !(s.ml > 2))) errors.push("Tūris – daugiau nei 2 ml");
+  if (new Set(sizes.map(s => s.ml)).size !== sizes.length) errors.push("Tūriai kartojasi");
   if (sizes.some(s => !(s.price > 0))) errors.push("Kaina – daugiau nei 0 €");
   if (sizes.some(s => s.was != null && !(s.was > s.price))) errors.push("Sena kaina turi būti didesnė už kainą (arba tuščia)");
   if (!(row.sample >= 0)) errors.push("Mėginuko kaina – skaičius");

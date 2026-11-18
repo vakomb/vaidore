@@ -17,7 +17,11 @@ function validPicks(picks) {
 }
 function sanitizeCart(list) {
   return (Array.isArray(list) ? list : [])
-    .filter(l => (isDisc(l?.id) ? validPicks(l.picks) : BY_ID.has(l?.id) && priceOf(BY_ID.get(l.id), Number(l.ml)) != null))
+    .filter(l =>
+      isDisc(l?.id)
+        ? validPicks(l.picks)
+        : BY_ID.has(l?.id) && priceOf(BY_ID.get(l.id), Number(l.ml)) != null && (Number(l.ml) !== SAMPLE_ML || hasSample(BY_ID.get(l.id)))
+    )
     .map(l => {
       const qty = Math.min(Math.max(1, Math.round(l.qty) || 1), SET.maxQty);
       return isDisc(l.id) ? { id: l.id, ml: 0, qty, picks: [...l.picks] } : { id: l.id, ml: Number(l.ml), qty };

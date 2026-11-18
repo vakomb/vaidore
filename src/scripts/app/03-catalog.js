@@ -6,6 +6,21 @@ const SAMPLE_ML = 2;
 // Buteliukų talpos – tik 33 ml ir 100 ml (+ 2 ml mėginukas). Kitos (seni 30 / 50 ml įrašai) parduotuvėje nerodomos.
 const BOTTLE_ML = [33, 100];
 
+// Prekės tipai (v13): pradžios plytelės, meniu, katalogo puslapiai /kvepalai, /difuzoriai, /aliejai.
+// Lytis, mėginukas 2 ml, koncentracija ir talpos 33 / 100 ml – tik kvepalams. Tipas be prekių – nerodomas.
+const TYPES = [
+  { id: "kvepalai", name: "Kvepalai", one: "Kvepalai", title: "Visi kvepalai" },
+  { id: "difuzoriai", name: "Difuzoriai", one: "Namų kvapų difuzorius", title: "Namų kvapų difuzoriai" },
+  { id: "aliejai", name: "Aliejai", one: "Kvapusis aliejus", title: "Kvapieji aliejai" }
+];
+const TYPE = new Map(TYPES.map(t => [t.id, t]));
+const typeOf = p => (TYPE.has(p?.type) ? p.type : "kvepalai");
+const isPerfume = p => typeOf(p) === "kvepalai";
+const hasSample = p => isPerfume(p) && Number(p.sample) > 0;
+const perfumes = () => PRODUCTS.filter(isPerfume);
+const typesInUse = () => TYPES.filter(t => PRODUCTS.some(p => typeOf(p) === t.id));
+// Po pavadinimu – „Eau de Parfum“ kvepalams, tipas kitoms prekėms
+const kindName = p => (isPerfume(p) ? CONC_NAME[p.conc] || p.conc : TYPE.get(typeOf(p)).one);
 const GENDER_NAME = { moterims: "Moterims", vyrams: "Vyrams", unisex: "Unisex" };
 const GENDER_TITLE = { moterims: "Kvepalai moterims", vyrams: "Kvepalai vyrams", unisex: "Unisex kvepalai" };
 const CONC_NAME = { EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", Extrait: "Extrait de Parfum" };
@@ -16,6 +31,8 @@ const LASTS = ["", "2–3 val.", "3–5 val.", "5–7 val.", "7–9 val.", "9+ v
 function setCatalog(c) {
   CAT = c;
   for (const p of c.products) {
+    if (!TYPE.has(p.type)) p.type = "kvepalai";
+    if (p.type !== "kvepalai") continue; // difuzorių ir aliejų talpos – laisvos
     const ok = (p.sizes || []).filter(s => BOTTLE_ML.includes(Number(s.ml)));
     if (ok.length) p.sizes = ok;
   }
@@ -80,12 +97,12 @@ const sizeLabel = ml => (ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${ml} ml`);
 // „Įkvėpti Tom Ford – Tobacco Vanille“ – rodoma, jei kvapas turi lauką inspired ir nustatymuose neišjungta
 const inspiredOf = p => (SET.inspired?.show !== false && p.inspired) || "";
 const cardSub = p => `${familyName(p.family)} · ${p.conc}`;
-const productUrl = p => `kvepalai/${p.id}`;
+const productUrl = p => `${typeOf(p)}/${p.id}`;
 // Likutis: laukas stock (nėra – neskaičiuojama, 0 – laikinai išparduota). Tą pačią taisyklę tikrina serveris.
 const inStock = p => p.stock == null || p.stock > 0;
 // Atradimų rinkinys (settings.discovery): bet kurie N mėginukų už fiksuotą kainą. Krepšelio eilutė { id, ml: 0, qty, picks }.
 const isDisc = id => !!DISC && id === DISC.id;
-const SAMPLEABLE = () => PRODUCTS.filter(inStock);
+const SAMPLEABLE = () => PRODUCTS.filter(p => inStock(p) && hasSample(p));
 
 // „Tiks …“ – viena eilutė kvapo puslapyje iš laukų time, sillage, seasons (be naujų duomenų)
 const SEASON_DAT = { pavasaris: "pavasariui", vasara: "vasarai", ruduo: "rudeniui", žiema: "žiemai" };

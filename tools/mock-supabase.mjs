@@ -12,6 +12,7 @@ export function dbFromCatalog(cat) {
     id: p.id,
     name: p.name,
     inspired: p.inspired || "",
+    type: p.type || "kvepalai",
     conc: p.conc,
     gender: p.gender,
     family: p.family,

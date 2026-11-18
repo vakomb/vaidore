@@ -14,7 +14,17 @@ const SCENE_NAMES = {
   set: "Rinkinys",
   fresh: "Laiptai"
 };
-const TILE_NAMES = { moterims: "Moterims", vyrams: "Vyrams", unisex: "Unisex", meginukai: "Mėginukai", rinkinys: "Rinkiniai", naujienos: "Naujienos" };
+const TILE_NAMES = {
+  kvepalai: "Kvepalai",
+  difuzoriai: "Difuzoriai",
+  aliejai: "Aliejai",
+  moterims: "Moterims",
+  vyrams: "Vyrams",
+  unisex: "Unisex",
+  meginukai: "Mėginukai",
+  rinkinys: "Rinkiniai",
+  naujienos: "Naujienos"
+};
 const HE = { slides: [], tiles: [], secs: 6, open: null, openTile: null, view: "phone", frame: null, ready: false, focus: 0 };
 const uid = () => Math.random().toString(36).slice(2, 8);
 const clone = x => JSON.parse(JSON.stringify(x));
@@ -93,7 +103,7 @@ window.addEventListener("resize", () => HE.frame?.isConnected && fitFrame());
 // ── Skaidrės ──────────────────────────────────────────
 function linkGroups() {
   return [
-    ["Puslapiai", [["kvepalai", "Visi kvepalai"], ["moterims", "Moterims"], ["vyrams", "Vyrams"], ["unisex", "Unisex"], ["meginukai", "Mėginukai 2 ml"], ["rinkinys", "Atradimų rinkinys"], ["kvepalai?rikiuoti=new", "Naujienos"], ["apie-mus", "Apie mus"]]],
+    ["Puslapiai", [["kvepalai", "Visi kvepalai"], ["difuzoriai", "Difuzoriai"], ["aliejai", "Aliejai"], ["moterims", "Moterims"], ["vyrams", "Vyrams"], ["unisex", "Unisex"], ["meginukai", "Mėginukai 2 ml"], ["rinkinys", "Atradimų rinkinys"], ["kvepalai?rikiuoti=new", "Naujienos"], ["apie-mus", "Apie mus"]]],
     ["Kvapai", VD.CAT.products.map(p => [VD.productUrl(p), p.name])],
     ["Kategorijos", HE.cats.map(c => [`kategorija/${c.id}`, c.name])]
   ];
@@ -203,7 +213,7 @@ function tileRow(t, i) {
 <div class="heRow">
 <button class="heRowMain" type="button" data-he-open aria-expanded="${open}">${thumbHTML(p?.stage || "unisex", p?.list || [], img, t.focus)}<span class="heRowTxt"><b>${esc(t.title || tileName(t))}</b><small>${
     img ? "nuotrauka" : "scena"
-  }${p?.list?.length === 0 ? " · nėra kvapų – nerodoma" : ""}${t.on === false ? " · paslėpta" : ""}</small></span></button>
+  }${p?.list?.length === 0 ? " · nėra prekių – nerodoma" : ""}${t.on === false ? " · paslėpta" : ""}</small></span></button>
 <div class="heRowActs"><button class="roundBtn" type="button" data-he-move="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-he-move="1" aria-label="Žemiau"${attr(
     i === HE.tiles.length - 1,
     "disabled"

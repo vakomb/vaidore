@@ -27,7 +27,7 @@ const SET_FILTERS = {
 const shopPrice = p => (shop.samples ? p.sample : minPrice(p));
 const priceOk = p => (shop.pmin == null || shopPrice(p) >= shop.pmin) && (shop.pmax == null || shopPrice(p) <= shop.pmax);
 const priceBounds = () => {
-  const v = PRODUCTS.map(shopPrice);
+  const v = PRODUCTS.filter(ofShopType).map(shopPrice);
   return { lo: Math.floor(Math.min(...v)), hi: Math.ceil(Math.max(...v)) };
 };
 // Ypatingi sąrašai: bestselleriai (populiariausi) ir nuolaidos (tik kvapai su tikra sena kaina)
@@ -36,9 +36,12 @@ const SPECIAL = {
   nuolaidos: { title: "Didžiausios nuolaidos", sub: "Kvapai su nuolaida. Perbraukta – mažiausia kaina per 30 dienų iki nuolaidos.", test: p => onSale(p) }
 };
 const PAGE = 24;
-const shop = { base: "kvepalai", gender: "all", category: null, samples: false, special: null, q: "", sort: "rank", pmin: null, pmax: null, limit: PAGE };
+// type – prekės tipas (kvepalai / difuzoriai / aliejai); lyties, mėginukų puslapiai – tik kvepalai; kategorijos,
+// bestselleriai, nuolaidos – visi tipai (type: null)
+const shop = { base: "kvepalai", type: "kvepalai", gender: "all", category: null, samples: false, special: null, q: "", sort: "rank", pmin: null, pmax: null, limit: PAGE };
 for (const k in SET_FILTERS) shop[k] = new Set();
-const concs = () => [...new Set(PRODUCTS.map(p => p.conc))];
+const concs = () => [...new Set(perfumes().map(p => p.conc))];
+const ofShopType = p => !shop.type || typeOf(p) === shop.type;
 const setOf = v => new Set(String(v || "").split(",").filter(Boolean));
 
 // Iš adreso (router) → būsena
@@ -46,6 +49,7 @@ function shopFromRoute(base, params) {
   shop.base = base;
   shop.gender = GENDER_NAME[base] ? base : "all";
   shop.samples = base === "meginukai";
+  shop.type = TYPE.has(base) ? base : shop.gender !== "all" || shop.samples ? "kvepalai" : null;
   shop.category = base.startsWith("kategorija/") ? base.slice(11) : null;
   shop.special = SPECIAL[base] ? base : null;
   shop.q = params.get("q") || "";
@@ -69,6 +73,8 @@ function shopToUrl() {
 }
 function shopFilter(p, skip = "") {
   return (
+    ofShopType(p) &&
+    (!shop.samples || hasSample(p)) &&
     (shop.gender === "all" || p.gender === shop.gender) &&
     (!shop.category || (p.categories || []).includes(shop.category)) &&
     (!shop.special || SPECIAL[shop.special].test(p)) &&
@@ -95,7 +101,7 @@ function shopTitle() {
   if (shop.special) return SPECIAL[shop.special].title;
   if (shop.samples) return "Mėginukai 2 ml";
   if (shop.gender !== "all") return GENDER_TITLE[shop.gender];
-  return "Kvepalai";
+  return TYPE.get(shop.type || "kvepalai").name;
 }
 function shopSub() {
   if (shop.category) return CATEGORY.get(shop.category)?.description || "";
@@ -135,17 +141,22 @@ function filtersHTML(live = true) {
       ).join("")}</div></details>`;
   const group = (title, body, open = true) => `<details class="fGroup"${og(title, open)}><summary>${title}${glyph("chev-down")}</summary><div class="fChecks">${body}</div></details>`;
   const notes = allNotes().filter(x => n(p => noteList(p).includes(x), "notes") || shop.notes.has(x));
-  return `${sortGroup}<details class="fGroup" open><summary>Pagal lytį${glyph("chev-down")}</summary><div class="fChecks">${genders
+  const perf = shop.type === "kvepalai";
+  return `${sortGroup}${
+    !perf
+      ? ""
+      : `<details class="fGroup" open><summary>Pagal lytį${glyph("chev-down")}</summary><div class="fChecks">${genders
     .map(
       ([href, name]) =>
         `<label class="fCheck"><input type="radio" name="fGender${live ? "" : "S"}" data-f-go="${href}"${
           (href === "kvepalai" ? shop.gender === "all" && !shop.samples && !shop.category : shop.gender === href) ? " checked" : ""
         } /><span>${name}</span></label>`
-    )
-    .join("")}</div></details>
+          )
+          .join("")}</div></details>`
+  }
 ${
   cats.length
-    ? `<details class="fGroup"${og("Kategorijos", !!shop.category)}><summary>Kategorijos${glyph("chev-down")}</summary><div class="fChecks">${cats
+    ? `<details class="fGroup"${og("Kolekcijos", !!shop.category)}><summary>Kolekcijos${glyph("chev-down")}</summary><div class="fChecks">${cats
         .map(c => `<label class="fCheck"><input type="radio" name="fCat${live ? "" : "S"}" data-f-go="kategorija/${c.id}"${shop.category === c.id ? " checked" : ""} /><span>${esc(c.name)}</span></label>`)
         .join("")}</div></details>`
     : ""
@@ -156,14 +167,22 @@ ${group("Kvapo pobūdis", visibleFamilies()
 ${group("Natos", `<div class="fScroll">${notes.map(x => check("notes", x, x, n(p => noteList(p).includes(x), "notes"))).join("")}</div>`, !!shop.notes.size)}
 ${group("Proga", Object.entries(TIME_NAME).map(([id, name]) => check("time", id, name, n(p => p.time.includes(id), "time"))).join(""), !!shop.time.size)}
 ${group("Sezonas", SEASONS.map(id => check("seasons", id, SEASON_NAME[id], n(p => p.seasons.includes(id), "seasons"))).join(""), !!shop.seasons.size)}
-<details class="fGroup"${og("Koncentracija", !!shop.conc.size)}><summary>Koncentracija${glyph("chev-down")}</summary><div class="fChecks">${concs()
-    .map(c => check("conc", c, `${c} · ${CONC_NAME[c] || ""}`, n(p => p.conc === c, "conc")))
-    .join("")}</div></details>
+${
+  perf
+    ? `<details class="fGroup"${og("Koncentracija", !!shop.conc.size)}><summary>Koncentracija${glyph("chev-down")}</summary><div class="fChecks">${concs()
+        .map(c => check("conc", c, `${c} · ${CONC_NAME[c] || ""}`, n(p => p.conc === c, "conc")))
+        .join("")}</div></details>`
+    : ""
+}
 ${priceGroupHTML(live)}
 ${group("Likutis", Object.entries(STOCK_NAME).map(([id, name]) => check("stock", id, name, n(p => (id === "yra" ? inStock(p) : !inStock(p)), "stock"))).join(""), !!shop.stock.size)}
-<details class="fGroup"${og("Formatas", shop.samples)}><summary>Formatas${glyph("chev-down")}</summary><div class="fChecks"><label class="fCheck"><input type="radio" name="fFmt${live ? "" : "S"}" data-f-go="meginukai"${
-    shop.samples ? " checked" : ""
-  } /><span>Mėginukai 2 ml</span></label></div></details>
+${
+  perf
+    ? `<details class="fGroup"${og("Formatas", shop.samples)}><summary>Formatas${glyph("chev-down")}</summary><div class="fChecks"><label class="fCheck"><input type="radio" name="fFmt${live ? "" : "S"}" data-f-go="meginukai"${
+        shop.samples ? " checked" : ""
+      } /><span>Mėginukai 2 ml</span></label></div></details>`
+    : ""
+}
 ${filterCount() ? `<button class="btn ghost small block" type="button" data-reset-filters>Išvalyti filtrus</button>` : ""}`;
 }
 // Kaina nuo–iki: du laukai (kaip parfumada.lt), pritaikoma įvedus („change“ – po Enter arba išėjus iš lauko)
@@ -186,7 +205,9 @@ function renderShop() {
   const stBox = $("#shopStage");
   if (stBox.dataset.key !== stKey) {
     stBox.dataset.key = stKey;
-    const group = PRODUCTS.filter(p => (shop.gender === "all" || p.gender === shop.gender) && (!shop.category || (p.categories || []).includes(shop.category))).sort((a, b) => a.rank - b.rank);
+    const group = PRODUCTS.filter(p => ofShopType(p) && (shop.gender === "all" || p.gender === shop.gender) && (!shop.category || (p.categories || []).includes(shop.category))).sort(
+      (a, b) => a.rank - b.rank
+    );
     stBox.innerHTML = !stName ? "" : photo ? photoHTML(photo, { eager: true, cls: "shopStage" }) : stageHTML(stName, group.length ? group : PRODUCTS, { eager: true, cls: "shopStage" });
   }
   $("#shopHead").classList.toggle("hasStage", !!stName);
@@ -198,14 +219,17 @@ function renderShop() {
   const shown = list.slice(0, shop.limit);
   $("#shopGrid").innerHTML = list.length
     ? discRow + shown.map(p => cardHTML(p, { sample: shop.samples })).join("")
-    : shop.special === "nuolaidos" && !filterCount() && !shop.q
+    : shop.type && shop.type !== "kvepalai" && !PRODUCTS.some(p => typeOf(p) === shop.type)
+      ? `<div class="empty" style="grid-column:1/-1"><h3>${esc(TYPE.get(shop.type).name)} – netrukus</h3><p>Šiuo metu šių prekių dar neturime.</p><a class="btn primary" href="kvepalai" data-nav>Visi kvepalai</a></div>`
+      : shop.special === "nuolaidos" && !filterCount() && !shop.q
       ? `<div class="empty" style="grid-column:1/-1"><h3>Šiuo metu nuolaidų nėra</h3><p>Nuolaidas skelbiame naujienlaiškyje – užsiprenumeravę sužinosite pirmi.</p><a class="btn primary" href="kvepalai" data-nav>Visi kvepalai</a></div>`
       : `<div class="empty" style="grid-column:1/-1">${glyph("search")}<h3>Nieko neradome</h3><p>Pabandykite kitą žodį arba atsakykite į 4 klausimus – pasiūlysime 3 kvapus.</p><button class="btn primary" type="button" data-quiz>${glyph("spark")}Rask savo kvapą</button><button class="btn ghost" type="button" data-reset-filters>Rodyti visus kvapus</button></div>`;
   $("#shopMore").innerHTML =
     list.length > shop.limit
       ? `<span>Rodoma ${shown.length} iš ${list.length}</span><button class="btn ghost" type="button" data-shop-more>Rodyti daugiau</button>`
       : "";
-  $("#shopCount").textContent = plural(list.length, "kvapas", "kvapai", "kvapų");
+  const nouns = { difuzoriai: ["difuzorius", "difuzoriai", "difuzorių"], aliejai: ["aliejus", "aliejai", "aliejų"] }[shop.type] || ["kvapas", "kvapai", "kvapų"];
+  $("#shopCount").textContent = plural(list.length, ...nouns);
   $("#shopSort").value = shop.sort;
   const n = filterCount();
   const fc = $("#shopFilterCount");

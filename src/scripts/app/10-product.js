@@ -31,10 +31,10 @@ const accHTML = (ico, title, body, { open = false, id = "" } = {}) =>
 const qtyHTML = (cls = "") =>
   `<div class="qty${cls}" role="group" aria-label="Kiekis"><button type="button" data-qty-step="-1" aria-label="Mažiau">${glyph("minus")}</button><output data-qty>${pdState.qty}</output><button type="button" data-qty-step="1" aria-label="Daugiau">${glyph("plus")}</button></div>`;
 function productPageHTML(p, ml) {
-  const sizes = [...p.sizes.map(s => ({ ml: s.ml, price: s.price, was: s.was })), { ml: SAMPLE_ML, price: p.sample }];
+  const sizes = [...p.sizes.map(s => ({ ml: s.ml, price: s.price, was: s.was })), ...(hasSample(p) ? [{ ml: SAMPLE_ML, price: p.sample }] : [])];
   const sizeBtn = s =>
     `<button class="sizeOpt" type="button" role="radio" data-ml="${s.ml}" aria-checked="${s.ml === ml}" aria-label="${s.ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${s.ml} ml`}, ${eur(s.price)}"><b>${s.ml === SAMPLE_ML ? "2 ml mėginukas" : `${s.ml} ml`}</b></button>`;
-  const similar = PRODUCTS.filter(x => x.id !== p.id && inStock(x) && (x.family === p.family || x.gender === p.gender))
+  const similar = PRODUCTS.filter(x => x.id !== p.id && inStock(x) && typeOf(x) === typeOf(p) && (x.family === p.family || x.gender === p.gender || !isPerfume(p)))
     .sort((a, b) => (b.family === p.family) - (a.family === p.family) || a.rank - b.rank)
     .slice(0, 8);
   const sold = !inStock(p);
@@ -71,7 +71,7 @@ ${galleryHTML(p)}
 <p class="pdTag"><b>${esc(p.name)}</b> – ${esc(p.tagline)}.</p>
 <p class="pdDesc">${esc(p.desc)}</p>
 <div class="accs">
-${accHTML("user", "Kam skirti", who)}
+${isPerfume(p) ? accHTML("user", "Kam skirti", who) : ""}
 ${accHTML("drop", "Natos", notes, { id: "pdNotesH" })}
 ${p.ingredients ? accHTML("doc", "Ingredientai", `<p>${esc(p.ingredients)}</p>`) : ""}
 ${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
@@ -122,12 +122,15 @@ function renderProduct(id, params) {
   const p = BY_ID.get(id);
   const root = $("#productRoot");
   if (!p || p.visible === false) return false;
-  const ml = Number(params?.get("ml")) === SAMPLE_ML ? SAMPLE_ML : defaultMl(p);
+  const ml = Number(params?.get("ml")) === SAMPLE_ML && hasSample(p) ? SAMPLE_ML : defaultMl(p);
+  // Senas adresas (kvepalai/<difuzoriaus id>) – pataisomas į tikrąjį be naujo įrašo istorijoje
+  const want = absUrl(productUrl(p) + location.search);
+  if (currentPath() !== productUrl(p) && want !== location.href) history.replaceState(history.state, "", want);
   pdState.id = id;
   pdState.ml = ml;
   pdState.qty = 1;
   root.innerHTML = productPageHTML(p, ml);
-  document.title = `${p.name} – ${CONC_NAME[p.conc] || p.conc} | ${SET.shop}`;
+  document.title = `${p.name} – ${kindName(p)} | ${SET.shop}`;
   renderReviews($("[data-pd-reviews]", root), [p], { title: "Atsiliepimai", showProduct: false });
   bindGallery(root);
   bindRails(root);
@@ -189,7 +192,7 @@ function bindProduct() {
 // Dalintis – švari nuoroda į kvapo puslapį
 async function shareProduct(id) {
   const p = BY_ID.get(id);
-  const url = absUrl(`kvepalai/${id}`);
+  const url = absUrl(BY_ID.has(id) ? productUrl(BY_ID.get(id)) : `kvepalai/${id}`);
   try {
     if (navigator.share) return await navigator.share({ title: `${p.name} – ${SET.shop}`, text: p.tagline, url });
     await navigator.clipboard.writeText(url);

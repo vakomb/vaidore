@@ -143,14 +143,35 @@ const listDesc = list =>
     .slice(0, 5)
     .map(p => p.name)
     .join(", ")}${list.length > 5 ? " ir kiti" : ""}. Mėginukai 2 ml, nemokamas pristatymas nuo ${S.freeShippingFrom} €.`;
-page("kvepalai/index.html", { route: "kvepalai", title: `Kvepalai | ${S.shop}`, desc: listDesc(products) });
+// Prekių tipai (v13): kvepalai / difuzoriai / aliejai – sąrašo puslapis tik tipui, kuriame yra prekių
+const TYPE_PAGE = {
+  kvepalai: { name: "Kvepalai", one: "Kvepalai" },
+  difuzoriai: { name: "Namų kvapų difuzoriai", one: "Namų kvapų difuzorius" },
+  aliejai: { name: "Kvapieji aliejai", one: "Kvapusis aliejus" }
+};
+const typeOf = p => (TYPE_PAGE[p.type] ? p.type : "kvepalai");
+const perfumes = products.filter(p => typeOf(p) === "kvepalai");
+const productList = (list, what = "kvapai") =>
+  `${list.length} ${what}: ${list
+    .slice(0, 5)
+    .map(p => p.name)
+    .join(", ")}${list.length > 5 ? " ir kiti" : ""}.`;
+page("kvepalai/index.html", { route: "kvepalai", title: `Kvepalai | ${S.shop}`, desc: listDesc(perfumes) });
+for (const t of ["difuzoriai", "aliejai"]) {
+  const list = products.filter(p => typeOf(p) === t);
+  if (list.length) page(`${t}/index.html`, { route: t, title: `${TYPE_PAGE[t].name} | ${S.shop}`, desc: productList(list, t === "difuzoriai" ? "difuzoriai" : "aliejai") });
+}
 for (const [g, t] of [
   ["moterims", "Kvepalai moterims"],
   ["vyrams", "Kvepalai vyrams"],
   ["unisex", "Unisex kvepalai"]
 ])
-  page(`${g}.html`, { route: g, title: `${t} | ${S.shop}`, desc: listDesc(products.filter(p => p.gender === g)) });
-page("meginukai.html", { route: "meginukai", title: `Kvepalų mėginukai 2 ml | ${S.shop}`, desc: `Išbandykite kvapą prieš pirkdami: ${products.length} kvapų mėginukai po 2 ml.` });
+  page(`${g}.html`, { route: g, title: `${t} | ${S.shop}`, desc: listDesc(perfumes.filter(p => p.gender === g)) });
+page("meginukai.html", {
+  route: "meginukai",
+  title: `Kvepalų mėginukai 2 ml | ${S.shop}`,
+  desc: `Išbandykite kvapą prieš pirkdami: ${perfumes.filter(p => Number(p.sample) > 0).length} kvapų mėginukai po 2 ml.`
+});
 for (const c of categories)
   page(`kategorija/${c.id}.html`, {
     route: `kategorija/${c.id}`,
@@ -158,22 +179,27 @@ for (const c of categories)
     desc: c.description || listDesc(products.filter(p => (p.categories || []).includes(c.id)))
   });
 for (const p of products) {
-  const url = `${SITE}/kvepalai/${p.id}`;
+  const ty = typeOf(p);
+  const perf = ty === "kvepalai";
+  const kind = perf ? CONC[p.conc] || p.conc : TYPE_PAGE[ty].one;
+  const url = `${SITE}/${ty}/${p.id}`;
   const prices = p.sizes.map(s => s.price);
   const notes = [...p.notes.top, ...p.notes.heart, ...p.notes.base].slice(0, 5).join(", ");
   const insp = S.inspired?.show !== false && p.inspired ? `Įkvėpti ${p.inspired}. ` : "";
-  const desc = `${insp}${p.tagline}. ${FAM[p.family]} kvapas: ${notes}. ${p.sizes.map(s => `${s.ml} ml`).join(" / ")} nuo ${money(Math.min(...prices))}, mėginukas 2 ml – ${money(p.sample)}.`.slice(0, 300);
+  const desc = `${insp}${p.tagline ? `${p.tagline}. ` : ""}${FAM[p.family]} kvapas: ${notes}. ${p.sizes.map(s => `${s.ml} ml`).join(" / ")} nuo ${money(Math.min(...prices))}${
+    perf && Number(p.sample) > 0 ? `, mėginukas 2 ml – ${money(p.sample)}` : ""
+  }.`.slice(0, 300);
   const image = p.images?.length ? p.images.map(i => new URL(i, `${SITE}/`).href) : [`${SITE}/${ogFile(p.id)}`];
   const reviews = (p.reviews || []).filter(r => r?.name && r?.text);
   const rated = reviews.filter(r => r.rating);
   const product = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${p.name} ${CONC[p.conc] || p.conc}`,
+    name: perf ? `${p.name} ${kind}` : p.name,
     description: p.desc,
     image,
     sku: p.id,
-    category: "Kvepalai",
+    category: perf ? "Kvepalai" : TYPE_PAGE[ty].name,
     brand: { "@type": "Brand", name: S.shop },
     offers: {
       "@type": "AggregateOffer",
@@ -204,18 +230,18 @@ for (const p of products) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Pradžia", item: `${SITE}/` },
-      { "@type": "ListItem", position: 2, name: "Kvepalai", item: `${SITE}/kvepalai` },
+      { "@type": "ListItem", position: 2, name: perf ? "Kvepalai" : TYPE_PAGE[ty].name, item: `${SITE}/${ty}` },
       { "@type": "ListItem", position: 3, name: p.name, item: url }
     ]
   };
-  page(`kvepalai/${p.id}.html`, {
-    route: `kvepalai/${p.id}`,
-    title: `${p.name} – ${CONC[p.conc] || p.conc} | ${S.shop}`,
+  page(`${ty}/${p.id}.html`, {
+    route: `${ty}/${p.id}`,
+    title: `${p.name} – ${kind} | ${S.shop}`,
     desc,
     image: fs.existsSync(path.join(src, "public", "og", `${p.id}.jpg`)) ? `${SITE}/og/${p.id}.jpg` : image[0],
     type: "product",
     extra: [ld(product), ld(crumbs)],
-    noscript: `<h1>${esc(p.name)} – ${esc(CONC[p.conc] || p.conc)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>`
+    noscript: `<h1>${esc(p.name)} – ${esc(kind)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>`
   });
 }
 page("pagalba.html", {

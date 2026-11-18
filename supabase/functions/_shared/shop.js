@@ -130,7 +130,7 @@ export function createShop(env) {
       if (!(qty >= 1 && qty <= maxQty)) return json(400, { error: "Neteisingas kiekis" });
       if (DISC && it?.id === DISC.id) {
         const picks = Array.isArray(it.picks) ? it.picks.map(String) : [];
-        if (!(picks.length === DISC.count && new Set(picks).size === picks.length && picks.every(id => BY_ID.has(id))))
+        if (!(picks.length === DISC.count && new Set(picks).size === picks.length && picks.every(id => BY_ID.has(id) && Number(BY_ID.get(id).sample) > 0)))
           return json(400, { error: "Atradimų rinkinyje turi būti skirtingi kvapai – atnaujinkite puslapį" });
         const out = picks.map(id => BY_ID.get(id)).find(p => !inStock(p));
         if (out) return json(409, { error: `${out.name} laikinai išparduotas – pakeiskite rinkinį` });
@@ -165,7 +165,7 @@ export function createShop(env) {
           unit_amount: cents(price),
           product_data: {
             name: `${S.shop || "Vaidore"} ${p.name} · ${ml === SAMPLE_ML ? "mėginukas 2 ml" : `${ml} ml`}`,
-            description: `${p.conc} · ${p.tagline}`.slice(0, 250),
+            description: `${!p.type || p.type === "kvepalai" ? p.conc : p.type === "difuzoriai" ? "Namų kvapų difuzorius" : "Kvapusis aliejus"}${p.tagline ? ` · ${p.tagline}` : ""}`.slice(0, 250),
             metadata: { product_id: p.id, ml: String(ml) }
           }
         }
@@ -497,7 +497,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
         const ok = await sendMail({
           to: r.email,
           subject: `${p.name} – vėl turime`,
-          html: wrapMail(`<p>Sveiki!</p><p>Kvapas <b>${escHtml(p.name)}</b>, kurio laukėte, vėl prekyboje.</p><p><a href="${siteUrl()}/kvepalai/${p.id}" style="color:#284CA2;font-weight:700">Peržiūrėti</a></p>`),
+          html: wrapMail(`<p>Sveiki!</p><p>Kvapas <b>${escHtml(p.name)}</b>, kurio laukėte, vėl prekyboje.</p><p><a href="${siteUrl()}/${["difuzoriai", "aliejai"].includes(p.type) ? p.type : "kvepalai"}/${p.id}" style="color:#284CA2;font-weight:700">Peržiūrėti</a></p>`),
           idem: `vd-restock-${r.id}`
         });
         if (ok) {

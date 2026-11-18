@@ -261,36 +261,6 @@
   .hdrNav [data-current]::after {
     transform: scaleX(1);
   }
-  /* „Pagal lytį“ – baltas sąrašas po juosta */
-  .navDd {
-    position: relative;
-  }
-  .navDdMenu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 5;
-    min-width: 200px;
-    padding: 8px 0;
-    background: #fff;
-    box-shadow: var(--elev-3);
-    animation: vdMega 0.22s var(--spring) both;
-  }
-  .hdrNav .navDdMenu a {
-    display: flex;
-    height: 46px;
-    padding: 0 20px;
-    color: #000;
-    font-size: 16px;
-    font-weight: 500;
-  }
-  .hdrNav .navDdMenu a::after {
-    display: none;
-  }
-  .hdrNav .navDdMenu a:hover,
-  .hdrNav .navDdMenu a[aria-current="page"] {
-    background: var(--bg-soft);
-  }
   .hdrNav svg {
     width: 15px;
     height: 15px;

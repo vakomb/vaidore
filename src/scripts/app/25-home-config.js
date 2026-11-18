@@ -5,8 +5,9 @@
 //                      eilučių – teiginiai su auksinėmis linijomis (kaip parfumada.lt), preset "claims".
 //                      preset "photo" – „Tik nuotrauka“: tik image (kompiuteriui) ir / ar imageM (telefonui), nebūtina
 //                      nuoroda href ir aprašymas title (tik skaitytuvams) – svetainė ant nuotraukos nieko neuždeda.
-//   settings.tiles   – „Produktai“ plytelės: { key, on, title, image, focus, dark }; key – moterims / vyrams / unisex /
-//                      meginukai / rinkinys / naujienos / kat-<kategorijos id>. Nėra lauko – numatytosios šešios.
+//   settings.tiles   – plytelės po skaidrėmis: { key, on, title, image, focus, dark }; key – kvepalai / difuzoriai /
+//                      aliejai (prekių tipai) / moterims / vyrams / unisex / meginukai / rinkinys / naujienos /
+//                      kat-<kategorijos id>. Nėra lauko – trys tipai. Plytelė be prekių nerodoma.
 //   settings.slideSeconds – kas kiek sekundžių keičiasi skaidrės (0 – nesikeičia pačios).
 // Fonas: įkelta nuotrauka (kompiuteriui ir, nebūtinai, telefonui; „focus“ – kuri vieta lieka matoma) arba Vaidore
 // scena (24-stage.js) su pasirinkto kvapo buteliukais. dark – tamsi nuotrauka, tekstas ant jos baltas.
@@ -19,7 +20,7 @@ const DEFAULT_SLIDES = [
   { id: "dovana", on: true, preset: "gift" },
   { id: "teiginiai", on: true, preset: "claims" }
 ];
-const DEFAULT_TILES = ["moterims", "vyrams", "unisex", "meginukai", "rinkinys", "naujienos"].map(key => ({ key, on: true }));
+const DEFAULT_TILES = ["kvepalai", "difuzoriai", "aliejai"].map(key => ({ key, on: true }));
 
 // Skaidrių šablonai – numatytieji tekstai ir scena (galioja, kol administratorius neįrašė savo)
 const SLIDE_PRESETS = {
@@ -139,7 +140,12 @@ function homeSlides() {
 // Plytelių šablonai: pavadinimas, adresas, scena, kvapai
 function tilePreset(key) {
   const byRank = byRankAll();
-  const of = g => byRank.filter(p => p.gender === g);
+  const of = g => byRank.filter(p => isPerfume(p) && p.gender === g);
+  // Prekių tipas – be įkeltos plytelės nuotraukos rodoma pirmos to tipo prekės nuotrauka
+  if (TYPE.has(key)) {
+    const list = byRank.filter(p => typeOf(p) === key);
+    return { name: TYPE.get(key).name, href: key, stage: { kvepalai: "unisex", difuzoriai: "fresh", aliejai: "women" }[key], list, image: list.find(p => p.images?.[0])?.images[0] || "" };
+  }
   if (key === "moterims" || key === "vyrams" || key === "unisex") {
     const st = { moterims: "women", vyrams: "men", unisex: "unisex" }[key];
     return { name: GENDER_NAME[key], href: key, stage: st, list: of(key) };

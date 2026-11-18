@@ -1618,3 +1618,7 @@
 .impSrc {
   padding-bottom: 18px;
 }
+/* Kvepalų laukai (lytis, koncentracija, mėginukas) – paslepiami difuzoriams ir aliejams */
+.perfOnly[hidden] {
+  display: none !important;
+}

@@ -55,9 +55,24 @@ vp("vanor").reviews = [
 fs.mkdirSync(verify, { recursive: true });
 const variantFile = path.join(verify, "catalog-variant.json");
 fs.writeFileSync(variantFile, JSON.stringify(variant));
+// Pagrindinis testų katalogas = pradiniai kvepalai + vienas bandomasis difuzorius (tik testams; cat.products – kvepalai)
+const DIF = {
+  ...structuredClone(cat.products.find(p => p.id === "vanor")),
+  id: "difuzorius-test",
+  name: "Difuzorius TEST",
+  type: "difuzoriai",
+  sizes: [{ ml: 100, price: 19.99 }],
+  sample: 0,
+  rank: 99,
+  badge: null
+};
+const shopCat = structuredClone(cat);
+shopCat.products.push(DIF);
+const shopFile = path.join(verify, "catalog-shop.json");
+fs.writeFileSync(shopFile, JSON.stringify(shopCat));
 const siteA = path.join(verify, "site");
 const siteB = path.join(verify, "site-variant");
-build(siteA);
+build(siteA, { CATALOG: shopFile });
 build(siteB, { CATALOG: variantFile });
 const SB_URL = JSON.parse(fs.readFileSync(path.join(root, "src/data/supabase.json"), "utf8")).url;
 const serverA = await startServer(siteA, 4181);
@@ -94,6 +109,11 @@ check(/"@type":"Product"/.test(rasaHtml) && rasaHtml.includes('<link rel="canoni
 check(rasaHtml.includes("<title>Vanor – Eau de Parfum | Vaidore</title>"), "SEO: kvapo pavadinimas <title>");
 const sitemap = fs.readFileSync(path.join(siteA, "sitemap.xml"), "utf8");
 check(cat.products.every(p => sitemap.includes(`/kvepalai/${p.id}<`)) && !sitemap.includes("/admin"), "sitemap.xml: visi kvapai, be administravimo");
+check(
+  sitemap.includes(`/difuzoriai/${DIF.id}<`) && sitemap.includes("/difuzoriai<") && !sitemap.includes("/aliejai<") && fs.existsSync(path.join(siteA, `difuzoriai/${DIF.id}.html`)),
+  "SEO: difuzorius – /difuzoriai/<id>, sąrašas /difuzoriai (aliejų be prekių – nėra)"
+);
+check(fs.readFileSync(path.join(siteA, `difuzoriai/${DIF.id}.html`), "utf8").includes("<title>Difuzorius TEST – Namų kvapų difuzorius | Vaidore</title>"), "SEO: difuzoriaus <title> – be „Eau de Parfum“");
 check(fs.readFileSync(path.join(siteA, "robots.txt"), "utf8").includes("Disallow: /admin"), "robots.txt: /admin neindeksuojamas");
 check(fs.existsSync(path.join(siteA, "assets/admin.js")) && fs.statSync(path.join(siteA, "assets/admin.js")).size > 20000, "administravimo skydelis – atskiras failas");
 const appHtml = fs.readFileSync(path.join(siteA, "index.html"), "utf8");
@@ -121,13 +141,13 @@ async function run(viewport) {
   const mobile = viewport.width < 800;
   const tag = mobile ? "tel" : "pc";
   console.log(`\n— ${mobile ? "telefonas" : "kompiuteris"} ${viewport.width}×${viewport.height} —`);
-  const { page, sb } = await newPage(siteA, viewport, cat);
+  const { page, sb } = await newPage(siteA, viewport, shopCat);
 
   // Pradžia
   await open(page, A);
   await page.waitForSelector("#homeTiles a");
   const tileHrefs = await page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
-  check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
+  check(tileHrefs.join() === "kvepalai,difuzoriai", `pradžia: kategorijos – Kvepalai, Difuzoriai (aliejų dar nėra – nerodoma): ${tileHrefs.join(", ")}`);
   check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && !(await page.locator("#homeMarquee, .marquee").count()), "pradžia: kolekcijos paveikslas, be bėgančios juostos");
   check(
     (await page.locator("#homeRails .band").allTextContents()).slice(0, 4).join("|").toLowerCase() === "kvapnios naujienos|populiariausi moterims|populiariausi vyrams|unisex kvapai" &&
@@ -196,8 +216,8 @@ async function run(viewport) {
   const firstLoaded = await until(() => page.evaluate(() => [...document.querySelectorAll("#homeHero .slide:first-child .stage img")].every(i => i.complete && i.naturalWidth > 0)));
   check(firstLoaded, "skaidrės: pirmos skaidrės buteliukai įsikėlė");
   check(
-    await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].every(t => t.querySelector(".stage") && t.querySelectorAll(".stage img").length >= 2)),
-    "kategorijos: kiekviena plytelė – scena su buteliukais"
+    await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].every(t => t.querySelector(".tileArt img"))),
+    "kategorijos: kiekviena plytelė – su paveikslu (įkelta nuotrauka arba pirmos prekės nuotrauka)"
   );
   const heroBox = await page.locator("#homeHero").boundingBox();
   await page.locator("#homeHero .heroRail").evaluate(r => r.scrollTo({ left: r.clientWidth }));
@@ -258,8 +278,8 @@ async function run(viewport) {
     await page.waitForSelector("#drawerWrap:not([hidden]) #drawer a[href='moterims']");
     await page.click("#drawer a[href='moterims']");
   } else {
-    await page.click("#genderBtn");
-    await page.click('#hdrNav a[href="moterims"]');
+    await page.click("#megaBtn");
+    await page.click('#mega a[href="moterims"]');
   }
   await page.waitForURL(/\/moterims$/);
   check((await page.locator("#shopTitle").textContent()) === "Kvepalai moterims", "meniu → „Moterims“");
@@ -268,6 +288,26 @@ async function run(viewport) {
   await open(page, `${A}kvepalai`);
   await page.waitForSelector("#shopGrid .card");
   check((await page.locator("#shopCount").textContent()).includes(String(cat.products.length)), `katalogas: ${cat.products.length} kvapų`);
+  check((await page.locator(`#shopGrid a[href*="${DIF.id}"]`).count()) === 0, "kvepalų puslapyje – tik kvepalai (be difuzoriaus)");
+  // Difuzoriai: savas puslapis, be lyties / koncentracijos / mėginukų filtrų; prekės puslapis – be mėginuko ir „Kam skirti“
+  await open(page, `${A}difuzoriai`);
+  await page.waitForSelector("#shopGrid .card");
+  check(
+    (await page.locator("#shopTitle").textContent()) === "Difuzoriai" && (await page.locator("#shopGrid .card").count()) === 1 && (await page.locator(`#shopGrid a[href="difuzoriai/${DIF.id}"]`).count()) >= 1,
+    "/difuzoriai – tik difuzoriai, nuoroda difuzoriai/<id>"
+  );
+  check(!(await page.locator("#shopFilters").textContent()).match(/Pagal lytį|Koncentracija|Mėginukai 2 ml/), "difuzorių filtruose – be lyties, koncentracijos ir mėginukų");
+  await open(page, `${A}kvepalai/${DIF.id}`);
+  await page.waitForSelector("#productRoot .sizeOpt");
+  check(page.url().endsWith(`/difuzoriai/${DIF.id}`), "senas adresas kvepalai/<difuzorius> – pataisomas į difuzoriai/<id>");
+  check(
+    (await page.locator("#productRoot .sizeOpt").allTextContents()).join() === "100 ml" &&
+      !(await page.locator("#productRoot .acc summary").allTextContents()).includes("Kam skirti") &&
+      (await page.title()).includes("Namų kvapų difuzorius"),
+    "difuzoriaus puslapis: tik 100 ml (be mėginuko), be „Kam skirti“, be „Eau de Parfum“"
+  );
+  await open(page, `${A}kvepalai`);
+  await page.waitForSelector("#shopGrid .card");
   // Paieška (ir pagal natas, be diakritikų)
   const vanilla = cat.products.filter(p => fold([...p.notes.top, ...p.notes.heart, ...p.notes.base].join(" ")).includes("vanile")).length;
   await page.fill("#shopQ", "vanile");

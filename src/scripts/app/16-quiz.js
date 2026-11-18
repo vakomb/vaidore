@@ -43,7 +43,8 @@ const SEASON_NOW = ["žiema", "žiema", "pavasaris", "pavasaris", "pavasaris", "
 function quizRank(a) {
   const fams = new Set((a.fam || []).filter(f => f !== "none"));
   const target = Number(a.power) || 3;
-  return PRODUCTS.filter(inStock)
+  return perfumes()
+    .filter(inStock)
     .map(p => {
       let score = 0;
       const why = [];

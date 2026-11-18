@@ -2,7 +2,7 @@
 // Pradžia: skaidrės → karuselės (naujienos, populiariausi moterims / vyrams / unisex) → „Produktai“ (plytelės)
 // → nuolaidos (jei yra) → atsiliepimai. Bėgančios privalumų juostos nėra (savininko prašymu).
 // Skyrių antraštės – tamsios juostos per visą plotį.
-const sampleFrom = () => Math.min(...PRODUCTS.map(p => p.sample));
+const sampleFrom = () => Math.min(...PRODUCTS.filter(hasSample).map(p => p.sample));
 // Pradžios skaidrės ir plytelės – iš nustatymų (25-home-config.js, administravimo skydelis „Pradžia“):
 // nuotrauka arba Vaidore scena (24-stage.js), trumpas tekstas ir VIENAS aiškus veiksmas.
 // Aukštis fiksuotas (CSS) – keičiantis skaidrėms ir kraunantis nuotraukoms niekas nepasislenka.
@@ -156,8 +156,9 @@ window.addEventListener("resize", () => {
 function renderHome() {
   $("#homeHero").innerHTML = heroHTML();
   const byRank = [...PRODUCTS].sort((a, b) => a.rank - b.rank);
-  const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
-  const of = g => byRank.filter(p => p.gender === g);
+  // Karuselės – tik kvepalai (difuzoriai ir aliejai – savo plytelėse ir puslapiuose)
+  const fresh = perfumes().sort((a, b) => String(b.added).localeCompare(String(a.added)));
+  const of = g => byRank.filter(p => isPerfume(p) && p.gender === g);
   const tiles = homeTiles();
   $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
