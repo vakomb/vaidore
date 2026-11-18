@@ -142,6 +142,10 @@ async function run(viewport) {
     }),
     "pradžia: „Produktai“ plytelės – po unisex karuselės"
   );
+  check(
+    await page.evaluate(() => Math.abs(document.querySelector("#homeRails .band").getBoundingClientRect().top - document.querySelector("#homeMarquee").getBoundingClientRect().bottom) < 1),
+    "pradžia: „Kvapnios naujienos“ – iškart po bėgančia juosta (be tarpo)"
+  );
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {
     const el = document.querySelector("#topNoteTxt");

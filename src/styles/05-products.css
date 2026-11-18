@@ -194,7 +194,9 @@
 .hsec {
   margin-top: 32px;
 }
-.marquee + .hsec {
+/* Iškart po bėgančia juosta – be tarpo (pirmas skyrius: „Kvapnios naujienos“) */
+.marquee + .hsec,
+.marquee + #homeRails > .hsec:first-child {
   margin-top: 0;
 }
 .hsec[hidden] {
