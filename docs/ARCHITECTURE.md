@@ -155,8 +155,8 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
 - Header'is: telefone 57 px, ☰ · logotipas · paieška · krepšelis (mygtukai 57 × 57, paskyra – šoniniame meniu);
   kompiuteryje 95 px, logotipas centre (≈ 300 px), tamsi meniu juosta 45 px, nuorodos 16 px / 700,
   „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“ (`#genderBtn`).
-- Pradžia: skaidrė telefone – 1000 × 1150 proporcijų (nuotrauka 1000 × 1150), kompiuteryje 462 px (2880 × 934); bėganti juosta
-  balta, 59 px; skyrių juostos 52 / 65 px; plytelės – tik paveikslas 4:5 (16 px kampai, 1000 × 1250), pavadinimas –
+- Pradžia: skaidrė telefone – 1000 × 1150 proporcijų (nuotrauka 1000 × 1150), kompiuteryje 462 px (2880 × 934); bėgančios
+  juostos nėra; skyrių juostos 52 / 65 px; plytelės – tik paveikslas 4:5 (16 px kampai, 1000 × 1250), pavadinimas –
   pačioje nuotraukoje (svetainėje tik skaitytuvams), kompiuteryje visos vienoje eilėje (iki 246 px); „… | Peržiūrėti“ – 22 px, linijos #ccc; karuselės – kortelė 284 px
   telefone (29 px kraštai), 3 per visą plotį kompiuteryje, skaitiklis „1 / iš 3“.
 - Kortelė: PAVADINIMAS · natos · kaina (be „Įkvėpti …“ ir greitų mygtukų); katalogo tinklelyje paveikslas 4:5;
@@ -216,7 +216,7 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
 
 ## Dizainas (v5: kaip parfumada.lt – matmenys perimti iš jos puslapių)
 
-- Pradžia: skaidrės (kolekcija · mėginukai · rinkinys, „‹ 1/3 ›“, keičiasi kas 6 s) → bėganti juosta → karuselės
+- Pradžia: skaidrės (kolekcija · mėginukai · rinkinys, „‹ 1/3 ›“, keičiasi kas 6 s) → karuselės
   juostose (naujienos, moterims, vyrams, unisex; mėginukų karuselės nėra) → „Produktai“ plytelės → nuolaidos (jei yra)
   → tikri atsiliepimai. Telefone karuselėje – ~1,6 kortelės (matosi kita), kompiuteryje – 3.
 - Tekstas 18 px, raidžių tarpai .04em; mygtukai juodi, kampai 20 px; laukai 58 px su juodu rėmeliu; tūriai ir kiekis –

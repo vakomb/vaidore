@@ -125,8 +125,7 @@
   .hsec {
     margin-top: 44px;
   }
-  .marquee + .hsec,
-  .marquee + #homeRails > .hsec:first-child {
+  #homeHero + #homeRails > .hsec:first-child {
     margin-top: 0;
   }
   .pdH1 {

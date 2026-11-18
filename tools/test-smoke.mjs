@@ -128,7 +128,7 @@ async function run(viewport) {
   await page.waitForSelector("#homeTiles a");
   const tileHrefs = await page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
   check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
-  check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .mqRow li").count()) >= 10, "pradžia: kolekcijos paveikslas ir bėganti privalumų juosta");
+  check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && !(await page.locator("#homeMarquee, .marquee").count()), "pradžia: kolekcijos paveikslas, be bėgančios juostos");
   check(
     (await page.locator("#homeRails .band").allTextContents()).slice(0, 4).join("|").toLowerCase() === "kvapnios naujienos|populiariausi moterims|populiariausi vyrams|unisex kvapai" &&
       !(await page.locator("#homeRails .band").allTextContents()).some(t => /mėginukai/i.test(t)),
@@ -143,8 +143,8 @@ async function run(viewport) {
     "pradžia: „Produktai“ plytelės – po unisex karuselės"
   );
   check(
-    await page.evaluate(() => Math.abs(document.querySelector("#homeRails .band").getBoundingClientRect().top - document.querySelector("#homeMarquee").getBoundingClientRect().bottom) < 1),
-    "pradžia: „Kvapnios naujienos“ – iškart po bėgančia juosta (be tarpo)"
+    await page.evaluate(() => Math.abs(document.querySelector("#homeRails .band").getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom) < 1),
+    "pradžia: „Kvapnios naujienos“ – iškart po pagrindine nuotrauka (be tarpo)"
   );
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {

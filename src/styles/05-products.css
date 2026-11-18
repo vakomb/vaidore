@@ -1,5 +1,4 @@
-/* Pradžia ir prekės (kaip parfumada.lt, Vaidore programėlės pojūčiu): platus kolekcijos paveikslas, bėganti privalumų
-   juosta, skyrių juostos, kategorijų plytelės, karuselės su puslapiais, prekės kortelė (centruota), tinklelis,
+/* Pradžia ir prekės (kaip parfumada.lt, Vaidore programėlės pojūčiu): platus kolekcijos paveikslas, skyrių juostos, kategorijų plytelės, karuselės su puslapiais, prekės kortelė (centruota), tinklelis,
    „Rask savo kvapą“ / rinkinys, nuotaikos, pasitikėjimas, „Mūsų istorija“, atsiliepimai. Kompiuteris – 09-desktop.css. */
 
 /* ── Pradžios skaidrės (v7): trys vieno stiliaus scenos (12-stage.css) su Vaidore buteliukais be fono.
@@ -131,72 +130,12 @@
   background: var(--brand);
 }
 
-/* ── Bėganti privalumų juosta (kaip parfumada.lt): aukso gradientas, 1 px linijos viršuje ir apačioje, 13 px kraštai,
-   16–20 px / 800 didžiosiomis, ženkliukai – emoji; greitis kaip parfumadoje (≈ 41 px/s, --mqDur skaičiuojamas JS),
-   užvedus – sustoja ── */
-.marquee {
-  display: flex;
-  align-items: center;
-  min-height: 59px;
-  overflow: hidden;
-  padding: 13px 0;
-  background: var(--mq-bg);
-  border-top: 1px solid var(--mq-line);
-  border-bottom: 1px solid var(--mq-line);
-  color: var(--mq-ink);
-}
-.mqTrack {
-  display: flex;
-  width: max-content;
-  animation: vdMarquee var(--mqDur, 30s) linear infinite;
-  will-change: transform;
-}
-.marquee:hover .mqTrack {
-  animation-play-state: paused;
-}
-@keyframes vdMarquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-.mqRow {
-  display: flex;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.mqRow li {
-  padding: 0 9px;
-  font-size: clamp(16px, 2vw, 20px);
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.mqRow .mqIco {
-  margin-right: 0.3em;
-  font-weight: 400;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-}
-@media (prefers-reduced-motion: reduce) {
-  .mqTrack {
-    animation: none;
-    width: auto;
-    overflow-x: auto;
-  }
-  .mqRow[aria-hidden] {
-    display: none;
-  }
-}
-
 /* ── Skyriai: tamsi juosta per visą plotį + eilutė „… | Peržiūrėti“ ── */
 .hsec {
   margin-top: 32px;
 }
-/* Iškart po bėgančia juosta – be tarpo (pirmas skyrius: „Kvapnios naujienos“) */
-.marquee + .hsec,
-.marquee + #homeRails > .hsec:first-child {
+/* Iškart po pagrindine nuotrauka – be tarpo (pirmas skyrius: „Kvapnios naujienos“) */
+#homeHero + #homeRails > .hsec:first-child {
   margin-top: 0;
 }
 .hsec[hidden] {
