@@ -155,7 +155,7 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
 - Header'is: telefone 57 px, ☰ · logotipas · paieška · krepšelis (mygtukai 57 × 57, paskyra – šoniniame meniu);
   kompiuteryje 95 px, logotipas centre (≈ 300 px), tamsi meniu juosta 45 px, nuorodos 16 px / 700,
   „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“ (`#genderBtn`).
-- Pradžia: skaidrė telefone – stati 3:4 (nuotrauka 1080 × 1440), kompiuteryje 462 px (2880 × 934); bėganti juosta
+- Pradžia: skaidrė telefone – 1000 × 1150 proporcijų (nuotrauka 1000 × 1150), kompiuteryje 462 px (2880 × 934); bėganti juosta
   balta, 59 px; skyrių juostos 52 / 65 px; plytelės – tik paveikslas 4:5 (16 px kampai, 1000 × 1250), pavadinimas –
   pačioje nuotraukoje (svetainėje tik skaitytuvams), kompiuteryje visos vienoje eilėje (iki 246 px); „… | Peržiūrėti“ – 22 px, linijos #ccc; karuselės – kortelė 284 px
   telefone (29 px kraštai), 3 per visą plotį kompiuteryje, skaitiklis „1 / iš 3“.
@@ -178,7 +178,7 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
   scena (kompozicija + kvapas), tekstas juodas / baltas (`dark`), antraštė, pavadinimas, tekstas, mygtukas, nuoroda (puslapis,
   kvapas, kategorija ar savas adresas). Tušti tekstai – iš šablono (kainos visada tikros). Skaidrių kiekis – kiek pridėta
   (0 – pradžia prasideda plytelėmis), `slideSeconds` – kas kiek sekundžių keičiasi (0 – nesikeičia).
-- **„Tik nuotrauka“** (`preset: "photo"`): tik nuotrauka kompiuteriui (2880 × 934) ir / ar telefonui (3:4, 1080 × 1440), be kvapo
+- **„Tik nuotrauka“** (`preset: "photo"`): tik nuotrauka kompiuteriui (2880 × 934) ir / ar telefonui (1000 × 1150), be kvapo
   ir be svetainės teksto ar mygtuko (tekstas, jei reikia, – pačioje nuotraukoje); nuoroda ir aprašymas (tik skaitytuvams) –
   nebūtini. Be nuorodos skaidrė – tiesiog paveikslas (`div.slide.textless`).
 - **Plytelė:** rodoma, eilė, pavadinimas, nuotrauka (ta pati – ir grupės puslapio viršuje); galima pridėti kategorijas

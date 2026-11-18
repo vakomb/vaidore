@@ -79,7 +79,7 @@
   --r-field: 12px;
   --r-sm: 12px;
   --r-hero: 28px;
-  --heroAR: 0.75; /* pradžios skaidrė telefone – stati 3:4, nuotrauka 1080 × 1440 (idealiai 1290 × 1720) */
+  --heroAR: 0.869565; /* = 1000 / 1150; pradžios skaidrė telefone – 1000 × 1150 proporcijos, nuotrauka 1000 × 1150 */
   --heroH: 420px; /* skaidrės aukštis nuo 700 px (≥ 1024 px – 462 px, 09-desktop.css) */
   --r-photo: 5px; /* v10: prekės paveikslo kampai (karuselėse) */
   --r-tileArt: 16px; /* v10: kategorijų plytelių paveikslo kampai */

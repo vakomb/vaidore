@@ -29,7 +29,7 @@
 .heroStage {
   position: absolute;
   inset: 0;
-  --uh: 0.56; /* stačioje (3:4) skaidrėje – kompozicija po tekstu ir mygtuku */
+  --uh: 0.52; /* stačioje (1000 × 1150) skaidrėje – kompozicija po tekstu ir mygtuku */
   --uw: 0.78;
   --fl: 6cqh;
 }
