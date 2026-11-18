@@ -109,10 +109,10 @@ function railHTML(cards) {
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
-function railSecHTML({ title, line, href, list, sample = false }) {
+function railSecHTML({ title, line, href, list }) {
   return `<section class="hsec"><h2 class="band">${esc(title)}</h2><div class="wrap">${
     line ? `<p class="secLine"><span>${esc(line)}</span><a href="${href}" data-nav>Peržiūrėti</a></p>` : ""
-  }${railHTML(list.map(p => cardHTML(p, { sample })).join(""))}</div></section>`;
+  }${railHTML(list.map(p => cardHTML(p)).join(""))}</div></section>`;
 }
 function syncRail(wrap) {
   const rail = $(".rail", wrap);
@@ -170,8 +170,7 @@ function renderHome() {
     { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },
     { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
     { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") },
-    { title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() },
-    { title: "Mėginukai 2 ml", line: SET.sampleCredit ? "Išbandykite prieš pirkdami – kainą grąžinsime perkant buteliuką" : "Išbandykite namuose prieš pirkdami", href: "meginukai", list: byRank.filter(inStock).slice(0, 8), sample: true }
+    { title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() }
   ].filter(x => x.list.length >= 2);
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
   bindRails($("#view-home"));

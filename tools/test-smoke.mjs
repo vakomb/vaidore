@@ -129,7 +129,12 @@ async function run(viewport) {
   const tileHrefs = await page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
   check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
   check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && (await page.locator("#homeMarquee .mqRow li").count()) >= 10, "pradžia: kolekcijos paveikslas ir bėganti privalumų juosta");
-  check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex, mėginukai)");
+  check(
+    (await page.locator("#homeRails .band").allTextContents()).slice(0, 4).join("|").toLowerCase() === "kvapnios naujienos|populiariausi moterims|populiariausi vyrams|unisex kvapai" &&
+      !(await page.locator("#homeRails .band").allTextContents()).some(t => /mėginukai/i.test(t)),
+    "pradžia: naujienos → moterims → vyrams → unisex, be mėginukų karuselės"
+  );
+  check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {
     const el = document.querySelector("#topNoteTxt");
     const bar = document.querySelector("#topNote");
