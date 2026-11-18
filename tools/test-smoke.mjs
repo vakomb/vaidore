@@ -130,7 +130,7 @@ async function run(viewport) {
   check(["moterims", "vyrams", "unisex", "meginukai", "rinkinys"].every(h => tileHrefs.includes(h)), "pradžia: kategorijos (Moterims, Vyrams, Unisex, Mėginukai, rinkinys, Naujienos)");
   check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && !(await page.locator("#homeMarquee, .marquee").count()), "pradžia: kolekcijos paveikslas, be bėgančios juostos");
   check(
-    (await page.locator("#homeRails .band").allTextContents()).slice(0, 4).join("|").toLowerCase() === "kvapnios naujienos|populiariausi moterims|populiariausi vyrams|unisex kvapai" &&
+    (await page.locator("#homeRails .band").allTextContents()).slice(0, 4).join("|").toLowerCase() === "kvapnios naujienos|moterims|vyrams|unisex" &&
       !(await page.locator("#homeRails .band").allTextContents()).some(t => /mėginukai/i.test(t)),
     "pradžia: naujienos → moterims → vyrams → unisex, be mėginukų karuselės"
   );
@@ -143,8 +143,18 @@ async function run(viewport) {
     "pradžia: „Produktai“ plytelės – po unisex karuselės"
   );
   check(
-    await page.evaluate(() => Math.abs(document.querySelector("#homeRails .band").getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom) < 1),
-    "pradžia: „Kvapnios naujienos“ – iškart po pagrindine nuotrauka (be tarpo)"
+    await page.evaluate(() => {
+      const gap = document.querySelector("#homeRails .band").getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom;
+      return gap > 20 && gap < 60;
+    }),
+    "pradžia: „Kvapnios naujienos“ – netoli pagrindinės nuotraukos (36–52 px)"
+  );
+  check(
+    await page.evaluate(() => {
+      const secs = [...document.querySelectorAll("#view-home .hsec:not([hidden])")];
+      return secs.length >= 4 && secs.every(s => s.querySelector(".band") && s.querySelector(".secLine span") && s.querySelector(".secLine a"));
+    }),
+    "pradžia: visos skyrių antraštės vienodos – pavadinimas, paantraštė, „Žiūrėti visus“"
   );
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {

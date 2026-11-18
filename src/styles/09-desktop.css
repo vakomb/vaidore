@@ -57,13 +57,24 @@
     margin-left: 0;
     font-size: 16.5px;
   }
+  :root {
+    --secFs: 26px;
+  }
   .band {
-    min-height: 65px;
-    font-size: 31px;
+    gap: 28px;
   }
   .secLine {
-    margin: 24px 0;
-    padding: 18px 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 22px;
+    margin-top: 16px;
+  }
+  .hsec {
+    margin-top: 88px;
+  }
+  #homeHero + #homeRails > .hsec:first-child {
+    margin-top: 52px;
   }
   .catTiles {
     grid-auto-columns: calc((100% - 3 * 14px) / 4);
@@ -89,22 +100,13 @@
     gap: 16px;
     padding: 6px var(--pad) 18px;
   }
-  /* Poraštė: nuorodos – 3 stulpeliai (kaip parfumada.lt), apačioje © kairėje, teisinės nuorodos dešinėje */
-  .ftrLinks {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0 40px;
-    padding-top: 44px;
-  }
-  .ftrCol a,
-  .ftrCol button {
-    min-height: 42px;
-  }
+  /* Poraštė: apačioje © kairėje, teisinės nuorodos dešinėje */
   .ftrBottom {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    margin-top: 40px;
+    gap: 4px 24px;
   }
   .pageHead h1 {
     font-size: 52px;
@@ -121,12 +123,6 @@
   }
   .sec {
     margin-top: 64px;
-  }
-  .hsec {
-    margin-top: 44px;
-  }
-  #homeHero + #homeRails > .hsec:first-child {
-    margin-top: 0;
   }
   .pdH1 {
     font-size: 40px;
@@ -479,6 +475,53 @@
   }
   .shopLayout .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Poraštė kompiuteryje – viena eilė: prekės ženklas ir kontaktai · Parduotuvė · Pagalba · Vaidore · naujienlaiškis;
+     grupės visada atskleistos (21-header.js), be linijų ir rodyklių */
+  .ftrIn {
+    padding-top: 56px;
+  }
+  .ftrMain {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 0.8fr)) minmax(0, 1.6fr);
+    gap: 0 40px;
+    align-items: start;
+  }
+  .ftrBrand {
+    grid-column: 1;
+    grid-row: 1;
+    padding-top: 0;
+  }
+  .ftrBrand .logo svg.wordmark {
+    height: 22px;
+  }
+  .ftrNews {
+    grid-column: 5;
+    grid-row: 1;
+    padding-bottom: 0;
+  }
+  .ftrGrp,
+  .ftrGrp:last-of-type {
+    border: 0;
+  }
+  .ftrGrp summary {
+    min-height: 0;
+    margin-bottom: 14px;
+    cursor: default;
+  }
+  .ftrGrp summary svg {
+    display: none;
+  }
+  .ftrGrpBody {
+    padding: 0;
+  }
+  .ftrGrpBody a {
+    min-height: 34px;
+    font-size: 15.5px;
+  }
+  .ftrPay {
+    margin-top: 44px;
   }
 
   /* Kvapo puslapis kompiuteryje (kaip parfumada.lt): per visą plotį – nuotrauka 55 % kairėje (lipni), informacija 45 %

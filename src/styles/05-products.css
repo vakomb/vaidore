@@ -130,13 +130,14 @@
   background: var(--brand);
 }
 
-/* ── Skyriai: tamsi juosta per visą plotį + eilutė „… | Peržiūrėti“ ── */
+/* ── Skyrių antraštės (vienodos visur): PAVADINIMAS didžiosiomis, praretintas, tarp plonų linijų per visą plotį
+   (tas pats motyvas kaip kvapo puslapio pavadinimas), po juo – paantraštė ir „Žiūrėti visus →“ ── */
 .hsec {
-  margin-top: 32px;
+  margin-top: 64px;
 }
-/* Iškart po pagrindine nuotrauka – be tarpo (pirmas skyrius: „Kvapnios naujienos“) */
+/* Pirmas skyrius po pagrindine nuotrauka – mažesnis tarpas */
 #homeHero + #homeRails > .hsec:first-child {
-  margin-top: 0;
+  margin-top: 36px;
 }
 .hsec[hidden] {
   display: none;
@@ -144,45 +145,65 @@
 .band {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  margin-bottom: 0;
-  padding: 9px var(--pad);
-  background: var(--band);
-  color: #fff;
-  font-size: 26px;
-  font-weight: 400;
-  line-height: 1.25;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  text-align: center;
-}
-.secLine {
-  margin: 30px 0;
-  padding: 16px 8px;
-  border-top: 1px solid var(--lineSoft);
-  border-bottom: 1px solid var(--lineSoft);
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  gap: 18px;
+  margin: 0;
   color: #000;
+  font-size: var(--secFs);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   text-align: center;
   text-wrap: balance;
 }
+.band::before,
+.band::after {
+  content: "";
+  flex: 1 1 24px;
+  min-width: 24px;
+  height: 1px;
+  background: var(--secRule);
+}
+.secLine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0 8px;
+  text-align: center;
+}
+.secLine:empty {
+  display: none;
+}
+.secLine span {
+  font-size: 16.5px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
 .secLine a {
-  margin-left: 4px;
-  padding-left: 10px;
-  border-left: 2px solid #000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
   color: #000;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   text-decoration: underline;
-  text-underline-offset: 5px;
-  text-decoration-thickness: 1.5px;
-  white-space: nowrap;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  transition: gap 0.3s var(--spring), opacity 0.2s ease;
+}
+.secLine a svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.6;
 }
 .secLine a:hover {
-  color: var(--gold-ink);
+  gap: 12px;
 }
 .hsec > .wrap > .catTiles:first-child {
   margin-top: 0;
@@ -440,13 +461,6 @@
   color: var(--ink3);
 }
 /* ── Atsiliepimai – tik tikri ── */
-.revLine {
-  margin: 22px 0 18px;
-  font-size: 18px;
-  letter-spacing: 0.03em;
-  text-align: center;
-  color: #000;
-}
 .reviews {
   display: grid;
   grid-auto-flow: column;

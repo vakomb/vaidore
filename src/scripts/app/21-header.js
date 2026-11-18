@@ -176,36 +176,41 @@ function setMega(open) {
   mega.hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
 }
+// Šoninis meniu (telefone ir planšetėje): paieška → Kvepalai → Kategorijos → trys greiti pasirinkimai (mėginukai,
+// rinkinys, testas) → Informacija; apačioje – paskyra, mėgstami ir nemokamo pristatymo eilutė
 function drawerHTML() {
   const cats = visibleCategories();
   const cur = ui.path || "";
-  const link = (href, name, ico) =>
-    `<li><a href="${href}" data-nav${cur === href ? ' aria-current="page"' : ""}>${ico ? glyph(ico) : ""}${esc(name)}<span class="chevR">${glyph("chev-right")}</span></a></li>`;
+  const link = (href, name) =>
+    `<li><a href="${href}" data-nav${cur === href ? ' aria-current="page"' : ""}><span>${esc(name)}</span>${glyph("chev-right")}</a></li>`;
+  const small = (href, name) => `<li><a href="${href}" data-nav${cur === href ? ' aria-current="page"' : ""}>${esc(name)}</a></li>`;
+  const tile = (attrs, ico, name) => `<li><${attrs.startsWith("href") ? "a" : "button type=\"button\""} class="navTile" ${attrs}>${glyph(ico)}<span>${esc(name)}</span></${attrs.startsWith("href") ? "a" : "button"}></li>`;
+  const favN = state.fav.size;
   return `<header class="drawerHead"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><button class="iconBtn" type="button" data-sheet-close aria-label="Uždaryti meniu">${glyph("x")}</button></header>
 <div class="drawerBody">
-<ul class="navList">${link("kvepalai", "Visi kvepalai", "grid")}${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}${
-    saleList().length ? link("nuolaidos", "Didžiausios nuolaidos") : ""
-  }${link("bestselleriai", "Bestselleriai")}${link("kvepalai?rikiuoti=new", "Naujienos")}</ul>
+<button class="navSearch" type="button" data-drawer-search>${glyph("search")}<span>Ieškoti kvapo ar natos</span></button>
+<p class="navSub">Kvepalai</p>
+<ul class="navList">${link("kvepalai", "Visi kvepalai")}${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}${link(
+    "kvepalai?rikiuoti=new",
+    "Naujienos"
+  )}${link("bestselleriai", "Bestselleriai")}${saleList().length ? link("nuolaidos", "Nuolaidos") : ""}</ul>
 ${cats.length ? `<p class="navSub">Kategorijos</p><ul class="navList">${cats.map(c => link(`kategorija/${c.id}`, c.name)).join("")}</ul>` : ""}
-<div class="navSep"></div>
-<ul class="navList">${link("meginukai", "Mėginukai 2 ml", "drop")}${DISC ? `<li><button type="button" data-disc>${glyph("box")}${esc(DISC.name)}</button></li>` : ""}<li><button type="button" data-quiz>${glyph("spark")}Rask savo kvapą</button></li></ul>
-<div class="navSep"></div>
-<ul class="navList">${link("megstami", `Mėgstami${state.fav.size ? ` (${state.fav.size})` : ""}`, "heart")}${link("paskyra", auth.user ? "Mano paskyra" : "Prisijungti / registruotis", "user")}${
-    auth.isAdmin ? link("admin", "Administravimas", "gear") : ""
-  }</ul>
-<div class="navSep"></div>
-<ul class="navList">${link("pagalba", "Pristatymas ir grąžinimas")}${link("verslui", "Verslui")}${link("apie-mus", "Mūsų istorija")}${link("atsiliepimai", "Atsiliepimai")}${link(
+<ul class="navTiles">${tile('href="meginukai" data-nav', "drop", "Mėginukai 2 ml")}${DISC ? tile("data-disc", "box", DISC.name) : ""}${tile("data-quiz", "spark", "Rask savo kvapą")}</ul>
+<p class="navSub">Informacija</p>
+<ul class="navLinks">${small("pagalba", "Pristatymas ir grąžinimas")}${small("apie-mus", "Mūsų istorija")}${small("atsiliepimai", "Atsiliepimai")}${small("verslui", "Verslui")}${small(
     "pagalba#kontaktai",
     "Susisiekite"
-  )}<li><a class="small" href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></li></ul>
+  )}${auth.isAdmin ? small("admin", "Administravimas") : ""}</ul>
 </div>
-<footer class="drawerFoot"><div class="ship${shipLeft() <= 0 && state.cart.length ? " done" : ""}"><div class="shipTxt">${glyph("truck")}<span>${
+<footer class="drawerFoot"><div class="navAcct"><a href="paskyra" data-nav>${glyph("user")}<span>${auth.user ? "Mano paskyra" : "Prisijungti"}</span></a><a href="megstami" data-nav>${glyph("heart")}<span>Mėgstami${
+    favN ? ` <b>${favN}</b>` : ""
+  }</span></a></div><p class="navShip">${glyph("truck")}<span>${
     !state.cart.length
       ? `Nemokamas pristatymas nuo <b>${eur(SET.freeShippingFrom)}</b>`
       : shipLeft() > 0
         ? `Iki nemokamo pristatymo liko <b>${eur(shipLeft())}</b>`
         : "<b>Pristatymas nemokamas</b>"
-  }</span></div></div></footer>`;
+  }</span></p></footer>`;
 }
 function openDrawer() {
   $("#drawer").innerHTML = drawerHTML();
@@ -245,6 +250,10 @@ function bindHeader() {
   $("#menuBtn").addEventListener("click", openDrawer);
   // Paieška: kompiuteryje (kaip parfumada.lt) – tik piktograma, paspaudus header'yje atsiveria laukas; telefone – langas
   $("#searchBtn").addEventListener("click", () => (matchMedia("(min-width: 1024px)").matches ? setHdrSearch(true) : openSearchSheet()));
+  // Meniu paieškos laukas – paieškos langas atsidaro meniu vietoje
+  $("#drawer").addEventListener("click", e => {
+    if (e.target instanceof Element && e.target.closest("[data-drawer-search]")) openSearchSheet();
+  });
   // „Kvepalai“ meniu: paspaudus arba užvedus (kompiuteryje)
   const hdr = $("#hdr");
   let megaT = 0;
@@ -341,19 +350,51 @@ function updateNavCurrent(path) {
   setMega(false);
   setGender(false);
 }
-// Poraštė (kaip parfumada.lt): naujienlaiškis viršuje → nuorodos be antraščių (3 stulpeliai kompiuteryje, vienas – telefone)
-// → mokėjimo būdai → © ir smulkios teisinės nuorodos
+// Poraštė – šviesi ir kompaktiška: telefone naujienlaiškis → trys išskleidžiamos grupės (Parduotuvė, Pagalba, Vaidore)
+// → kontaktai → mokėjimo būdai → © ir teisinės nuorodos; kompiuteryje – viena eilė: prekės ženklas ir kontaktai, trys
+// nuorodų stulpeliai (visada atskleisti), naujienlaiškis dešinėje
+const ftrDesk = matchMedia("(min-width: 1024px)");
 function renderFooter() {
-  const a = (href, name, nav = true) => `<a href="${href}"${nav ? " data-nav" : ""}>${name}</a>`;
-  $("#ftrIn").innerHTML = `<div class="ftrNews">${newsletterFormHTML("footer")}</div>
-<div class="ftrLinks">
-<div class="ftrCol">${a("apie-mus", "Mūsų istorija")}${a("pagalba#kontaktai", "Susisiekite")}${a("atsiliepimai", "Atsiliepimai")}${a("verslui", "Verslui")}</div>
-<div class="ftrCol">${a("salygos", "Pirkimo – pardavimo sąlygos", false)}${a("pagalba#pristatymas", "Prekių pristatymas")}${a("pagalba#grazinimas", "Prekių grąžinimas")}${a("pagalba#duk", "DUK")}</div>
-<div class="ftrCol">${a("privatumas", "Privatumo politika", false)}${a("kvepalai", "Produktai")}${a("bestselleriai", "Bestselleriai")}${a("paskyra", "Mano paskyra")}</div>
+  const a = (href, name, nav = true) => `<a href="${href}"${nav ? " data-nav" : ""}>${esc(name)}</a>`;
+  const grp = (title, links) =>
+    `<details class="ftrGrp"><summary>${esc(title)}${glyph("chev-down")}</summary><div class="ftrGrpBody">${links.join("")}</div></details>`;
+  const ph = filled(SET.company.phone) ? SET.company.phone : "";
+  $("#ftrIn").innerHTML = `<div class="ftrMain">
+<div class="ftrNews">${newsletterFormHTML("footer")}</div>
+${grp("Parduotuvė", [
+  a("kvepalai", "Visi kvepalai"),
+  a("moterims", "Moterims"),
+  a("vyrams", "Vyrams"),
+  a("unisex", "Unisex"),
+  a("kvepalai?rikiuoti=new", "Naujienos"),
+  a("bestselleriai", "Bestselleriai"),
+  a("meginukai", "Mėginukai 2 ml")
+])}
+${grp("Pagalba", [
+  a("pagalba#pristatymas", "Pristatymas"),
+  a("pagalba#grazinimas", "Grąžinimas"),
+  a("pagalba#duk", "Dažni klausimai"),
+  a("pagalba#kontaktai", "Susisiekite"),
+  a("paskyra", "Mano paskyra")
+])}
+${grp("Vaidore", [a("apie-mus", "Mūsų istorija"), a("atsiliepimai", "Atsiliepimai"), a("verslui", "Verslui")])}
+<div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="${esc(SET.shop)} – pradžia"><span>${logoHTML()}</span></a>
+<ul class="ftrContact"><li>${glyph("mail")}<a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></li>${
+    ph ? `<li>${glyph("phone")}<a href="tel:${esc(ph.replace(/\s+/g, ""))}">${esc(ph)}</a></li>` : ""
+  }<li>${glyph("truck")}<span>Išsiunčiame per ${esc(SET.dispatch || "1–2 d. d.")} · nemokamai nuo ${eurShort(SET.freeShippingFrom)}</span></li></ul></div>
 </div>
 <div class="ftrPay" aria-label="Mokėjimo būdai">${PAY_MARKS}</div>
-<div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", "Paslaugų teikimo sąlygos", false)}${a("privatumas", "Privatumo politika", false)}${a("pagalba#grazinimas", "Grąžinimo politika")}${a("pagalba#pristatymas", "Siuntimo politika")}${a("pagalba#kontaktai", "Kontaktinė informacija")}</small></div>`;
+<div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", "Pirkimo sąlygos", false)}${a("privatumas", "Privatumo politika", false)}</small></div>`;
+  syncFooterGroups();
 }
+// Kompiuteryje grupės visada atskleistos (stulpeliai), telefone – suskleistos, atsidaro paspaudus
+function syncFooterGroups() {
+  $$("#ftrIn .ftrGrp").forEach(d => (d.open = ftrDesk.matches));
+}
+ftrDesk.addEventListener?.("change", syncFooterGroups);
+document.addEventListener("click", e => {
+  if (ftrDesk.matches && e.target instanceof Element && e.target.closest("#ftrIn .ftrGrp > summary")) e.preventDefault();
+});
 // Mokėjimo būdų ženkliukai (tekstiniai – be svetimų logotipų failų)
-const PAY_MARKS = ["VISA", "Mastercard", "Apple Pay", "Google Pay", "Stripe"].map(t => `<span>${t}</span>`).join("");
+const PAY_MARKS = ["VISA", "Mastercard", "Apple Pay", "Google Pay"].map(t => `<span>${t}</span>`).join("");
 

@@ -91,9 +91,7 @@ ${inspiredOf(p) && SET.inspired?.note ? `<p class="pdLegal">${esc(SET.inspired.n
 <section class="sec" id="pdReviews" data-pd-reviews hidden></section>
 ${
   similar.length
-    ? `<section class="hsec pdSimilar"><h2 class="band">Jums gali patikti</h2><div class="wrap"><p class="secLine"><span>Panašūs kvapai</span><a href="kvepalai?seima=${encodeURIComponent(
-        p.family
-      )}" data-nav>Peržiūrėti</a></p>${railHTML(similar.map(x => cardHTML(x, { heart: false })).join(""), { cover: true })}</div></section>`
+    ? `<section class="hsec pdSimilar"><h2 class="band">Jums gali patikti</h2><div class="wrap">${secLineHTML("Panašaus charakterio kvapai", `kvepalai?seima=${encodeURIComponent(p.family)}`)}${railHTML(similar.map(x => cardHTML(x, { heart: false })).join(""), { cover: true })}</div></section>`
     : ""
 }
 </div>

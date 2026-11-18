@@ -40,14 +40,7 @@ p {
 :where(h1, h2, h3) {
   color: #000;
 }
-:where(
-  .promo.dark h1,
-  .promo.dark h2,
-  .promo.dark h3,
-  .ftr h1,
-  .ftr h2,
-  .ftr h3
-) {
+:where(.promo.dark h1, .promo.dark h2, .promo.dark h3) {
   color: inherit;
 }
 h1 {

@@ -511,68 +511,198 @@
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 8px 0 16px;
+  padding: 16px 0 24px;
 }
 .drawerFoot {
   padding: 14px var(--pad) calc(14px + var(--safeB));
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--line);
+  background: #fff;
 }
+#drawer .drawerFoot {
+  display: grid;
+  gap: 12px;
+}
+/* Paieška meniu viršuje */
+.navSearch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 2 * var(--pad));
+  height: 50px;
+  margin: 0 var(--pad) 6px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--bg-soft);
+  color: var(--ink3);
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+.navSearch svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 1.6;
+  color: #000;
+}
+/* Skyriaus pavadinimas */
+.navSub {
+  margin: 24px 0 4px;
+  padding: 0 var(--pad);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+/* Pagrindinės nuorodos – didelės, su rodykle */
 .navList {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.navList a,
-.navList button {
+.navList a {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  width: 100%;
-  min-height: 57px;
-  padding: 0 var(--pad);
-  border-radius: 0;
+  min-height: 52px;
+  margin: 0 var(--pad);
+  border-bottom: 1px solid var(--line);
   color: #000;
-  font-size: 23px;
+  font-size: 19px;
   font-weight: 500;
-  letter-spacing: 0.03em;
-  text-align: left;
+  letter-spacing: 0.02em;
 }
-.navList a:active,
-.navList button:active,
-.navList a[aria-current="page"] {
+.navList li:last-child a {
+  border-bottom: 0;
+}
+.navList a svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.6;
+  color: var(--ink4);
+  transition: transform 0.3s var(--spring), color 0.2s ease;
+}
+.navList a:active svg,
+.navList a:hover svg {
+  transform: translateX(3px);
   color: #000;
+}
+.navList a[aria-current="page"] span {
   text-decoration: underline;
+  text-decoration-thickness: 1px;
   text-underline-offset: 6px;
 }
-.navList a[aria-current="page"] {
-  color: var(--brand);
+/* Trys greiti pasirinkimai – plytelės */
+.navTiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 24px var(--pad) 0;
+  padding: 0;
+  list-style: none;
 }
-.navList svg {
-  display: none;
+.navTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: 92px;
+  padding: 16px 6px 12px;
+  border-radius: 16px;
+  background: var(--bg-soft);
+  color: #000;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  text-align: center;
+  transition: transform 0.3s var(--spring), background-color 0.2s ease;
 }
-.navList .chevR {
-  margin-left: auto;
-  color: var(--ink4);
+.navTile:active {
+  transform: scale(0.96);
 }
-.navSub {
-  margin: 14px 0 2px;
+.navTile svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 1.5;
+}
+/* Informacija – smulkesnės nuorodos */
+.navLinks {
+  margin: 0;
   padding: 0 var(--pad);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  list-style: none;
+}
+.navLinks a {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  color: var(--text);
+  font-size: 16.5px;
+  letter-spacing: 0.02em;
+}
+.navLinks a[aria-current="page"] {
+  color: #000;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+/* Apačia: paskyra · mėgstami, nemokamo pristatymo eilutė */
+.navAcct {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.navAcct a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16);
+  color: #000;
+  font-size: 15.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.navAcct svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.6;
+}
+.navAcct b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 2px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.navShip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  letter-spacing: 0.02em;
   color: var(--ink3);
 }
-.navSep {
-  height: 1px;
-  margin: 14px var(--pad);
-  background: rgba(0, 0, 0, 0.08);
+.navShip b {
+  color: #000;
+  font-weight: 600;
 }
-.navList .small {
-  min-height: 50px;
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--ink2);
+.navShip svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.6;
+  color: #000;
 }
 
 /* Puslapio antraštė ir naršymo kelias */
@@ -622,161 +752,241 @@
   color: var(--ink);
 }
 
-/* Poraštė (kaip parfumada.lt): tamsi juosta – naujienlaiškis viršuje, po linija – nuorodos be antraščių (telefone
-   vienas stulpelis, 55 px eilutės, 18,2 px), mokėjimo būdai, apačioje © ir smulkios teisinės nuorodos (14,3 px) */
+/* Poraštė – šviesi ir kompaktiška: telefone naujienlaiškis, trys išskleidžiamos grupės, kontaktai, mokėjimo būdai,
+   © ir teisinės nuorodos; kompiuteryje (09-desktop.css) – viena eilė stulpeliais. */
 .ftr {
-  margin-top: 72px;
-  background: var(--band);
-  color: rgba(255, 255, 255, 0.75);
+  margin-top: 88px;
+  background: var(--ftrBg);
+  box-shadow: inset 0 1px 0 var(--line);
+  color: var(--text);
 }
 .ftrIn {
   max-width: var(--maxW);
   margin: 0 auto;
-  padding: 0 var(--pad) calc(28px + var(--safeB));
+  padding: 36px var(--pad) calc(22px + var(--safeB));
+}
+.ftrMain {
+  display: flex;
+  flex-direction: column;
 }
 .ftrNews {
-  margin: 0 calc(var(--pad) * -1);
-  padding: 44px var(--pad) 48px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  padding-bottom: 28px;
 }
 .news {
   max-width: 520px;
-  margin: 0 auto;
-  text-align: center;
 }
 .newsTitle {
-  font-size: 31px;
-  font-weight: 400;
+  font-size: 20px;
+  font-weight: 600;
   line-height: 1.3;
   letter-spacing: 0.02em;
-  color: #fff;
+  color: #000;
 }
 .newsLead {
-  margin-top: 10px;
-  font-size: 17px;
+  margin-top: 6px;
+  font-size: 15.5px;
   line-height: 1.55;
+  color: var(--text);
 }
 .newsField {
   position: relative;
-  margin-top: 26px;
+  margin-top: 16px;
 }
 .newsField input {
   width: 100%;
-  height: 72px;
-  padding: 0 72px 0 30px;
+  height: 54px;
+  padding: 0 64px 0 18px;
   border: 0;
-  border-radius: 24px;
-  background: transparent;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.85);
-  color: #fff;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16);
+  color: #000;
   font: inherit;
-  font-size: 19.5px;
-  letter-spacing: 0.04em;
+  font-size: 16px;
+  letter-spacing: 0.02em;
   transition: box-shadow 0.2s ease;
 }
 .newsField input::placeholder {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--ink3);
 }
 .newsField input:focus {
   outline: 0;
-  box-shadow: inset 0 0 0 2px #fff;
+  box-shadow: inset 0 0 0 1.5px #000;
 }
 .newsField button {
   position: absolute;
-  top: 0;
-  right: 6px;
-  width: 62px;
-  height: 72px;
+  top: 7px;
+  right: 7px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
+  border-radius: 10px;
+  background: #000;
   color: #fff;
+  transition: transform 0.3s var(--spring);
+}
+.newsField button:active {
+  transform: scale(0.92);
 }
 .newsField button svg {
-  width: 26px;
-  height: 26px;
-  stroke-width: 1.5;
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.6;
 }
 .newsField button:disabled {
   opacity: 0.5;
 }
 .newsMsg {
-  margin-top: 14px;
-  font-size: 16.5px;
-  color: #fff;
+  margin-top: 10px;
+  font-size: 15px;
+  color: #000;
 }
 .newsMsg.bad {
-  color: #ffb4b4;
+  color: var(--sale);
 }
 .newsNote {
-  margin-top: 14px;
-  font-size: 13.5px;
+  margin-top: 10px;
+  font-size: 12.5px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--ink3);
 }
 .newsNote a {
   color: inherit;
   text-decoration: underline;
 }
-/* Naujienlaiškio puslapis (/naujienlaiskis) – ta pati forma šviesiame fone */
+/* Naujienlaiškio puslapis (/naujienlaiskis) – ta pati forma, centre */
 .newsPage {
-  padding: 32px 22px 40px;
+  padding: 36px 22px 40px;
   border-radius: var(--r-card);
-  background: var(--band);
-  color: rgba(255, 255, 255, 0.75);
+  background: var(--ftrBg);
 }
-.ftrLinks {
-  display: grid;
-  grid-template-columns: 1fr;
-  padding-top: 28px;
+.newsPage .news {
+  margin: 0 auto;
+  text-align: center;
 }
-.ftrCol {
-  display: flex;
-  flex-direction: column;
+/* Nuorodų grupės – telefone išskleidžiamos */
+.ftrGrp {
+  border-top: 1px solid var(--ftrLine);
 }
-.ftrCol a,
-.ftrCol button {
+.ftrGrp:last-of-type {
+  border-bottom: 1px solid var(--ftrLine);
+}
+.ftrGrp summary {
   display: flex;
   align-items: center;
-  min-height: 55px;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 18.2px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-align: left;
+  justify-content: space-between;
+  min-height: 56px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
 }
-.ftrCol a:hover,
-.ftrCol button:hover {
-  color: #fff;
+.ftrGrp summary::-webkit-details-marker {
+  display: none;
+}
+.ftrGrp summary svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.6;
+  transition: transform 0.3s var(--spring);
+}
+.ftrGrp[open] summary svg {
+  transform: rotate(180deg);
+}
+.ftrGrpBody {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 14px;
+}
+.ftrGrpBody a {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--text);
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+.ftrGrpBody a:hover {
+  color: #000;
   text-decoration: underline;
   text-underline-offset: 5px;
+}
+/* Prekės ženklas ir kontaktai */
+.ftrBrand {
+  padding-top: 28px;
+}
+.ftrBrand .logo {
+  height: auto;
+  padding: 0;
+}
+.ftrBrand .logo svg.wordmark {
+  height: 18px;
+}
+.ftrContact {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.ftrContact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.ftrContact svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  stroke-width: 1.6;
+  color: #000;
+}
+.ftrContact a {
+  color: #000;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.25);
+  text-underline-offset: 4px;
+}
+.ftrContact a:hover {
+  text-decoration-color: #000;
 }
 .ftrPay {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 34px;
+  gap: 6px;
+  margin-top: 26px;
 }
 .ftrPay span {
   display: inline-grid;
   place-items: center;
-  height: 30px;
-  padding: 0 11px;
-  border-radius: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
   background: #fff;
-  font-size: 12.5px;
+  box-shadow: inset 0 0 0 1px var(--ftrLine);
+  font-size: 11.5px;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  color: #111;
+  letter-spacing: 0.04em;
+  color: #222;
 }
 .ftrBottom {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 26px;
-  font-size: 14.3px;
+  gap: 4px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--ftrLine);
+  font-size: 13px;
   line-height: 1.5;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.03em;
+  color: var(--ink3);
 }
 .ftrBottom small {
   font-size: inherit;
@@ -784,15 +994,15 @@
 .ftrLegal {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 20px;
+  gap: 0 18px;
 }
 .ftrLegal a {
   display: inline-flex;
   align-items: center;
-  min-height: 38px;
+  min-height: 36px;
   color: inherit;
 }
 .ftrLegal a:hover {
-  color: #fff;
+  color: #000;
   text-decoration: underline;
 }
