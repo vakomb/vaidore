@@ -143,9 +143,21 @@ async function run(viewport) {
     "pradžia: „Produktai“ plytelės – virš „Kvapnios naujienos“"
   );
   check(
-    await page.evaluate(() => Math.abs(document.querySelector("#homeTilesSec .band").getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom) < 1),
-    "pradžia: „Produktai“ – iškart po pagrindine nuotrauka (be tarpo)"
+    await page.evaluate(() => {
+      const sec = document.querySelector("#homeTilesSec");
+      const gap = sec.getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom;
+      return !sec.querySelector(".band") && Math.abs(gap) < 1;
+    }),
+    "pradžia: kategorijos iškart po pagrindine nuotrauka, be antraštės „Produktai“"
   );
+  if (mobile && viewport.width < 700) {
+    const tl = await page.evaluate(() => {
+      const t = [...document.querySelectorAll("#homeTiles .tile")].map(x => x.getBoundingClientRect());
+      const a = document.querySelector("#homeTiles .tileArt").getBoundingClientRect();
+      return { full: t.filter(r => r.left >= 0 && r.right <= innerWidth + 0.5).length, ratio: a.height / a.width };
+    });
+    check(tl.full === 2 && tl.ratio > 1 && tl.ratio < 1.15, `pradžia telefone: matomos 2 kategorijos, beveik kvadratinės (${tl.full}, ${tl.ratio.toFixed(2)})`);
+  }
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {
     const el = document.querySelector("#topNoteTxt");
@@ -166,7 +178,10 @@ async function run(viewport) {
   const slideHrefs = await page.locator("#homeHero .slide").evaluateAll(a => a.map(x => x.getAttribute("href")));
   check(slideHrefs.length === 4 && slideHrefs.includes("meginukai") && slideHrefs.includes("rinkinys"), "pradžia: skaidrės (kolekcija, teiginiai, mėginukai, rinkinys)");
   check((await page.locator("#homeHero .heroClaims li").count()) >= 3, "skaidrė su teiginiais ir auksinėmis linijomis");
-  check((await page.locator("#homeTiles .tile .tileName").first().evaluate(e => [getComputedStyle(e).fontWeight, getComputedStyle(e).textTransform, e.offsetHeight > 0].join())) === "700,uppercase,true", "plytelės: pavadinimas virš paveikslo (700, didžiosiomis)");
+  check(
+    (await page.locator("#homeTiles .tile .tileName").first().evaluate(e => [Number(getComputedStyle(e).fontWeight) >= 600, getComputedStyle(e).textTransform, e.offsetHeight > 0].join())) === "true,uppercase,true",
+    "plytelės: pavadinimas virš paveikslo (didžiosiomis)"
+  );
   check((await page.locator("#homeHero h1").count()) === 1, "pradžia: vienas h1");
   // v7: skaidrės ir kategorijos – scenos su Vaidore buteliukais be fono, kiekviena skaidrė – vienas veiksmas
   const heroInfo = await page.evaluate(() =>

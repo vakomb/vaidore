@@ -188,6 +188,10 @@
 .hsec > .wrap > .catTiles:first-child {
   margin-top: 0;
 }
+/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) – nedidelis tarpas viršuje */
+#homeTilesSec {
+  padding-top: 22px;
+}
 .hsec > .wrap > .railWrap:first-child,
 .hsec > .wrap > .reviews:first-child {
   margin-top: 24px;
@@ -257,6 +261,24 @@
 }
 .tile:active {
   transform: scale(var(--press));
+}
+/* Telefone: ekrane lygiai dvi plytelės (Moterims ir Vyrams), kitos – braukiant; paveikslas beveik kvadratinis,
+   pavadinimas – santūrus, didžiosiomis, praretintas */
+@media (max-width: 699.98px) {
+  .catTiles {
+    grid-auto-columns: calc((100% - 12px) / 2);
+  }
+  .tileName {
+    padding: 0 0 10px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 22px;
+    letter-spacing: 0.14em;
+  }
+  .tileArt {
+    aspect-ratio: 10 / 11;
+    border-radius: 12px;
+  }
 }
 
 /* ── Buteliuko paveikslas (SVG) arba nuotrauka ── */
@@ -910,9 +932,6 @@
   }
   .heroTitle {
     font-size: 34px;
-  }
-  .catTiles {
-    grid-auto-columns: 46%;
   }
 }
 
