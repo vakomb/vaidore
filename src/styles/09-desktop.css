@@ -57,24 +57,13 @@
     margin-left: 0;
     font-size: 16.5px;
   }
-  :root {
-    --secFs: 26px;
-  }
   .band {
-    gap: 28px;
+    min-height: 65px;
+    font-size: 31px;
   }
   .secLine {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px 22px;
-    margin-top: 16px;
-  }
-  .hsec {
-    margin-top: 88px;
-  }
-  #homeHero + #homeRails > .hsec:first-child {
-    margin-top: 52px;
+    margin: 24px 0;
+    padding: 18px 8px;
   }
   .catTiles {
     grid-auto-columns: calc((100% - 3 * 14px) / 4);
@@ -123,6 +112,12 @@
   }
   .sec {
     margin-top: 64px;
+  }
+  .hsec {
+    margin-top: 44px;
+  }
+  #homeHero + #homeRails > .hsec:first-child {
+    margin-top: 0;
   }
   .pdH1 {
     font-size: 40px;

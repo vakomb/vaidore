@@ -82,8 +82,7 @@
   --sale-bg: #ffe6e6; /* v10: „Akcija“ ženkliukas – švelniai rožinis, juodas tekstas (kaip parfumada.lt) */
   --ftrBg: #f6f5f3; /* poraštė – šviesi, šilta pilka */
   --ftrLine: rgba(0, 0, 0, 0.09);
-  --secFs: 21px; /* skyrių antraštės (.band): telefone 21 px, planšetėje ir kompiuteryje 26 px (09-desktop.css) */
-  --secRule: rgba(0, 0, 0, 0.18); /* plonos linijos šalia skyrių antraščių */
+  --lineSoft: #cccccc; /* v10: eilutės „… | Peržiūrėti“ linijos */
 
   --spring: cubic-bezier(0.22, 1, 0.36, 1);
   --press: 0.975;

@@ -89,15 +89,10 @@ function railHTML(cards, { cover = false } = {}) {
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
-// Skyriaus antraštė (vienoda visur – pradžia, kvapo puslapis, krepšelis): PAVADINIMAS tarp plonų linijų (.band),
-// po juo – trumpa paantraštė ir „Žiūrėti visus →“ (.secLine)
-const secLineHTML = (line, href, more = "Žiūrėti visus") =>
-  `<p class="secLine">${line ? `<span>${esc(line)}</span>` : ""}${href ? `<a href="${href}" data-nav>${esc(more)}${glyph("arrow-right")}</a>` : ""}</p>`;
 function railSecHTML({ title, line, href, list }) {
-  return `<section class="hsec"><h2 class="band">${esc(title)}</h2><div class="wrap">${secLineHTML(line, href)}${railHTML(
-    list.map(p => cardHTML(p, { heart: false })).join(""),
-    { cover: true }
-  )}</div></section>`;
+  return `<section class="hsec"><h2 class="band">${esc(title)}</h2><div class="wrap">${
+    line ? `<p class="secLine"><span>${esc(line)}</span><a href="${href}" data-nav>Peržiūrėti</a></p>` : ""
+  }${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""), { cover: true })}</div></section>`;
 }
 // Pradžios karuselė telefone (kaip parfumada.lt): kortelės dydis 0,85–1 pagal atstumą nuo centro
 const coverMQ = matchMedia("(max-width: 699.98px)");
@@ -170,17 +165,17 @@ function renderHome() {
   // Tvarka: naujienos → moterims → vyrams → unisex → „Produktai“ plytelės → nuolaidos (jei yra). Skyrius rodomas,
   // jei jame yra bent vienas kvapas.
   const sec = [
-    { title: "Kvapnios naujienos", line: "Naujausi kvapai mūsų kolekcijoje", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
-    { title: "Moterims", line: "Populiariausi moterų pasirinkimai", href: "moterims", list: of("moterims") },
-    { title: "Vyrams", line: "Populiariausi vyrų pasirinkimai", href: "vyrams", list: of("vyrams") },
-    { title: "Unisex", line: "Kvapai visiems – be taisyklių", href: "unisex", list: of("unisex") }
+    { title: "Kvapnios naujienos", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
+    { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },
+    { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
+    { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") }
   ].filter(x => x.list.length);
-  const more = [{ title: "Nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() }].filter(x => x.list.length);
+  const more = [{ title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() }].filter(x => x.list.length);
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
   $("#homeRailsMore").innerHTML = more.map(railSecHTML).join("");
   bindRails($("#view-home"));
 
-  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Atsiliepimai", line: "Tikri pirkėjų žodžiai – rašo tik pirkę", href: "atsiliepimai" });
+  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai – rašo tik pirkę" });
   startHeroAuto();
 }
 // Pardavėjo rekvizitai (settings.company) – neužpildyti laukai „[…]“ nerodomi
@@ -204,13 +199,13 @@ function starsHTML(n) {
   const r = Math.max(0, Math.min(5, Math.round(n)));
   return `<span class="stars" role="img" aria-label="Įvertinimas ${r} iš 5">${"★".repeat(r)}<i>${"★".repeat(5 - r)}</i></span>`;
 }
-function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct = true, band = false, line = "", href = "" } = {}) {
+function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct = true, band = false, line = "" } = {}) {
   if (!el) return;
   const all = reviewsOf(list).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
   el.hidden = !all.length;
   if (!all.length) return (el.innerHTML = "");
   const head = band
-    ? `<h2 class="band">${esc(title)}</h2><div class="wrap">${line || href ? secLineHTML(line, href) : ""}`
+    ? `<h2 class="band">${esc(title)}</h2><div class="wrap">${line ? `<p class="revLine">${esc(line)}</p>` : ""}`
     : `<div class="secHead"><h2>${esc(title)}</h2></div>`;
   el.innerHTML = `${head}<div class="reviews">${all
     .slice(0, 9)
