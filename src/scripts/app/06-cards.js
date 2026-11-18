@@ -32,7 +32,7 @@ function cardHTML(p, opts = {}) {
   const rate = ratingOf(p);
   return `<article class="card${sold ? " sold" : ""}">
 <div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${SET.cards?.badges !== false ? badgePill(p) : ""}${
-    SET.cards?.heart !== false ? heartBtn(p) : ""
+    opts.heart !== false && SET.cards?.heart !== false ? heartBtn(p) : ""
   }</div>
 <div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardNotes">${keyNotes(p).map(esc).join(" · ")}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
     rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""

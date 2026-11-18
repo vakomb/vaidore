@@ -562,6 +562,28 @@
   scroll-snap-align: start;
   content-visibility: visible;
 }
+/* Pradžios karuselės telefone (kaip parfumada.lt): didelė kortelė centre (~73 % ekrano), kaimynės matosi kraštuose
+   ir yra 0,85 dydžio; slenkant dydis keičiasi tolygiai pagal atstumą iki centro (07-home.js, coverScales). Sustoja
+   kiekvienos kortelės centre, rodyklės ir „1/4“ – po vieną kortelę. */
+@media (max-width: 699.98px) {
+  .rail.railCover {
+    position: relative;
+    display: flex;
+    gap: 6px;
+    padding: 2px 52px 8px;
+    scroll-padding-inline: 52px;
+    scroll-behavior: smooth;
+  }
+  .railCover > .card {
+    flex: 0 0 100%; /* 100 % = turinio plotis be 52 px kraštų → ~73 % ekrano */
+    scroll-snap-align: center;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  .railCover > .card:not(:first-child) {
+    transform: scale(0.85) translateZ(0);
+  }
+}
 .railNav {
   display: flex;
   align-items: center;
