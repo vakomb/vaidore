@@ -165,14 +165,17 @@ function renderHome() {
   $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 
+  // Tvarka: naujienos → moterims → vyrams → unisex → „Produktai“ plytelės → nuolaidos (jei yra). Skyrius rodomas,
+  // jei jame yra bent vienas kvapas.
   const sec = [
     { title: "Kvapnios naujienos", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
     { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },
     { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
-    { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") },
-    { title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() }
-  ].filter(x => x.list.length); // skyrius rodomas, jei yra bent vienas kvapas
+    { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") }
+  ].filter(x => x.list.length);
+  const more = [{ title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() }].filter(x => x.list.length);
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
+  $("#homeRailsMore").innerHTML = more.map(railSecHTML).join("");
   bindRails($("#view-home"));
 
   renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai – rašo tik pirkę" });

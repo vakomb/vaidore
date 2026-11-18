@@ -134,6 +134,14 @@ async function run(viewport) {
       !(await page.locator("#homeRails .band").allTextContents()).some(t => /mėginukai/i.test(t)),
     "pradžia: naujienos → moterims → vyrams → unisex, be mėginukų karuselės"
   );
+  check(
+    await page.evaluate(() => {
+      const rails = document.querySelector("#homeRails");
+      const tiles = document.querySelector("#homeTiles").closest(".hsec");
+      return !!(rails.compareDocumentPosition(tiles) & Node.DOCUMENT_POSITION_FOLLOWING);
+    }),
+    "pradžia: „Produktai“ plytelės – po unisex karuselės"
+  );
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {
     const el = document.querySelector("#topNoteTxt");
