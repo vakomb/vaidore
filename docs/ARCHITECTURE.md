@@ -63,130 +63,54 @@ pirkėjams administravimo kodas nesiunčiamas. Skydelis (`src/scripts/admin/`, v
 `window.VD`, duomenis skaito ir rašo tiesiai į Supabase su administratoriaus teisėmis (RLS), o veiksmus su paslaptimis –
 per `shop/admin`.
 
-| Skyrius | Ką daro |
-| --- | --- |
-| Apžvalga | Pajamos šiandien / 7 d. / 30 d., vidutinis krepšelis; kas laukia (išsiųsti, atsiliepimai, užklausos); maži likučiai; perkamiausi; naujausi užsakymai; „Prieš paleidimą“ (rekvizitai, nuotraukos) |
-| Užsakymai | Filtrai (Laukia / Išsiųsti / Visi / Grąžinti) su skaičiais, paieška, turinys (pirkėjas, pristatymas, rašteliukas, kodas, rinkinio kvapai); „Supakuota“, „Išsiųsta…“ (siuntos nr. + laiškas), „Pristatyta“, „Kopijuoti adresą“, „Grąžinti pinigus“ (patvirtinus), nuoroda į Stripe; CSV buhalterijai (Excel: `;`, BOM) |
-| Kvapai | Sąrašas (paieška ir pagal natas, filtrai, greitas likučio keitimas, rodyti / slėpti); vėl turint – „Pranešti“ laukiantiems; redagavimas: informacija, natos ir savybės, tūriai ir kainos (kablelis ar taškas), mėginuko kaina, likutis, išvaizda su buteliuko peržiūra, nuotraukos (sumažinamos iki 1600 px, WebP; Safari – JPEG; tvarka, pašalinimas), kategorijos, žymė, eilė, data; naujas kvapas (adresas iš pavadinimo, nebekeičiamas); ištrynimas (patvirtinus) |
-| Kategorijos | Kategorijos (aprašymas, paveikslas, eilė, rodymas) ir kvapo šeimos; šeimos su kvapais ištrinti neleidžiama |
-| Atsiliepimai | Laukia / Paskelbti / Paslėpti; paskelbti, paslėpti, ištrinti |
-| Laukiantys | Užklausos pagal kvapą; „Pranešti (N)“ – tik kai kvapas vėl prekyboje; ištrinti el. paštą |
-| Nustatymai | Parduotuvė, pradžios kolekcija, pristatymas ir šalys, rinkinys / mėginukų kodas / pakavimas, įmonės rekvizitai, istorija (su nuotrauka), matavimas. Saugant sujungiama su esamais duomenimis |
-| Žurnalas | Paskutiniai 300 pakeitimų: kas, kada, kas pasikeitė |
+### Struktūra ir išdėstymas (v16 – iOS stilius)
+
+Panelė turi savo apvalkalą – parduotuvės header'is, juosta virš jo ir poraštė administravime nerodomi (`.isAdmin`).
+Telefone (< 700 px) – 5 skirtukai apačioje, planšetėje ir telefone gulsčiai (700–1023 px) – ikonų juosta kairėje,
+kompiuteryje (≥ 1024 px) – šoninis meniu su posąrašiais (atidaryta tik dabartinė grupė). Skirtukas veda į paskutinį jame
+atidarytą ekraną, jau atidarytas – į pradžią (kaip iOS). Ženkliukai: Užsakymai – laukia išsiuntimo, Daugiau – atsiliepimai + laukiantys.
+
+| Skirtukas | Adresai | Ką daro |
+| --- | --- | --- |
+| Šiandien | `admin` | Pajamos šiandien / 7 d. / 30 d., vidutinis krepšelis; „Prieš paleidimą“; „Reikia dėmesio“ (kiekviena eilutė veda į darbą); maži likučiai; naujausi užsakymai; perkamiausi |
+| Užsakymai | `admin/uzsakymai[/<nr.>]` | Sąrašas (paieška, Laukia / Išsiųsti / Visi / Grąžinti, CSV buhalterijai, „Rodyti daugiau“) → užsakymo ekranas: „Išsiųsta…“ (siuntos nr. + laiškas), „Supakuota“, „Pristatyta“, pirkėjas, pristatymas, „Kopijuoti adresą“, prekės, Stripe, „Grąžinti pinigus“. Braukiant – greiti veiksmai. Senas `?nr=` nukreipiamas |
+| Katalogas | `admin/kvapai[/<id>]`, `admin/kvapu-sarasas[/<id>]`, `admin/kategorijos` | Produktai · Kvapai · Kategorijos (telefone – segmentuotas valdiklis viršuje). Produkto forma – žr. žemiau |
+| Vitrina | `admin/vitrina[/skaidres\|skyriai\|plyteles\|juosta\|korteles\|istorija]` | Viskas, ką mato pirkėjas: pradžios skaidrės, skyriai su produktais, plytelės, juosta virš header'io (su peržiūra), prekių kortelės ir „Įkvėpti…“, Mūsų istorija |
+| Daugiau | `admin/daugiau`, `admin/atsiliepimai`, `admin/laukia`, `admin/naujienlaiskis`, `admin/nustatymai/<grupė>`, `admin/zurnalas` | Klientai; Nustatymai grupėmis (parduotuve, pristatymas, meginukai, imone, matavimas); Žurnalas; Atnaujinti svetainę; Peržiūrėti parduotuvę; Atsijungti |
+
+Seni adresai: `admin/pradzia[/…]` → `admin/vitrina`, `admin/nustatymai` → `admin/daugiau`, `admin/nustatymai#imone` →
+`admin/nustatymai/imone` (`#korteles`, `#istorija` → Vitrina).
+
+**Ekranas** (`pageHTML`, `01-core.js`): navigacijos juosta (`.axBar`: „‹ Atgal“, kompaktiška antraštė – pasirodo nuslinkus
+didelę, veiksmai) + didelė antraštė + prilipę įrankiai (`.axTools`: paieška, segmentuotas valdiklis) + turinys.
+„Išsaugoti“ (`.axSave`, `form="…"`) – juostoje dešinėje, aktyvus tik kai `A.dirty` (setteris – `syncSave()`).
+Kompiuteryje užsakymai, produktai ir kvapai – dviem stulpeliais (`splitPanes`: sąrašas lieka, keičiasi tik detalės; abu
+stulpeliai slenka atskirai). Sąrašų duomenys – talpykloje 30 s, atnaujinami fone; užvedus pelę ar palietus meniu nuorodą –
+įkeliami iš anksto (`PREFETCH`). Kraunant – „skeleton“ eilutės (`.axSkel`).
+
+**Formos** – sugrupuoti įtraukti sąrašai (`.ig`, `.igHead`, `.igFoot`, laukas `.axField`: pavadinimas kairėje, reikšmė
+dešinėje; `.stack` – ilgam tekstui). Ilgesnės dalys – vidiniuose ekranuose: `[data-pane="…"]` + eilutė `[data-push="…"]`
+(`pushPane` / `popPane`, „‹ Atgal“ juostoje, Esc); eilutėje – santrauka (`paintSums`). Produktas: pagrindiniame ekrane –
+nuotraukų juosta (tempiant – eilė, paspaudus – veiksmai, × – pašalinti), Prekė, Kaina, Rodymas; vidiniai – Aprašymas, Natos,
+Savybės, Spalvos, Kolekcijos, Išsamiau (eilė, data, adresas), Užpildyti iš aprašymo (peržiūra „Bus įrašyta į formą“ →
+„Pritaikyti“; pasirinktas kvapas pritaikomas iškart). Klaida – viršuje (`showFormErr`); laukas paslėptame ekrane atidaromas
+(`revealField`). Paaiškinimai – tik grupės poraštėje, vienu sakiniu.
+
+**Sąrašų veiksmai:** `rowActions` – braukiant kairėn (telefone), ilgai palaikius, dešiniuoju pelės mygtuku arba „⋯“ (užvedus)
+→ iOS veiksmų lapas (`actionSheet`). Produktai: likutis (langas), rodyti / slėpti (iškart, su „Atšaukti“), atidaryti
+parduotuvėje. Užsakymai: supakuota, išsiųsta, pristatyta, kopijuoti adresą. Eilė – `sortable` (tempiant ⋮⋮, klaviatūra ↑ ↓).
+Pavojingi veiksmai – patvirtinimas (veiksmų lapo stiliumi).
+
+**Klaviatūra:** „/“ – paieška, ⌘/Ctrl+S – išsaugoti, Esc – atgal / uždaryti peržiūrą, ↑ ↓ – sąraše. Telefone rašant skirtukų
+juosta paslepiama, laukas parodomas virš klaviatūros. Spalvos, kampai, šešėliai – `--ax-*` (01-tokens.css).
+Ekrano nuotraukos 5 dydžiais: `npm run shots:admin` (`.verify/shots/ax-*.png`).
 
 Po katalogo pakeitimo – `refreshCatalog()` ir pranešimas su „Atnaujinti svetainę“ (`shop/admin` `rebuild`: GitHub Actions
 `pages.yml` per `GITHUB_TOKEN` ir / arba `VERCEL_DEPLOY_HOOK`). Neišsaugoti pakeitimai – perspėjama prieš išeinant.
-Telefone skyriai – slenkama juosta viršuje, kompiuteryje – šoninis meniu.
 
-## Paskyros (`/paskyra`, `22-account.js`)
+## Pradžios puslapis iš administravimo (v8; nuo v16 – Vitrina: admin/vitrina/skaidres, skyriai, plyteles, juosta)
 
-Registracija ir prisijungimas (Supabase Auth be bibliotekos: `20-supabase.js`), slaptažodžio atkūrimas, patvirtinimas laišku
-(grįžtama į `paskyra#access_token=…`). Prisijungus: užsakymai (būsena, siuntos nr., „Įvertinti“, „Pirkti dar kartą“), profilis,
-adresas ir mėgstamas paštomatas (perduodami Stripe), nuolaidos kodai, slaptažodis, duomenų atsisiuntimas, paskyros ištrynimas.
-Mėgstami sujungiami tarp įrenginių. Pirkti galima ir be paskyros; užsakymai be paskyros matomi, kai pirkėjas vėliau
-užsiregistruoja tuo pačiu (patvirtintu) el. paštu.
-
-## Apmokėjimas (Stripe)
-
-1. Naršyklė siunčia `POST shop/checkout` – **be kainų**: `items: [{ id, ml, qty }]` (rinkinys – `{ id, qty, picks }`),
-   `shipping: { method, locker }`, `gift: { on, note }`, `site` (grįžimo adresas – tik iš leidžiamų, `pickSite`).
-2. Serveris kainas ir likučius ima iš bazės, tikrina kiekius (`maxQty`), likučius (409), rinkinį; sukuria Checkout sesiją
-   (eilutės, pakavimas, pristatymas – nemokamai nuo `freeShippingFrom`, paštomatas `metadata.locker` arba adresas LT / LV / EE,
-   telefonas, nuolaidų kodai, `locale: lt`). Prisijungusiam – Stripe klientas su išsaugotu adresu, užsakymas susiejamas su paskyra.
-3. Pirkėjas moka Stripe puslapyje → `/aciu?s=<sesija>` (krepšelis išvalomas, `shop/order` – kodas ir užsakymo įrašas).
-4. `shop/stripe-webhook` (parašas `STRIPE_WEBHOOK_SECRET`, ±5 min.) → užsakymas į bazę, mėginukų kodas, laiškai savininkui
-   ir pirkėjui (jei `RESEND_API_KEY`). Kvitus siunčia pati Stripe.
-
-### Mėginukų kainos grąžinimas
-
-Perkant mėginukus ar rinkinį, jų suma įrašoma į `metadata.sample_credit_cents`. Po apmokėjimo `ensureCredit` sukuria vienkartinį
-Stripe kuponą ir kodą `VD-<užsakymo nr.>` (galioja `sampleCredit.days` d., užsakymui nuo `sampleCredit.minOrder` €). Idempotency
-raktai ir paieška pagal kodą neleidžia sukurti dviejų – todėl jį saugiai kviečia ir webhook, ir padėkos puslapis.
-
-## Pristatymas į Omniva paštomatą
-
-`build-site.mjs` parsiunčia `https://www.omniva.ee/locations.json`, palieka paštomatus (`TYPE 0`) iš `settings.countries` ir įrašo
-glaustai į `site/data/omniva.json`; programėlė jį atsisiunčia tik atidarius pasirinkimą (paieška be diakritikų, „Rasti artimiausius“).
-Nepavykus – paštomato pasirinkimo nėra, adresą pirkėjas įrašo Stripe lange.
-
-## SEO ir dalinimasis
-
-Kiekvienam adresui – statinis HTML su savo `title`, `description`, kanoniniu adresu ir Open Graph; kvapams – Product JSON-LD
-(kainos, prieinamumas, paskelbti atsiliepimai) ir `og/<id>.jpg` (`npm run og`) arba pirma nuotrauka. `sitemap.xml`, `robots.txt`
-(`/admin`, `/paskyra`, `/krepselis`, `/aciu` – neindeksuojami). GitHub Pages kopija – `NOINDEX=1`.
-
-## Matavimas (be slapukų)
-
-`settings.analytics`: `plausible` (domenas) ir / arba `vercel: true`. `track()` siunčia: „Peržiūrėjo kvapą“, „Į krepšelį“,
-„Pradėjo apmokėjimą“, „Apmokėjo“ (su suma), „Užbaigė testą“, „Pranešti, kai bus“. Slapukų juostos nereikia.
-
-## Juosta virš header'io (settings.topbar)
-
-Administravimas → Pradžia → „Juosta virš header'io“ (12-topbar.js, gyva peržiūra): žinutės (tekstas su `*paryškinimu*`,
-trumpas variantas siauram telefonui, nuoroda, rodoma / paslėpta, eilė), 7 paruošti dizainai + savos spalvos (fonas,
-gradientas → / ↔, tekstas, paryškintas tekstas), šriftas telefone / kompiuteryje, storis, tarpai tarp raidžių,
-DIDŽIOSIOS, aukštis telefone / kompiuteryje, linija apačioje, keitimosi laikas, animacija, rodyklės, įjungta / išjungta.
-Kontrastas tikrinamas (≥ 4,5:1). Svetainėje – CSS kintamieji `--nbg --nfg --nacc --nfs --nfsd --nw --nls --ntt --nh --nhd`
-ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės žinutės iš nustatymų (`autoNoteItems`).
-
-## v11: dar arčiau parfumada.lt (2026-11-17)
-
-- Plytelės: pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis; kompiuteryje 23,4 px), administravime – „Pavadinimas“.
-- Kortelės: katalogo tinklelyje paveikslas 4:5, buteliukas per visą aukštį (`object-fit: cover`); akcijos kaina raudona
-  (`--sale`); širdelė ir ženkliukai – Nustatymai → „Prekių kortelės“ (galima išjungti).
-- Katalogas: kompiuteryje 3 stulpeliai; filtrai – Pagal lytį · Kategorijos · Kvapo pobūdis · Natos · Proga · Sezonas ·
-  Koncentracija · Kaina (nuo–iki, `?kaina=20-40`) · Likutis (`?likutis=yra`) · Formatas; grupės suskleistos (atidaryta tik
-  „Pagal lytį“ ir tos, kuriose yra pasirinkimų).
-- Header'is kompiuteryje: ☰ · logotipas · paieška (piktograma → laukas header'yje) · paskyra · mėgstami · krepšelis;
-  meniu juosta telpa vienoje eilutėje – netelpančios nuorodos slepiamos pagal `data-fit` (`fitHeaderNav`).
-- Karuselių skaitiklis „1/5“. Skaidrė „Teiginiai su linijomis“ (preset `claims`): kelių eilučių tekstas – teiginiai su
-  auksinėmis linijomis.
-- Nauji puslapiai: `/bestselleriai` (8 populiariausi pagal `rank`), `/nuolaidos` (tik su tikra sena kaina, didžiausia
-  nuolaida pirma), `/atsiliepimai` (visi tikri atsiliepimai, vidurkis), `/verslui` (užklausa laišku), `/naujienlaiskis`.
-- Poraštė: naujienlaiškis viršuje → nuorodos be antraščių (3 stulpeliai) → mokėjimo būdai → © ir teisinės nuorodos.
-- Naujienlaiškis: lentelė `newsletter` (migracija 20261117000100; pirkėjas gali tik įrašyti el. paštą), Edge Function
-  `shop/newsletter` (pasisveikinimo laiškas, atsisakymas pagal raktą), administravime – `admin/naujienlaiskis`
-  (sąrašas, CSV, bandomasis laiškas, laiškas visiems per Resend batch su „List-Unsubscribe“).
-
-## Dizainas (v10: dydžiai ir sandara – kaip parfumada.lt, išmatuota 390 ir 1440 px pločio)
-
-- Tekstas 19,5 px (`--fs`), 75 % juodos (`--text`), antraštės – #000. Spalvos ir dydžiai – `01-tokens.css`.
-- Juosta virš header'io: telefone 66 px, 19,5 px, iki 2 eilučių; kompiuteryje 49 px (`--noteH`, `--noteFs`, `fitNote`).
-- Header'is: telefone 57 px, ☰ · logotipas · paieška · krepšelis (mygtukai 57 × 57, paskyra – šoniniame meniu);
-  kompiuteryje 95 px, logotipas centre (≈ 300 px), tamsi meniu juosta 45 px, nuorodos 16 px / 700,
-  „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“ (`#genderBtn`).
-- Pradžia: skaidrė telefone – 1000 × 1150 proporcijų (nuotrauka 1000 × 1150), kompiuteryje 462 px (2880 × 934); bėgančios
-  juostos nėra; skyrių juostos 52 / 65 px; plytelės – tik paveikslas 4:5 (16 px kampai, 1000 × 1250), pavadinimas –
-  pačioje nuotraukoje (svetainėje tik skaitytuvams), kompiuteryje visos vienoje eilėje (iki 246 px); „… | Peržiūrėti“ – 22 px, linijos #ccc; karuselės – kortelė 284 px
-  telefone (29 px kraštai), 3 per visą plotį kompiuteryje, skaitiklis „1 / iš 3“.
-- Kortelė: PAVADINIMAS · natos · kaina (be „Įkvėpti …“ ir greitų mygtukų); katalogo tinklelyje paveikslas 4:5;
-  akcija – rožinis „Akcija“ ženkliukas, nubraukta kaina 16,9 px ir nauja 20,8 px / 700.
-- Katalogas: be naršymo kelio; filtrai – Pagal lytį, Kategorijos, Kvapo pobūdis, Natos (`?natos=`), Proga
-  (`?proga=`), Sezonas (`?sezonas=`), Koncentracija, Kaina (`SET_FILTERS`, `08-shop.js`).
-- Kvapo puslapis: be naršymo kelio ir ženkliukų ant nuotraukos; išskleidžiamos eilutės 65 px; „Ingredientai“ –
-  laukas `products.ingredients` (migracija `20261117000000_ingredients.sql`, administravime – „Ingredientai (INCI)“),
-  rodoma tik jei užpildyta; „Įdėti į krepšelį“ 63 px; „Į mėgstamus“ / „Dalintis“ – po pirkimu.
-- Poraštė: nuorodų eilutės 55 px, 18,2 px.
-
-## Kvapo puslapis ir slinkimas (v11, kaip parfumada.lt)
-
-- **Turinys** (`10-product.js`): pavadinimas tarp linijų, „Įkvėpti …“, trys natos; nuotrauka; aprašymas (19,5 px, 75 % juodos);
-  išskleidžiamos dalys – „Kam skirti“ (sąrašas: lytis · kvapų šeima · kada · metų laikai, kiekvienas po kartą – `suitsParts`),
-  „Natos“ („Viršutinės / Širdies / Bazinės natos: …“), „Ingredientai“ (jei įrašyti), „Pristatymas ir grąžinimas“.
-  „Savybės“ ir „Panaudojimo būdas“ pašalinti. Kaina (akcija – raudona `--sale`), **Talpa**: 33 ml · 100 ml · 2 ml mėginukas.
-- **Išdėstymas**: telefone – vienas stulpelis; planšetėje (700–1023 px) – du lygūs stulpeliai, nuotrauka lipni; kompiuteryje –
-  per visą plotį (iki 1520 px, kraštai 64 px), nuotrauka 55 % / informacija 45 % (iki 560 px). „Jums gali patikti“ – už
-  `article.pd` ribų (kitaip lipni nuotrauka slinktų per jį), karuselė – kaip pradžioje (didelė kortelė centre, be širdelių).
-- **Pirkimo juosta** `#buyBar`: telefone / planšetėje – kaina + mygtukas, kai pagrindinis mygtukas išslenka viršun;
-  kompiuteryje – nuotrauka, pavadinimas, kaina, kiekis, mygtukas, kai pagrindinio mygtuko nesimato. Kiekis bendras (`pdState.qty`).
-- **Slinkimas**: parfumada.lt naudoja įprastą naršyklės slinkimą – sklandumą lemia tai, kad slenkant nieko nereikia perpiešti.
-  Todėl: header'is ir pirkimo juosta – balti (be `backdrop-filter`), kortelės be `content-visibility`, header'io klasė
-  keičiama tik pasikeitus būsenai. Kompiuteryje pelės ratukas – `27-smooth-scroll.js` (tolygus „nuplaukimas“, ~10 % likusio
-  kelio per kadrą); liečiamas kilimėlis, telefonas, klaviatūra, vidiniai slenkami laukai ir „mažiau judesio“ – natūralūs.
-
-## Pradžios puslapis iš administravimo (v8: admin/pradzia)
-
-- **Skyrius „Pradžia“** (`src/scripts/admin/10-home.js`, stiliai `admin.css` „Pradžios puslapis“): skaidrės ir „Produktai“
+- **Vitrina** (`src/scripts/admin/10-home.js`, stiliai `admin.css` „Vitrina“): skaidrės ir „Produktai“
   plytelės su gyva peržiūra – tikra parduotuvė `<iframe>` (`?vdPreview=1`), telefono arba kompiuterio dydžiu; juodraštis
   siunčiamas `postMessage` (`25-home-config.js` jį pritaiko ir po katalogo atnaujinimo), išsaugoma tik paspaudus „Išsaugoti“.
 - **Skaidrė:** rodoma / paslėpta, eilė (↑ ↓), šablonas (Kolekcija, Mėginukai, Dovana, Sava), fonas – nuotrauka
@@ -335,7 +259,7 @@ Karuselės po plytelėmis („Kvapnios naujienos“, „Populiariausi moterims�
 - `mode:"auto"` – `rule` filtruoja matomus produktus: `type`, `gender`, `family`, `category` (kolekcija), `scent` (bendras kvapas), `time` (diena / vakaras), `season`, `occasion`, `sale` (tik su tikra sena kaina, turimi); `sort` – `rank` (populiariausi), `new`, `price-asc`, `price-desc`, `sale` (didžiausia nuolaida). `limit` 1–24 (numatyta 12).
 - `mode:"manual"` – `ids` (administratoriaus nurodyta tvarka); paslėpti / ištrinti produktai praleidžiami.
 - `href`: tuščia – automatinė nuoroda iš taisyklės (`kvepalai?lytis=…&laikas=…`, `kategorija/<id>`, `nuolaidos`); `"none"` – be nuorodos; kitaip – santykinis adresas.
-- Skyrius be produktų nerodomas. Administravime („Pradžia“ → „Skyriai su produktais“): pridėti pagal taisyklę arba ranka, keisti, kopijuoti, ištrinti, perkelti aukštyn / žemyn, slėpti; produktų paieška pagal pavadinimą, originalą, natas; pakeitimai iš karto matomi peržiūroje. Testai – `test-admin.mjs` („skyriai…“).
+- Skyrius be produktų nerodomas. Administravime („Vitrina“ → „Skyriai su produktais“, atskiras ekranas su peržiūra): pridėti pagal taisyklę arba ranka, keisti, kopijuoti, ištrinti, perkelti tempiant ⋮⋮ (arba ↑ ↓), slėpti; produktų paieška pagal pavadinimą, originalą, natas; pakeitimai iš karto matomi peržiūroje. Testai – `test-admin.mjs` („skyriai…“).
 
 ### Produkto forma – minimalistinė (v15b)
 

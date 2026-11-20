@@ -270,6 +270,7 @@ function photoHTML({ image, imageM = "", focus = "50% 50%", focusM = "" }, { eag
 
 // ── Peržiūra administravimo skydelyje ────────────────
 const PREVIEW = /[?&]vdPreview=1\b/.test(location.search) && window.parent !== window;
+const centerIn = el => el && window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY - (innerHeight - el.offsetHeight) / 2));
 if (PREVIEW) {
   document.documentElement.classList.add("vdPreview");
   // Peržiūroje nuorodos niekur neveda (kad juodraštis nedingtų)
@@ -286,8 +287,9 @@ if (PREVIEW) {
       const r = $("#homeHero .heroRail");
       if (r && i >= 0) r.scrollLeft = i * r.clientWidth;
       if (e.data.scroll === "top") window.scrollTo(0, 0);
-      else if (e.data.scroll === "tiles") $("#homeTiles")?.scrollIntoView({ block: "center" });
-      else if (String(e.data.scroll || "").startsWith("rail:")) $(`#homeRails [data-rail="${CSS.escape(e.data.scroll.slice(5))}"]`)?.scrollIntoView({ block: "center" });
+      // Slenkama tik peržiūros langas (scrollIntoView slinktų ir administravimo puslapį aplink <iframe>)
+      else if (e.data.scroll === "tiles") centerIn($("#homeTiles"));
+      else if (String(e.data.scroll || "").startsWith("rail:")) centerIn($(`#homeRails [data-rail="${CSS.escape(e.data.scroll.slice(5))}"]`));
       else if (!rail) window.scrollTo(0, 0);
     }
   });
