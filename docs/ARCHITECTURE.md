@@ -216,12 +216,11 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
   `TYPE_PAGE` – `build-site.mjs`, `TYPE_ONE` – `shop.js`. Tipas be prekių parduotuvėje nerodomas; nauji tipai į išsaugotą
   plytelių sąrašą įterpiami automatiškai (`tileList`, `25-home-config.js`).
 - **Bendras kvapas** (`scents`, migracija `20261120120000_scents_types.sql`): vardas, originalas, lytis, šeima, natos,
-  sezonai, paros laikas, progos, ilgaamžiškumas, sklaida, spalvos. `products.scent_id` – nuoroda; produktas turi savo
+  ilgaamžiškumas, sklaida, spalvos (v19: sezonai, paros laikas, progos – pašalinti, žr. „Be „Kada tinka“ (v19)“). `products.scent_id` – nuoroda; produktas turi savo
   laukų kopijas (parduotuvė ir filtrai jų neima iš `scents`). Esami produktai susieti pagal pavadinimą be tipo žodžio,
   likę – pagal originalo kvapą (pvz. „Difuzorius SIRED“ → SIDORE).
 - **Nauji laukai**: `products.attrs` (tipo savybės: lazdelės, trukmė, plotas, degimo trukmė, vaškas, dagtis, vandens
-  talpa, veikimo laikas, maitinimas, apšvietimas – `AF_ATTRS` / `ATTR_DEFS`), `products.occasions` (kasdien, darbui,
-  pasimatymui, vakarėliui, šventei), `sizes[].unit` – `g` (žvakės), `vnt` (elektrinis difuzorius), kitaip ml.
+  talpa, veikimo laikas, maitinimas, apšvietimas – `AF_ATTRS` / `ATTR_DEFS`), `sizes[].unit` – `g` (žvakės), `vnt` (elektrinis difuzorius), kitaip ml.
 - **Variklis be API** – `src/scripts/admin/13-autofill-words.js` (natų žodynas PL / EN → LT: 520 raktų, 254 natos;
   būdvardžiai su giminėmis; šeimos; rinkodaros žodžiai) ir `13-autofill.js` (`afParse`): kalba, tipas (taškais pagal
   raktažodžius), pavadinimas (be prekės ženklo – pasikartojantis žodis; be rinkodaros, tipo, lyties žodžių; DIDŽIOSIOMIS
@@ -235,7 +234,7 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
 - **Skiltis „Kvapai“** (`14-scents.js`, `admin/kvapu-sarasas`): sąrašas su paieška (pavadinimas, originalas, šeima,
   natos, kiek produktų); naujas kvapas – įklijuotas aprašymas → `afParse` → tik kvapo laukai (`SCENT_KEYS`), „Auto“
   žymos ir „Liko užpildyti“; kvapo puslapis – visi laukai, spalvų peržiūra, susieti produktai, „Pritaikyti pakeitimus
-  produktams“ (`SCENT_TO_PRODUCT`: originalas, lytis, šeima, natos, savybės, progos – ne pavadinimas, aprašymas, spalvos),
+  produktams“ (`SCENT_TO_PRODUCT`: originalas, lytis, šeima, natos, ilgaamžiškumas, sklaida – ne pavadinimas, aprašymas, spalvos),
   „Naujas produktas su šiuo kvapu“ (`admin/kvapai/naujas?kvapas=<id>` – kvapas parenkamas iš karto), ištrynimas
   (pirma `products.scent_id = null`, tada `scents` įrašas). Senas `admin/kvapai/kvapu-sarasas` nukreipiamas.
 - **Forma pagal kategoriją** (`TYPE_FORM`, `typePickHTML`, `applyTypeForm` – `04-products.js`): naujam produktui viršuje –
@@ -246,7 +245,7 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
 - **Prekės puslapis pagal kategoriją**: ne kvepalams – kategorijos nuoroda virš pavadinimo (`.pdCat`), „Kvapo natos“,
   „Panašūs“ → kategorijos puslapis; visiems – „Šis kvapas taip pat“ (`.pdForms`: to paties `scent_id` produktai).
 - **Parduotuvė**: „Savybės“ prekės puslapyje, „Svoris“ žvakėms, elektriniam difuzoriui – be talpos pasirinkimo;
-  filtrai „Proga“ (`?proga=`), „Paros laikas“ (`?laikas=`; seni `?proga=diena|vakaras` palaikomi), „Originalo kvapas“
+  filtrai „Originalo kvapas“
   (`?originalas=`), „Formatas“ kitiems tipams (`?formatas=`); elektriniams difuzoriams kvapo filtrų nėra.
 - Testai: `tools/test-autofill.mjs` (priimamumo „My Pink“ – `tools/fixtures/autofill-my-pink.txt`, žvakė su kvapu,
   PL / EN / LT difuzorius, aliejus, elektrinis difuzorius), `test-admin.mjs` (forma), `test-smoke.mjs` (parduotuvė).
@@ -256,9 +255,9 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
 Karuselės po plytelėmis („Kvapnios naujienos“, „Populiariausi moterims“, „Populiariausi vyrams“, „Unisex kvapai“, „Didžiausios nuolaidos“) – nebe kodas, o nustatymas `settings.rails` (masyvas, tvarka = rodymo tvarka). Kol administratorius nieko neišsaugojo, naudojami `DEFAULT_RAILS` (`25-home-config.js`) – parduotuvė atrodo kaip anksčiau.
 
 - Skyrius: `{ id, on, title, line, mode, rule, ids, limit, href }`. `on:false` – paslėptas; `line` – paantraštė su nuoroda „Peržiūrėti“.
-- `mode:"auto"` – `rule` filtruoja matomus produktus: `type`, `gender`, `family`, `category` (kolekcija), `scent` (bendras kvapas), `time` (diena / vakaras), `season`, `occasion`, `sale` (tik su tikra sena kaina, turimi); `sort` – `rank` (populiariausi), `new`, `price-asc`, `price-desc`, `sale` (didžiausia nuolaida). `limit` 1–24 (numatyta 12).
+- `mode:"auto"` – `rule` filtruoja matomus produktus: `type`, `gender`, `family`, `category` (kolekcija), `scent` (bendras kvapas), `sale` (tik su tikra sena kaina, turimi); `sort` – `rank` (populiariausi), `new`, `price-asc`, `price-desc`, `sale` (didžiausia nuolaida). `limit` 1–24 (numatyta 12).
 - `mode:"manual"` – `ids` (administratoriaus nurodyta tvarka); paslėpti / ištrinti produktai praleidžiami.
-- `href`: tuščia – automatinė nuoroda iš taisyklės (`kvepalai?lytis=…&laikas=…`, `kategorija/<id>`, `nuolaidos`); `"none"` – be nuorodos; kitaip – santykinis adresas.
+- `href`: tuščia – automatinė nuoroda iš taisyklės (`kvepalai?seima=…`, `kategorija/<id>`, `nuolaidos`); `"none"` – be nuorodos; kitaip – santykinis adresas.
 - Skyrius be produktų nerodomas. Administravime („Vitrina“ → „Skyriai su produktais“, atskiras ekranas su peržiūra): pridėti pagal taisyklę arba ranka, keisti, kopijuoti, ištrinti, perkelti tempiant ⋮⋮ (arba ↑ ↓), slėpti; produktų paieška pagal pavadinimą, originalą, natas; pakeitimai iš karto matomi peržiūroje. Testai – `test-admin.mjs` („skyriai…“).
 
 ### Produkto forma – minimalistinė (v15b)
@@ -266,7 +265,11 @@ Karuselės po plytelėmis („Kvapnios naujienos“, „Populiariausi moterims�
 - Kategorija – kapsulių eilė formos viršuje (telefone slenkama), be aprašymų; naujam produktui laukas `type` – paslėptas, esamam – pasirinkimas „Kategorija“.
 - Po laukais paaiškinimų nėra – tik pavyzdžiai laukuose (`TYPE_FORM`). Viena trumpa pastaba – „Sena kaina – tik akcijai (mažiausia per 30 d.)“.
 - Blokai: Užpildyti iš aprašymo → Prekė → Natos (kvapo prekėms) → Savybės → Kaina → Nuotraukos; šone – Rodymas (su adresu), Kolekcijos (ne elektriniams difuzoriams), Spalvos.
-- Ilgaamžiškumas ir sklaida (`longevity`, `sillage`) formose (produkto ir kvapo) nerodomi: laukai duomenų bazėje lieka, reikšmė imama iš automatinio užpildymo arba lieka esama (naujam – 3). Juos naudoja kvapo testas ir „Kam skirti“.
+- Ilgaamžiškumas ir sklaida (`longevity`, `sillage`) formose (produkto ir kvapo) nerodomi: laukai duomenų bazėje lieka, reikšmė imama iš automatinio užpildymo arba lieka esama (naujam – 3). Juos naudoja kvapo testas.
+
+## Be „Kada tinka“ (v19)
+
+Sezonai, paros laikas ir progos pašalinti iš visos parduotuvės ir administravimo: kortelių / produkto puslapio („Kam skirti“ – tik lytis ir kvapų šeima), katalogo filtrų (seni `?proga=`, `?laikas=`, `?sezonas=` adresai ignoruojami), paieškos, kvapo testo (3 klausimai: kam, kokie kvapai, intensyvumas), pradžios skyrių taisyklių (seni `rule.time/season/occasion` išvalomi atidarius „Vitrina → Skyriai“), produkto ir kvapo formų, automatinio užpildymo (`afParse` šių laukų nebegrąžina; aprašyme nebėra sakinių apie sezoną, progą ar paros laiką). Duomenų bazės stulpeliai `products.seasons/times/occasions` ir `scents.seasons/times/occasions` paliekami (numatytos reikšmės, niekur nenaudojami), `catalog.json` jų nebeturi.
 - Savybių `room`, `area` (m²) ir `power` (maitinimas) nebėra nei formoje, nei prekės puslapyje, nei automatiniame aprašyme; senos reikšmės duomenų bazėje nerodomos.
 
 

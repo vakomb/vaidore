@@ -19,11 +19,11 @@ d.families.forEach((f, i) => out.push(`insert into public.families (id, name, hi
 for (const p of d.products) {
   const cols = [
     q(p.id), q(p.name), q(p.conc), q(p.gender), q(p.family), q(p.tagline), q(p.desc), J(p.notes), p.longevity, p.sillage,
-    A(p.seasons), A(p.time), J(p.sizes), p.sample, J(p.look), p.badge ? q(p.badge) : "null", p.rank, q(p.added),
+    J(p.sizes), p.sample, J(p.look), p.badge ? q(p.badge) : "null", p.rank, q(p.added),
     p.stock == null ? "null" : p.stock, A(p.images), q(p.inspired || "")
   ];
   out.push(
-    `insert into public.products (id, name, conc, gender, family, tagline, description, notes, longevity, sillage, seasons, times, sizes, sample, look, badge, rank, added, stock, images, inspired) values (${cols.join(", ")}) on conflict (id) do nothing;`
+    `insert into public.products (id, name, conc, gender, family, tagline, description, notes, longevity, sillage, sizes, sample, look, badge, rank, added, stock, images, inspired) values (${cols.join(", ")}) on conflict (id) do nothing;`
   );
   for (const c of p.categories || []) out.push(`insert into public.product_categories values (${q(p.id)}, ${q(c)}) on conflict do nothing;`);
 }

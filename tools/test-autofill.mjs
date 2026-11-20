@@ -34,19 +34,20 @@ check(j(f.notes.top) === j(["Bergamotė", "Apelsinmedžio žiedai"]), "My Pink: 
 check(j(f.notes.heart) === j(["Tuberozė", "Jazminas"]), "My Pink: širdis – Tuberozė, Jazminas");
 check(j(f.notes.base) === j(["Kreminė vanilė", "Baltasis muskusas", "Medienos natos"]), "My Pink: bazė – Kreminė vanilė, Baltasis muskusas, Medienos natos");
 check(f.family === "geliu" && !r.unknown.length, "My Pink: šeima geliu, visos natos atpažintos");
-check(f.seasons.length && f.times.length && f.occasions.length && f.longevity === 4 && f.sillage === 3 && /^#[0-9A-F]{6}$/i.test(f.look.liquid) && f.tagline, "My Pink: sugeneruoti sezonai, paros laikas, progos, ilgaamžiškumas, sklaida, spalvos, šūkis");
+check(!("seasons" in f) && !("times" in f) && !("occasions" in f) && f.longevity === 4 && f.sillage === 3 && /^#[0-9A-F]{6}$/i.test(f.look.liquid) && f.tagline, "My Pink: be „kada tinka“; ilgaamžiškumas, sklaida, spalvos, šūkis");
 check(f.description.length >= 350 && f.description.length <= 650, `My Pink: aprašymas 350–650 simb. (${f.description.length})`);
 check(!/nomi|20\s*%|francus|prancūz|lenk|torebk|rankin/i.test(`${f.description} ${f.tagline}`), "My Pink: aprašyme nėra pardavėjo teiginių ir prekės ženklo");
+check(!/atsiskleidžia (pavasar|vasar|rudenį|žiem|visais)|Tinka (kasdien|darbui|pasimatym|vakarėl|šventei)|dienai ir vakarui|vakarams|į darbą/i.test(f.description), "My Pink: aprašyme – be „kada tinka“ (sezonų, progų, paros laiko)");
 check(f.description.startsWith("My Pink – ") && /bergamotė/.test(f.description) && !/[a-z]\.\./.test(f.description), "My Pink: savas lietuviškas aprašymas");
 check(j(["price", "stock", "images", "inspired"].filter(k => labels(r).includes(k))) === j(["price", "stock", "images", "inspired"]) && labels(r).length === 4, "My Pink: „Liko užpildyti“ – Kaina, Likutis, Nuotraukos, Originalo kvapas");
 check(r.facts.some(([k, v]) => k.startsWith("Prekės ženklas") && v === "NOMI") && r.facts.some(([k]) => k === "Natos šaltinyje"), "My Pink: „Ką atpažinau“ – prekės ženklas, natos šaltinyje");
 check(j(afParse(myPink, { families })) === j(r), "My Pink: rezultatas toks pat kiekvieną kartą");
 
 // ── 2. Kvapni žvakė su pasirinktu kvapu ──
-const scent = { id: "my-pink", name: "My Pink", inspired: "", gender: "moterims", family: "geliu", notes: f.notes, seasons: f.seasons, times: f.times, occasions: f.occasions, longevity: 4, sillage: 3, look: f.look };
+const scent = { id: "my-pink", name: "My Pink", inspired: "", gender: "moterims", family: "geliu", notes: f.notes, longevity: 4, sillage: 3, look: f.look };
 const c = afParse("Świeca sojowa 180 g, czas palenia 40 h", { scent, families });
 check(c.type === "zvakes" && c.fields.name === "Kvapni žvakė My Pink" && c.fromScent, "žvakė: tipas zvakes, pavadinimas „Kvapni žvakė My Pink“");
-check(j(c.fields.notes) === j(f.notes) && c.fields.gender === "moterims" && c.fields.family === "geliu" && j(c.fields.seasons) === j(f.seasons), "žvakė: kvapo laukai paimti iš kvapo");
+check(j(c.fields.notes) === j(f.notes) && c.fields.gender === "moterims" && c.fields.family === "geliu"  && c.fields.sillage === 3, "žvakė: kvapo laukai paimti iš kvapo");
 check(j(c.fields.sizes) === j([{ ml: 180, unit: "g", price: "" }]) && c.fields.attrs.burn === 40 && c.fields.attrs.wax === "Sojų vaškas", "žvakė: 180 g, degimo trukmė 40 h, sojų vaškas");
 check(c.fields.description.length >= 350 && /sojų vaško/.test(c.fields.description) && /iki 40 val\./.test(c.fields.description), "žvakė: aprašymas su vašku ir degimo trukme");
 

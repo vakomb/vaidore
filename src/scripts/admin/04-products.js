@@ -11,11 +11,6 @@ const PROD_FILTERS = [
   ["isparduoti", "Išparduoti", p => p.stock === 0]
 ];
 const prodState = { filter: "visi", q: "", rows: [], at: 0, shown: 60 };
-const SEASONS = ["pavasaris", "vasara", "ruduo", "žiema"];
-const TIMES = [
-  ["diena", "Diena"],
-  ["vakaras", "Vakaras"]
-];
 const CAPS = [
   ["gold", "Auksinis"],
   ["black", "Juodas"],
@@ -259,11 +254,8 @@ const blankProduct = () => ({
   notes: { top: [], heart: [], base: [] },
   longevity: 3,
   sillage: 3,
-  seasons: [],
-  times: ["diena"],
   sizes: [],
   attrs: {},
-  occasions: [],
   scent_id: null,
   sample: 4.9,
   look: { liquid: "#E8D9C4", tint: "#F7F1E8", cap: "gold", shape: "rect" },
@@ -292,8 +284,8 @@ async function renderProductEdit(main, id, seq) {
           if (r?.[0] && !("inspired" in r[0])) delete b.inspired;
           if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
           if (r?.[0] && !("type" in r[0])) delete b.type;
-          // v15: attrs, occasions, scent_id – tik po migracijos 20261120120000
-          for (const k of ["attrs", "occasions", "scent_id"]) if (r?.[0] && !(k in r[0])) delete b[k];
+          // v15: attrs, scent_id – tik po migracijos 20261120120000
+          for (const k of ["attrs", "scent_id"]) if (r?.[0] && !(k in r[0])) delete b[k];
           if (r?.[0] && "inspired_image" in r[0]) b.inspired_image = "";
           return [b];
         })
@@ -388,13 +380,6 @@ ${groupHTML(
     { stack: true }
   )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`, { stack: true })}`,
   { foot: "Natos – kableliais." }
-)}
-${groupHTML(
-  `${chipsRow("Metų laikas", SEASONS.map(s => chipCheck("seasons", s, (p.seasons || []).includes(s), VD.SEASON_NAME[s])).join(""))}${chipsRow(
-    "Paros metas",
-    TIMES.map(([v, l]) => chipCheck("times", v, (p.times || []).includes(v), l)).join("")
-  )}${"occasions" in p ? chipsRow("Proga", AF_OCCASIONS.map(([v, l]) => chipCheck("occasions", v, (p.occasions || []).includes(v), l)).join("")) : ""}`,
-  { head: "Kada tinka" }
 )}
 </div>
 ${"attrs" in p ? `<div data-pane="savybes" data-title="Savybės" hidden><div class="ig admAttrs" id="attrsBox"></div></div>` : ""}
@@ -692,11 +677,8 @@ function readProduct(ed, form) {
     // Ilgaamžiškumas ir sklaida formoje nerodomi (v15) – saugomi tyliai (kvapo testas, „Kam skirti“)
     longevity: ed.p.longevity || 3,
     sillage: ed.p.sillage || 3,
-    seasons: fd.getAll("seasons"),
-    times: fd.getAll("times"),
     sizes: sizes.sort((a, b) => a.ml - b.ml),
     ...("attrs" in ed.p ? { attrs: readAttrs(form) } : {}),
-    ...("occasions" in ed.p ? { occasions: fd.getAll("occasions") } : {}),
     ...("scent_id" in ed.p ? { scent_id: AF_SCENTED.has(f.type?.value || "kvepalai") ? (ed.isNew ? ed.scentId : ed.p.scent_id) || null : null } : {}),
     sample: Math.round(num(f.sample.value) * 100) / 100,
     stock: stockRaw === "" ? null : Math.round(Number(stockRaw)),
@@ -926,7 +908,6 @@ function afApply(ed, form, res) {
     set("base", x.notes.base.join(", "));
     if (x.longevity) ed.p.longevity = x.longevity;
     if (x.sillage) ed.p.sillage = x.sillage;
-    for (const k of ["seasons", "times", "occasions"]) if (x[k]?.length) $$(`input[name="${k}"]`, form).forEach(el => (el.checked = x[k].includes(el.value)));
     if (x.look?.liquid) set("liquid", x.look.liquid);
     if (x.look?.tint) set("tint", x.look.tint);
   }
@@ -951,9 +932,7 @@ function afMark(form, keys) {
   for (const k of keys) {
     const els = AF_MARK_FIELDS[k]
       ? AF_MARK_FIELDS[k].map(n => form.elements[n]?.closest(".field"))
-      : ["seasons", "times", "occasions"].includes(k)
-        ? [$(`input[name="${k}"]`, form)?.closest(".admChecks")]
-        : k === "sizes"
+      : k === "sizes"
           ? [$("#sizesHead", form)]
           : k.startsWith("attr:")
             ? [$(`[data-attr="${k.slice(5)}"]`, form)?.closest(".field, .axSwitchRow")]
@@ -1029,9 +1008,6 @@ async function createScent(ed, row) {
     gender: row.gender,
     family: row.family,
     notes: row.notes,
-    seasons: row.seasons,
-    times: row.times,
-    occasions: row.occasions || [],
     longevity: row.longevity,
     sillage: row.sillage,
     look: { liquid: row.look.liquid, tint: row.look.tint },

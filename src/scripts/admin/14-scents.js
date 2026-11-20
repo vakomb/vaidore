@@ -1,14 +1,14 @@
 // 14 – Kvapai (v15, lentelė scents): atskira administravimo skiltis admin/kvapu-sarasas – visų kvapų valdymas.
 //   admin/kvapu-sarasas            sąrašas (paieška; spalva, pavadinimas, originalas, šeima, kiek produktų)
 //   admin/kvapu-sarasas/naujas     naujas kvapas: įklijuotas aprašymas → kvapo laukai (13-autofill.js), papildyti ranka
-//   admin/kvapu-sarasas/<id>       kvapas: pavadinimas, originalas, lytis, šeima, natos, savybės, progos, spalvos;
+//   admin/kvapu-sarasas/<id>       kvapas: pavadinimas, originalas, lytis, šeima, natos, spalvos;
 //                                  susieti produktai („Naujas produktas su šiuo kvapu“), pakeitimai – pasirinktinai ir
 //                                  susietiems produktams; ištrynimas (produktai lieka, tik atsiejami).
 // Kvapas – šaltinis naujų produktų automatiniam užpildymui (04-products.js, laukas „Kvapas“).
 const scentState = { rows: [], counts: new Map(), q: "" };
-const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "seasons", "times", "occasions", "look"];
+const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "look"];
 // Laukai, kurie pritaikomi susietiems produktams (pavadinimas, aprašymas, spalvos – produkto)
-const SCENT_TO_PRODUCT = ["inspired", "inspired_image", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage"];
+const SCENT_TO_PRODUCT = ["inspired", "inspired_image", "gender", "family", "notes", "longevity", "sillage"];
 
 async function loadScents(force = false) {
   if (!force && scentState.rows.length && Date.now() - (scentState.at || 0) < 30000) return scentState.rows;
@@ -106,7 +106,7 @@ async function renderScentEdit(main, id, seq) {
   ]);
   if (stale(seq)) return;
   const x = isNew
-    ? { id: "", name: "", inspired: "", gender: "unisex", family: fams[0]?.id || "", notes: { top: [], heart: [], base: [] }, seasons: [], times: ["diena"], occasions: [], longevity: 3, sillage: 3, look: { liquid: "#E8D9C4", tint: "#F7F1E8" } }
+    ? { id: "", name: "", inspired: "", gender: "unisex", family: fams[0]?.id || "", notes: { top: [], heart: [], base: [] }, longevity: 3, sillage: 3, look: { liquid: "#E8D9C4", tint: "#F7F1E8" } }
     : rows?.[0];
   if (!x) {
     main.innerHTML = pageHTML({ title: "Kvapas nerastas", back, body: emptyBox("Tokio kvapo nėra", "Galbūt jis ištrintas.", `<a class="btn primary" href="admin/kvapu-sarasas" data-nav>Visi kvapai</a>`) });
@@ -147,13 +147,6 @@ ${groupHTML(
     { stack: true }
   )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`, { stack: true })}`,
   { head: "Natos" }
-)}
-${groupHTML(
-  `${chipsRow("Metų laikai", SEASONS.map(s => chipCheck("seasons", s, (x.seasons || []).includes(s), VD.SEASON_NAME[s])).join(""))}${chipsRow(
-    "Paros metas",
-    TIMES.map(([v, l]) => chipCheck("times", v, (x.times || []).includes(v), l)).join("")
-  )}${chipsRow("Proga", AF_OCCASIONS.map(([v, l]) => chipCheck("occasions", v, (x.occasions || []).includes(v), l)).join(""))}`,
-  { head: "Kada tinka" }
 )}
 ${groupHTML(
   `${fieldHTML("Skystis", `<input type="color" name="liquid" value="${esc(x.look?.liquid || "#E8D9C4")}" />`)}${fieldHTML("Fonas", `<input type="color" name="tint" value="${esc(x.look?.tint || "#F7F1E8")}" />`)}`,
@@ -260,7 +253,6 @@ function scentAutofill(ed, form, paintPrev) {
   // Ilgaamžiškumas ir sklaida formoje nerodomi (v15) – saugomi tyliai (naudoja kvapo testas)
   if (x.longevity) ed.x.longevity = x.longevity;
   if (x.sillage) ed.x.sillage = x.sillage;
-  for (const k of ["seasons", "times", "occasions"]) if (x[k]?.length) $$(`input[name="${k}"]`, form).forEach(el => (el.checked = x[k].includes(el.value)));
   if (x.look?.liquid) set("liquid", x.look.liquid);
   if (x.look?.tint) set("tint", x.look.tint);
   paintPrev();
@@ -277,16 +269,12 @@ function scentAutofill(ed, form, paintPrev) {
 }
 function readScent(ed, form) {
   const f = form.elements;
-  const fd = new FormData(form);
   const row = {
     name: f.name.value.trim(),
     inspired: f.inspired.value.trim(),
     gender: f.gender.value,
     family: f.family.value || null,
     notes: { top: list(f.top.value), heart: list(f.heart.value), base: list(f.base.value) },
-    seasons: fd.getAll("seasons"),
-    times: fd.getAll("times"),
-    occasions: fd.getAll("occasions"),
     longevity: ed.x.longevity || 3,
     sillage: ed.x.sillage || 3,
     look: { liquid: f.liquid.value, tint: f.tint.value },

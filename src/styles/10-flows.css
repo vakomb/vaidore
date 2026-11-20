@@ -1,4 +1,4 @@
-/* Veiksmų langai ir smulkūs blokai: kvapo lapo galerija ir eilutės („Tiks …“, pristatymas, mėginuko kaina),
+/* Veiksmų langai ir smulkūs blokai: kvapo lapo galerija ir eilutės (pristatymas, mėginuko kaina),
    „Rask savo kvapą“, atradimų rinkinys, krepšelio pristatymas / paštomatas / dovana, grąžinimo žingsniai, „Pranešti, kai bus“.
    Įtraukiamas po 07-cart.css ir prieš 09-desktop.css. Tik 01-tokens.css kintamieji. */
 
@@ -51,16 +51,6 @@
 .galThumbs {
   display: none;
 }
-.pdSuits {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--ink2);
-}
-.pdSuits svg,
 .pdShip svg,
 .pdNote svg {
   width: 18px;

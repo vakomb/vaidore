@@ -95,7 +95,6 @@ const DEVICE = {
 };
 const shopCat = structuredClone(cat);
 shopCat.products.push(DIF, CANDLE, DEVICE);
-shopCat.products.find(p => p.id === "vanor").occasions = ["kasdien", "darbui"];
 // Originalo nuotrauka (v18) – vienam kvapui (kitiems – prekės ženklo raidė)
 shopCat.products.find(p => p.id === "vanor").inspiredImage = "img/kvapai/safrane-1.webp";
 // Tas pats kvapas (scent): kvepalai VANOR, difuzorius ir žvakė – „Šis kvapas taip pat“
@@ -408,11 +407,15 @@ async function run(viewport) {
   await page.waitForSelector("#shopGrid .card");
   check((await page.locator("#shopGrid .art img.photo").first().evaluate(el => el.classList.contains("flat") && getComputedStyle(el).filter)) === "none", "JPEG nuotrauka kortelėje – be šešėlio");
   check(!(await page.locator("#shopFilters").textContent()).match(/Natos|Kvapo pobūdis|Sezonas|Pagal lytį/), "elektrinių difuzorių filtruose – be kvapo filtrų");
-  await open(page, `${A}kvepalai?proga=kasdien`);
+  // v19: „Kada tinka“ nebėra – seni ?proga= / ?laikas= / ?sezonas= adresai nieko nefiltruoja
+  await open(page, `${A}kvepalai?proga=kasdien&laikas=vakaras&sezonas=vasara`);
   await page.waitForSelector("#shopGrid .card");
+  const perfN = cat.products.filter(p => (p.type || "kvepalai") === "kvepalai").length;
   check(
-    (await page.locator("#shopGrid .card").count()) === 1 && (await page.locator("#shopFilters").textContent()).includes("Proga") && (await page.locator("#shopFilters").textContent()).includes("Originalo kvapas"),
-    "kvepalų filtrai: „Proga“ (progos) ir „Originalo kvapas“"
+    (await page.locator("#shopGrid .card").count()) === Math.min(perfN, 24) &&
+      !/Proga|Paros laikas|Sezonas/.test(await page.locator("#shopFilters").textContent()) &&
+      (await page.locator("#shopFilters").textContent()).includes("Originalo kvapas"),
+    "kvepalų filtrai: be „Proga“, „Paros laikas“, „Sezonas“; seni adresai nefiltruoja; yra „Originalo kvapas“"
   );
   await open(page, `${A}kvepalai`);
   await page.waitForSelector("#shopGrid .card");
@@ -476,7 +479,7 @@ async function run(viewport) {
     `kvapo puslapis: be „Savybės“ ir „Panaudojimo būdas“ (${accs.join(", ")})`
   );
   const who = await page.locator("#productRoot .acc").first().locator("li").allTextContents();
-  check(who.length >= 3 && new Set(who.map(t => t.toLowerCase())).size === who.length && !/Tiks|tinka/.test(who.join()), `„Kam skirti“ – be pasikartojimų (${who.join(" · ")})`);
+  check(who.length === 2 && !/Tiks|tinka|dienai|vakarui|kasdien|darbui|pavasar|vasar|rudeni|žiem|metų laik|Proga/i.test(who.join()), `„Kam skirti“ – tik lytis ir šeima, be „kada tinka“ (${who.join(" · ")})`);
   if (viewport.width >= 1024) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(300);
@@ -538,7 +541,6 @@ async function run(viewport) {
   await open(page, `${A}testas`);
   await page.waitForSelector("#quizRoot [data-qz]");
   await page.click('#quizRoot [data-qz="any"]');
-  await page.click('#quizRoot [data-qz="daily"]');
   await page.click('#quizRoot [data-qz="geliu"]');
   await page.click("#quizRoot [data-qz-next]");
   await page.click('#quizRoot [data-qz="3"]');

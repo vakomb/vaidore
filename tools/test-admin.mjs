@@ -270,7 +270,8 @@ check(
   "automatinis užpildymas: pavadinimas, adresas, kategorija, lytis, koncentracija, šeima"
 );
 check((await fv("top")) === "Bergamotė, Apelsinmedžio žiedai" && (await fv("base")) === "Kreminė vanilė, Baltasis muskusas, Medienos natos" && (await fv("description")).startsWith("My Pink – "), "automatinis užpildymas: natos ir aprašymas lietuviškai");
-check((await page.locator("#prodForm .afAuto").count()) >= 8 && (await page.locator('#prodForm input[name="occasions"]:checked').count()) >= 1, "automatinis užpildymas: „Auto“ žymos, progos pažymėtos");
+check((await page.locator("#prodForm .afAuto").count()) >= 8, "automatinis užpildymas: „Auto“ žymos");
+check((await page.locator('#prodForm input[name="seasons"], #prodForm input[name="times"], #prodForm input[name="occasions"]').count()) === 0 && !(await page.locator("#prodForm").textContent()).includes("Kada tinka"), "produkto formoje – be „Kada tinka“ (sezonai, paros metas, progos)");
 check((await page.locator('#prodForm [data-push="natos"].afAuto').count()) === 1, "„Auto“ žyma – ir eilutėje į vidinį ekraną");
 const chips = async () => (await page.locator("[data-af-go]").allTextContents()).join("|");
 check((await chips()) === "Kaina|Likutis|Nuotraukos|Originalo kvapas", "„Liko užpildyti“: Kaina, Likutis, Nuotraukos, Originalo kvapas");
@@ -557,13 +558,14 @@ await go(page, "admin/vitrina/skyriai");
 check((await page.locator("#heRails [data-he-rail]").count()) === 5, "skyriai: numatytieji 5 (naujienos, moterims, vyrams, unisex, nuolaidos)");
 await page.click('[data-he-addrail="auto"]');
 const ed = page.locator("#heItemBox");
-await ed.locator('input[name="rtitle"]').fill("Vakarui");
-await ed.locator('select[name="rq_time"]').selectOption("vakaras");
+await ed.locator('input[name="rtitle"]').fill("Šilti kvapai");
+check((await ed.locator('select[name="rq_time"], select[name="rq_season"], select[name="rq_occasion"]').count()) === 0, "skyriaus taisyklėje – be paros laiko, sezono ir progos");
+await ed.locator('select[name="rq_family"]').selectOption("ambros");
 await ed.locator('select[name="rq_sort"]').selectOption("price-asc");
 // Vienas produktas aukščiau paslėptas – jo skyriuje nėra
-const evening = await page.evaluate(() => VD.CAT.products.filter(p => p.visible !== false && (p.type || "kvepalai") === "kvepalai" && p.time.includes("vakaras")).length);
-check(await until(async () => (await ed.locator("[data-he-rcount]").textContent()).includes(String(evening))), `skyrius pagal taisyklę: „Vakarui“ – ${evening} produktai`);
-check(await until(async () => (await pv.locator("#homeRails .band").allTextContents()).includes("Vakarui")), "skyrius: iškart matomas peržiūroje");
+const evening = await page.evaluate(() => VD.CAT.products.filter(p => p.visible !== false && (p.type || "kvepalai") === "kvepalai" && p.family === "ambros").length);
+check(await until(async () => (await ed.locator("[data-he-rcount]").textContent()).includes(String(evening))), `skyrius pagal taisyklę: „Šilti kvapai“ – ${evening} produktai`);
+check(await until(async () => (await pv.locator("#homeRails .band").allTextContents()).includes("Šilti kvapai")), "skyrius: iškart matomas peržiūroje");
 await pop(page);
 await page.click('[data-he-addrail="manual"]');
 await ed.locator('input[name="rtitle"]').fill("Mūsų rekomendacijos");
@@ -581,7 +583,7 @@ check(await until(async () => (await page.locator('#heRails [data-he-rail="unise
 await page.locator('#heRails [data-he-rail="naujienos"] .axGrip').press("ArrowDown");
 await shot(page, "pradzia");
 await page.click("[data-he-save]");
-check(await until(() => sb.db.settings[0].data.rails?.some(r => r.title === "Vakarui")), "skyriai išsaugoti");
+check(await until(() => sb.db.settings[0].data.rails?.some(r => r.title === "Šilti kvapai")), "skyriai išsaugoti");
 const hs = sb.db.settings[0].data;
 check(
   hs.slides.length === 6 && hs.slides[5].preset === "photo" && /pradzia\/skaidres/.test(hs.slides[5].imageM) && !hs.slides[5].image && !hs.slides[5].href && hs.slides[3].preset === "claims" && hs.slides[0].preset === "samples" && hs.slides[1].title === "Žiemos vakarai" && /pradzia\/skaidres/.test(hs.slides[1].image) && hs.slides[1].dark === true && !/^50% 50%$/.test(hs.slides[1].focus) && hs.slides[2].on === false,
@@ -590,8 +592,8 @@ check(
 check(hs.topbar?.items?.[0]?.text === "Žiemos akcija – *-20 %*" && hs.topbar.style.grad === "mid" && hs.topbar.style.fs === 16, "juosta: tekstas, dizainas ir dydis išsaugoti");
 check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "aliejai").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
 check(
-  hs.rails.map(r => r.title).join("|") === "Populiariausi moterims|Kvapnios naujienos|Populiariausi vyrams|Didžiausios nuolaidos|Vakarui|Mūsų rekomendacijos" &&
-    hs.rails[4].rule.time === "vakaras" && hs.rails[4].rule.sort === "price-asc" && hs.rails[5].mode === "manual" && hs.rails[5].ids.join() === "safrane,vanor",
+  hs.rails.map(r => r.title).join("|") === "Populiariausi moterims|Kvapnios naujienos|Populiariausi vyrams|Didžiausios nuolaidos|Šilti kvapai|Mūsų rekomendacijos" &&
+    hs.rails[4].rule.family === "ambros" && hs.rails[4].rule.sort === "price-asc" && hs.rails[5].mode === "manual" && hs.rails[5].ids.join() === "safrane,vanor",
   "skyriai išsaugoti: tvarka, taisyklė, pasirinkti produktai"
 );
 const front = await newPage({ width: 1440, height: 900 });
@@ -602,9 +604,9 @@ check(
   await until(async () => {
     const bands = await front.locator("#homeRails .band").allTextContents();
     const picked = await front.locator('#homeRails [data-rail] .card a.cardLink').evaluateAll(a => a.map(x => x.getAttribute("href")));
-    return bands.slice(0, 2).join("|") === "Populiariausi moterims|Kvapnios naujienos" && bands.includes("Vakarui") && !bands.includes("Unisex kvapai") && picked.slice(-2).join() === "kvepalai/safrane,kvepalai/vanor";
+    return bands.slice(0, 2).join("|") === "Populiariausi moterims|Kvapnios naujienos" && bands.includes("Šilti kvapai") && !bands.includes("Unisex kvapai") && picked.slice(-2).join() === "kvepalai/safrane,kvepalai/vanor";
   }),
-  "parduotuvėje: skyriai pagal nustatymus (tvarka, „Vakarui“, ranka pasirinkti, be „Unisex“)"
+  "parduotuvėje: skyriai pagal nustatymus (tvarka, „Šilti kvapai“, ranka pasirinkti, be „Unisex“)"
 );
 check(await until(async () => (await front.locator("#topNoteTxt b").first().textContent().catch(() => "")) === "-20 %"), "parduotuvėje: juosta su nauju tekstu (paryškinta dalis)");
 check((await front.locator("#homeHero div.slide.textless .scenePic img").count()) === 1 && (await front.locator("#homeHero div.slide.textless .heroTxt").count()) === 0, "parduotuvėje: „Tik nuotrauka“ – tik paveikslas, be teksto ir nuorodos");

@@ -3,7 +3,7 @@
 // kiekiai) ir /naujienlaiskis (atsisakymas: ?atsisakyti=<raktas>). Tekstai – iš settings (administravimo „Nustatymai“).
 const FAQ = () => [
   ["Kiek laiko išlieka kvapas?", "Priklauso nuo koncentracijos ir odos: Eau de Toilette – 3–5 val., Eau de Parfum – 5–8 val., Parfum – 8 val. ir ilgiau. Kiekvieno kvapo puslapyje nurodyta, kada ir kokiu metų laiku jis tinka labiausiai."],
-  ["Kaip išsirinkti nematant kvapo?", `Pradėkite nuo „Rask savo kvapą“ (4 klausimai) arba 2 ml mėginukų. ${creditText()}`],
+  ["Kaip išsirinkti nematant kvapo?", `Pradėkite nuo „Rask savo kvapą“ (3 klausimai) arba 2 ml mėginukų. ${creditText()}`],
   ["Ar galiu grąžinti atidarytus kvepalus?", `Dėl higienos grąžinami tik neatidaryti, neišpakuoti kvepalai su nepažeista plėvele per ${SET.returnDays || 14} d. Todėl siūlome pradėti nuo mėginuko.`],
   ["Kada išsiųsite užsakymą?", `Per ${nb(SET.dispatch || "1–2 d. d.")} nuo apmokėjimo. Išsiuntę atsiųsime siuntos numerį el. paštu, jį matysite ir paskyroje.`],
   ["Ar reikia kurti paskyrą?", "Ne – pirkti galima ir be jos. Paskyroje matysite užsakymų istoriją, siuntų būseną, mėgstamus kvapus ir nuolaidos kodus."],

@@ -207,9 +207,6 @@ function catalogFromDb(rows) {
       notes: { top: p.notes?.top || [], heart: p.notes?.heart || [], base: p.notes?.base || [] },
       longevity: p.longevity,
       sillage: p.sillage,
-      seasons: p.seasons || [],
-      time: p.times || [],
-      occasions: p.occasions || [],
       attrs: p.attrs || {},
       scent: p.scent_id || null,
       sizes: (p.sizes || [])

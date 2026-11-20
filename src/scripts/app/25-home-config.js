@@ -10,8 +10,8 @@
 //                      kat-<kategorijos id>. Nėra lauko – trys tipai. Plytelė be prekių nerodoma.
 //   settings.slideSeconds – kas kiek sekundžių keičiasi skaidrės (0 – nesikeičia pačios).
 //   settings.rails   – skyriai su produktais (karuselės, v15): { id, on, title, line, mode, rule, ids, limit, href }.
-//                      mode "auto" – pagal taisyklę rule { type, gender, family, category, scent, time, season,
-//                      occasion, sale, sort }; "manual" – ids (pasirinkti produktai, ta tvarka). href: "" – automatiškai,
+//                      mode "auto" – pagal taisyklę rule { type, gender, family, category, scent, sale,
+//                      sort } (v19: seni time / season / occasion ignoruojami); "manual" – ids (pasirinkti produktai, ta tvarka). href: "" – automatiškai,
 //                      "none" – be nuorodos, kitaip – adresas. Nėra lauko – DEFAULT_RAILS. Skyrius be produktų nerodomas.
 // Fonas: įkelta nuotrauka (kompiuteriui ir, nebūtinai, telefonui; „focus“ – kuri vieta lieka matoma) arba Vaidore
 // scena (24-stage.js) su pasirinkto kvapo buteliukais. dark – tamsi nuotrauka, tekstas ant jos baltas.
@@ -52,9 +52,6 @@ function railProducts(r) {
       (!q.family || p.family === q.family) &&
       (!q.category || (p.categories || []).includes(q.category)) &&
       (!q.scent || p.scent === q.scent) &&
-      (!q.time || p.time.includes(q.time)) &&
-      (!q.season || p.seasons.includes(q.season)) &&
-      (!q.occasion || (p.occasions || []).includes(q.occasion)) &&
       (!q.sale || (onSale(p) && inStock(p)))
   );
   const by = {
@@ -77,9 +74,6 @@ function railHref(r) {
   const base = q.gender && (!q.type || q.type === "kvepalai") ? q.gender : q.type || "kvepalai";
   const ps = new URLSearchParams();
   if (q.family) ps.set("seima", q.family);
-  if (q.time) ps.set("laikas", q.time);
-  if (q.season) ps.set("sezonas", q.season);
-  if (q.occasion) ps.set("proga", q.occasion);
   if (q.sort && q.sort !== "rank" && q.sort !== "sale") ps.set("rikiuoti", q.sort);
   const qs = ps.toString();
   return base + (qs ? `?${qs}` : "");

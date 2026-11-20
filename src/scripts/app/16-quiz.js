@@ -1,5 +1,5 @@
-// 16 – „Rask savo kvapą“: 4 klausimai apatiniame lape → 3 tinkamiausi kvapai su „Kodėl tinka“.
-// Logika – tik iš catalog.json laukų (gender, family, time, sillage, seasons), be serverio. Įėjimai: [data-quiz] (Pradžia, tuščia paieška).
+// 16 – „Rask savo kvapą“: 3 klausimai apatiniame lape → 3 tinkamiausi kvapai su „Kodėl tinka“.
+// Logika – tik iš catalog.json laukų (gender, family, sillage), be serverio. Įėjimai: [data-quiz] (Pradžia, tuščia paieška).
 const QUIZ = [
   {
     id: "who",
@@ -8,16 +8,6 @@ const QUIZ = [
       { id: "moterims", name: "Moteriai" },
       { id: "vyrams", name: "Vyrui" },
       { id: "any", name: "Nesvarbu", sub: "Patinka ir unisex kvapai" }
-    ]
-  },
-  {
-    id: "when",
-    q: "Kokia proga?",
-    opts: [
-      { id: "daily", name: "Kasdien", sub: "Lengvai ir patogiai" },
-      { id: "work", name: "Darbui", sub: "Diskretiškai, netrukdant kitiems" },
-      { id: "evening", name: "Vakarui ir šventėms", sub: "Ryškiau, įsimintinai" },
-      { id: "date", name: "Pasimatymui", sub: "Šilta ir artima" }
     ]
   },
   {
@@ -37,7 +27,6 @@ const QUIZ = [
     ]
   }
 ];
-const SEASON_NOW = ["žiema", "žiema", "pavasaris", "pavasaris", "pavasaris", "vasara", "vasara", "vasara", "ruduo", "ruduo", "ruduo", "žiema"][new Date().getMonth()];
 
 // Grąžina [{ p, score, why: [tekstas…] }] – geriausi pirmi
 function quizRank(a) {
@@ -57,17 +46,9 @@ function quizRank(a) {
       else if (p.gender === "unisex") add(1.5, "Unisex kvapas");
       else return null;
       if (fams.has(p.family)) add(4, `${familyName(p.family)} kvapas – kaip mėgstate`);
-      const day = p.time.includes("diena"),
-        eve = p.time.includes("vakaras");
-      if (a.when === "daily") add((day ? 2 : 0) + (p.sillage <= 3 ? 1 : 0), day ? "Tinka kasdien" : null);
-      if (a.when === "work") add((day ? 2 : 0) + (p.sillage <= 2 ? 2 : p.sillage >= 4 ? -2 : 0), day && p.sillage <= 3 ? "Diskretiškas – tinka darbui" : null);
-      if (a.when === "evening") add((eve ? 2 : 0) + (p.sillage >= 3 ? 1 : 0), eve ? "Vakaro kvapas" : null);
-      if (a.when === "date")
-        add((eve ? 1.5 : 0) + (["ambros", "gurmaniski", "geliu"].includes(p.family) ? 1.5 : 0), eve ? "Šiltas ir artimas – pasimatymui" : null);
       const d = Math.abs(p.sillage - target);
       score -= d * 1.2;
       if (d <= 0.5) why.push([2, `${LEVEL[p.sillage]} – kaip norite`]);
-      if (p.seasons.includes(SEASON_NOW)) add(1, `Tinka ${SEASON_DAT[SEASON_NOW]}`);
       return { p, score, why: why.sort((x, y) => y[0] - x[0]).map(w => w[1]).slice(0, 3) };
     })
     .filter(Boolean)

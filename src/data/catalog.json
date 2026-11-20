@@ -150,13 +150,6 @@
       },
       "longevity": 5,
       "sillage": 4,
-      "seasons": [
-        "ruduo",
-        "žiema"
-      ],
-      "time": [
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -211,15 +204,6 @@
       },
       "longevity": 5,
       "sillage": 5,
-      "seasons": [
-        "pavasaris",
-        "ruduo",
-        "žiema"
-      ],
-      "time": [
-        "diena",
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -277,15 +261,6 @@
       },
       "longevity": 4,
       "sillage": 4,
-      "seasons": [
-        "pavasaris",
-        "vasara",
-        "ruduo"
-      ],
-      "time": [
-        "diena",
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -344,13 +319,6 @@
       },
       "longevity": 5,
       "sillage": 4,
-      "seasons": [
-        "ruduo",
-        "žiema"
-      ],
-      "time": [
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -408,15 +376,6 @@
       },
       "longevity": 5,
       "sillage": 4,
-      "seasons": [
-        "pavasaris",
-        "ruduo",
-        "žiema"
-      ],
-      "time": [
-        "diena",
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -476,15 +435,6 @@
       },
       "longevity": 5,
       "sillage": 4,
-      "seasons": [
-        "pavasaris",
-        "vasara",
-        "ruduo"
-      ],
-      "time": [
-        "diena",
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -541,15 +491,6 @@
       },
       "longevity": 4,
       "sillage": 3,
-      "seasons": [
-        "pavasaris",
-        "ruduo",
-        "žiema"
-      ],
-      "time": [
-        "diena",
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -605,13 +546,6 @@
       },
       "longevity": 4,
       "sillage": 4,
-      "seasons": [
-        "ruduo",
-        "žiema"
-      ],
-      "time": [
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -671,16 +605,6 @@
       },
       "longevity": 4,
       "sillage": 3,
-      "seasons": [
-        "pavasaris",
-        "vasara",
-        "ruduo",
-        "žiema"
-      ],
-      "time": [
-        "diena",
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,
@@ -735,15 +659,6 @@
       },
       "longevity": 4,
       "sillage": 3,
-      "seasons": [
-        "pavasaris",
-        "vasara",
-        "ruduo"
-      ],
-      "time": [
-        "diena",
-        "vakaras"
-      ],
       "sizes": [
         {
           "ml": 33,

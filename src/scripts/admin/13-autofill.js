@@ -11,13 +11,6 @@
 const AF_TYPE_IDS = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"];
 const AF_SCENTED = new Set(["kvepalai", "difuzoriai", "zvakes", "aliejai"]);
 const AF_NAME_PREFIX = { kvepalai: "", difuzoriai: "Difuzorius", zvakes: "Kvapni žvakė", aliejai: "Aromatinis aliejus", "elektriniai-difuzoriai": "Elektrinis difuzorius" };
-const AF_OCCASIONS = [
-  ["kasdien", "Kasdien"],
-  ["darbui", "Darbui"],
-  ["pasimatymui", "Pasimatymui"],
-  ["vakareliui", "Vakarėliui"],
-  ["sventei", "Šventei"]
-];
 // Tipui būdingos savybės (products.attrs): raktas, pavadinimas, vienetas (formoje ir parduotuvėje)
 const AF_ATTRS = {
   kvepalai: [],
@@ -352,41 +345,21 @@ const AF_WICK = [
 
 // ── Sugeneruoti laukai pagal šeimą ──
 const AF_FAMILY_TXT = {
-  geliu: { homeMood: ["Sukuria šviesią, romantišką nuotaiką.", "Namuose kvepia lyg žydinčiame sode."], kind: ["švelnus gėlių kvapas", "elegantiškas gėlių kvapas"], home: ["švelnus gėlių aromatas", "elegantiškas gėlių aromatas"], mood: ["Šviesus ir elegantiškas – tinka kasdien, į darbą ir pasimatymui.", "Subtilus ir švelnus, jis lengvai tampa kasdieniu palydovu."], seasons: ["pavasaris", "vasara"], times: ["diena"], occasions: ["kasdien", "pasimatymui"], look: [{ liquid: "#F1C9CF", tint: "#FBF0F1" }, { liquid: "#EFC3CB", tint: "#FAEEF0" }] },
-  sviezi: { homeMood: ["Gaivina erdvę ir suteikia švaros pojūtį.", "Namuose kvepia lengvai ir švariai, lyg po lietaus."], kind: ["gaivus, šviesus kvapas", "švarus ir gaivus kvapas"], home: ["gaivus, švarus aromatas", "lengvas ir gaivus aromatas"], mood: ["Lengvas ir švarus – idealus šiltomis dienomis, į darbą ir po sporto.", "Gaivus kaip ryto oras, jis suteikia energijos visai dienai."], seasons: ["pavasaris", "vasara"], times: ["diena"], occasions: ["kasdien", "darbui"], look: [{ liquid: "#CFE4EA", tint: "#EEF5F7" }, { liquid: "#D5E8E0", tint: "#F0F6F3" }] },
-  medienos: { homeMood: ["Kuria ramią ir jaukią atmosferą.", "Suteikia namams šilumos ir ramybės."], kind: ["elegantiškas medienos kvapas", "ramus, sodrus medienos kvapas"], home: ["šiltas medienos aromatas", "ramus medienos aromatas"], mood: ["Ramus ir pasitikintis savimi – tinka ir dienai, ir vakarui.", "Sodrus, bet santūrus, jis kuria tvirtą ir elegantišką įspūdį."], seasons: ["ruduo", "žiema"], times: ["diena", "vakaras"], occasions: ["darbui", "vakareliui"], look: [{ liquid: "#C9A27A", tint: "#F3ECE4" }, { liquid: "#BF9C78", tint: "#F2EBE3" }] },
-  ambros: { homeMood: ["Kuria šiltą, prabangią vakaro atmosferą.", "Namai prisipildo šilumos ir jaukumo."], kind: ["šiltas, gaubiantis ambros kvapas", "sodrus ambros kvapas"], home: ["šiltas, gaubiantis ambros aromatas", "sodrus ambros aromatas"], mood: ["Sodrus ir paslaptingas – sukurtas vakarams ir ypatingoms progoms.", "Šiltas ir gaubiantis, jis ilgai išlieka ir palieka įsimintiną pėdsaką."], seasons: ["ruduo", "žiema"], times: ["vakaras"], occasions: ["vakareliui", "sventei"], look: [{ liquid: "#D9A05B", tint: "#F7EEE2" }, { liquid: "#D49A57", tint: "#F6EDE1" }] },
-  gurmaniski: { homeMood: ["Kuria jaukią, šiltą namų atmosferą.", "Namuose kvepia jaukiai, lyg ką tik iškeptais saldumynais."], kind: ["saldus, gurmaniškas kvapas", "jaukus gurmaniškas kvapas"], home: ["jaukus, saldus aromatas", "šiltas gurmaniškas aromatas"], mood: ["Jaukus ir viliojantis – geriausiai atsiskleidžia vėsesniais vakarais.", "Saldus, bet ne per saldus, jis kuria jaukumo ir artumo jausmą."], seasons: ["ruduo", "žiema"], times: ["vakaras"], occasions: ["pasimatymui", "vakareliui"], look: [{ liquid: "#C98B5A", tint: "#F6EDE4" }, { liquid: "#C4875A", tint: "#F5ECE3" }] }
+  geliu: { homeMood: ["Sukuria šviesią, romantišką nuotaiką.", "Namuose kvepia lyg žydinčiame sode."], kind: ["švelnus gėlių kvapas", "elegantiškas gėlių kvapas"], home: ["švelnus gėlių aromatas", "elegantiškas gėlių aromatas"], mood: ["Šviesus ir elegantiškas – švelniai gaubia ir palieka malonų pėdsaką.", "Subtilus ir švelnus, jis kuria lengvą, elegantišką įspūdį."], look: [{ liquid: "#F1C9CF", tint: "#FBF0F1" }, { liquid: "#EFC3CB", tint: "#FAEEF0" }] },
+  sviezi: { homeMood: ["Gaivina erdvę ir suteikia švaros pojūtį.", "Namuose kvepia lengvai ir švariai, lyg po lietaus."], kind: ["gaivus, šviesus kvapas", "švarus ir gaivus kvapas"], home: ["gaivus, švarus aromatas", "lengvas ir gaivus aromatas"], mood: ["Lengvas ir švarus – suteikia gaivumo ir energijos.", "Gaivus kaip ryto oras, jis palieka švarų ir šviesų įspūdį."], look: [{ liquid: "#CFE4EA", tint: "#EEF5F7" }, { liquid: "#D5E8E0", tint: "#F0F6F3" }] },
+  medienos: { homeMood: ["Kuria ramią ir jaukią atmosferą.", "Suteikia namams šilumos ir ramybės."], kind: ["elegantiškas medienos kvapas", "ramus, sodrus medienos kvapas"], home: ["šiltas medienos aromatas", "ramus medienos aromatas"], mood: ["Ramus ir pasitikintis savimi – medienos gilumas suteikia jam charakterio.", "Sodrus, bet santūrus, jis kuria tvirtą ir elegantišką įspūdį."], look: [{ liquid: "#C9A27A", tint: "#F3ECE4" }, { liquid: "#BF9C78", tint: "#F2EBE3" }] },
+  ambros: { homeMood: ["Kuria šiltą, prabangią atmosferą.", "Namai prisipildo šilumos ir jaukumo."], kind: ["šiltas, gaubiantis ambros kvapas", "sodrus ambros kvapas"], home: ["šiltas, gaubiantis ambros aromatas", "sodrus ambros aromatas"], mood: ["Sodrus ir paslaptingas – gaubiantis ir įsimintinas.", "Šiltas ir gaubiantis, jis ilgai išlieka ir palieka įsimintiną pėdsaką."], look: [{ liquid: "#D9A05B", tint: "#F7EEE2" }, { liquid: "#D49A57", tint: "#F6EDE1" }] },
+  gurmaniski: { homeMood: ["Kuria jaukią, šiltą namų atmosferą.", "Namuose kvepia jaukiai, lyg ką tik iškeptais saldumynais."], kind: ["saldus, gurmaniškas kvapas", "jaukus gurmaniškas kvapas"], home: ["jaukus, saldus aromatas", "šiltas gurmaniškas aromatas"], mood: ["Jaukus ir viliojantis – saldus, bet subtilus.", "Saldus, bet ne per saldus, jis kuria jaukumo ir artumo jausmą."], look: [{ liquid: "#C98B5A", tint: "#F6EDE4" }, { liquid: "#C4875A", tint: "#F5ECE3" }] }
 };
 const AF_GENDER_TXT = { moterims: " moterims", vyrams: " vyrams", unisex: ", tinkantis ir jai, ir jam" };
-const AF_SEASON_ACC = { pavasaris: "pavasarį", vasara: "vasarą", ruduo: "rudenį", žiema: "žiemą" };
-const AF_SEASONS = ["pavasaris", "vasara", "ruduo", "žiema"];
 const AF_CONC_TXT = {
-  EDT: "Eau de Toilette – lengvesnės koncentracijos kvapas kasdienai.",
+  EDT: "Eau de Toilette – lengvesnės koncentracijos, gaivus kvapas.",
   EDP: "Eau de Parfum koncentracija – kvapas ilgai išlieka ant odos.",
   Parfum: "Parfum koncentracija – sodrus ir itin ilgai išliekantis kvapas.",
   Extrait: "Extrait de Parfum – didžiausia koncentracija, kvapas išlieka visą dieną."
 };
 const AF_LEVELS = { EDT: [3, 2], EDP: [4, 3], Parfum: [5, 4], Extrait: [5, 4] };
-const AF_WARM = /vanil|ambr|tonk|karamel|oud|tabak|pačiul|santal|benzoj|pralin|šokolad|muskus/i;
-const AF_FRESH = /bergamot|citrin|apelsin|mandarin|greipfrut|laim|jūr|vand|mėt|arbat|ozon|judzu|neroli/i;
 
-function afSeasons(family, notes) {
-  const base = new Set(AF_FAMILY_TXT[family]?.seasons || ["pavasaris", "vasara"]);
-  if ((family === "geliu" || family === "sviezi") && notes.base.some(n => AF_WARM.test(n))) base.add("ruduo");
-  if ((family === "ambros" || family === "gurmaniski" || family === "medienos") && notes.top.some(n => AF_FRESH.test(n))) base.add("pavasaris");
-  return AF_SEASONS.filter(s => base.has(s));
-}
-function afTimes(family, conc) {
-  const t = new Set(AF_FAMILY_TXT[family]?.times || ["diena"]);
-  if (conc === "Parfum" || conc === "Extrait") t.add("vakaras");
-  return ["diena", "vakaras"].filter(x => t.has(x));
-}
-function afOccasions(family, sillage) {
-  const o = new Set(AF_FAMILY_TXT[family]?.occasions || ["kasdien"]);
-  if (sillage >= 4 && (family === "ambros" || family === "gurmaniski" || family === "medienos")) o.add("sventei");
-  return AF_OCCASIONS.map(([id]) => id).filter(id => o.has(id));
-}
 function afTagline(f) {
   const keys = [f.notes.top[0], f.notes.heart[0], f.notes.base[0]].filter(Boolean);
   let line = keys.length ? afCap(afAnd(keys.map((x, i) => (i ? afLc(x) : x)))) : "";
@@ -410,14 +383,11 @@ function afDescribe(f) {
   const seed = f.scentName || f.name || f.type;
   const ft = AF_FAMILY_TXT[f.family] || null;
   const S = [];
-  const seasons = f.seasons.length >= 4 ? "visais metų laikais" : afAnd(f.seasons.map(s => AF_SEASON_ACC[s]));
-  const occ = afAnd(f.occasions.map(id => (AF_OCCASIONS.find(o => o[0] === id)?.[1] || "").toLowerCase()).filter(Boolean));
   const a = f.attrs || {};
   if (f.type === "kvepalai") {
     S.push(`${f.name} – ${ft ? afPick(ft.kind, seed, "kind") : "išskirtinis kvapas"}${AF_GENDER_TXT[f.gender] || ""}.`);
     S.push(afNotesSentence(f, seed));
     if (ft) S.push(afPick(ft.mood, seed, "mood"));
-    if (seasons) S.push(`Labiausiai atsiskleidžia ${seasons}.`);
     S.push(AF_CONC_TXT[f.conc] || "");
   } else if (f.type === "elektriniai-difuzoriai") {
     S.push(`${f.name} – ${f.name === "Elektrinis difuzorius" ? "aromato prietaisas" : "elektrinis aromato difuzorius"}, kuris tyliai ir tolygiai paskleidžia mėgstamą kvapą po visus namus.`);
@@ -430,7 +400,7 @@ function afDescribe(f) {
     const home = ft ? afPick(ft.home, seed, "home") : "malonus aromatas";
     const intro = {
       difuzoriai: `${f.name} – ${home} jūsų namams.`,
-      zvakes: `${f.name} – ${home} jaukiems vakarams namuose.`,
+      zvakes: `${f.name} – ${home} jaukiai namų atmosferai.`,
       aliejai: `${f.name} – ${home} elektriniams difuzoriams ir drėkintuvams.`
     }[f.type];
     S.push(intro);
@@ -454,8 +424,9 @@ function afDescribe(f) {
     if (ft) S.push(afPick(ft.homeMood, seed, "homeMood"));
   }
   let text = S.filter(Boolean).join(" ");
-  if (text.length < 350 && occ && f.type === "kvepalai") text += ` Tinka ${occ}.`;
-  else if (text.length < 350 && f.type === "zvakes") text += ` ${afPick(["Tinka svetainei, miegamajam ar vonios kambariui.", "Puikiai tinka ramiems vakarams, vonios ritualams ar dovanai."], seed, "rooms")}`;
+  if (text.length < 350 && f.type === "kvepalai")
+    text += ` ${afPick(["Prieš renkantis didesnį buteliuką, verta išbandyti 2 ml mėginuką – taip geriausiai pajusite, kaip kvapas skleidžiasi ant jūsų odos.", "Kvapas ant kiekvieno žmogaus odos skleidžiasi savitai, todėl pradėti verta nuo 2 ml mėginuko."], seed, "sample")}`;
+  else if (text.length < 350 && f.type === "zvakes") text += ` ${afPick(["Tinka svetainei, miegamajam ar vonios kambariui.", "Puikiai tinka vonios ritualams ar dovanai."], seed, "rooms")}`;
   else if (text.length < 350 && f.type === "aliejai") text += " Tinka svetainei, miegamajam ar biurui.";
   return text.replace(/\s+/g, " ").trim().slice(0, 1500);
 }
@@ -611,13 +582,10 @@ function afParse(text, opts = {}) {
     f.gender = scent.gender || "unisex";
     f.family = scent.family || family;
     f.notes = { top: [...(scent.notes?.top || [])], heart: [...(scent.notes?.heart || [])], base: [...(scent.notes?.base || [])] };
-    f.seasons = [...(scent.seasons || [])];
-    f.times = [...(scent.times || [])];
-    f.occasions = [...(scent.occasions || [])];
     f.longevity = scent.longevity || 3;
     f.sillage = scent.sillage || 3;
     f.look = { ...(scent.look || {}) };
-    for (const k of ["inspired", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage", "look"]) auto.add(k);
+    for (const k of ["inspired", "gender", "family", "notes", "longevity", "sillage", "look"]) auto.add(k);
   } else {
     f.scentName = nm.name;
     f.gender = scented ? gender || "unisex" : "unisex";
@@ -625,15 +593,11 @@ function afParse(text, opts = {}) {
     const [lon, sil] = type === "kvepalai" ? AF_LEVELS[cc.conc] : [3, 3];
     f.longevity = lon;
     f.sillage = sil;
-    f.seasons = scented && f.family ? afSeasons(f.family, notes) : [];
-    f.times = scented && f.family ? afTimes(f.family, type === "kvepalai" ? cc.conc : "EDP") : [];
-    f.occasions = scented && f.family ? afOccasions(f.family, f.sillage) : [];
     f.look = { ...(f.family ? afPick(AF_FAMILY_TXT[f.family].look, f.scentName || raw.slice(0, 40), "look") : {}) };
     if (inspired) auto.add("inspired");
     if (gender && scented) auto.add("gender");
     if (f.family) auto.add("family");
     if (notes.top.length || notes.heart.length || notes.base.length) auto.add("notes");
-    for (const k of ["seasons", "times", "occasions"]) if (f[k].length) auto.add(k);
     if (scented) auto.add("longevity").add("sillage");
     if (f.family) auto.add("look");
   }

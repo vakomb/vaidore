@@ -93,7 +93,11 @@ async function renderHomeEditor(main, part, seq, back) {
   HE.slides = clone(Array.isArray(S.slides) ? S.slides : VD.DEFAULT_SLIDES).map(s => ({ id: s.id || uid(), on: s.on !== false, ...s }));
   HE.tiles = clone(Array.isArray(S.tiles) ? S.tiles : VD.DEFAULT_TILES);
   HE.secs = Number(S.slideSeconds ?? 6);
-  HE.rails = clone(Array.isArray(S.rails) ? S.rails : VD.DEFAULT_RAILS).map(r => ({ ...r, id: r.id || uid(), rule: r.rule || {}, ids: r.ids || [] }));
+  HE.rails = clone(Array.isArray(S.rails) ? S.rails : VD.DEFAULT_RAILS).map(r => {
+    // v19: „Kada tinka“ (paros laikas, sezonas, proga) taisyklėse nebenaudojama
+    const { time, season, occasion, ...rule } = r.rule || {};
+    return { ...r, id: r.id || uid(), rule, ids: r.ids || [] };
+  });
   HE.scents = scents || [];
   HE.cats = categories;
   HE.open = HE.openTile = HE.openRail = null;
@@ -640,10 +644,7 @@ function railRuleFields() {
     ["gender", "Kam", Object.entries(VD.GENDER_NAME), "Visiems"],
     ["family", "Kvapo šeima", VD.CAT.families.map(f => [f.id, f.name]), "Visos"],
     ["category", "Kolekcija", HE.cats.map(c => [c.id, c.name]), "Visos"],
-    ["scent", "Kvapas", HE.scents.map(x => [x.id, x.name]), "Visi"],
-    ["time", "Paros laikas", [["diena", "Dienai"], ["vakaras", "Vakarui"]], "Bet koks"],
-    ["season", "Sezonas", Object.entries(VD.SEASON_NAME), "Bet koks"],
-    ["occasion", "Proga", Object.entries(VD.OCCASION_NAME), "Bet kokia"]
+    ["scent", "Kvapas", HE.scents.map(x => [x.id, x.name]), "Visi"]
   ].filter(([, , opts]) => opts.length);
 }
 const railTypeName = p => VD.TYPES.find(t => t.id === (p.type || "kvepalai"))?.one || "";

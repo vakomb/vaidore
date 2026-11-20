@@ -31,7 +31,7 @@ const check = (ok, msg) => {
 
 // ── Imituota duomenų bazė ──
 const db = {
-  products: cat.products.map(p => ({ ...p, description: p.desc, times: p.time, visible: true })),
+  products: cat.products.map(p => ({ ...p, description: p.desc, visible: true })),
   profiles: [{ id: "u1", email: "ona@example.com", name: "Ona Onaitė", phone: "+37060000000", address: { name: "Ona", line1: "Gedimino pr. 1", city: "Vilnius", postal: "01103", country: "LT" }, stripe_customer: null }],
   orders: [],
   restock: [{ id: "r1", product_id: "arven", email: "laukia@example.com", notified: false }]

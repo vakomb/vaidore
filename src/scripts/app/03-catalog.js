@@ -27,9 +27,7 @@ const kindName = p => (isPerfume(p) ? CONC_NAME[p.conc] || p.conc : TYPE.get(typ
 const GENDER_NAME = { moterims: "Moterims", vyrams: "Vyrams", unisex: "Unisex" };
 const GENDER_TITLE = { moterims: "Kvepalai moterims", vyrams: "Kvepalai vyrams", unisex: "Unisex kvepalai" };
 const CONC_NAME = { EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", Extrait: "Extrait de Parfum" };
-const SEASON_NAME = { pavasaris: "Pavasaris", vasara: "Vasara", ruduo: "Ruduo", žiema: "Žiema" };
-// Progos (v15, products.occasions) ir tipo savybės (products.attrs) – tie patys kaip administravime (13-autofill.js)
-const OCCASION_NAME = { kasdien: "Kasdien", darbui: "Darbui", pasimatymui: "Pasimatymui", vakareliui: "Vakarėliui", sventei: "Šventei" };
+// Tipo savybės (products.attrs) – tos pačios kaip administravime (13-autofill.js)
 const ATTR_DEFS = {
   difuzoriai: [
     ["sticks", "Lazdelių skaičius", "vnt."],
@@ -89,10 +87,7 @@ function setCatalog(c) {
           ...p.notes.top,
           ...p.notes.heart,
           ...p.notes.base,
-          ...p.seasons,
-          ...p.time,
-          TYPE.get(p.type)?.one || "",
-          ...(p.occasions || []).map(o => OCCASION_NAME[o] || "")
+          TYPE.get(p.type)?.one || ""
         ].join(" ")
       )
     ])
@@ -164,30 +159,6 @@ const inStock = p => p.stock == null || p.stock > 0;
 // Atradimų rinkinys (settings.discovery): bet kurie N mėginukų už fiksuotą kainą. Krepšelio eilutė { id, ml: 0, qty, picks }.
 const isDisc = id => !!DISC && id === DISC.id;
 const SAMPLEABLE = () => PRODUCTS.filter(p => inStock(p) && hasSample(p));
-
-// „Tiks …“ – viena eilutė kvapo puslapyje iš laukų time, sillage, seasons (be naujų duomenų)
-const SEASON_DAT = { pavasaris: "pavasariui", vasara: "vasarai", ruduo: "rudeniui", žiema: "žiemai" };
-// „Kam skirti“ (kvapo puslapis): kada ir kokiu metų laiku – po vieną kartą, be pasikartojimų
-function suitsParts(p) {
-  const when = p.time.includes("vakaras")
-    ? p.time.includes("diena")
-      ? "dienai ir vakarui"
-      : p.sillage >= 4
-        ? "vakarui ir šventėms"
-        : "vakarui"
-    : p.sillage <= 2
-      ? "kasdienai ir darbui"
-      : "dienai";
-  const seasons =
-    p.seasons.length >= 4
-      ? "visiems metų laikams"
-      : ["pavasaris", "vasara", "ruduo", "žiema"]
-          .filter(x => p.seasons.includes(x))
-          .map(x => SEASON_DAT[x])
-          .join(" ir ")
-          .replace(/ ir (?=.* ir )/g, ", ");
-  return { when, seasons };
-}
 
 function matches(p, q) {
   if (!q) return true;

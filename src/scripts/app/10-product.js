@@ -52,15 +52,10 @@ function productPageHTML(p, ml) {
   // Natos – trys eilutės (kaip parfumada.lt): „Viršutinės natos: …“
   const noteRow = (lab, list) => `<div><dt>${lab}</dt><dd>${list.map(esc).join(" · ")}</dd></div>`;
   const notes = `<dl class="pdNotes">${noteRow("Viršutinės natos", p.notes.top)}${noteRow("Širdies natos", p.notes.heart)}${noteRow("Bazinės natos", p.notes.base)}</dl>`;
-  // Kam skirti – kiekvienas faktas po kartą: lytis, kvapų šeima, kada, metų laikai
-  const { when, seasons } = suitsParts(p);
-  const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+  // Kam skirti – lytis ir kvapų šeima
   const who = `<ul class="accList">${[
     p.gender === "unisex" ? "Unisex – moterims ir vyrams" : GENDER_NAME[p.gender],
-    familyName(p.family) && `${familyName(p.family)} kvapai`,
-    cap(when),
-    seasons && cap(seasons),
-    (p.occasions || []).length && `Proga: ${(p.occasions || []).map(o => (OCCASION_NAME[o] || "").toLowerCase()).filter(Boolean).join(", ")}`
+    familyName(p.family) && `${familyName(p.family)} kvapai`
   ]
     .filter(Boolean)
     .map(t => `<li>${esc(t)}</li>`)
