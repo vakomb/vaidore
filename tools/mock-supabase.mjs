@@ -48,6 +48,7 @@ export function dbFromCatalog(cat) {
     reviews: cat.products.flatMap(p =>
       (p.reviews || []).map((r, i) => ({ id: `rv-${p.id}-${i}`, product_id: p.id, user_id: null, name: r.name, text: r.text, rating: r.rating ?? null, status: "approved", verified: r.verified !== false, created_at: `${r.date || "2026-11-01"}T12:00:00Z` }))
     ),
+    scents: structuredClone(cat.scents || []),
     restock_requests: [],
     newsletter: [],
     orders: [],
@@ -59,7 +60,7 @@ export function dbFromCatalog(cat) {
   };
 }
 
-const ADMIN_ONLY_WRITE = new Set(["products", "families", "categories", "product_categories", "settings", "orders", "audit_log"]);
+const ADMIN_ONLY_WRITE = new Set(["products", "families", "categories", "product_categories", "settings", "orders", "audit_log", "scents"]);
 const ADMIN_ONLY_READ = new Set(["restock_requests", "audit_log", "newsletter"]);
 
 export function mockSupabase({ url, catalog, fail = {} }) {

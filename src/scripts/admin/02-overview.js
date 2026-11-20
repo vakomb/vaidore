@@ -36,7 +36,7 @@ async function renderOverview(main, _param, seq) {
   const kpi = (label, value, sub = "") => `<div class="admKpi"><span>${label}</span><b class="money">${value}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
   const att = (n, text, href, ico) =>
     `<a class="row" href="${href}" data-nav><span class="rowIco" style="background:${n ? "var(--amber)" : "var(--green)"}">${glyph(ico)}</span><span class="rowTxt">${text}</span><b class="admRowNum">${n}</b><span class="chev">${glyph("chev-right")}</span></a>`;
-  main.innerHTML = `${pageHead("Apžvalga", esc(fmtDate(new Date())), `<a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas kvapas</a>`)}
+  main.innerHTML = `${pageHead("Apžvalga", esc(fmtDate(new Date())), `<a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas produktas</a>`)}
 <div class="admKpis">${kpi("Šiandien", centsEur(sum(today)))}${kpi("7 dienos", centsEur(sum(d7)))}${kpi("30 dienų", centsEur(sum(new Date(0))), plural(paid.length, "užsakymas", "užsakymai", "užsakymų"))}${kpi(
     "Vidutinis krepšelis",
     paid.length ? centsEur(sum(new Date(0)) / paid.length) : "–"

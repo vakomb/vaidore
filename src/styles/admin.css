@@ -1451,3 +1451,105 @@
 .perfOnly[hidden] {
   display: none !important;
 }
+/* ── Automatinis užpildymas (v15, 04-products.js) ── */
+.scentOnly[hidden],
+.afScentField[hidden],
+#attrsCard[hidden] {
+  display: none !important;
+}
+.afCard textarea {
+  min-height: 132px;
+}
+.afRun {
+  margin: 2px 0 16px;
+}
+.afOut {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.afMissing > b,
+.afFacts summary {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.afChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.afChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  box-shadow: inset 0 0 0 1px var(--line2);
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.afChip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.afAll {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--ink3);
+}
+.afFacts summary {
+  cursor: pointer;
+}
+.afFacts dl {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13.5px;
+}
+.afFacts dl div {
+  display: grid;
+  grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
+  gap: 10px;
+}
+.afFacts dt {
+  color: var(--ink3);
+}
+.afFacts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.afAuto > span:first-child::after,
+h2.afAuto::after {
+  content: "Auto";
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  box-shadow: inset 0 0 0 1px var(--line2);
+  color: var(--ink2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  vertical-align: 2px;
+}
+.admAttrs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0 12px;
+}
+.admAttrs .admToggleRow {
+  grid-column: 1 / -1;
+}

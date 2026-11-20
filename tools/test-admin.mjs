@@ -203,6 +203,63 @@ await page.waitForURL(/\/admin\/kvapai\/silko-rytas$/);
 const nw = sb.db.products.find(p => p.id === "silko-rytas");
 check(!!nw && nw.family === "geliu" && nw.notes.heart.length === 2 && nw.visible === true, "naujas kvapas sukurtas");
 await shot(page, "kvapas");
+check(await until(() => sb.db.scents.some(x => x.id === "silko-rytas") && sb.db.products.find(p => p.id === "silko-rytas").scent_id === "silko-rytas"), "naujas produktas: sukurtas bendras kvapas ir susietas");
+// Automatinis užpildymas (v15): įklijuotas lenkiškas aprašymas → lietuviška forma, niekas neišsaugoma be „Sukurti“
+await page.goto(`${BASE}admin/kvapai/naujas`);
+await page.waitForSelector("#afText");
+check((await page.locator("#afScent option").allTextContents()).some(t => t.startsWith("Šilko rytas")), "automatinis užpildymas: kvapo pasirinkimas (esami kvapai)");
+await page.fill("#afText", fs.readFileSync(path.join(root, "tools/fixtures/autofill-my-pink.txt"), "utf8"));
+await page.click("[data-af-run]");
+await page.waitForSelector("#afOut:not([hidden])");
+const fv = n => page.inputValue(`#prodForm [name="${n}"]`);
+check(
+  (await fv("name")) === "My Pink" && (await fv("id")) === "my-pink" && (await fv("type")) === "kvepalai" && (await fv("gender")) === "moterims" && (await fv("conc")) === "EDP" && (await fv("family")) === "geliu",
+  "automatinis užpildymas: pavadinimas, adresas, kategorija, lytis, koncentracija, šeima"
+);
+check((await fv("top")) === "Bergamotė, Apelsinmedžio žiedai" && (await fv("base")) === "Kreminė vanilė, Baltasis muskusas, Medienos natos" && (await fv("description")).startsWith("My Pink – "), "automatinis užpildymas: natos ir aprašymas lietuviškai");
+check((await page.locator("#prodForm .afAuto").count()) >= 8 && (await page.locator('#prodForm input[name="occasions"]:checked').count()) >= 1, "automatinis užpildymas: „Auto“ žymos, progos pažymėtos");
+const chips = async () => (await page.locator("[data-af-go]").allTextContents()).join("|");
+check((await chips()) === "Kaina|Likutis|Nuotraukos|Originalo kvapas", "„Liko užpildyti“: Kaina, Likutis, Nuotraukos, Originalo kvapas");
+check(!sb.db.products.some(p => p.id === "my-pink"), "automatinis užpildymas: be „Sukurti“ niekas neišsaugoma");
+await page.click('[data-af-go="price"]');
+check(await until(async () => (await page.evaluate(() => document.activeElement?.matches("[data-size-price]")))), "„Liko užpildyti“: paspaudus – fokusas į kainą");
+await page.locator("[data-size-price]").first().fill("24,90");
+check(!(await chips()).includes("Kaina"), "„Liko užpildyti“: įrašius kainą – dingsta");
+await page.fill('#prodForm input[name="tagline"]', "Bergamotė, tuberozė ir vanilė");
+check((await page.locator('#prodForm input[name="tagline"]').locator("xpath=..").getAttribute("class")).includes("afAuto") === false, "pakeitus lauką – „Auto“ žyma dingsta");
+await shot(page, "automatinis");
+if (shots) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator("#afCard").screenshot({ path: path.join(shotDir, "admin-automatinis-tel.png") });
+  check((await page.evaluate(() => document.documentElement.scrollWidth)) <= 390, "telefone: automatinis užpildymas be horizontalaus slinkimo");
+  await page.setViewportSize({ width: 1440, height: 900 });
+}
+await page.click("#prodForm button[type=submit]");
+await page.waitForURL(/\/admin\/kvapai\/my-pink$/);
+check(await until(() => sb.db.products.find(p => p.id === "my-pink")?.scent_id === "my-pink" && sb.db.scents.find(x => x.id === "my-pink")?.notes.heart.join() === "Tuberozė,Jazminas"), "išsaugota: produktas ir kvapas „My Pink“");
+// Antras to paties kvapo produktas – žvakė: pasirinktas kvapas + trumpas aprašymas
+await page.goto(`${BASE}admin/kvapai/naujas`);
+await page.waitForSelector("#afScent");
+await page.selectOption("#afScent", "my-pink");
+check(await until(async () => (await fv("top")) === "Bergamotė, Apelsinmedžio žiedai" && (await fv("gender")) === "moterims"), "pasirinkus kvapą – kvapo laukai užpildomi iškart");
+await page.fill("#afText", "Świeca sojowa 180 g, czas palenia 40 h");
+await page.click("[data-af-run]");
+check(
+  await until(async () => (await fv("type")) === "zvakes" && (await fv("name")) === "Kvapni žvakė My Pink" && (await fv("id")) === "kvapni-zvake-my-pink"),
+  "žvakė: kategorija ir pavadinimas „Kvapni žvakė My Pink“"
+);
+check((await page.inputValue("[data-size-ml-in]")) === "180" && (await page.locator(".admSize .field span").first().textContent()).startsWith("Svoris") && (await page.inputValue('[data-attr="burn"]')) === "40" && (await page.inputValue('[data-attr="wax"]')) === "Sojų vaškas", "žvakė: svoris 180 g, degimo trukmė 40 val., vaškas");
+check((await fv("base")) === "Kreminė vanilė, Baltasis muskusas, Medienos natos", "žvakė: natos iš kvapo (tekstas jų neperrašė)");
+await page.locator("[data-size-price]").first().fill("19,90");
+await page.click("#prodForm button[type=submit]");
+await page.waitForURL(/\/admin\/kvapai\/kvapni-zvake-my-pink$/);
+const cdl = sb.db.products.find(p => p.id === "kvapni-zvake-my-pink");
+check(cdl?.type === "zvakes" && cdl.scent_id === "my-pink" && JSON.stringify(cdl.sizes) === JSON.stringify([{ ml: 180, price: 19.9, unit: "g" }]) && cdl.attrs.burn === 40 && cdl.sample === 0, "žvakė išsaugota: susieta su kvapu, 180 g, savybės");
+check(sb.db.scents.filter(x => x.name === "My Pink").length === 1, "žvakė: naujas kvapas nesukurtas (naudojamas esamas)");
+// Elektrinis difuzorius – be kvapo laukų
+await page.selectOption('#prodForm select[name="type"]', "elektriniai-difuzoriai");
+check((await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.locator('#prodForm [data-attr="tank"]').count()) === 1 && (await page.locator(".admSizeMl").textContent()) === "1 vnt.", "elektrinis difuzorius: be kvapo laukų, savybės ir „1 vnt.“");
+await page.selectOption('#prodForm select[name="type"]', "zvakes");
 // Importo iš Allegro nebėra
 await page.goto(`${BASE}admin/kvapai`);
 await page.waitForSelector('a[href="admin/kvapai/naujas"]');
