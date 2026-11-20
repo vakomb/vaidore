@@ -284,3 +284,32 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
 
 Įrankis „Iš Allegro“ (`13-import.js`, `supabase/functions/_shared/import.js`, veiksmai `import` / `import-status`)
 pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
+
+## Automatinis produktų pridėjimas (v15)
+
+- **5 prekių tipai** (`products.type`): `kvepalai`, `difuzoriai` (su lazdelėmis), `zvakes`, `aliejai` (elektriniams
+  difuzoriams), `elektriniai-difuzoriai` (prietaisas be kvapo). `TYPES` – `03-catalog.js` (`scented`, daiktavardžiai),
+  `TYPE_PAGE` – `build-site.mjs`, `TYPE_ONE` – `shop.js`. Tipas be prekių parduotuvėje nerodomas; nauji tipai į išsaugotą
+  plytelių sąrašą įterpiami automatiškai (`tileList`, `25-home-config.js`).
+- **Bendras kvapas** (`scents`, migracija `20261120120000_scents_types.sql`): vardas, originalas, lytis, šeima, natos,
+  sezonai, paros laikas, progos, ilgaamžiškumas, sklaida, spalvos. `products.scent_id` – nuoroda; produktas turi savo
+  laukų kopijas (parduotuvė ir filtrai jų neima iš `scents`). Esami produktai susieti pagal pavadinimą be tipo žodžio,
+  likę – pagal originalo kvapą (pvz. „Difuzorius SIRED“ → SIDORE).
+- **Nauji laukai**: `products.attrs` (tipo savybės: lazdelės, trukmė, plotas, degimo trukmė, vaškas, dagtis, vandens
+  talpa, veikimo laikas, maitinimas, apšvietimas – `AF_ATTRS` / `ATTR_DEFS`), `products.occasions` (kasdien, darbui,
+  pasimatymui, vakarėliui, šventei), `sizes[].unit` – `g` (žvakės), `vnt` (elektrinis difuzorius), kitaip ml.
+- **Variklis be API** – `src/scripts/admin/13-autofill-words.js` (natų žodynas PL / EN → LT: 520 raktų, 254 natos;
+  būdvardžiai su giminėmis; šeimos; rinkodaros žodžiai) ir `13-autofill.js` (`afParse`): kalba, tipas (taškais pagal
+  raktažodžius), pavadinimas (be prekės ženklo – pasikartojantis žodis; be rinkodaros, tipo, lyties žodžių; DIDŽIOSIOMIS
+  parašytas pavadinimas tarp kitų žodžių), natos, lytis, šeima, koncentracija (eilutė „nasz produkt / our product“ →
+  % → vienintelis paminėjimas), talpa / svoris, savybės, originalas (tik aiškiai parašytas), INCI. Trūkstami laukai –
+  pagal šeimą ir natas; šūkis ir aprašymas – lietuviški šablonai (keli variantai, parenkami pagal pavadinimą – rezultatas
+  deterministinis). Iš šaltinio – tik faktai.
+- **Administravimas** (`04-products.js`, „Produktai“ → „Naujas produktas“): kvapo pasirinkimas (tik jei yra kvapų),
+  aprašymo laukas, „Sutvarkyti“, „Auto“ žymos, „Liko užpildyti“, „Ką atpažinau“. Išsaugojus naują produktą be pasirinkto
+  kvapo – sukuriamas `scents` įrašas ir susiejamas. Elektriniam difuzoriui kvapo laukai nerodomi.
+- **Parduotuvė**: „Savybės“ prekės puslapyje, „Svoris“ žvakėms, elektriniam difuzoriui – be talpos pasirinkimo;
+  filtrai „Proga“ (`?proga=`), „Paros laikas“ (`?laikas=`; seni `?proga=diena|vakaras` palaikomi), „Originalo kvapas“
+  (`?originalas=`), „Formatas“ kitiems tipams (`?formatas=`); elektriniams difuzoriams kvapo filtrų nėra.
+- Testai: `tools/test-autofill.mjs` (priimamumo „My Pink“ – `tools/fixtures/autofill-my-pink.txt`, žvakė su kvapu,
+  PL / EN / LT difuzorius, aliejus, elektrinis difuzorius), `test-admin.mjs` (forma), `test-smoke.mjs` (parduotuvė).
