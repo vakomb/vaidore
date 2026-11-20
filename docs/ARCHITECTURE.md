@@ -308,8 +308,12 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
 - **Administravimas** (`04-products.js`, „Produktai“ → „Naujas produktas“): kvapo pasirinkimas (tik jei yra kvapų),
   aprašymo laukas, „Sutvarkyti“, „Auto“ žymos, „Liko užpildyti“, „Ką atpažinau“. Išsaugojus naują produktą be pasirinkto
   kvapo – sukuriamas `scents` įrašas ir susiejamas. Elektriniam difuzoriui kvapo laukai nerodomi.
-- **Kvapų sąrašas** (`14-scents.js`, „Produktai“ → „Kvapų sąrašas“, `admin/kvapai/kvapu-sarasas`): pavadinimas, originalo kvapas
-  (jungikliu – ir visiems susietiems produktams), ištrynimas (pirma `products.scent_id = null`, tada `scents` įrašas).
+- **Skiltis „Kvapai“** (`14-scents.js`, `admin/kvapu-sarasas`): sąrašas su paieška (pavadinimas, originalas, šeima,
+  natos, kiek produktų); naujas kvapas – įklijuotas aprašymas → `afParse` → tik kvapo laukai (`SCENT_KEYS`), „Auto“
+  žymos ir „Liko užpildyti“; kvapo puslapis – visi laukai, spalvų peržiūra, susieti produktai, „Pritaikyti pakeitimus
+  produktams“ (`SCENT_TO_PRODUCT`: originalas, lytis, šeima, natos, savybės, progos – ne pavadinimas, aprašymas, spalvos),
+  „Naujas produktas su šiuo kvapu“ (`admin/kvapai/naujas?kvapas=<id>` – kvapas parenkamas iš karto), ištrynimas
+  (pirma `products.scent_id = null`, tada `scents` įrašas). Senas `admin/kvapai/kvapu-sarasas` nukreipiamas.
 - **Parduotuvė**: „Savybės“ prekės puslapyje, „Svoris“ žvakėms, elektriniam difuzoriui – be talpos pasirinkimo;
   filtrai „Proga“ (`?proga=`), „Paros laikas“ (`?laikas=`; seni `?proga=diena|vakaras` palaikomi), „Originalo kvapas“
   (`?originalas=`), „Formatas“ kitiems tipams (`?formatas=`); elektriniams difuzoriams kvapo filtrų nėra.

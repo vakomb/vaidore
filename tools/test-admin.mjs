@@ -260,25 +260,66 @@ check(sb.db.scents.filter(x => x.name === "My Pink").length === 1, "žvakė: nau
 await page.selectOption('#prodForm select[name="type"]', "elektriniai-difuzoriai");
 check((await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.locator('#prodForm [data-attr="tank"]').count()) === 1 && (await page.locator(".admSizeMl").textContent()) === "1 vnt.", "elektrinis difuzorius: be kvapo laukų, savybės ir „1 vnt.“");
 await page.selectOption('#prodForm select[name="type"]', "zvakes");
-// Kvapų sąrašas: originalo keitimas (ir susietuose produktuose), ištrynimas (produktai lieka, tik atsiejami)
+// Skiltis „Kvapai“: sąrašas, redagavimas (pritaikoma susietiems produktams), naujas kvapas iš aprašymo, ištrynimas
 await page.goto(`${BASE}admin/kvapai`);
-await page.click('a[href="admin/kvapai/kvapu-sarasas"]');
-await page.waitForSelector('[data-scent-edit="my-pink"]');
-check((await page.locator('[data-scent-edit="my-pink"]').textContent()).includes("2 produktai"), "kvapų sąrašas: My Pink – 2 produktai");
-await page.click('[data-scent-edit="my-pink"]');
-await page.fill('#sheetBody input[name="inspired"]', "Emporio Armani – My Way");
-await page.click("#sheetBody button[type=submit]");
+await page.click('a[href="admin/kvapu-sarasas"].btn');
+await page.waitForSelector('[data-scent-row="my-pink"]');
+check((await page.locator('.admNav a[href="admin/kvapu-sarasas"]').count()) === 1, "meniu: atskira skiltis „Kvapai“");
+check((await page.locator('[data-scent-row="my-pink"]').textContent()).includes("2 produktai"), "kvapai: My Pink – 2 produktai");
+await page.fill("#scentQ", "tuber");
+check(await until(async () => (await page.locator("[data-scent-row]").count()) === 1), "kvapai: paieška pagal natą");
+await page.click('[data-scent-row="my-pink"]');
+await page.waitForSelector("#scentForm");
+check((await page.locator(".scLinked .row").count()) === 2, "kvapas: susieti produktai (kvepalai ir žvakė)");
+await page.fill('#scentForm input[name="inspired"]', "Emporio Armani – My Way");
+await page.fill('#scentForm input[name="heart"]', "Tuberozė, Jazminas, Rožė");
+await page.click("#scentForm button[type=submit]");
 check(
-  await until(() => sb.db.scents.find(x => x.id === "my-pink").inspired === "Emporio Armani – My Way" && ["my-pink", "kvapni-zvake-my-pink"].every(id => sb.db.products.find(p => p.id === id).inspired === "Emporio Armani – My Way")),
-  "kvapų sąrašas: originalas pakeistas kvape ir abiejuose susietuose produktuose"
+  await until(
+    () =>
+      sb.db.scents.find(x => x.id === "my-pink").inspired === "Emporio Armani – My Way" &&
+      ["my-pink", "kvapni-zvake-my-pink"].every(id => sb.db.products.find(p => p.id === id).inspired === "Emporio Armani – My Way" && sb.db.products.find(p => p.id === id).notes.heart.length === 3)
+  ),
+  "kvapas: originalas ir natos pakeisti kvape ir abiejuose susietuose produktuose"
 );
-await page.waitForSelector('[data-scent-edit="silko-rytas"]');
-await page.click('[data-scent-edit="silko-rytas"]');
-await page.click("#sheetBody [data-scent-del]");
+// Naujas kvapas iš aprašymo
+await page.goto(`${BASE}admin/kvapu-sarasas/naujas`);
+await page.waitForSelector("#afText");
+await page.fill("#afText", "VELVET NIGHT Eau de Parfum for men 100 ml – inspired by Dior Sauvage\nFragrance notes: bergamot, pink pepper, lavender, geranium, ambroxan, cedar, vetiver\nFragrance family: aromatic fougere");
+await page.click("[data-af-run]");
+const sv = n => page.inputValue(`#scentForm [name="${n}"]`);
+check(
+  await until(async () => (await sv("name")) === "Velvet Night" && (await sv("id")) === "velvet-night" && (await sv("inspired")) === "Dior Sauvage" && (await sv("gender")) === "vyrams" && (await sv("family")) === "sviezi"),
+  "naujas kvapas: iš aprašymo – pavadinimas, adresas, originalas, lytis, šeima"
+);
+check((await sv("top")).startsWith("Bergamotė") && (await page.locator("#scentForm .afAuto").count()) >= 6, "naujas kvapas: natos lietuviškai, „Auto“ žymos");
+check(!sb.db.scents.some(x => x.id === "velvet-night"), "naujas kvapas: be „Sukurti“ neišsaugoma");
+await shot(page, "kvapas-naujas");
+if (shots) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  check((await page.evaluate(() => document.documentElement.scrollWidth)) <= 390, "telefone: kvapo forma be horizontalaus slinkimo");
+  await page.screenshot({ path: path.join(shotDir, "admin-kvapas-tel.png"), fullPage: false });
+  await page.setViewportSize({ width: 1440, height: 900 });
+}
+await page.click("#scentForm button[type=submit]");
+await page.waitForURL(/\/admin\/kvapu-sarasas\/velvet-night$/);
+check(sb.db.scents.find(x => x.id === "velvet-night")?.notes.top.includes("Bergamotė"), "naujas kvapas sukurtas");
+// Naujas produktas su šiuo kvapu – kvapas parinktas, laukai užpildyti
+await page.click(".scNewProd");
+await page.waitForSelector("#prodForm");
+check(
+  await until(async () => (await page.inputValue("#afScent")) === "velvet-night" && (await page.inputValue('#prodForm [name="name"]')) === "Velvet Night" && (await page.inputValue('#prodForm [name="inspired"]')) === "Dior Sauvage"),
+  "„Naujas produktas su šiuo kvapu“ – kvapas parinktas, laukai užpildyti"
+);
+// Ištrynimas: produktai lieka, tik atsiejami
+await page.goto(`${BASE}admin/kvapu-sarasas/silko-rytas`);
+await page.waitForSelector("[data-scent-del]");
+await page.click("[data-scent-del]");
 await page.waitForSelector("[data-confirm-ok]");
 await page.click("[data-confirm-ok]");
-check(await until(() => !sb.db.scents.some(x => x.id === "silko-rytas") && sb.db.products.find(p => p.id === "silko-rytas")?.scent_id == null), "kvapų sąrašas: kvapas ištrintas, produktas liko (atsietas)");
-await shot(page, "kvapu-sarasas");
+check(await until(() => !sb.db.scents.some(x => x.id === "silko-rytas") && sb.db.products.find(p => p.id === "silko-rytas")?.scent_id == null), "kvapas ištrintas, produktas liko (atsietas)");
+await page.waitForSelector("[data-scent-row]");
+await shot(page, "kvapai");
 // Importo iš Allegro nebėra
 await page.goto(`${BASE}admin/kvapai`);
 await page.waitForSelector('a[href="admin/kvapai/naujas"]');

@@ -30,12 +30,13 @@ const SHAPES = [
 const BADGES = ["", "Populiaru", "Naujiena", "Riboto leidimo"];
 
 async function renderProducts(main, param, seq) {
-  if (param === "kvapu-sarasas") return renderScents(main, seq);
+  // Senas adresas (iki atskiros skilties „Kvapai“)
+  if (param === "kvapu-sarasas") return navigate("admin/kvapu-sarasas", { replace: true });
   if (param) return renderProductEdit(main, param, seq);
   main.innerHTML = pageHead("Produktai") + loading();
   prodState.rows = (await sbRest("products?select=*&order=rank.asc,name.asc")) || [];
   if (stale(seq)) return;
-  main.innerHTML = `${pageHead("Produktai", plural(prodState.rows.length, "produktas", "produktai", "produktų"), `<a class="btn ghost small" href="admin/kvapai/kvapu-sarasas" data-nav>${glyph("drop")}Kvapų sąrašas</a><a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas produktas</a>`)}
+  main.innerHTML = `${pageHead("Produktai", plural(prodState.rows.length, "produktas", "produktai", "produktų"), `<a class="btn ghost small" href="admin/kvapu-sarasas" data-nav>${glyph("drop")}Kvapai</a><a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas produktas</a>`)}
 <div class="admToolbar"><div class="seg admSeg" role="tablist">${PROD_FILTERS.map(
     ([id, name, fn]) => `<button role="tab" type="button" data-pf="${id}" aria-selected="${prodState.filter === id}">${name} <small>${prodState.rows.filter(fn).length}</small></button>`
   ).join("")}</div>
@@ -286,6 +287,12 @@ ${isNew ? "" : `<section class="admCard admDangerCard"><h2>Ištrinti</h2><p clas
   const form = $("#prodForm");
   paintSizes(form, ed.p.sizes || []);
   paintAttrs(form, ed.p.attrs || {});
+  // „Naujas produktas su šiuo kvapu“ (skiltis „Kvapai“): admin/kvapai/naujas?kvapas=<id> – kvapas parenkamas iš karto
+  const pre = isNew && new URLSearchParams(location.search).get("kvapas");
+  if (pre && $("#afScent", form) && (scents || []).some(x => x.id === pre)) {
+    $("#afScent", form).value = pre;
+    afScentChanged(ed, form, pre);
+  }
   paintImages(ed);
   paintBottle(form);
   form.addEventListener("input", e => {
@@ -571,7 +578,7 @@ function afCardHTML(ed, opt) {
     scents.length
       ? `\n<label class="field afScentField"><span>Kvapas</span><select id="afScent"><option value="">Naujas kvapas</option>${scents
           .map(x => opt(x.id, x.inspired ? `${x.name} – ${x.inspired}` : x.name, ""))
-          .join("")}</select><small>Pasirinkus esamą kvapą, jo natos, lytis ir savybės užpildomos iš karto · <a href="admin/kvapai/kvapu-sarasas" data-nav>Tvarkyti kvapų sąrašą</a></small></label>`
+          .join("")}</select><small>Pasirinkus esamą kvapą, jo natos, lytis ir savybės užpildomos iš karto · <a href="admin/kvapu-sarasas" data-nav>Tvarkyti kvapus</a></small></label>`
       : ""
   }
 <label class="field"><span>Prekės aprašymas</span><textarea id="afText" rows="6" placeholder="Įklijuokite visą prekės aprašymą…"></textarea></label>

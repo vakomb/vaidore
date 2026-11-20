@@ -6,6 +6,7 @@
 // Skyriai (adresai):
 //   admin                    Apžvalga – pajamos, kas laukia, maži likučiai, perkamiausi
 //   admin/uzsakymai          Užsakymai – supakuota / išsiųsta (+ laiškas) / pristatyta / grąžinti pinigus, CSV buhalterijai
+//   admin/kvapu-sarasas[/<id>] Kvapai – bendri kvapai (scents): sąrašas, naujas iš aprašymo, redagavimas (14-scents.js)
 //   admin/kvapai[/<id>]      Produktai – sąrašas, redagavimas, nuotraukos, likučiai, rodymas; admin/kvapai/naujas
 //   admin/pradzia            Pradžios puslapis – skaidrės (nuotraukos, tekstai, nuorodos, eilė) ir „Produktai“ plytelės, su peržiūra
 //   admin/kategorijos        Kategorijos ir kvapo šeimos
@@ -19,7 +20,8 @@ const { $, $$, esc, eur, plural, fold, slugify, fmtDate, fmtDateTime, glyph, hyd
 const SECTIONS = [
   { id: "", name: "Apžvalga", ico: "chart", render: renderOverview },
   { id: "uzsakymai", name: "Užsakymai", ico: "box", render: renderOrders, count: "orders" },
-  { id: "kvapai", name: "Produktai", ico: "drop", render: renderProducts },
+  { id: "kvapai", name: "Produktai", ico: "tag", render: renderProducts },
+  { id: "kvapu-sarasas", name: "Kvapai", ico: "drop", render: renderScents },
   { id: "pradzia", name: "Pradžia", ico: "home", render: renderHomeEditor },
   { id: "kategorijos", name: "Kategorijos", ico: "grid", render: renderCategories },
   { id: "atsiliepimai", name: "Atsiliepimai", ico: "star", render: renderReviews, count: "reviews" },
