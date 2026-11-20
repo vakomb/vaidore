@@ -66,12 +66,12 @@ function productPageHTML(p, ml) {
     .map(t => `<li>${esc(t)}</li>`)
     .join("")}</ul>`;
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
-  return `<header class="pdHead">${isPerfume(p) ? "" : `<p class="pdCat"><a href="${typeOf(p)}" data-nav>${esc(T.title)}</a></p>`}<h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
+  return `<article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
+<header class="pdHead">${isPerfume(p) ? "" : `<p class="pdCat"><a href="${typeOf(p)}" data-nav>${esc(T.title)}</a></p>`}<h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
     inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
   }<p class="pdKey">${keyLine(p)}</p>${
     rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
   }</header>
-<article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
 <div class="pdGal${p.images?.length ? " hasPhoto" : ""}">
 ${galleryHTML(p)}
 </div>
@@ -89,10 +89,10 @@ ${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
 ${
   device
     ? ""
-    : `<p class="pdLabel">${typeOf(p) === "zvakes" ? "Svoris" : "Talpa"}</p>
+    : `<p class="pdLabel pdLabSize">${typeOf(p) === "zvakes" ? "Svoris" : "Talpa"}</p>
 <div class="sizes" role="radiogroup" aria-label="${typeOf(p) === "zvakes" ? "Svoris" : "Talpa"}">${sizes.map(sizeBtn).join("")}</div>`
 }
-${sold ? "" : `<p class="pdLabel">Kiekis</p>`}
+${sold ? "" : `<p class="pdLabel pdLabQty">Kiekis</p>`}
 <div class="pdBuy" data-buy-anchor>${sold ? "" : qtyHTML()}${buyBtn}</div>
 <p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
 ${
@@ -155,13 +155,10 @@ function renderProduct(id, params) {
   bindGallery(root);
   bindRails(root);
   track("Peržiūrėjo kvapą", { kvapas: p.name });
-  // Prilipusi pirkimo juosta: telefone – kai pagrindinis mygtukas išslenka viršun; kompiuteryje – kai jo nesimato
+  // Prilipusi pirkimo juosta (telefone ir kompiuteryje): kai pagrindinis mygtukas išslenka viršun
   buyObs?.disconnect();
   const bar = $("#buyBar", root);
-  buyObs = new IntersectionObserver(
-    ([en]) => bar.classList.toggle("show", !en.isIntersecting && (en.boundingClientRect.top < 0 || matchMedia("(min-width: 1024px)").matches)),
-    { threshold: 0 }
-  );
+  buyObs = new IntersectionObserver(([en]) => bar.classList.toggle("show", !en.isIntersecting && en.boundingClientRect.top < 0), { threshold: 0 });
   buyObs.observe($("[data-buy-anchor]", root));
   return true;
 }

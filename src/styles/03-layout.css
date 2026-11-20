@@ -210,6 +210,9 @@
 .hdrSearch {
   display: none;
 }
+.iconLbl {
+  display: none;
+}
 .countBadge {
   position: absolute;
   top: 3px;
@@ -522,83 +525,181 @@
   display: grid;
   gap: 12px;
 }
-/* Paieška meniu viršuje */
+/* Šoninis meniu (v17) – kaip iOS programėlė: pilkas fonas, baltos sugrupuotos eilutės su plonais skyrikliais */
+#drawer {
+  background: var(--ax-bg);
+}
+#drawer .drawerHead {
+  border-bottom: 0;
+  background: var(--ax-bg);
+}
+#drawer .drawerBody {
+  padding: 4px 0 28px;
+}
 .navSearch {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: calc(100% - 2 * var(--pad));
-  height: 50px;
-  margin: 0 var(--pad) 6px;
-  padding: 0 16px;
-  border-radius: 14px;
-  background: var(--bg-soft);
+  height: 46px;
+  margin: 0 var(--pad) 16px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--ax-fill);
   color: var(--ink3);
-  font-size: 16px;
-  letter-spacing: 0.02em;
+  font-size: 16.5px;
+  letter-spacing: 0.01em;
   text-align: left;
 }
 .navSearch svg {
-  width: 21px;
-  height: 21px;
-  stroke-width: 1.6;
-  color: #000;
-}
-/* Skyriaus pavadinimas */
-.navSub {
-  margin: 24px 0 4px;
-  padding: 0 var(--pad);
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.7;
   color: var(--ink3);
 }
-/* Pagrindinės nuorodos – didelės, su rodykle */
-.navList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.navList a {
+/* Paskyros kortelė (kaip iOS „Nustatymų“ viršuje) */
+.mAcct {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 52px;
-  margin: 0 var(--pad);
-  border-bottom: 1px solid var(--line);
+  gap: 14px;
+  margin: 0 var(--pad) 22px;
+  padding: 12px 14px;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
   color: #000;
+}
+.mAvatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+}
+.mAvatar svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 1.5;
+}
+.mAcctTxt {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.mAcctTxt b {
+  overflow: hidden;
   font-size: 19px;
   font-weight: 500;
-  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.navList li:last-child a {
-  border-bottom: 0;
+.mAcctTxt small {
+  color: var(--ink3);
+  font-size: 14px;
 }
-.navList a svg {
+.mAcct > svg,
+.mRow > svg {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.2;
+  color: var(--ink4);
+}
+/* Skyriaus pavadinimas virš grupės */
+.mHead {
+  margin: 0 calc(var(--pad) + 16px) 7px;
+  color: var(--ink3);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.mGroup {
+  margin: 0 var(--pad) 24px;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
+}
+.mGroup li {
+  position: relative;
+}
+.mGroup li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--sepL, 16px);
+  right: 0;
+  height: 1px;
+  background: var(--ax-sep);
+}
+.mGroup li:has(.mIco) + li::before,
+.mGroup li:has(.mIco) {
+  --sepL: 58px;
+}
+.mRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 6px 14px 6px 16px;
+  color: #000;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+  transition: background-color 0.15s ease;
+}
+.mRow:active {
+  background: var(--ax-press);
+}
+.mIco {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--brand);
+  color: #fff;
+}
+.mIco svg {
   width: 18px;
   height: 18px;
-  stroke-width: 1.6;
-  color: var(--ink4);
-  transition: transform 0.3s var(--spring), color 0.2s ease;
+  stroke-width: 1.7;
 }
-.navList a:active svg,
-.navList a:hover svg {
-  transform: translateX(3px);
-  color: #000;
+.mTxt {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.navList a[aria-current="page"] span {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 6px;
+.mRow[aria-current="page"] .mTxt {
+  font-weight: 600;
 }
-/* Trys greiti pasirinkimai – plytelės */
+.mCount {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--ax-fill);
+  color: var(--ink2);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  text-align: center;
+}
+/* Trys greiti pasirinkimai – baltos plytelės */
 .navTiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin: 24px var(--pad) 0;
+  gap: 10px;
+  margin: 0 var(--pad) 24px;
   padding: 0;
   list-style: none;
 }
@@ -606,20 +707,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 8px;
   width: 100%;
-  min-height: 92px;
-  padding: 16px 6px 12px;
-  border-radius: 16px;
-  background: var(--bg-soft);
+  min-height: 96px;
+  padding: 14px 6px 12px;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
   color: #000;
   font-size: 13.5px;
   font-weight: 500;
   line-height: 1.25;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-align: center;
-  transition: transform 0.3s var(--spring), background-color 0.2s ease;
+  transition: transform 0.3s var(--spring);
 }
 .navTile:active {
   transform: scale(0.96);
@@ -629,61 +730,11 @@
   height: 26px;
   stroke-width: 1.5;
 }
-/* Informacija – smulkesnės nuorodos */
-.navLinks {
-  margin: 0;
-  padding: 0 var(--pad);
-  list-style: none;
-}
-.navLinks a {
-  display: flex;
-  align-items: center;
-  min-height: 42px;
-  color: var(--text);
-  font-size: 16.5px;
-  letter-spacing: 0.02em;
-}
-.navLinks a[aria-current="page"] {
-  color: #000;
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-/* Apačia: paskyra · mėgstami, nemokamo pristatymo eilutė */
-.navAcct {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* Apačia: kiek liko iki nemokamo pristatymo */
+#drawer .drawerFoot {
   gap: 8px;
-}
-.navAcct a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 48px;
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16);
-  color: #000;
-  font-size: 15.5px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-.navAcct svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 1.6;
-}
-.navAcct b {
-  display: inline-grid;
-  place-items: center;
-  min-width: 20px;
-  height: 20px;
-  margin-left: 2px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: #000;
-  color: #fff;
-  font-size: 11.5px;
-  font-weight: 700;
+  border-top: 1px solid var(--ax-sep);
+  background: var(--ax-bg);
 }
 .navShip {
   display: flex;
@@ -703,6 +754,20 @@
   height: 18px;
   stroke-width: 1.6;
   color: #000;
+}
+.mShipBar {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--ax-fill);
+}
+.mShipBar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand);
+  transition: width 0.4s var(--spring);
 }
 
 /* Puslapio antraštė ir naršymo kelias */
@@ -1005,4 +1070,12 @@
 .ftrLegal a:hover {
   color: #000;
   text-decoration: underline;
+}
+.navSub {
+  margin: 6px 8px;
+  color: var(--ink3);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }

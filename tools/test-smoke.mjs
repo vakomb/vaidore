@@ -314,6 +314,10 @@ async function run(viewport) {
   if (mobile) {
     await page.click("#menuBtn");
     await page.waitForSelector("#drawerWrap:not([hidden]) #drawer a[href='moterims']");
+    check(
+      (await page.locator("#drawer .mAcct").isVisible()) && (await page.locator("#drawer .mGroup").count()) >= 3 && (await page.locator("#drawer .mHead").allTextContents()).join("|").includes("Pagalba"),
+      "☰ meniu – kaip iOS: paskyros kortelė, sugrupuoti sąrašai, „Pagalba“"
+    );
     await page.click("#drawer a[href='moterims']");
   } else {
     await page.click("#megaBtn");
@@ -445,11 +449,19 @@ async function run(viewport) {
   if (viewport.width >= 1024) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(300);
+    const geo = await page.evaluate(() => {
+      const r = s => document.querySelector(s).getBoundingClientRect();
+      return { gal: r("#productRoot .pdGal"), h1: r("#productRoot .pdH1"), buy: r("#productRoot [data-buy-anchor]"), desc: r("#productRoot .pdDesc"), bar: document.querySelector("#buyBar").classList.contains("show") };
+    });
+    check(geo.h1.left > geo.gal.right && geo.buy.top < geo.desc.top && geo.buy.bottom < 900 && !geo.bar, "kompiuteryje – pavadinimas ir „Į krepšelį“ dešinėje šalia nuotraukos, matomi be slinkimo; aprašymas – žemiau");
+    await page.evaluate(() => window.scrollTo(0, 1100));
+    await page.waitForTimeout(400);
     const bar = await page.evaluate(() => {
       const b = document.querySelector("#buyBar");
       return { show: b.classList.contains("show"), thumb: !!b.querySelector(".bbThumb img, .bbThumb svg"), qty: getComputedStyle(b.querySelector(".bbQty")).display !== "none" };
     });
-    check(bar.show && bar.thumb && bar.qty, "kompiuteryje – prilipusi pirkimo juosta su nuotrauka ir kiekiu (kaip parfumada.lt)");
+    check(bar.show && bar.thumb && bar.qty, "kompiuteryje – nuslinkus žemiau „Į krepšelį“ – prilipusi pirkimo juosta su nuotrauka ir kiekiu");
+    await page.evaluate(() => window.scrollTo(0, 0));
   }
   const s30 = vanor.sizes[0];
   await page.click(`#productRoot .sizeOpt[data-ml="${s30.ml}"]`);
@@ -596,9 +608,11 @@ async function run(viewport) {
   if (!mobile) {
     // Paieška antraštėje
     await open(page, A);
-    await page.click("#searchBtn");
-    await page.waitForSelector("#hdrSearch input:visible");
-    check((await page.locator(".hdrSearch").evaluate(e => getComputedStyle(e).display)) === "flex", "kompiuteryje paieška – piktograma, laukas atsiveria paspaudus");
+    check(
+      (await page.locator("#hdrSearch input").isVisible()) && !(await page.locator("#menuBtn").isVisible()) && !(await page.locator("#searchBtn").isVisible()) && (await page.locator(".hdrTools .iconLbl:visible").count()) === 3,
+      "kompiuteryje: paieškos laukas visada matomas, be ☰; Paskyra · Mėgstami · Krepšelis su užrašais"
+    );
+    await page.click("#hdrQ");
     await page.fill("#hdrQ", "vanor");
     await page.waitForSelector("#searchPop:not([hidden])");
     check((await page.locator("#searchPop").textContent()).includes("Vanor"), "antraštės paieška: pasiūlymai");

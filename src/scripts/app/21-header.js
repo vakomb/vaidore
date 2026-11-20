@@ -173,46 +173,48 @@ function setMega(open) {
   mega.hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
 }
-// Šoninis meniu (telefone ir planšetėje): paieška → Kategorijos (Kvepalai / Difuzoriai / Aliejai) → Kvepalai (lytis,
-// naujienos…) → Kolekcijos → trys greiti pasirinkimai (mėginukai, rinkinys, testas) → Informacija; apačioje – paskyra,
-// mėgstami ir nemokamo pristatymo eilutė
+// Šoninis meniu (telefone ir planšetėje, v17 – kaip iOS programėlė): paieška → paskyros kortelė → sugrupuoti sąrašai
+// (Parduotuvė – prekių tipai; Kvepalai – lytis, naujienos, bestselleriai, nuolaidos; Kolekcijos) → trys greiti pasirinkimai
+// (mėginukai, rinkinys, testas) → Pagalba; apačioje – kiek liko iki nemokamo pristatymo (su juostele)
+const TYPE_ICO = { kvepalai: "drop", difuzoriai: "spark", zvakes: "sun", aliejai: "drop", "elektriniai-difuzoriai": "home" };
 function drawerHTML() {
   const cats = visibleCategories();
   const cur = ui.path || "";
-  const link = (href, name) =>
-    `<li><a href="${href}" data-nav${cur === href ? ' aria-current="page"' : ""}><span>${esc(name)}</span>${glyph("chev-right")}</a></li>`;
-  const small = (href, name) => `<li><a href="${href}" data-nav${cur === href ? ' aria-current="page"' : ""}>${esc(name)}</a></li>`;
+  const row = (href, name, ico = "", extra = "") =>
+    `<li><a class="mRow" href="${href}" data-nav${cur === href ? ' aria-current="page"' : ""}>${ico ? `<span class="mIco">${glyph(ico)}</span>` : ""}<span class="mTxt">${esc(name)}</span>${extra}${glyph("chev-right")}</a></li>`;
   const tile = (attrs, ico, name) => `<li><${attrs.startsWith("href") ? "a" : "button type=\"button\""} class="navTile" ${attrs}>${glyph(ico)}<span>${esc(name)}</span></${attrs.startsWith("href") ? "a" : "button"}></li>`;
   const favN = state.fav.size;
+  const who = auth.user ? auth.profile?.name || auth.user.email || "Mano paskyra" : "Prisijungti";
+  const initials = auth.user ? (auth.profile?.name || auth.user.email || "?").trim().slice(0, 1).toUpperCase() : "";
+  const left = shipLeft();
+  const free = Number(SET.freeShippingFrom) || 0;
+  const pct = state.cart.length && free ? Math.min(100, Math.round(((free - Math.max(0, left)) / free) * 100)) : 0;
   return `<header class="drawerHead"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><button class="iconBtn" type="button" data-sheet-close aria-label="Uždaryti meniu">${glyph("x")}</button></header>
 <div class="drawerBody">
 <button class="navSearch" type="button" data-drawer-search>${glyph("search")}<span>Ieškoti kvapo ar natos</span></button>
-<p class="navSub">Kategorijos</p>
-<ul class="navList">${typesInUse()
-    .map(t => link(t.id, t.name))
-    .join("")}</ul>
-<p class="navSub">Kvepalai</p>
-<ul class="navList">${link("moterims", "Moterims")}${link("vyrams", "Vyrams")}${link("unisex", "Unisex")}${link("kvepalai?rikiuoti=new", "Naujienos")}${link(
-    "bestselleriai",
-    "Bestselleriai"
-  )}${saleList().length ? link("nuolaidos", "Nuolaidos") : ""}</ul>
-${cats.length ? `<p class="navSub">Kolekcijos</p><ul class="navList">${cats.map(c => link(`kategorija/${c.id}`, c.name)).join("")}</ul>` : ""}
+<a class="mAcct" href="paskyra" data-nav><span class="mAvatar"${initials ? "" : ' aria-hidden="true"'}>${initials ? esc(initials) : glyph("user")}</span><span class="mAcctTxt"><b>${esc(who)}</b><small>${
+    auth.user ? "Užsakymai, adresai, nustatymai" : "Užsakymų istorija ir greitesnis pirkimas"
+  }</small></span>${glyph("chev-right")}</a>
+<ul class="mGroup">${typesInUse()
+    .map(t => row(t.id, t.name, TYPE_ICO[t.id] || "tag"))
+    .join("")}${row("megstami", "Mėgstami", "heart", favN ? `<b class="mCount">${favN}</b>` : "")}</ul>
+<p class="mHead">Kvepalai</p>
+<ul class="mGroup">${row("moterims", "Moterims")}${row("vyrams", "Vyrams")}${row("unisex", "Unisex")}${row("kvepalai?rikiuoti=new", "Naujienos")}${row("bestselleriai", "Bestselleriai")}${
+    saleList().length ? row("nuolaidos", "Nuolaidos") : ""
+  }</ul>
+${cats.length ? `<p class="mHead">Kolekcijos</p><ul class="mGroup">${cats.map(c => row(`kategorija/${c.id}`, c.name)).join("")}</ul>` : ""}
+<p class="mHead">Atrasti</p>
 <ul class="navTiles">${tile('href="meginukai" data-nav', "drop", "Mėginukai 2 ml")}${DISC ? tile("data-disc", "box", DISC.name) : ""}${tile("data-quiz", "spark", "Rask savo kvapą")}</ul>
-<p class="navSub">Informacija</p>
-<ul class="navLinks">${small("pagalba", "Pristatymas ir grąžinimas")}${small("apie-mus", "Mūsų istorija")}${small("atsiliepimai", "Atsiliepimai")}${small("verslui", "Verslui")}${small(
+<p class="mHead">Pagalba</p>
+<ul class="mGroup">${row("pagalba", "Pristatymas ir grąžinimas", "truck")}${row("apie-mus", "Mūsų istorija", "doc")}${row("atsiliepimai", "Atsiliepimai", "star")}${row("verslui", "Verslui", "box")}${row(
     "pagalba#kontaktai",
-    "Susisiekite"
-  )}${auth.isAdmin ? small("admin", "Administravimas") : ""}</ul>
+    "Susisiekite",
+    "mail"
+  )}${auth.isAdmin ? row("admin", "Administravimas", "gear") : ""}</ul>
 </div>
-<footer class="drawerFoot"><div class="navAcct"><a href="paskyra" data-nav>${glyph("user")}<span>${auth.user ? "Mano paskyra" : "Prisijungti"}</span></a><a href="megstami" data-nav>${glyph("heart")}<span>Mėgstami${
-    favN ? ` <b>${favN}</b>` : ""
-  }</span></a></div><p class="navShip">${glyph("truck")}<span>${
-    !state.cart.length
-      ? `Nemokamas pristatymas nuo <b>${eurShort(SET.freeShippingFrom)}</b>`
-      : shipLeft() > 0
-        ? `Iki nemokamo pristatymo liko <b>${eur(shipLeft())}</b>`
-        : "<b>Pristatymas nemokamas</b>"
-  }</span></p></footer>`;
+<footer class="drawerFoot"><p class="navShip">${glyph("truck")}<span>${
+    !state.cart.length ? `Nemokamas pristatymas nuo <b>${eurShort(SET.freeShippingFrom)}</b>` : left > 0 ? `Iki nemokamo pristatymo liko <b>${eur(left)}</b>` : "<b>Pristatymas nemokamas</b>"
+  }</span></p>${state.cart.length ? `<span class="mShipBar" aria-hidden="true"><i style="width:${pct}%"></i></span>` : ""}</footer>`;
 }
 function openDrawer() {
   $("#drawer").innerHTML = drawerHTML();
@@ -250,7 +252,7 @@ function bindHeader() {
   renderTopNote();
   renderHeaderNav();
   $("#menuBtn").addEventListener("click", openDrawer);
-  // Paieška: kompiuteryje (kaip parfumada.lt) – tik piktograma, paspaudus header'yje atsiveria laukas; telefone – langas
+  // Paieška: kompiuteryje (v17) – laukas visada matomas header'io kairėje (piktograma paslėpta); telefone ir planšetėje – langas
   $("#searchBtn").addEventListener("click", () => (matchMedia("(min-width: 1024px)").matches ? setHdrSearch(true) : openSearchSheet()));
   // Meniu paieškos laukas – paieškos langas atsidaro meniu vietoje
   $("#drawer").addEventListener("click", e => {
@@ -297,7 +299,7 @@ function bindHeader() {
     if (e.key === "Escape") {
       pop.hidden = true;
       setHdrSearch(false);
-      $("#searchBtn").focus();
+      q.blur();
     }
   });
   form.addEventListener("focusout", () =>

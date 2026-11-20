@@ -13,6 +13,7 @@
   --line: #ececec; /* plonos skiriamosios linijos */
   --line2: #d6d6d6; /* laukų ir mygtukų kontūras */
   --field: #f4f4f4;
+  --field-hover: #ececec;
   --hair: rgba(15, 23, 42, 0.06);
 
   /* Akcentas – juoda (v7: mėlynos nebėra). Mygtukai, aktyvios būsenos, ženkliukai, pasirinkimai, juostos. */
@@ -105,6 +106,7 @@
   --gap: 16px;
   --pad: 20px; /* puslapio kraštai: 20 px telefone, 40 px kompiuteryje (09-desktop.css) */
   --maxW: 1280px;
+  --maxWide: 1360px; /* kompiuteryje: header'is, pradžios skyriai, kvapo puslapis (v17) */
   --hdrH: 57px; /* v10: kaip parfumada.lt (kompiuteryje 95 px – 09-desktop.css) */
   --hdrBtn: 57px; /* header'io mygtukų paspaudimo zona */
   /* header'io ikonos kaip parfumada.lt: matomas piešinys ≈ 24–25 px (mūsų glifai užima ~16 iš 24 vienetų → 36 px dėžutė),

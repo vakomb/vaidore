@@ -143,21 +143,92 @@
   .pdGal svg.bottle {
     height: 78%;
   }
-  /* Kvapo puslapis planšetėje – du stulpeliai: lipni nuotrauka kairėje, informacija dešinėje */
+  /* Kvapo puslapis planšetėje ir kompiuteryje (v17) – du stulpeliai: lipni nuotrauka kairėje; dešinėje – pavadinimas,
+     kaina, talpa, kiekis ir „Į krepšelį“ (pirkimas – iškart matomas), tada aprašymas ir išskleidžiamos dalys */
   .pd {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "gal head" "gal info";
+    grid-template-rows: auto 1fr;
     column-gap: 40px;
     align-items: start;
+    padding-top: 24px;
   }
   .pdGal {
+    grid-area: gal;
     position: sticky;
     top: calc(var(--hdrAll) + 20px);
   }
+  .pdHead {
+    grid-area: head;
+    padding: 0 0 6px;
+    text-align: left;
+  }
+  .pdH1 {
+    margin: 0;
+    font-size: 34px;
+    letter-spacing: 0.03em;
+  }
+  .pdH1::before,
+  .pdH1::after {
+    display: none;
+  }
+  .pdKey {
+    margin-top: 10px;
+    font-size: 14.5px;
+    letter-spacing: 0.08em;
+    color: var(--ink3);
+  }
+  .pdInsp {
+    margin-top: 10px;
+  }
   .pdInfo {
+    grid-area: info;
+    display: flex;
+    flex-direction: column;
     padding-top: 0;
   }
-  .pdHead {
-    padding: 18px 0 30px;
+  .pdPrice {
+    order: 1;
+    margin-top: 18px;
+  }
+  .pdLabSize {
+    order: 2;
+  }
+  .pdInfo .sizes {
+    order: 3;
+  }
+  .pdLabQty {
+    order: 4;
+  }
+  .pdBuy {
+    order: 5;
+  }
+  .pdInfo [data-note-slot] {
+    order: 6;
+  }
+  .pdShip {
+    order: 7;
+  }
+  .pdForms {
+    order: 8;
+  }
+  .pdActs {
+    order: 9;
+  }
+  .pdTag {
+    order: 10;
+    margin-top: 30px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+  }
+  .pdDesc {
+    order: 11;
+  }
+  .pdInfo .accs {
+    order: 12;
+  }
+  .pdLegal {
+    order: 13;
   }
   .discGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -179,21 +250,23 @@
 @media (min-width: 1024px) {
   :root {
     --pad: 40px;
-    --hdrH: 95px; /* v10: kaip parfumada.lt – 95 px eilutė su logotipu centre, 45 px tamsi meniu juosta */
+    --maxW: var(--maxWide); /* v17: vienas plotis visiems puslapiams – header'is ir turinys sutampa */
+    --hdrH: 88px; /* v17: 88 px eilutė (paieška · logotipas · paskyra), 45 px tamsi meniu juosta */
     --navH: 45px;
   }
-  /* Header'is (kaip parfumada.lt): 1 eilutė – ☰ · logotipas centre · paieška, paskyra, mėgstami, krepšelis (tik
-     piktogramos; paieškos laukas atsiveria paspaudus); 2 eilutė – tamsi kategorijų juosta */
+  /* Header'is (v17): kairėje – visada matomas paieškos laukas (☰ ir paieškos piktograma – tik telefone / planšetėje),
+     logotipas centre, dešinėje – Paskyra · Mėgstami · Krepšelis su užrašais; 2 eilutė – tamsi kategorijų juosta */
   .hdrIn {
+    max-width: var(--maxWide);
     gap: 24px;
     padding: 0 var(--pad);
   }
-  .hdrIn .iconBtn {
-    width: 57px;
-    height: 57px;
+  .menuBtn,
+  .searchBtn {
+    display: none !important;
   }
   :root {
-    --logoH: 46px; /* logotipas ≈ 300 px pločio */
+    --logoH: 40px; /* logotipas ≈ 260 px pločio */
     --noteH: 49px;
     --noteFs: 17px;
   }
@@ -273,39 +346,41 @@
     gap: 6px;
   }
   .hdrSearch {
-    position: absolute;
-    top: calc((var(--hdrH) - 58px) / 2);
-    left: 50%;
-    z-index: 6;
-    display: none;
+    position: relative;
+    display: flex;
     align-items: center;
     gap: 10px;
-    width: min(640px, calc(100% - 2 * var(--pad)));
-    height: 58px;
-    padding: 0 20px;
-    border-radius: 20px;
-    background: #fff;
-    box-shadow: inset 0 0 0 1px #000, 0 12px 32px -18px rgba(0, 0, 0, 0.4);
-    color: #000;
-    transform: translateX(-50%);
+    width: min(340px, 100%);
+    height: 46px;
+    padding: 0 16px;
+    border-radius: 14px;
+    background: var(--bg-soft);
+    color: var(--ink3);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .hdr.searchOpen .hdrSearch {
-    display: flex;
-    animation: vdSearchIn 0.28s var(--spring) both;
+  .hdrSearch:hover {
+    background: var(--field-hover);
+  }
+  .hdrSearch:focus-within {
+    background: #fff;
+    box-shadow: inset 0 0 0 1.5px #000;
+    color: #000;
   }
   .hdrSearch > [data-glyph] svg,
   .hdrSearch > svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+    stroke-width: 1.6;
   }
   .hdrSearch input {
     flex: 1;
     min-width: 0;
+    height: 100%;
     border: 0;
     outline: 0;
     background: transparent;
-    font-size: 18px;
-    letter-spacing: 0.04em;
+    font-size: 15.5px;
+    letter-spacing: 0.03em;
     color: #000;
   }
   .hdrSearch input::placeholder {
@@ -313,6 +388,46 @@
   }
   .hdrSearch input::-webkit-search-cancel-button {
     display: none;
+  }
+  .hdrSearch .searchPop {
+    top: calc(100% + 8px);
+    width: 440px;
+  }
+  /* Paskyra · Mėgstami · Krepšelis – piktograma su užrašu */
+  .hdrTools {
+    gap: 4px;
+  }
+  .hdrTools .iconBtn {
+    width: auto;
+    min-width: 72px;
+    height: 60px;
+    padding: 4px 8px 0;
+    border-radius: 14px;
+    grid-template-rows: 28px auto;
+    gap: 3px;
+    justify-items: center;
+    align-content: center;
+  }
+  .hdrTools .iconBtn [data-glyph] svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.2;
+  }
+  .iconLbl {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    color: var(--ink2);
+    white-space: nowrap;
+  }
+  .hdrTools .countBadge {
+    top: 2px;
+    right: calc(50% - 26px);
+  }
+  .hdrTools .accDot {
+    top: 6px;
+    right: calc(50% - 18px);
   }
   .favBtn {
     display: grid;
@@ -336,10 +451,10 @@
     padding: 0 24px 0 28px;
     font-size: 16px;
   }
-  /* v10 (kaip parfumada.lt): pradžios skyriai – per visą ekrano plotį, 19 px kraštai */
+  /* v17: pradžios skyriai – plačiame konteineryje (1360 px), juodos juostos – per visą plotį */
   .hsec > .wrap {
-    max-width: none;
-    padding: 0 19px;
+    max-width: var(--maxWide);
+    padding: 0 var(--pad);
   }
   /* Plytelės – visos vienoje eilėje, ne platesnės nei 246 px (kaip parfumada.lt), centre */
   .catTiles {
@@ -352,10 +467,10 @@
     overflow: visible;
     gap: 16px;
   }
-  /* Karuselė – 3 didelės kortelės (kaip parfumada: 451 px 1440 px ekrane), rodyklės ir „1 / iš 3“ */
+  /* Karuselė (v17) – 4 kortelės eilėje, rodyklės ir „1 / iš N“ */
   .rail {
-    grid-auto-columns: calc((100% - 2 * 16px) / 3);
-    gap: 16px;
+    grid-auto-columns: calc((100% - 3 * 24px) / 4);
+    gap: 24px;
     margin: 0;
     padding: 2px 0 8px;
     scroll-padding: 0;
@@ -442,6 +557,9 @@
   .shopLayout .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+  #view-shop > .wrap {
+    max-width: var(--maxWide);
+  }
 
   /* Poraštė kompiuteryje – viena eilė: prekės ženklas ir kontaktai · Parduotuvė · Pagalba · Vaidore · naujienlaiškis;
      grupės visada atskleistos (21-header.js), be linijų ir rodyklių */
@@ -490,28 +608,29 @@
     margin-top: 44px;
   }
 
-  /* Kvapo puslapis kompiuteryje (kaip parfumada.lt): per visą plotį – nuotrauka 55 % kairėje (lipni), informacija 45 %
-     dešinėje su 64 px tarpu; antraštė tarp linijų per visą plotį; apačioje – prilipusi pirkimo juosta */
+  /* Kvapo puslapis kompiuteryje (v17): plačiame konteineryje – nuotrauka ~58 % kairėje (lipni), informacija dešinėje;
+     prilipusi pirkimo juosta – tik nuslinkus žemiau „Į krepšelį“ */
   #view-product > .wrap {
-    max-width: 1520px;
-    padding: 0 64px;
+    max-width: var(--maxWide);
+    padding: 0 var(--pad);
   }
   .pd {
-    grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
-    column-gap: 64px;
+    grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+    column-gap: 72px;
+    padding-top: 36px;
   }
   .pdGal {
     top: calc(var(--hdrAll) + 24px);
+    border-radius: 18px;
   }
-  .pdHead {
-    padding: 22px 0 34px;
+  .pdHead,
+  .pdInfo {
+    max-width: 540px;
   }
   .pdH1 {
-    margin: 0 -64px;
-    font-size: 40px;
+    font-size: 38px;
   }
   .pdInfo {
-    max-width: 560px;
     padding-bottom: 24px;
   }
   #buyBar {
@@ -519,10 +638,10 @@
     box-shadow: 0 -1px 0 var(--line), 0 -6px 24px -8px rgba(0, 0, 0, 0.18);
   }
   .bbIn {
-    max-width: 1520px;
+    max-width: var(--maxWide);
     height: 76px;
     margin: 0 auto;
-    padding: 0 64px;
+    padding: 0 var(--pad);
     gap: 22px;
   }
   .bbProd {
@@ -595,11 +714,14 @@
     margin-top: 8px;
   }
 }
-/* Katalogas kompiuteryje – 3 didelės kortelės eilėje (kaip parfumada.lt), filtrai – 338 px kairėje */
+/* Katalogas plačiame kompiuteryje – 4 kortelės eilėje, filtrai – 260 px kairėje */
 @media (min-width: 1280px) {
   .shopLayout {
-    grid-template-columns: 300px minmax(0, 1fr);
-    gap: 56px;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 48px;
+  }
+  .shopLayout .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .shopLayout .grid {
     gap: 48px 26px;
