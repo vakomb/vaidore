@@ -89,10 +89,13 @@ function railHTML(cards) {
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
+// Skyriaus antraštė (v22): juoda juosta – pavadinimas ir po juo paantraštė su „Peržiūrėti viską ›“ (vienas blokas)
+function bandHTML(title, line, href) {
+  const sub = line || href ? `<p class="bandSub">${line ? `<span>${esc(line)}</span>` : ""}${href ? `<a href="${esc(href)}" data-nav>Peržiūrėti viską${glyph("chev-right")}</a>` : ""}</p>` : "";
+  return `<div class="bandBox"><h2 class="band">${esc(title)}</h2>${sub}</div>`;
+}
 function railSecHTML({ id, title, line, href, list }) {
-  return `<section class="hsec"${id ? ` data-rail="${esc(id)}"` : ""}><h2 class="band">${esc(title)}</h2><div class="wrap">${
-    line ? `<p class="secLine"><span>${esc(line)}</span>${href ? `<a href="${esc(href)}" data-nav>Peržiūrėti</a>` : ""}</p>` : ""
-  }${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""))}</div></section>`;
+  return `<section class="hsec"${id ? ` data-rail="${esc(id)}"` : ""}>${bandHTML(title, line, href)}<div class="wrap">${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""))}</div></section>`;
 }
 // Karuselės (v21): visur matosi dalis kitos kortelės (telefone ~2,3, planšetėje ~3,4, kompiuteryje ~4,5) – aišku,
 // kad galima slinkti. Rodyklės (nuo 700 px) slenka per visas matomas korteles; „1/N“ – puslapiai.
@@ -153,7 +156,7 @@ function renderHome() {
   // unisex, nuolaidos). Skyrius rodomas, jei jame yra bent vienas produktas.
   const sec = homeRails()
     .filter(r => r && r.on !== false && r.title)
-    .map(r => ({ id: r.id, title: r.title, line: r.line, href: railHref(r), list: railProducts(r) }))
+    .map(r => ({ id: r.id, title: r.title, line: r.line || railLine(r), href: railHref(r), list: railProducts(r) }))
     .filter(x => x.list.length);
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
   $("#homeRailsMore").innerHTML = "";

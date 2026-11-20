@@ -71,7 +71,7 @@ function renderCart() {
     const pop = [...PRODUCTS].filter(inStock).sort((a, b) => a.rank - b.rank).slice(0, 4);
     const acc = SB && !auth.user ? `<h3 class="emptyAcc">Turite paskyrą?</h3><p><a href="paskyra" data-nav>Prisijunkite</a> ir atsiskaitysite greičiau.</p>` : "";
     root.innerHTML = `<div class="empty">${emptyBagSVG()}<h2>Jūsų krepšelis tuščias</h2><p>Pradėkite nuo mėginukų – 2 ml užtenka kelioms dienoms.</p><a class="btn primary" href="kvepalai" data-nav>Tęsti apsipirkimą</a>${acc}</div>
-<section class="sec cartMore"><h2 class="band">Populiariausi</h2><div class="grid">${pop.map(p => cardHTML(p)).join("")}</div></section>`;
+<section class="sec cartMore"><h2 class="band">Populiariausi</h2><div class="grid">${pop.map(p => cardHTML(p, { heart: false })).join("")}</div></section>`;
     return;
   }
   root.classList.add("has");

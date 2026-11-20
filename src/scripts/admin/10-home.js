@@ -691,9 +691,9 @@ function railFormHTML(r) {
 ${groupHTML(
   `${fieldHTML("Pavadinimas", `<input name="rtitle" maxlength="60" value="${esc(r.title || "")}" placeholder="Populiariausi vyrams" />`)}${fieldHTML(
     "Paantraštė",
-    `<input name="rline" maxlength="90" value="${esc(r.line || "")}" placeholder="Nebūtina" />`
+    `<input name="rline" maxlength="90" value="${esc(r.line || "")}" placeholder="${esc(VD.railLine(r) || "Nebūtina")}" />`
   )}`,
-  { foot: "Pavadinimas – juodoje juostoje virš karuselės." }
+  { foot: "Pavadinimas ir paantraštė – juodoje juostoje virš karuselės, su nuoroda „Peržiūrėti viską“. Tuščia paantraštė parenkama automatiškai." }
 )}
 <div class="axSeg heSeg" role="tablist" aria-label="Produktai"><button type="button" role="tab" data-he-rmode="auto" aria-selected="${r.mode !== "manual"}">Pagal taisyklę</button><button type="button" role="tab" data-he-rmode="manual" aria-selected="${
     r.mode === "manual"

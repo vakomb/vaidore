@@ -66,6 +66,16 @@ function setCatalog(c) {
     const ok = (p.sizes || []).filter(s => BOTTLE_ML.includes(Number(s.ml)));
     if (ok.length) p.sizes = ok;
   }
+  // Originalo nuotrauka (v22): jei prekė jos neturi – imama iš to paties kvapo (scent) arba to paties originalo prekės
+  const inspKey = s => fold(String(s || "")).replace(/[^a-z0-9]+/g, " ").trim();
+  const byScent = new Map(),
+    byInsp = new Map();
+  for (const p of c.products)
+    if (p.inspiredImage) {
+      if (p.scent && !byScent.has(p.scent)) byScent.set(p.scent, p.inspiredImage);
+      if (inspKey(p.inspired) && !byInsp.has(inspKey(p.inspired))) byInsp.set(inspKey(p.inspired), p.inspiredImage);
+    }
+  for (const p of c.products) if (!p.inspiredImage && p.inspired) p.inspiredImage = (p.scent && byScent.get(p.scent)) || byInsp.get(inspKey(p.inspired)) || "";
   SET = window.__vdPreviewSet ? { ...c.settings, ...window.__vdPreviewSet } : c.settings; // administravimo peržiūra (25)
   ALL_PRODUCTS = c.products;
   PRODUCTS = c.products.filter(p => p.visible !== false);

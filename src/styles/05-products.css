@@ -132,7 +132,7 @@
 
 /* ── Skyriai: tamsi juosta per visą plotį + eilutė „… | Peržiūrėti“ ── */
 .hsec {
-  margin-top: 32px;
+  margin-top: 22px;
 }
 /* Iškart po pagrindine nuotrauka – be tarpo (pirmas skyrius: „Produktai“, o jei jo nėra – „Kvapnios naujienos“) */
 #homeHero + .hsec,
@@ -158,32 +158,47 @@
   text-transform: uppercase;
   text-align: center;
 }
-.secLine {
-  margin: 30px 0;
-  padding: 16px 8px;
-  border-top: 1px solid var(--lineSoft);
-  border-bottom: 1px solid var(--lineSoft);
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  color: #000;
+/* Skyriaus antraštė (v22): pavadinimas ir paantraštė – viename juodame bloke, be linijų tarp jų */
+.bandBox {
+  padding: 11px var(--pad) 12px;
+  background: var(--band);
+  color: #fff;
   text-align: center;
+}
+.bandBox > .band {
+  min-height: 0;
+  padding: 0;
+}
+.bandSub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px 14px;
+  margin-top: 3px;
+  font-size: 14.5px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: var(--band-sub);
   text-wrap: balance;
 }
-.secLine a {
-  margin-left: 4px;
-  padding-left: 10px;
-  border-left: 2px solid #000;
-  color: #000;
-  font-weight: 700;
+.bandSub a {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #fff;
+  font-weight: 600;
   text-decoration: underline;
-  text-underline-offset: 5px;
-  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
   white-space: nowrap;
 }
-.secLine a:hover {
-  color: var(--gold-ink);
+.bandSub a svg {
+  width: 15px;
+  height: 15px;
+}
+.bandSub a:hover {
+  text-decoration-thickness: 2px;
 }
 .hsec > .wrap > .catTiles:first-child {
   margin-top: 0;
@@ -198,7 +213,7 @@
 }
 .hsec > .wrap > .railWrap:first-child,
 .hsec > .wrap > .reviews:first-child {
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 /* ── Kategorijų plytelės (kaip parfumada.lt): pavadinimas virš paveikslo (22,75 px / 700, didžiosiomis, juodas),
@@ -688,8 +703,14 @@
 }
 .grid .art img.photo {
   object-fit: cover;
-  transform: scale(1.06);
-  transform-origin: 50% 46%;
+  object-position: 50% 0;
+}
+/* Nuotrauka su fonu (JPEG, v22): kvadratinė, rodoma visa – buteliuko kamštelis nenukerpamas */
+.grid .art.isFlat {
+  aspect-ratio: 1 / 1;
+}
+.grid .art.isFlat img.photo {
+  object-fit: contain;
 }
 
 /* ── Tinklelis ir karuselė ── */
@@ -704,9 +725,9 @@
 .rail {
   display: grid;
   grid-auto-flow: column;
-  /* v21b: telefone – didelė kortelė (~78 % ekrano, kaip parfumada.lt), kitos kortelės dalis matosi dešinėje –
-     aišku, kad galima slinkti; po karusele – rodyklės ir „1/N“ */
-  grid-auto-columns: 82%;
+  /* v22: telefone – didelė kortelė centre (80 % ekrano, kaip parfumada.lt), abiejose pusėse matosi kaimynių
+     kraštai – aišku, kad galima slinkti; po karusele – rodyklės ir „1/N“ (planšetėje / kompiuteryje – 09-desktop.css) */
+  grid-auto-columns: 80%;
   --railGap: 12px;
   gap: var(--railGap);
   margin: 0 calc(var(--pad) * -1);
@@ -723,12 +744,24 @@
 .rail .card {
   scroll-snap-align: start;
 }
+@media (max-width: 699.98px) {
+  .rail {
+    grid-auto-columns: 100%; /* = 80 % ekrano: turinys be 10 % kraštų */
+    padding-inline: 10%;
+    scroll-padding-inline: 10%;
+    scroll-behavior: smooth;
+  }
+  .rail .card {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+}
 .railNav {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 18px;
-  margin-top: 14px;
+  margin-top: 6px;
 }
 .railNav[hidden] {
   display: none;

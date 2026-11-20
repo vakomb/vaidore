@@ -290,6 +290,10 @@ async function run(viewport) {
     check(await until(async () => (await nav.locator(".railPage").textContent()) !== before), `karuselė: rodyklė „pirmyn“ (${before} → kitas puslapis)`);
   }
   check((await page.locator("#homeRails .card [data-fav]").count()) === 0, "pradžia: karuselių kortelėse širdelių nėra");
+  // v22: pavadinimas ir paantraštė – viename juodame bloke; be įrašytos paantraštės – automatinė, su „Peržiūrėti viską“
+  const heads = await page.locator("#homeRails .hsec").evaluateAll(a => a.map(s => [!!s.querySelector(".bandBox .band"), !!s.querySelector(".bandBox .bandSub span"), !s.querySelector(".secLine")]));
+  check(heads.length && heads.every(h => h.every(Boolean)), "pradžia: kiekvieno skyriaus antraštė su paantrašte, be linijų");
+  check((await page.locator('#homeRails .bandSub a', { hasText: "Peržiūrėti viską" }).count()) >= 3, "pradžia: „Peržiūrėti viską“ skyrių antraštėse");
   if (mobile && viewport.width < 700) {
     // v21b: didelė kortelė (kaip parfumada.lt) ir kitos dalis dešinėje; rodyklės ir „1/N“
     const rail = page.locator("#homeRails .rail").first();
@@ -374,6 +378,9 @@ async function run(viewport) {
     "difuzoriaus puslapis: tik 100 ml (be mėginuko), be „Kam skirti“, be „Eau de Parfum“"
   );
   // v15: žvakė – svoris g ir savybės; elektrinis difuzorius – be talpos ir kvapo, savybės atskleistos
+  await open(page, `${A}zvakes`);
+  await page.waitForSelector("#shopGrid .card");
+  check((await page.locator("#shopGrid .card .inspPh img").count()) >= 1, "originalo nuotrauka – ir žvakei be savos nuotraukos (iš to paties originalo kvepalų)");
   await open(page, `${A}zvakes/${CANDLE.id}`);
   await page.waitForSelector("#productRoot .sizeOpt");
   const accTitles = async () => (await page.locator("#productRoot .acc summary").allTextContents()).map(t => t.trim());
@@ -456,14 +463,17 @@ async function run(viewport) {
   // Mėgstami
   await page.waitForSelector("#backdrop", { state: "hidden" });
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.locator("#shopGrid .card [data-fav]").first().click();
-  check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė → mėgstami (1)");
+  check((await page.locator("#shopGrid .card [data-fav]").count()) === 0, "katalogo kortelėse širdelių nėra (v22)");
+  const flatArt = await page.locator("#shopGrid .art.isFlat").first().evaluate(el => [getComputedStyle(el).aspectRatio, getComputedStyle(el.querySelector("img")).objectFit].join()).catch(() => "nėra");
+  check(flatArt === "nėra" || flatArt === "1 / 1,contain", `katalogas: nuotrauka su fonu – kvadratinė, visa (${flatArt})`);
 
   // Kvapo puslapis
   const vanor = cat.products.find(p => p.id === "vanor");
   await open(page, `${A}kvepalai/vanor`);
   await page.waitForSelector("#productRoot h1");
   check((await page.locator("#productRoot h1").textContent()).includes("Vanor"), "kvapo puslapis: pavadinimas");
+  await page.locator("#productRoot .pdActs [data-fav]").click();
+  check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė kvapo puslapyje → mėgstami (1)");
   check(
     (await page.locator("#productRoot .pdInsp .insp-lg .inspPh img").count()) === 1 && (await page.locator("#productRoot .pdInsp .inspBrand").textContent()) === "Įkvėpti · Tom Ford" && (await page.locator("#productRoot .pdInsp .inspPh").evaluate(e => e.getBoundingClientRect().width)) === 56,
     "kvapo puslapis: didesnis originalo blokelis (56 px nuotrauka, „Įkvėpti · Tom Ford“)"

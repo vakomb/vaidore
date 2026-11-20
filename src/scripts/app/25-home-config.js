@@ -71,6 +71,25 @@ function railMatches(r) {
   };
   return list.sort(by[q.sort] || by.rank);
 }
+// Paantraštė, kai administratorius jos neįrašė (v22) – pagal taisyklę; pakeičiama Vitrina → Skyriai → „Paantraštė“
+const RAIL_LINES = {
+  zvakes: "Jaukiems namams",
+  difuzoriai: "Kvapūs namai be ugnies",
+  aliejai: "Mėgstamas kvapas jūsų difuzoriui",
+  "elektriniai-difuzoriai": "Tyliai ir tolygiai po visus namus",
+  moterims: "Kvapai, kuriuos renkasi moterys",
+  vyrams: "Kvapai, kuriuos renkasi vyrai",
+  unisex: "Tinka ir jai, ir jam",
+  kvepalai: "Įkvėpti garsiausių kvapų"
+};
+function railLine(r) {
+  const q = r.rule || {};
+  if (r.mode === "manual") return "Mūsų atrinkti kvapai";
+  if (q.sale) return "Kvapai, kuriems dabar taikoma nuolaida";
+  if (q.sort === "new") return "Naujausi kvapai";
+  if (q.category) return CATEGORY.get(q.category)?.description?.split(/[.!?]/)[0] || "Kolekcija";
+  return RAIL_LINES[q.type && q.type !== "kvepalai" ? q.type : q.gender || q.type || "kvepalai"] || "";
+}
 // „Peržiūrėti“ nuoroda: nustatyta ranka arba sudaroma iš taisyklės (tie patys filtrai kaip katalogo puslapyje)
 function railHref(r) {
   if (r.href === "none") return "";

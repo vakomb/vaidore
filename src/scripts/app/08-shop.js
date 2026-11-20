@@ -228,7 +228,7 @@ function renderShop() {
       : "";
   const shown = list.slice(0, shop.limit);
   $("#shopGrid").innerHTML = list.length
-    ? discRow + shown.map(p => cardHTML(p, { sample: shop.samples })).join("")
+    ? discRow + shown.map(p => cardHTML(p, { sample: shop.samples, heart: false })).join("")
     : shop.type && shop.type !== "kvepalai" && !PRODUCTS.some(p => typeOf(p) === shop.type)
       ? `<div class="empty" style="grid-column:1/-1"><h3>${esc(TYPE.get(shop.type).name)} – netrukus</h3><p>Šiuo metu šių prekių dar neturime.</p><a class="btn primary" href="kvepalai" data-nav>Visi kvepalai</a></div>`
       : shop.special === "nuolaidos" && !filterCount() && !shop.q

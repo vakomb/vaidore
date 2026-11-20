@@ -576,7 +576,7 @@
   padding-bottom: 0;
 }
 /* „Jums gali patikti“ – juosta per visą plotį ir kvapo puslapyje */
-.pdSimilar > .band {
+.pdSimilar > .bandBox {
   margin: 0 calc(var(--pad) * -1);
 }
 .pdSimilar > .wrap {
