@@ -63,19 +63,6 @@ globalThis.fetch = async (url, init = {}) => {
   const isForm = typeof init.body === "string" && headers["Content-Type"] === "application/x-www-form-urlencoded";
   const body = isForm ? new URLSearchParams(init.body) : init.body ? JSON.parse(init.body) : null;
   calls.push({ url: u, method, body, headers, raw: init.body });
-  // Allegro skelbimas (importas): …/blokuota – apsauga nuo robotų (DataDome), kiti – pavyzdinis puslapis
-  if (u.startsWith("https://allegro.pl/oferta/blokuota")) return new Response("<html>captcha-delivery.com</html>", { status: 403 });
-  if (u.startsWith("https://allegro.pl/oferta/")) return new Response(fs.readFileSync(path.join(root, "tools/fixtures/allegro-offer.html"), "utf8"), { status: 200 });
-  if (u === "https://api.anthropic.com/v1/messages")
-    return ok({
-      content: [
-        {
-          type: "tool_use",
-          name: "kvapo_juodrastis",
-          input: { name: "My Pink", gender: "moterims", conc: "EDP", family: "geliu", tagline: "Tuberozė ir kreminė vanilė.", description: "AI aprašymas.", top: ["Bergamotė"], heart: ["Tuberozė"], base: ["Kreminė vanilė"], longevity: 9, sillage: 3, seasons: ["pavasaris", "kažkas"], times: ["diena"], liquid: "#F2C4CE", tint: "blogai" }
-        }
-      ]
-    });
   // Supabase
   if (u.startsWith(`${SBU}/auth/v1/user`)) {
     const user = users[(headers.Authorization || "").replace("Bearer ", "")];
@@ -260,39 +247,9 @@ check(r.status === 409, "admin: antrą kartą grąžinti negalima");
 r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "restock-notify", product_id: "arven" } })));
 check(r.status === 200 && r.body.sent === 1 && db.restock[0].notified, "admin: „Pranešti, kai bus“ laiškai išsiųsti ir pažymėti");
 
-// ── Kvapo importas iš Allegro ──
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.user", body: { action: "import", url: "https://allegro.pl/oferta/my-pink-1" } })));
-check(r.status === 403, "importas: tik administratoriui");
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://example.com/x" } })));
-check(r.status === 400, "importas: tik allegro.pl nuorodos");
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://allegro.pl/oferta/my-pink-1?bi_s=ads" } })));
-let dr = r.body.draft || {};
-check(
-  r.status === 200 && dr.name === "My Pink" && dr.id === "my-pink" && dr.gender === "moterims" && dr.conc === "EDP" && dr.family === "geliu" && dr.sizes?.[0]?.ml === 33 && !dr.ai,
-  "importas: iš puslapio – pavadinimas, lytis, koncentracija, šeima, tūris (be AI)"
-);
-check(dr.notes?.top?.join() === "Bergamotė,Apelsinmedžio žiedai" && dr.notes?.heart?.join() === "Tuberozė,Jazminas" && dr.notes?.base?.join() === "Kreminė vanilė,Baltasis muskusas,Medienos natos", "importas: natos išverstos į lietuvių");
-check(/^My Pink – /.test(dr.description) && !/Nomi|20%|francusk/i.test(dr.description) && dr.ingredients.startsWith("ALCOHOL DENAT., PARFUM"), "importas: savas aprašymas (ne kopija) ir sudėtis INCI");
-check(calls.some(c => c.url === "https://allegro.pl/oferta/my-pink-1"), "importas: adresas be sekimo parametrų");
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://allegro.pl/oferta/blokuota-2" } })));
-check(r.status === 422 && r.body.blocked, "importas: Allegro užblokavo → prašoma žymelės ar teksto");
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://allegro.pl/oferta/blokuota-2", text: fs.readFileSync(path.join(root, "tools/fixtures/allegro-copied.txt"), "utf8") } })));
-dr = r.body.draft || {};
-check(r.status === 200 && r.body.blocked && dr.name === "My Pink" && dr.notes.heart.length === 2 && dr.ingredients.includes("VANILLIN"), "importas: iš nukopijuoto teksto (užblokavus)");
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", data: { url: "https://allegro.pl/oferta/x", title: "Perfumy Nomi MY PINK 33 ml", desc: "Nuta głowy: bergamotka Nuta serca: jaśmin Podstawa: wanilia Dla kogo: zapach damski", text: "Parametry\nLinia\ninna (MY PINK)\nRodzaj\nwoda perfumowana" } } })));
-check(r.status === 200 && r.body.draft.notes.base[0] === "Vanilė" && r.body.draft.name === "My Pink", "importas: iš žymelės „Į Vaidore“ duomenų");
-r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import-status" } })));
-check(r.status === 200 && r.body.ai === false, "importas: AI neįjungtas be ANTHROPIC_API_KEY");
-const shopAi = createShop({ ...env, ANTHROPIC_API_KEY: "sk-ant-test" });
-calls.length = 0;
-r = await res(await shopAi.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://allegro.pl/oferta/my-pink-1" } })));
-dr = r.body.draft || {};
-const aiCall = calls.find(c => c.url === "https://api.anthropic.com/v1/messages");
-check(
-  r.status === 200 && dr.ai && dr.description === "AI aprašymas." && dr.tagline === "Tuberozė ir kreminė vanilė" && dr.longevity === 4 && dr.seasons.join() === "pavasaris" && dr.look.liquid === "#F2C4CE" && dr.look.tint === "#FBF0F1",
-  "importas su AI: tekstai iš Claude, neleistinos reikšmės – iš šablono"
-);
-check(aiCall?.headers["x-api-key"] === "sk-ant-test" && /bergamotka/.test(aiCall.raw) && aiCall.body.tool_choice?.name === "kvapo_juodrastis", "importas su AI: raktas tik serveryje, faktai perduodami");
+// ── Kvapo importas pašalintas – veiksmo nebėra ──
+r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://allegro.pl/oferta/x" } })));
+check(r.status === 400, "admin: importo veiksmo nebėra");
 
 // ── account ──
 r = await res(await shop.account(req(`${F}/account`, { body: { action: "delete" } })));

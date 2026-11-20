@@ -280,19 +280,7 @@ ant `#topNote` (21-header.js `applyTopbarStyle`); nėra `items` – automatinės
 - Kodas „tik to paties kvapo buteliukui“ – Checkout eilutės kuriamos `price_data`, Stripe `applies_to` jų nemato.
 - Pirkėjų sąrašas skydelyje – užsakymuose matyti visi pirkėjo duomenys; atskiro CRM nereikia.
 
-## Kvapo importas iš Allegro (admin/kvapai/importas)
+## Kvapo importas iš Allegro – pašalintas (v14)
 
-- **Kaip:** Kvapai → „Iš Allegro“ → skelbimo nuoroda → „Sugeneruoti“ → peržiūra → „Sukurti kvapą“ atidaro užpildytą
-  naujo kvapo formą (`A.importDraft`), kurioje įrašoma kaina, likutis, nuotraukos ir išsaugoma. Be patvirtinimo niekas
-  neįrašoma.
-- **Šaltinis:** serveris (`shop/admin` veiksmas `import`) parsisiunčia `allegro.pl` puslapį ir skaito JSON-LD Product,
-  parametrų lentelę ir sudėtį (INCI). Allegro dažnai blokuoja serverius (DataDome) – tada: žymelė „Į Vaidore“
-  (`javascript:` – Allegro puslapyje surenka tuos pačius duomenis ir atidaro `admin/kvapai/importas#imp=…`) arba
-  nukopijuotas puslapio tekstas (Ctrl + A).
-- **Tekstai:** `supabase/functions/_shared/import.js` – faktai (natos, kvapų grupė, lytis, koncentracija, tūris, INCI) →
-  su `ANTHROPIC_API_KEY` (Supabase Secrets; modelis `IMPORT_MODEL`, numatytas `claude-sonnet-5-5`) aprašymą, šūkį, natas
-  ir savybes parašo Claude (tonas – pagal 3 Vaidore kvapus); be rakto – PL→LT natų žodynas ir šablonai. AI atsakymas
-  tikrinamas (`mergeDraft`): neleistinos reikšmės keičiamos šablono reikšmėmis.
-- **Taisyklės:** iš skelbimo imami tik faktai, aprašymas – savas; nuotraukos neimamos (autorių teisės); kaina neimama
-  (kita valiuta ir rinka – rodoma tik palyginimui).
-- Testai: `tools/test-api.mjs` (pavyzdžiai `tools/fixtures/allegro-*`), `tools/test-admin.mjs` (puslapis, žymelė, forma).
+Įrankis „Iš Allegro“ (`13-import.js`, `supabase/functions/_shared/import.js`, veiksmai `import` / `import-status`)
+pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.

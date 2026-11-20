@@ -2,7 +2,6 @@
 // Auth (prisijungimas, vartotojas), Storage (nuotraukų įkėlimas), Edge Function shop (checkout, order, admin).
 // Naudojimas: const sb = mockSupabase({ url, catalog }); await page.route(`${url}/**`, sb.handle);
 // sb.db – lentelės (tikrinti pakeitimus), sb.calls – funkcijų kvietimai, sb.users – prisijungimo duomenys.
-import { sourceFromHtml, factsFrom, draftFromFacts, mergeDraft } from "../supabase/functions/_shared/import.js";
 
 export const ADMIN = { id: "00000000-0000-4000-8000-00000000a001", email: "vakomb@gmail.com", password: "slaptas-123", token: "eyJ.admin.token" };
 export const BUYER = { id: "00000000-0000-4000-8000-00000000b001", email: "ona@example.com", password: "pirkeja-123", token: "eyJ.buyer.token" };
@@ -184,16 +183,6 @@ export function mockSupabase({ url, catalog, fail = {} }) {
           return route.fulfill(json(200, { ok: true, sent: list.length, total: list.length, mail: true }));
         }
         if (b.action === "rebuild") return route.fulfill(json(200, { ok: true, done: ["GitHub Pages"] }));
-        // Kvapo importas: ta pati import.js logika, be AI; nuoroda – „užblokuota“ (kaip dažnai daro Allegro)
-        if (b.action === "import-status") return route.fulfill(json(200, { ok: true, ai: false }));
-        if (b.action === "import") {
-          const d = b.data;
-          const src = d ? { url: d.url, title: d.title, brand: d.brand, desc: d.desc || "", params: {}, inci: "", text: d.text || "", price: d.price, currency: d.cur } : b.text ? { url: "", title: "", desc: "", params: {}, inci: "", text: b.text } : null;
-          if (!src) return route.fulfill(json(422, { error: "Allegro neleido serveriui atidaryti skelbimo. Naudokite žymelę „Į Vaidore“ arba įklijuokite skelbimo tekstą.", blocked: true }));
-          const facts = factsFrom(src);
-          calls.push({ name: "import", body: b });
-          return route.fulfill(json(200, { ok: true, draft: mergeDraft(draftFromFacts(facts), null), facts, blocked: !d, ai: false }));
-        }
         if (b.action === "newsletter-send") {
           const list = b.test ? [user.email] : db.newsletter.filter(r => !r.unsubscribed_at).map(r => r.email);
           calls.push({ name: "newsletter-sent", body: { ...b, to: list } });

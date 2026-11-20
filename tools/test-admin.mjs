@@ -203,37 +203,10 @@ await page.waitForURL(/\/admin\/kvapai\/silko-rytas$/);
 const nw = sb.db.products.find(p => p.id === "silko-rytas");
 check(!!nw && nw.family === "geliu" && nw.notes.heart.length === 2 && nw.visible === true, "naujas kvapas sukurtas");
 await shot(page, "kvapas");
-// Importas iš Allegro: nuoroda užblokuota → įklijuotas tekstas → peržiūra → užpildyta naujo kvapo forma
+// Importo iš Allegro nebėra
 await page.goto(`${BASE}admin/kvapai`);
-await page.click('a[href="admin/kvapai/importas"]');
-await page.waitForSelector("#impForm");
-check((await page.locator("#impBmLink").getAttribute("href")).startsWith("javascript:"), "importas: žymelė „Į Vaidore“");
-await page.fill('#impForm input[name="url"]', "https://allegro.pl/oferta/my-pink-33ml-18953227935");
-await page.click("#impForm button[type=submit]");
-await page.waitForSelector("#impForm .formErr:not([hidden])");
-check((await page.locator("#impAlt").getAttribute("open")) !== null, "importas: užblokavus – atsidaro teksto laukas");
-await page.fill("#impForm textarea", fs.readFileSync(path.join(root, "tools/fixtures/allegro-copied.txt"), "utf8"));
-await page.click("#impForm button[type=submit]");
-await page.waitForSelector(".impDraft");
-const impTxt = await page.locator(".impDraft").innerText();
-check(/MY PINK/i.test(impTxt) && impTxt.includes("Apelsinmedžio žiedai") && impTxt.includes("Tuberozė") && impTxt.includes("Eau de Parfum"), "importas: peržiūra – pavadinimas, natos lietuviškai, koncentracija");
-await shot(page, "importas");
-await page.click("[data-imp-create]");
-await page.waitForSelector("#prodForm");
-check(
-  (await page.inputValue('#prodForm input[name="name"]')) === "My Pink" &&
-    (await page.inputValue('#prodForm input[name="id"]')) === "my-pink" &&
-    (await page.inputValue('#prodForm input[name="top"]')) === "Bergamotė, Apelsinmedžio žiedai" &&
-    (await page.inputValue('#prodForm select[name="family"]')) === "geliu" &&
-    (await page.inputValue('#prodForm textarea[name="description"]')).startsWith("My Pink – "),
-  "importas: „Sukurti kvapą“ – užpildyta naujo kvapo forma"
-);
-check(!sb.db.products.some(p => p.id === "my-pink"), "importas: be patvirtinimo niekas neišsaugoma");
-// Žymelės duomenys adrese (#imp=…) – generuojama iškart
-const bm = { url: "https://allegro.pl/oferta/x", title: "Perfumy Nomi MY PINK 33 ml", desc: "Nuta głowy: bergamotka Nuta serca: jaśmin Podstawa: wanilia Dla kogo: zapach damski", text: "Parametry\nLinia\ninna (MY PINK)" };
-await page.goto(`${BASE}admin/kvapai/importas#imp=${encodeURIComponent(JSON.stringify(bm))}`);
-await page.waitForSelector(".impDraft");
-check((await page.locator(".impDraft").innerText()).includes("Vanilė") && !page.url().includes("#imp="), "importas: iš žymelės – sugeneruota iškart, adresas išvalytas");
+await page.waitForSelector('a[href="admin/kvapai/naujas"]');
+check((await page.locator('a[href="admin/kvapai/importas"]').count()) === 0, "kvapai: be „Iš Allegro“ mygtuko");
 await page.goto(`${BASE}admin/kvapai/silko-rytas`);
 await page.waitForSelector("#prodForm");
 // Parduotuvėje – iškart (be perrinkimo): 404.html + šviežias katalogas
