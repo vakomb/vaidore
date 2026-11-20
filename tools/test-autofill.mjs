@@ -63,7 +63,7 @@ Lasts up to 10 weeks. Perfect for rooms up to 25 m2.`,
 check(reed.lang === "en" && reed.type === "difuzoriai" && reed.fields.name === "Difuzorius Velvet Oud", "EN difuzorius: tipas ir pavadinimas „Difuzorius Velvet Oud“");
 check(reed.fields.inspired === "Maison Francis Kurkdjian – Baccarat Rouge 540" && reed.fields.family === "ambros", "EN difuzorius: originalo kvapas ir šeima ambros");
 check(j(reed.fields.notes.top) === j(["Šafranas", "Jazminas"]) && reed.fields.notes.base.includes("Kedras") && !reed.unknown.length, "EN difuzorius: natos išverstos");
-check(reed.fields.attrs.sticks === 8 && reed.fields.attrs.weeks === 10 && reed.fields.attrs.room === 25 && reed.fields.sizes[0].ml === 100, "EN difuzorius: 100 ml, 8 lazdelės, 10 sav., 25 m²");
+check(reed.fields.attrs.sticks === 8 && reed.fields.attrs.weeks === 10 && !("room" in reed.fields.attrs) && !/m²/.test(reed.fields.description) && reed.fields.sizes[0].ml === 100, "EN difuzorius: 100 ml, 8 lazdelės, 10 sav. (ploto m² nėra)");
 check(/Komplekte – 8 lazdelės\./.test(reed.fields.description) && /iki 10 savaičių/.test(reed.fields.description), "EN difuzorius: aprašyme lazdelės ir trukmė (taisyklingi linksniai)");
 
 const oil = afParse(
@@ -87,7 +87,7 @@ Powierzchnia: do 30 m2`,
   { families }
 );
 check(el.type === "elektriniai-difuzoriai" && el.fields.name === "Elektrinis difuzorius", "PL elektrinis difuzorius: tipas ir pavadinimas");
-check(j(el.fields.attrs) === j({ tank: 300, runtime: 10, area: 30, power: "USB", light: "LED, 7 spalvos" }), "PL elektrinis difuzorius: talpa, veikimo laikas, plotas, maitinimas, apšvietimas");
+check(j(el.fields.attrs) === j({ tank: 300, runtime: 10, light: "LED, 7 spalvos" }) && !/m²|Maitinimas/.test(el.fields.description), "PL elektrinis difuzorius: talpa, veikimo laikas, apšvietimas (be ploto ir maitinimo)");
 check(!labels(el).includes("inspired") && !labels(el).includes("notes") && !el.fields.notes.top.length, "PL elektrinis difuzorius: be kvapo laukų ir be „Originalo kvapas“");
 
 const en = afParse("VELVET NIGHT Eau de Parfum for men 100 ml – inspired by Dior Sauvage\nFragrance notes: bergamot, pink pepper, lavender, geranium, ambroxan, cedar, vetiver\nFragrance family: aromatic fougere", { families });

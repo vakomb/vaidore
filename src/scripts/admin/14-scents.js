@@ -6,7 +6,7 @@
 //                                  susietiems produktams; ištrynimas (produktai lieka, tik atsiejami).
 // Kvapas – šaltinis naujų produktų automatiniam užpildymui (04-products.js, laukas „Kvapas“).
 const scentState = { rows: [], counts: new Map(), q: "" };
-const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage", "look"];
+const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "seasons", "times", "occasions", "look"];
 // Laukai, kurie pritaikomi susietiems produktams (pavadinimas, aprašymas, spalvos – produkto)
 const SCENT_TO_PRODUCT = ["inspired", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage"];
 
@@ -93,26 +93,24 @@ ${
     : ""
 }
 <section class="admCard"><h2>Pagrindinė informacija</h2>
-<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(x.name)}" /><small>Naujų produktų pavadinimuose, pvz. „Kvapni žvakė ${esc(x.name || "LIBRADORE")}“</small></label>
+<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(x.name)}" /></label>
 ${
   isNew
-    ? `<label class="field"><span>Adresas (id)</span><input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="" /><small>Mažosios raidės, skaičiai ir „-“. Sukūrus nebekeičiamas.</small></label>`
+    ? `<label class="field"><span>Adresas (id)</span><input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="" placeholder="mazosios-raides" /></label>`
     : ""
 }
-<label class="field"><span>Originalo kvapas (įkvėpta)</span><input name="inspired" maxlength="120" value="${esc(x.inspired || "")}" placeholder="pvz. Emporio Armani – My Way" /><small>Prekės ženklas – kvapas. Parduotuvėje: „Įkvėpti …“</small></label>
+<label class="field"><span>Originalo kvapas (įkvėpta)</span><input name="inspired" maxlength="120" value="${esc(x.inspired || "")}" placeholder="pvz. Emporio Armani – My Way" /></label>
 <div class="fieldRow"><label class="field"><span>Kam</span><select name="gender">${Object.entries(VD.GENDER_NAME)
     .map(([v, l]) => opt(v, l, x.gender))
     .join("")}</select></label>
 <label class="field"><span>Kvapo šeima</span><select name="family">${fams.map(f => opt(f.id, f.name, x.family)).join("")}</select></label></div>
 </section>
 <section class="admCard"><h2>Natos</h2>
-<label class="field"><span>Viršutinės natos</span><input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" /><small>Atskirkite kableliais</small></label>
+<label class="field"><span>Viršutinės natos</span><input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" /></label>
 <label class="field"><span>Širdies natos</span><input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" /></label>
 <label class="field"><span>Bazinės natos</span><input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" /></label>
 </section>
-<section class="admCard"><h2>Savybės</h2>
-<div class="fieldRow"><label class="field"><span>Ilgaamžiškumas</span><select name="longevity">${[1, 2, 3, 4, 5].map(i => opt(i, `${i} – ${VD.LASTS[i]}`, x.longevity)).join("")}</select></label>
-<label class="field"><span>Sklaida</span><select name="sillage">${[1, 2, 3, 4, 5].map(i => opt(i, `${i} – ${VD.LEVEL[i]}`, x.sillage)).join("")}</select></label></div>
+<section class="admCard"><h2>Kada tinka</h2>
 <div class="admChecks"><span>Metų laikai</span>${SEASONS.map(s => check("seasons", s, (x.seasons || []).includes(s), VD.SEASON_NAME[s])).join("")}</div>
 <div class="admChecks"><span>Paros metas</span>${TIMES.map(([v, l]) => check("times", v, (x.times || []).includes(v), l)).join("")}</div>
 <div class="admChecks"><span>Proga</span>${AF_OCCASIONS.map(([v, l]) => check("occasions", v, (x.occasions || []).includes(v), l)).join("")}</div>
@@ -135,7 +133,7 @@ ${
                 p => `<a class="row" href="admin/kvapai/${esc(p.id)}" data-nav><span class="admThumb" style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span><span class="rowTxt">${esc(p.name)}<small>${esc(typeOne(p.type))}</small></span><span class="chev">${glyph("chev-right")}</span></a>`
               )
               .join("")}</div>
-<label class="admToggleRow"><span><b>Pritaikyti pakeitimus produktams</b><small>Originalas, lytis, šeima, natos ir savybės bus pakeisti ${plural(ed.linked.length, "produktui", "produktams", "produktų")}</small></span><input type="checkbox" name="apply" class="admSwitchInp" checked /></label>`
+<label class="admToggleRow"><span><b>Pritaikyti pakeitimus produktams</b><small>${plural(ed.linked.length, "produktas", "produktai", "produktų")}</small></span><input type="checkbox" name="apply" class="admSwitchInp" checked /></label>`
           : `<p class="admNote">Su šiuo kvapu produktų dar nėra.</p>`
       }
 <a class="btn ghost small scNewProd" href="admin/kvapai/naujas?kvapas=${esc(x.id)}" data-nav>${glyph("plus")}Naujas produktas su šiuo kvapu</a></section>
@@ -198,8 +196,9 @@ function scentAutofill(ed, form, paintPrev) {
   set("top", x.notes.top.join(", "));
   set("heart", x.notes.heart.join(", "));
   set("base", x.notes.base.join(", "));
-  set("longevity", x.longevity);
-  set("sillage", x.sillage);
+  // Ilgaamžiškumas ir sklaida formoje nerodomi (v15) – saugomi tyliai (naudoja kvapo testas)
+  if (x.longevity) ed.x.longevity = x.longevity;
+  if (x.sillage) ed.x.sillage = x.sillage;
   for (const k of ["seasons", "times", "occasions"]) if (x[k]?.length) $$(`input[name="${k}"]`, form).forEach(el => (el.checked = x[k].includes(el.value)));
   if (x.look?.liquid) set("liquid", x.look.liquid);
   if (x.look?.tint) set("tint", x.look.tint);
@@ -227,8 +226,8 @@ function readScent(ed, form) {
     seasons: fd.getAll("seasons"),
     times: fd.getAll("times"),
     occasions: fd.getAll("occasions"),
-    longevity: Number(f.longevity.value),
-    sillage: Number(f.sillage.value),
+    longevity: ed.x.longevity || 3,
+    sillage: ed.x.sillage || 3,
     look: { liquid: f.liquid.value, tint: f.tint.value }
   };
   const errors = [];

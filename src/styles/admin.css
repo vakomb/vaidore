@@ -1587,54 +1587,75 @@ h2.afAuto::after {
   display: none !important;
 }
 .typePick {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 16px;
+  margin: 0 0 16px;
 }
 .typeOpt {
-  display: grid;
-  gap: 4px;
-  align-content: start;
-  min-height: 76px;
-  padding: 12px 14px;
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 16px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 999px;
   background: #fff;
   box-shadow: inset 0 0 0 1px var(--line2);
   font: inherit;
-  text-align: left;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--ink);
   cursor: pointer;
-  transition: background-color var(--ease), color var(--ease), box-shadow var(--ease);
-}
-.typeOpt b {
-  font-size: 15px;
-  font-weight: 600;
-}
-.typeOpt small {
-  font-size: 12.5px;
-  line-height: 1.35;
-  color: var(--ink3);
+  -webkit-tap-highlight-color: transparent;
 }
 .typeOpt[aria-checked="true"] {
   background: var(--ink);
   box-shadow: none;
   color: #fff;
 }
-.typeOpt[aria-checked="true"] small {
-  color: rgba(255, 255, 255, 0.78);
-}
 .typeOpt:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
-@media (max-width: 420px) {
-  .typePick {
+/* Produkto forma (v15, minimalistinė): be paaiškinimų, vienodi tarpai, telefone – viena kolona */
+.prodForm .admCard > h2 {
+  margin-bottom: 14px;
+}
+.prodForm .afRun {
+  width: 100%;
+}
+.prodForm #sizesNote {
+  margin: 4px 0 0;
+}
+@media (max-width: 639px) {
+  .prodForm .fieldRow3 {
     grid-template-columns: 1fr 1fr;
   }
-  .typeOpt:last-child {
+  .prodForm .fieldRow3 > .scentOnly {
     grid-column: 1 / -1;
+  }
+}
+.prodForm .admSize + .admSize .field > span {
+  display: none;
+}
+.prodForm .admSizeMl {
+  align-self: end;
+  display: flex;
+  align-items: center;
+  min-height: 58px;
+  margin: 0 0 14px;
+}
+.prodForm .admDelBtn {
+  justify-self: start;
+}
+@media (max-width: 720px) {
+  .typePick {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .typePick::-webkit-scrollbar {
+    display: none;
   }
 }
 /* ── Pradžia: skyriai su produktais (v15, 10-home.js) ── */

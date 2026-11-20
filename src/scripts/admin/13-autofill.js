@@ -23,8 +23,7 @@ const AF_ATTRS = {
   kvepalai: [],
   difuzoriai: [
     ["sticks", "Lazdelių skaičius", "vnt."],
-    ["weeks", "Trukmė", "sav."],
-    ["room", "Patalpos dydis", "m²"]
+    ["weeks", "Trukmė", "sav."]
   ],
   zvakes: [
     ["burn", "Degimo trukmė", "val."],
@@ -38,8 +37,6 @@ const AF_ATTRS = {
   "elektriniai-difuzoriai": [
     ["tank", "Vandens talpa", "ml"],
     ["runtime", "Veikimo laikas", "val."],
-    ["area", "Plotas", "m²"],
-    ["power", "Maitinimas", ""],
     ["light", "Apšvietimas", ""]
   ]
 };
@@ -101,9 +98,7 @@ const AF_LABELS = {
   wick: ["knot", "wick", "dagtis"],
   sticks: ["liczba patyczk[óo]w", "patyczki", "pa[łl]eczki", "number of (?:sticks|reeds)", "sticks", "reeds", "lazdel[ėe]s", "lazdeli[ųu] skai[čc]ius"],
   duration: ["wystarcza na", "starcza na", "czas trwania", "tr[wv]a[łl]o[śs][ćc]", "lasts", "duration", "trukm[ėe]", "u[žz]tenka"],
-  room: ["powierzchnia pomieszczenia", "powierzchnia", "metra[żz]", "room size", "coverage", "area", "plotas", "patalpos dydis"],
   runtime: ["czas pracy", "run(?:ning)? time", "working time", "operating time", "veikimo laikas"],
-  power: ["zasilanie", "power supply", "power", "maitinimas"],
   light: ["pod[śs]wietlenie", "o[śs]wietlenie", "lighting", "light", "ap[šs]vietimas"],
   brand: ["marka", "producent", "brand", "manufacturer", "prek[ėe]s [žz]enklas", "gamintojas"],
   line: ["linia zapachowa", "linia", "seria", "linija"],
@@ -326,7 +321,6 @@ const AF_RX = {
   hours: /(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:h\b|godz\w*|hours?|hrs?|val\w*)/i,
   weeks: /(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:tygod\w*|weeks?|savai\w*|sav\.)/i,
   months: /(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:miesi\w*|months?|m[ėe]nes\w*|m[ėe]n\.)/i,
-  m2: /(\d+(?:[.,]\d+)?)\s*(?:m2|m²|m\^2|kv\.?\s*m|sq\.?\s*m)/i,
   pct: /(\d+(?:[.,]\d+)?)\s*%/,
   count: /(\d+)\s*(?:szt\.?\s*)?(?:[\p{L}]+\s+){0,3}?(?:patycz\p{L}*|pa[łl]ecz\p{L}*|sticks?|reeds?|lazdel\p{L}*)/iu
 };
@@ -429,9 +423,7 @@ function afDescribe(f) {
     S.push(`${f.name} – ${f.name === "Elektrinis difuzorius" ? "aromato prietaisas" : "elektrinis aromato difuzorius"}, kuris tyliai ir tolygiai paskleidžia mėgstamą kvapą po visus namus.`);
     const tech = [a.tank && `vandens talpa – ${a.tank} ml`, a.runtime && `veikimo laikas – iki ${a.runtime} val.`].filter(Boolean);
     if (tech.length) S.push(`${afCap(tech.join(", "))}`.replace(/([^.])$/, "$1."));
-    if (a.area) S.push(`Tinka iki ${a.area} m² patalpai.`);
     if (a.light) S.push(/spalv/.test(a.light) ? `Turi LED apšvietimą (${a.light.replace(/^LED,?\s*/i, "")}), kuris sukuria jaukią nuotaiką.` : "Turi švelnų LED apšvietimą, kuris sukuria jaukią nuotaiką.");
-    if (a.power) S.push(`Maitinimas – ${a.power}.`);
     S.push("Įlašinkite kelis lašus aromatinio aliejaus į vandenį – ir namai prisipildys kvapo.");
     S.push(afPick(["Tinka miegamajam, svetainei ar biurui.", "Puikiai tinka miegamajam, svetainei ir darbo kambariui."], seed, "rooms"));
   } else {
@@ -447,7 +439,7 @@ function afDescribe(f) {
       S.push("Lazdelės tolygiai sugeria kvapą ir skleidžia jį be ugnies ir elektros.");
       if (a.sticks) S.push(`Komplekte – ${a.sticks} ${afPlural(a.sticks, "lazdelė", "lazdelės", "lazdelių")}.`);
       if (a.weeks) S.push(`Kvapo užtenka iki ${a.weeks} ${afPlural(a.weeks, "savaitės", "savaičių", "savaičių")}.`);
-      S.push(a.room ? `Skirtas iki ${a.room} m² patalpai – svetainei, miegamajam ar biurui.` : afPick(["Tinka svetainei, miegamajam ar biurui.", "Puikiai tinka svetainei, prieškambariui ar vonios kambariui."], seed, "rooms"));
+      S.push(afPick(["Tinka svetainei, miegamajam ar biurui.", "Puikiai tinka svetainei, prieškambariui ar vonios kambariui."], seed, "rooms"));
       S.push("Apvertus lazdeles kas kelias dienas, kvapas sustiprėja.");
     } else if (f.type === "zvakes") {
       const wax = AF_WAX.find(w => w[1] === a.wax);
@@ -558,8 +550,6 @@ function afParse(text, opts = {}) {
     if (st) attrs.sticks = st;
     const wk = afMax(first("duration").match(AF_RX.weeks) || all.match(AF_RX.weeks)) || (afMax(first("duration").match(AF_RX.months) || all.match(AF_RX.months)) || 0) * 4;
     if (wk) attrs.weeks = wk;
-    const rm = afNum((first("room").match(AF_RX.m2) || all.match(AF_RX.m2) || [])[1]);
-    if (rm) attrs.room = rm;
   } else if (type === "zvakes") {
     const near = all.match(/(?:palen|spalan|[śs]wiecen|burn|deg)\w*[^.\n\d]{0,20}(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:h\b|godz|hours?|hrs?|val)/i) || all.match(/(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:h\b|godz\w*|hours?|hrs?|val\w*)\.?\s*(?:palen|spalan|[śs]wiecen|burn|deg)/i);
     const b = afMax(first("burn").match(AF_RX.hours)) || afMax(near) || afMax(first("duration").match(AF_RX.hours));
@@ -578,10 +568,6 @@ function afParse(text, opts = {}) {
     if (tk) attrs.tank = tk;
     const rt = afMax(first("runtime").match(AF_RX.hours) || (all.match(/(?:czas pracy|run(?:ning)? time|working time|veikimo)[^.\n]{0,30}/i) || [""])[0].match(AF_RX.hours));
     if (rt) attrs.runtime = rt;
-    const ar = afNum((first("room").match(AF_RX.m2) || all.match(AF_RX.m2) || [])[1]);
-    if (ar) attrs.area = ar;
-    const pw = [/usb/i.test(all) && "USB", /bateri|battery|akumulator/i.test(all) && "baterijos", /230\s*v|adapter|zasilacz|power adapter/i.test(all) && "tinklo adapteris"].filter(Boolean);
-    if (pw.length) attrs.power = afAnd(pw);
     const colors = all.match(/(\d+)\s*(?:kolor\w*|colou?rs?|spalv\w*)/i);
     if (colors) attrs.light = `LED, ${colors[1]} ${afPlural(Number(colors[1]), "spalva", "spalvos", "spalvų")}`;
     else if (/\bled\b|pod[śs]wietl|apšviet|light/i.test(all)) attrs.light = "LED";

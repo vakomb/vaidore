@@ -366,8 +366,9 @@ async function run(viewport) {
     (await page.locator("#productRoot .sizes").count()) === 0 &&
       !(await accTitles()).includes("Natos") &&
       (await page.locator("#productRoot .acc[open]").filter({ hasText: "Savybės" }).textContent()).includes("300") &&
+      !/Maitinimas|Plotas/.test(await page.locator("#productRoot .acc[open]").filter({ hasText: "Savybės" }).textContent()) &&
       (await page.locator("#productRoot .pdKey").textContent()).includes("Tylus"),
-    "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės atskleistos"
+    "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės atskleistos (be maitinimo ir ploto)"
   );
   await open(page, `${A}elektriniai-difuzoriai`);
   await page.waitForSelector("#shopGrid .card");

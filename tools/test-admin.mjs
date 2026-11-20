@@ -270,23 +270,24 @@ check(
     (await page.locator('[data-tf="inci"]').textContent()) === "Sudėtis" &&
     (await page.locator('[data-tf="notes"]').textContent()) === "Kvapas" &&
     (await page.locator('#prodForm [data-attr="burn"]').count()) === 1 &&
-    (await page.locator('#prodForm select[name="longevity"]').isHidden()),
-  "kategorijos pasirinkimas: žvakė – svoris, sudėtis, degimo trukmė, be ilgaamžiškumo"
+    (await page.locator('#prodForm [name="longevity"], #prodForm [name="sillage"]').count()) === 0,
+  "kategorijos pasirinkimas: žvakė – svoris, sudėtis, degimo trukmė, be ilgaamžiškumo ir sklaidos"
 );
 await page.click('[data-pick-type="elektriniai-difuzoriai"]');
 check(
-  (await page.locator('[data-tf-box="inci"]').isHidden()) && (await page.locator("#prodForm #bottlePrev").isHidden()) && (await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.inputValue("#prodForm select[name=type]")) === "elektriniai-difuzoriai",
-  "kategorijos pasirinkimas: elektrinis difuzorius – be kvapo, sudėties ir buteliuko piešinio"
+  (await page.locator('[data-tf-box="inci"]').isHidden()) && (await page.locator("#prodForm #bottlePrev").isHidden()) && (await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.inputValue("#prodForm [name=type]")) === "elektriniai-difuzoriai" && (await page.locator("#prodForm [name=cats]:visible").count()) === 0 && (await page.locator('#prodForm [data-attr="area"], #prodForm [data-attr="power"]').count()) === 0,
+  "kategorijos pasirinkimas: elektrinis difuzorius – be kvapo, sudėties, buteliuko, kolekcijų, ploto ir maitinimo"
 );
 await page.click('[data-pick-type="kvepalai"]');
 check(
-  (await page.locator('[data-tf="name"]').textContent()).includes("VANOR") && (await page.locator('[data-tf="inci"]').textContent()) === "Ingredientai (INCI)" && !(await page.locator('#prodForm select[name="longevity"]').isHidden()) && !(await page.locator('#prodForm select[name="conc"]').isHidden()),
-  "kategorijos pasirinkimas: kvepalai – koncentracija, ilgaamžiškumas, ingredientai"
+  (await page.getAttribute('#prodForm [name="name"]', "placeholder")).includes("VANOR") && (await page.locator('[data-tf="inci"]').textContent()) === "Ingredientai (INCI)" && !(await page.locator('#prodForm select[name="conc"]').isHidden()) && (await page.locator("#prodForm .field small").count()) === 0,
+  "kategorijos pasirinkimas: kvepalai – koncentracija, ingredientai; be paaiškinimų po laukais"
 );
 if (shots) {
   await page.setViewportSize({ width: 390, height: 844 });
   check((await page.evaluate(() => document.documentElement.scrollWidth)) <= 390, "telefone: kategorijos pasirinkimas be horizontalaus slinkimo");
-  await page.locator(".typeCard").screenshot({ path: path.join(shotDir, "admin-kategorija-tel.png") });
+  await page.screenshot({ path: path.join(shotDir, "admin-forma-tel.png"), fullPage: true });
+  await page.locator(".typePick").screenshot({ path: path.join(shotDir, "admin-kategorija-tel.png") });
   await page.setViewportSize({ width: 1440, height: 900 });
 }
 // Skiltis „Kvapai“: sąrašas, redagavimas (pritaikoma susietiems produktams), naujas kvapas iš aprašymo, ištrynimas

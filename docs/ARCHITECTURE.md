@@ -336,3 +336,11 @@ Karuselės po plytelėmis („Kvapnios naujienos“, „Populiariausi moterims�
 - `mode:"manual"` – `ids` (administratoriaus nurodyta tvarka); paslėpti / ištrinti produktai praleidžiami.
 - `href`: tuščia – automatinė nuoroda iš taisyklės (`kvepalai?lytis=…&laikas=…`, `kategorija/<id>`, `nuolaidos`); `"none"` – be nuorodos; kitaip – santykinis adresas.
 - Skyrius be produktų nerodomas. Administravime („Pradžia“ → „Skyriai su produktais“): pridėti pagal taisyklę arba ranka, keisti, kopijuoti, ištrinti, perkelti aukštyn / žemyn, slėpti; produktų paieška pagal pavadinimą, originalą, natas; pakeitimai iš karto matomi peržiūroje. Testai – `test-admin.mjs` („skyriai…“).
+
+### Produkto forma – minimalistinė (v15b)
+
+- Kategorija – kapsulių eilė formos viršuje (telefone slenkama), be aprašymų; naujam produktui laukas `type` – paslėptas, esamam – pasirinkimas „Kategorija“.
+- Po laukais paaiškinimų nėra – tik pavyzdžiai laukuose (`TYPE_FORM`). Viena trumpa pastaba – „Sena kaina – tik akcijai (mažiausia per 30 d.)“.
+- Blokai: Užpildyti iš aprašymo → Prekė → Natos (kvapo prekėms) → Savybės → Kaina → Nuotraukos; šone – Rodymas (su adresu), Kolekcijos (ne elektriniams difuzoriams), Spalvos.
+- Ilgaamžiškumas ir sklaida (`longevity`, `sillage`) formose (produkto ir kvapo) nerodomi: laukai duomenų bazėje lieka, reikšmė imama iš automatinio užpildymo arba lieka esama (naujam – 3). Juos naudoja kvapo testas ir „Kam skirti“.
+- Savybių `room`, `area` (m²) ir `power` (maitinimas) nebėra nei formoje, nei prekės puslapyje, nei automatiniame aprašyme; senos reikšmės duomenų bazėje nerodomos.

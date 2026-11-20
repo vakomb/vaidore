@@ -33,8 +33,7 @@ const OCCASION_NAME = { kasdien: "Kasdien", darbui: "Darbui", pasimatymui: "Pasi
 const ATTR_DEFS = {
   difuzoriai: [
     ["sticks", "Lazdelių skaičius", "vnt."],
-    ["weeks", "Trukmė", "sav."],
-    ["room", "Patalpos dydis", "m²"]
+    ["weeks", "Trukmė", "sav."]
   ],
   zvakes: [
     ["burn", "Degimo trukmė", "val."],
@@ -48,8 +47,6 @@ const ATTR_DEFS = {
   "elektriniai-difuzoriai": [
     ["tank", "Vandens talpa", "ml"],
     ["runtime", "Veikimo laikas", "val."],
-    ["area", "Plotas", "m²"],
-    ["power", "Maitinimas", ""],
     ["light", "Apšvietimas", ""]
   ]
 };
