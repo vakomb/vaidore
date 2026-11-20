@@ -179,7 +179,8 @@
     color: var(--ink3);
   }
   .pdInsp {
-    margin-top: 10px;
+    justify-content: flex-start;
+    margin-top: 14px;
   }
   .pdInfo {
     grid-area: info;

@@ -216,14 +216,10 @@
   text-underline-offset: 3px;
 }
 .pdInsp {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
   margin-top: 14px;
-  font-size: 17px;
-  letter-spacing: 0.03em;
-  color: var(--ink2);
-}
-.pdInsp b {
-  font-weight: 600;
-  color: #000;
 }
 /* v15: kitų kategorijų prekės – kategorijos nuoroda virš pavadinimo; „Šis kvapas taip pat“ – to paties kvapo produktai */
 .pdCat {
@@ -595,7 +591,7 @@
   padding: 0;
 }
 .pdInsp + .pdKey {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 /* Kaina nuo–iki (kaip parfumada.lt): du laukai su „€“ */

@@ -68,7 +68,7 @@ function productPageHTML(p, ml) {
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
   return `<article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
 <header class="pdHead">${isPerfume(p) ? "" : `<p class="pdCat"><a href="${typeOf(p)}" data-nav>${esc(T.title)}</a></p>`}<h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
-    inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
+    inspiredOf(p) ? `<p class="pdInsp">${inspiredHTML(p, "lg")}</p>` : ""
   }<p class="pdKey">${keyLine(p)}</p>${
     rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
   }</header>

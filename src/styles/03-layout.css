@@ -334,6 +334,9 @@
   display: block;
   font-size: 15px;
 }
+.sugg > span:nth-child(2) {
+  min-width: 0;
+}
 .sugg small {
   display: block;
   font-size: 13px;

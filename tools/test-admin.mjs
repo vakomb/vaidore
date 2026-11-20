@@ -357,6 +357,10 @@ await page.click('[data-scent-row="my-pink"]');
 await page.waitForSelector("#scentForm");
 check((await page.locator(".scLinked a.axRow:not(.scNewProd)").count()) === 2, "kvapas: susieti produktai (kvepalai ir žvakė)");
 await page.fill('#scentForm input[name="inspired"]', "Emporio Armani – My Way");
+// Originalo nuotrauka (v18): įkeliama kvape, pritaikoma susietiems produktams
+await page.setInputFiles("#scentForm [data-insp-img]", path.join(root, "src/public/img/kvapai/arven-1.webp"));
+await page.waitForSelector("#scentForm .axInspPrev img");
+check(sb.uploads.some(u => u.path.includes("originalai/my-pink")), "kvapas: originalo nuotrauka įkelta (originalai/…)");
 await page.fill('#scentForm input[name="heart"]', "Tuberozė, Jazminas, Rožė");
 await page.click('.axSave[form="scentForm"]');
 check(
@@ -367,6 +371,18 @@ check(
   ),
   "kvapas: originalas ir natos pakeisti kvape ir abiejuose susietuose produktuose"
 );
+check(
+  /originalai\/my-pink/.test(sb.db.scents.find(x => x.id === "my-pink").inspired_image) && ["my-pink", "kvapni-zvake-my-pink"].every(id => sb.db.products.find(p => p.id === id).inspired_image === sb.db.scents.find(x => x.id === "my-pink").inspired_image),
+  "kvapas: originalo nuotrauka išsaugota kvape ir pritaikyta susietiems produktams"
+);
+await page.goto(`${BASE}admin/kvapai/my-pink`);
+await page.waitForSelector("#prodForm #pInsp .scOrig img");
+check((await page.locator('#prodForm #pInsp a[href="admin/kvapu-sarasas/my-pink"]').count()) === 1, "produkto formoje – originalo miniatiūra ir „Keisti kvape“");
+await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
+await page.waitForSelector("#scentForm [data-insp-rm]");
+await page.click("#scentForm [data-insp-rm]");
+await page.click('.axSave[form="scentForm"]');
+check(await until(() => sb.db.scents.find(x => x.id === "my-pink").inspired_image === "" && sb.db.products.find(p => p.id === "my-pink").inspired_image === ""), "originalo nuotrauka pašalinta (ir produktuose)");
 // Naujas kvapas iš aprašymo
 await page.goto(`${BASE}admin/kvapu-sarasas/naujas`);
 await page.waitForSelector("#afText");

@@ -134,8 +134,29 @@ const sizeLabel = (ml, p) => {
 };
 // „Įkvėpti Tom Ford – Tobacco Vanille“ – rodoma, jei kvapas turi lauką inspired ir nustatymuose neišjungta
 const inspiredOf = p => (SET.inspired?.show !== false && p.inspired) || "";
+// Originalo blokelis (v18): kairėje – kvadratinė originalo nuotrauka (nėra – prekės ženklo raidė), dešinėje – prekės ženklas
+// ir kvapo pavadinimas. Kortelėje – vietoj natų (size "card"), produkto puslapyje – didesnis (size "lg"), paieškoje – "sm".
+// „Tom Ford – Tobacco Vanille“ skaidoma per pirmą brūkšnį; be brūkšnio – tik pavadinimas.
+function splitInspired(s) {
+  const m = String(s || "").match(/^(.+?)\s+[–—-]\s+(.+)$/) || String(s || "").match(/^(.+?)\s*[–—]\s*(.+)$/);
+  return m ? { brand: m[1].trim(), name: m[2].trim() } : { brand: "", name: String(s || "").trim() };
+}
+function inspiredHTML(p, size = "card") {
+  const insp = inspiredOf(p);
+  if (!insp) return "";
+  const { brand, name } = splitInspired(insp);
+  const px = { card: 40, lg: 56, sm: 30 }[size] || 40;
+  const photo = SET.inspired?.photo !== false;
+  const img = p.inspiredImage
+    ? `<img src="${esc(p.inspiredImage)}" alt="" width="${px}" height="${px}" loading="lazy" decoding="async" />`
+    : `<span class="inspL" aria-hidden="true">${esc((brand || name).charAt(0).toUpperCase())}</span>`;
+  const label = size === "lg" ? `Įkvėpti${brand ? ` · ${esc(brand)}` : ""}` : esc(brand);
+  return `<span class="insp insp-${size}" title="Įkvėpti ${esc(insp)}">${photo ? `<span class="inspPh">${img}</span>` : ""}<span class="inspTxt">${
+    label ? `<span class="inspBrand">${label}</span>` : ""
+  }<span class="inspName">${esc(name)}</span></span></span>`;
+}
 const cardSub = p => (isPerfume(p) ? `${familyName(p.family)} · ${p.conc}` : TYPE.get(typeOf(p)).one);
-// Po pavadinimu kortelėje ir puslapyje: trys natos; prekei be natų (elektrinis difuzorius) – šūkis
+// Po pavadinimu produkto puslapyje: trys natos; prekei be natų (elektrinis difuzorius) – šūkis
 const keyLine = p => (keyNotes(p).length ? keyNotes(p).map(esc).join(" · ") : esc(p.tagline || ""));
 const productUrl = p => `${typeOf(p)}/${p.id}`;
 // Likutis: laukas stock (nėra – neskaičiuojama, 0 – laikinai išparduota). Tą pačią taisyklę tikrina serveris.

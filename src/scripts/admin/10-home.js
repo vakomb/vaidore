@@ -64,7 +64,7 @@ async function renderVitrina(main, param, seq) {
       )}
 ${groupHTML(
   [
-    navRow({ href: "admin/vitrina/korteles", ico: "heart", icoBg: "var(--ink2)", title: "Prekių kortelės", sub: "Širdelė, ženkliukai, „Įkvėpti …“" }),
+    navRow({ href: "admin/vitrina/korteles", ico: "heart", icoBg: "var(--ink2)", title: "Prekių kortelės", sub: "Širdelė, ženkliukai, originalas" }),
     navRow({ href: "admin/vitrina/istorija", ico: "doc", icoBg: "var(--ink2)", title: "Mūsų istorija", value: v(S?.story?.text ? "Rodoma" : "Nerodoma") })
   ].join(""),
   { head: "Visi puslapiai" }

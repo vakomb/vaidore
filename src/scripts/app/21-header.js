@@ -229,7 +229,7 @@ function suggHTML(q) {
   return `${q ? "" : `<p class="navSub" style="padding:6px 8px">Populiariausi</p>`}${list
     .map(
       p =>
-        `<a class="sugg" href="${productUrl(p)}" data-nav><span class="art" style="--tint:${p.look.tint}">${artImg(p)}</span><span><b>${esc(p.name)}</b><small>${inspiredOf(p) ? `Įkvėpti ${esc(inspiredOf(p))}` : `${esc(familyName(p.family))} · ${esc(p.tagline)}`}</small></span><span class="money">${eurShort(minPrice(p))}</span></a>`
+        `<a class="sugg" href="${productUrl(p)}" data-nav><span class="art" style="--tint:${p.look.tint}">${artImg(p)}</span><span><b>${esc(p.name)}</b>${inspiredOf(p) ? inspiredHTML(p, "sm") : `<small>${esc(familyName(p.family))} · ${esc(p.tagline)}</small>`}</span><span class="money">${eurShort(minPrice(p))}</span></a>`
     )
     .join("")}${q ? `<a class="suggAll" href="kvepalai?q=${encodeURIComponent(q)}" data-nav>Visi rezultatai: „${esc(q)}“</a>` : ""}`;
 }

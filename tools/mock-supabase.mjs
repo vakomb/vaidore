@@ -11,6 +11,7 @@ export function dbFromCatalog(cat) {
     id: p.id,
     name: p.name,
     inspired: p.inspired || "",
+    inspired_image: p.inspiredImage || "",
     type: p.type || "kvepalai",
     conc: p.conc,
     gender: p.gender,
@@ -240,7 +241,8 @@ export function mockSupabase({ url, catalog, fail = {} }) {
         ...(table === "restock_requests" ? { notified: false } : {}),
         ...(table === "newsletter" ? { token: `00000000-0000-4000-9000-${String(seq).padStart(12, "0")}`, welcomed_at: null, unsubscribed_at: null } : {}),
         ...(["reviews", "restock_requests", "orders", "newsletter"].includes(table) ? { id: `00000000-0000-4000-8000-${String(seq++).padStart(12, "0")}`, created_at: new Date().toISOString() } : {}),
-        ...(table === "products" ? { created_at: new Date().toISOString(), updated_at: new Date().toISOString() } : {}),
+        ...(table === "products" ? { inspired_image: "", created_at: new Date().toISOString(), updated_at: new Date().toISOString() } : {}),
+        ...(table === "scents" ? { inspired_image: "" } : {}),
         ...r
       }));
       const key = table === "product_categories" ? r => `${r.product_id}|${r.category_id}` : table === "restock_requests" ? r => `${r.product_id}|${r.email}` : table === "newsletter" ? r => String(r.email).toLowerCase() : r => r.id;

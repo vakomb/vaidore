@@ -294,6 +294,7 @@ async function renderProductEdit(main, id, seq) {
           if (r?.[0] && !("type" in r[0])) delete b.type;
           // v15: attrs, occasions, scent_id – tik po migracijos 20261120120000
           for (const k of ["attrs", "occasions", "scent_id"]) if (r?.[0] && !(k in r[0])) delete b[k];
+          if (r?.[0] && "inspired_image" in r[0]) b.inspired_image = "";
           return [b];
         })
       : sbRest(`products?select=*&id=eq.${encodeURIComponent(id)}`),
@@ -310,6 +311,8 @@ async function renderProductEdit(main, id, seq) {
     return;
   }
   const ed = { p: structuredClone(p), isNew, cats: new Set(links.map(l => l.category_id)), images: [...(p.images || [])], scents, scentId: null, af: null, pending: null, fams };
+  // Originalo nuotrauka (v18): produktui su kvapu – iš kvapo (keičiama kvape), be kvapo – įkeliama čia
+  ed.inspImg = p.inspired_image || "";
   const n = p.notes || {};
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
   const tf = TYPE_FORM[p.type || "kvepalai"] || TYPE_FORM.kvepalai;
@@ -332,7 +335,7 @@ ${groupHTML(
     "type" in p && !isNew ? fieldHTML("Kategorija", `<select name="type">${VD.TYPES.map(t => opt(t.id, t.name, p.type || "kvepalai")).join("")}</select>`) : ""
   }${"type" in p && isNew ? `<input type="hidden" name="type" value="${esc(p.type || "kvepalai")}" />` : ""}${
     "inspired" in p ? fieldHTML("Originalas", `<input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="Tom Ford – Tobacco Vanille" />`, { cls: "scentOnly" }) : ""
-  }${fieldHTML("Kam", `<select name="gender">${Object.entries(VD.GENDER_NAME).map(([v, l]) => opt(v, l, p.gender)).join("")}</select>`, { cls: "perfOnly" })}${fieldHTML(
+  }${"inspired_image" in p ? `<div class="scentOnly" id="pInsp"></div>` : ""}${fieldHTML("Kam", `<select name="gender">${Object.entries(VD.GENDER_NAME).map(([v, l]) => opt(v, l, p.gender)).join("")}</select>`, { cls: "perfOnly" })}${fieldHTML(
     "Koncentracija",
     `<select name="conc">${Object.entries(VD.CONC_NAME).map(([v, l]) => opt(v, l, p.conc)).join("")}</select>`,
     { cls: "perfOnly" }
@@ -452,6 +455,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
   paintImages(ed, form);
   paintBottle(form);
   paintSums(form);
+  paintProdInsp(ed, form);
   sortable($("#imgsBox", form), {
     item: ".admImg",
     handle: ".admImg img",
@@ -485,6 +489,17 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
     }
     if (e.target.id === "afScent") return afScentChanged(ed, form, e.target.value, true);
     afTouched(form, e.target);
+    if (e.target.matches("[data-insp-img]")) {
+      uploadInspImg(e.target, form.elements.id.value.trim())
+        .then(url => {
+          if (!url) return;
+          ed.inspImg = url;
+          A.dirty = true;
+          paintProdInsp(ed, form);
+        })
+        .catch(err => toast(errText(err), { icon: "info", ms: 4200 }));
+      return;
+    }
     if (e.target.matches("[data-img-input]")) addImages(ed, form, e.target);
     else if (e.target.id !== "afText") A.dirty = true;
     if (["cap", "shape"].includes(e.target.name)) paintBottle(form);
@@ -497,6 +512,11 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
       return imageAction(ed, form, i, im.dataset.img);
     }
     if (t?.closest("[data-prod-delete]")) deleteProduct(ed.p);
+    if (t?.closest("[data-insp-rm]")) {
+      ed.inspImg = "";
+      A.dirty = true;
+      paintProdInsp(ed, form);
+    }
     const pick = t?.closest("[data-pick-type]");
     if (pick && form.elements.type.value !== pick.dataset.pickType) {
       form.elements.type.value = pick.dataset.pickType;
@@ -511,6 +531,21 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
     e.preventDefault();
     busy($(`.axSave[form="prodForm"]`, page), () => saveProduct(ed, form));
   });
+}
+// Originalo nuotrauka produkte: su kvapu – peržiūra ir „Keisti kvape ›“, be kvapo – įkėlimas čia
+function paintProdInsp(ed, form) {
+  const box = $("#pInsp", form);
+  if (!box) return;
+  const sid = ed.isNew ? ed.scentId : ed.p.scent_id;
+  box.innerHTML = sid
+    ? navRow({
+        href: `admin/kvapu-sarasas/${sid}`,
+        lead: ed.inspImg ? `<span class="scOrig"><img src="${esc(ed.inspImg)}" alt="" /></span>` : `<span class="axIco" style="background:var(--ink3)">${glyph("upload")}</span>`,
+        title: "Originalo nuotrauka",
+        sub: ed.inspImg ? "Keisti kvape" : "Nėra – įkelkite kvape"
+      })
+    : `<div class="axInspIn">${inspImgHTML(ed.inspImg, "", true)}</div>`;
+  hydrateIcons(box);
 }
 // Eilučių santraukos (kas įrašyta vidiniuose ekranuose)
 function paintSums(form) {
@@ -645,6 +680,7 @@ function readProduct(ed, form) {
     id,
     name: f.name.value.trim(),
     ...(f.inspired ? { inspired: f.inspired.value.trim() } : {}),
+    ...("inspired_image" in ed.p ? { inspired_image: ed.inspImg } : {}),
     ...(f.type ? { type: f.type.value } : {}),
     gender: f.gender.value,
     conc: f.conc.value,
@@ -848,6 +884,8 @@ function afScentChanged(ed, form, id, pop) {
   const scent = afScentOf(ed);
   const res = afParse($("#afText", form)?.value || "", { scent, type: formType(form), families: ed.fams.map(f => f.id) });
   afApply(ed, form, res);
+  ed.inspImg = scent.inspired_image || "";
+  paintProdInsp(ed, form);
   if (pop) {
     popAll(form.closest(".axPage"));
     toast(`Užpildyta pagal kvapą „${scent.name}“`, { icon: "check" });
@@ -996,7 +1034,8 @@ async function createScent(ed, row) {
     occasions: row.occasions || [],
     longevity: row.longevity,
     sillage: row.sillage,
-    look: { liquid: row.look.liquid, tint: row.look.tint }
+    look: { liquid: row.look.liquid, tint: row.look.tint },
+    ...(row.inspired_image && ed.scents?.[0] && "inspired_image" in ed.scents[0] ? { inspired_image: row.inspired_image } : {})
   };
   const [sc] = (await sbRest("scents", { method: "POST", body, prefer: "return=representation" })) || [];
   if (sc) ed.scents.push(sc);

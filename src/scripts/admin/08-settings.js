@@ -131,16 +131,16 @@ ${groupHTML(`${sfld("giftPrice", "Kaina, €", dec(g.price), { mode: "decimal" }
       return `${groupHTML(`${sswitch("cardHeart", "Širdelė „Į mėgstamus“", S.cards?.heart !== false)}${sswitch("cardBadges", "Ženkliukai („Naujiena“, „Akcija“…)", S.cards?.badges !== false)}`, {
         foot: "Kortelės paveikslo kampe. Išjungus ženkliukus, nuolaida matoma iš raudonos kainos."
       })}
-${groupHTML(`${sswitch("insShow", "Rodyti „Įkvėpti …“", ins.show !== false)}${sarea("insNote", "Pastaba apie prekių ženklus", ins.note, { rows: 3 })}`, {
-  head: "„Įkvėpti …“",
-  foot: "Pvz. „Įkvėpti Tom Ford – Tobacco Vanille“. Pastaba – produkto puslapyje po „Į krepšelį“."
+${groupHTML(`${sswitch("insShow", "Rodyti originalą", ins.show !== false)}${sswitch("insPhoto", "Rodyti originalo nuotrauką", ins.photo !== false)}${sarea("insNote", "Pastaba apie prekių ženklus", ins.note, { rows: 3 })}`, {
+  head: "Originalas („Įkvėpti …“)",
+  foot: "Kortelėse – vietoj natų, produkto puslapyje – po pavadinimu. Nuotraukos įkeliamos kvape. Pastaba – produkto puslapyje."
 })}`;
     },
     read: (f, S) => ({
-      next: { cards: { ...(S.cards || {}), heart: f.cardHeart.checked, badges: f.cardBadges.checked }, inspired: { ...(S.inspired || {}), show: f.insShow.checked, note: f.insNote.value.trim() } },
+      next: { cards: { ...(S.cards || {}), heart: f.cardHeart.checked, badges: f.cardBadges.checked }, inspired: { ...(S.inspired || {}), show: f.insShow.checked, photo: f.insPhoto.checked, note: f.insNote.value.trim() } },
       errors: []
     }),
-    sum: S => [S.cards?.heart !== false && "širdelė", S.cards?.badges !== false && "ženkliukai", S.inspired?.show !== false && "„Įkvėpti“"].filter(Boolean).join(", ") || "—"
+    sum: S => [S.cards?.heart !== false && "širdelė", S.cards?.badges !== false && "ženkliukai", S.inspired?.show !== false && "originalas"].filter(Boolean).join(", ") || "—"
   },
   istorija: {
     title: "Mūsų istorija",

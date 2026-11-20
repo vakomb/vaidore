@@ -8,7 +8,7 @@
 const scentState = { rows: [], counts: new Map(), q: "" };
 const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "seasons", "times", "occasions", "look"];
 // Laukai, kurie pritaikomi susietiems produktams (pavadinimas, aprašymas, spalvos – produkto)
-const SCENT_TO_PRODUCT = ["inspired", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage"];
+const SCENT_TO_PRODUCT = ["inspired", "inspired_image", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage"];
 
 async function loadScents(force = false) {
   if (!force && scentState.rows.length && Date.now() - (scentState.at || 0) < 30000) return scentState.rows;
@@ -79,7 +79,7 @@ function paintScents() {
   box.innerHTML = rows.length
     ? `<div class="ig axList">${rows
         .map(
-          x => `<a class="axRow axRow2" href="admin/kvapu-sarasas/${esc(x.id)}" data-nav data-scent-row="${esc(x.id)}"${cur === x.id ? ' aria-current="page"' : ""}><span class="scDot" style="--liquid:${esc(x.look?.liquid || "#E8D9C4")};--tint:${esc(
+          x => `<a class="axRow axRow2" href="admin/kvapu-sarasas/${esc(x.id)}" data-nav data-scent-row="${esc(x.id)}"${cur === x.id ? ' aria-current="page"' : ""}>${x.inspired_image ? `<span class="scOrig"><img src="${esc(x.inspired_image)}" alt="" loading="lazy" /></span>` : ""}<span class="scDot"${x.inspired_image ? " hidden" : ""} style="--liquid:${esc(x.look?.liquid || "#E8D9C4")};--tint:${esc(
             x.look?.tint || "#F7F1E8"
           )}" aria-hidden="true"></span><span class="axRowTxt"><b>${esc(x.name)}</b><small>${esc([x.inspired ? `Įkvėpti ${x.inspired}` : "Originalas nenurodytas", fam(x.family)].filter(Boolean).join(" · "))}</small></span><span class="axVal admMuted">${plural(
             scentState.counts.get(x.id) || 0,
@@ -113,6 +113,9 @@ async function renderScentEdit(main, id, seq) {
     return;
   }
   const ed = { x, isNew, fams, linked: linked || [], ids: new Set((all || []).map(r => r.id)) };
+  // Originalo nuotrauka (v18) – tik jei duomenų bazėje jau yra stulpelis scents.inspired_image (migracija 20261121090000)
+  ed.imgCol = isNew ? (scentState.rows[0] ? "inspired_image" in scentState.rows[0] : true) : "inspired_image" in x;
+  ed.img = x.inspired_image || "";
   const n = x.notes || {};
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
   const typeOne = t => VD.TYPES.find(y => y.id === (t || "kvepalai"))?.one || "";
@@ -136,6 +139,7 @@ ${groupHTML(
   )}${fieldHTML("Kvapo šeima", `<select name="family">${fams.map(f => opt(f.id, f.name, x.family)).join("")}</select>`)}`,
   { head: "Kvapas" }
 )}
+${ed.imgCol ? `<h2 class="igHead">Originalo nuotrauka</h2><div id="scInsp">${inspImgHTML(ed.img)}</div>` : ""}
 ${groupHTML(
   `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`, { stack: true })}${fieldHTML(
     "Širdies",
@@ -191,12 +195,35 @@ ${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span cla
     if (e.target.name === "id") form.elements.id.dataset.touched = "1";
     if (["name", "liquid", "tint"].includes(e.target.name)) paintPrev();
   });
-  form.addEventListener("change", e => {
+  const paintInsp = () => {
+    const box = $("#scInsp", form);
+    if (box) {
+      box.innerHTML = inspImgHTML(ed.img);
+      hydrateIcons(box);
+    }
+  };
+  form.addEventListener("change", async e => {
     A.dirty = true;
     afTouched(form, e.target);
+    if (e.target.matches("[data-insp-img]")) {
+      try {
+        const url = await uploadInspImg(e.target, ed.x.id || form.elements.id?.value.trim());
+        if (url) {
+          ed.img = url;
+          paintInsp();
+        }
+      } catch (err) {
+        toast(errText(err), { icon: "info", ms: 4200 });
+      }
+    }
   });
   form.addEventListener("click", e => {
     const t = e.target instanceof Element ? e.target : null;
+    if (t?.closest("[data-insp-rm]")) {
+      ed.img = "";
+      A.dirty = true;
+      paintInsp();
+    }
     if (t?.closest("[data-af-run]")) scentAutofill(ed, form, paintPrev);
     const go = t?.closest("[data-af-go]");
     if (go) afGo(form, go.dataset.afGo);
@@ -262,7 +289,8 @@ function readScent(ed, form) {
     occasions: fd.getAll("occasions"),
     longevity: ed.x.longevity || 3,
     sillage: ed.x.sillage || 3,
-    look: { liquid: f.liquid.value, tint: f.tint.value }
+    look: { liquid: f.liquid.value, tint: f.tint.value },
+    ...(ed.imgCol ? { inspired_image: ed.img } : {})
   };
   const errors = [];
   if (!row.name) errors.push("Įrašykite pavadinimą");

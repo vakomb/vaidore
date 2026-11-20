@@ -36,7 +36,7 @@ function cardHTML(p, opts = {}) {
 <div class="art${p.images?.length ? " hasPhoto" : ""}" style="--tint:${p.look.tint}">${artImg(p)}${SET.cards?.badges !== false ? badgePill(p) : ""}${
     opts.heart !== false && SET.cards?.heart !== false ? heartBtn(p) : ""
   }</div>
-<div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardNotes">${keyLine(p)}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
+<div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardInsp">${inspiredHTML(p) || `<span class="cardTag">${esc(p.tagline || keyNotes(p).join(" · "))}</span>`}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
     rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""
   }</div>
 <a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}${inspiredOf(p) ? `, įkvėpti ${esc(inspiredOf(p))}` : ""}, ${esc(cardSub(p))}"></a>

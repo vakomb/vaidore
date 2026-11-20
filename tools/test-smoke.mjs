@@ -96,6 +96,8 @@ const DEVICE = {
 const shopCat = structuredClone(cat);
 shopCat.products.push(DIF, CANDLE, DEVICE);
 shopCat.products.find(p => p.id === "vanor").occasions = ["kasdien", "darbui"];
+// Originalo nuotrauka (v18) – vienam kvapui (kitiems – prekės ženklo raidė)
+shopCat.products.find(p => p.id === "vanor").inspiredImage = "img/kvapai/safrane-1.webp";
 // Tas pats kvapas (scent): kvepalai VANOR, difuzorius ir žvakė – „Šis kvapas taip pat“
 for (const p of shopCat.products) if (["vanor", DIF.id, CANDLE.id].includes(p.id)) p.scent = "vanor";
 const shopFile = path.join(verify, "catalog-shop.json");
@@ -330,6 +332,31 @@ async function run(viewport) {
   await open(page, `${A}kvepalai`);
   await page.waitForSelector("#shopGrid .card");
   check((await page.locator("#shopCount").textContent()).includes(String(cat.products.length)), `katalogas: ${cat.products.length} kvapų`);
+  // Originalas (v18): kortelėje vietoj natų – nuotrauka (arba raidė) ir pavadinimas; kortelių aukštis vienodas
+  const insp = await page.evaluate(() => {
+    const cards = [...document.querySelectorAll("#shopGrid .card")];
+    const v = document.querySelector('#shopGrid .card:has(a[href="kvepalai/vanor"]) .insp');
+    const tops = new Map();
+    for (const c of cards) {
+      const t = Math.round(c.getBoundingClientRect().top);
+      tops.set(t, [...(tops.get(t) || []), Math.round(c.getBoundingClientRect().height)]);
+    }
+    return {
+      notes: document.querySelectorAll("#shopGrid .cardNotes").length,
+      blocks: document.querySelectorAll("#shopGrid .cardInsp .insp").length,
+      img: !!v?.querySelector(".inspPh img[src*='safrane']"),
+      brand: v?.querySelector(".inspBrand")?.textContent,
+      name: v?.querySelector(".inspName")?.textContent,
+      letters: document.querySelectorAll("#shopGrid .inspL").length,
+      even: [...tops.values()].every(h => Math.max(...h) - Math.min(...h) <= 1),
+      h: Math.round(v?.getBoundingClientRect().height || 0),
+      over: document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  check(
+    insp.notes === 0 && insp.blocks >= 8 && insp.img && insp.brand === "Tom Ford" && insp.name === "Tobacco Vanille" && insp.letters >= 1 && insp.even && insp.h <= 46 && insp.over <= 0,
+    `kortelės: vietoj natų – originalo blokelis (nuotrauka / raidė, „Tom Ford“ + „Tobacco Vanille“, ${insp.h} px), kortelės lygios`
+  );
   check((await page.locator(`#shopGrid a[href*="${DIF.id}"]`).count()) === 0, "kvepalų puslapyje – tik kvepalai (be difuzoriaus)");
   // Difuzoriai: savas puslapis, be lyties / koncentracijos / mėginukų filtrų; prekės puslapis – be mėginuko ir „Kam skirti“
   await open(page, `${A}difuzoriai`);
@@ -435,6 +462,10 @@ async function run(viewport) {
   await open(page, `${A}kvepalai/vanor`);
   await page.waitForSelector("#productRoot h1");
   check((await page.locator("#productRoot h1").textContent()).includes("Vanor"), "kvapo puslapis: pavadinimas");
+  check(
+    (await page.locator("#productRoot .pdInsp .insp-lg .inspPh img").count()) === 1 && (await page.locator("#productRoot .pdInsp .inspBrand").textContent()) === "Įkvėpti · Tom Ford" && (await page.locator("#productRoot .pdInsp .inspPh").evaluate(e => e.getBoundingClientRect().width)) === 56,
+    "kvapo puslapis: didesnis originalo blokelis (56 px nuotrauka, „Įkvėpti · Tom Ford“)"
+  );
   check(
     (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "33 ml,100 ml,2 ml mėginukas",
     "kvapo puslapis: talpos – tik 33 ml, 100 ml ir 2 ml mėginukas"

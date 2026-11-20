@@ -268,3 +268,21 @@ Karuselės po plytelėmis („Kvapnios naujienos“, „Populiariausi moterims�
 - Blokai: Užpildyti iš aprašymo → Prekė → Natos (kvapo prekėms) → Savybės → Kaina → Nuotraukos; šone – Rodymas (su adresu), Kolekcijos (ne elektriniams difuzoriams), Spalvos.
 - Ilgaamžiškumas ir sklaida (`longevity`, `sillage`) formose (produkto ir kvapo) nerodomi: laukai duomenų bazėje lieka, reikšmė imama iš automatinio užpildymo arba lieka esama (naujam – 3). Juos naudoja kvapo testas ir „Kam skirti“.
 - Savybių `room`, `area` (m²) ir `power` (maitinimas) nebėra nei formoje, nei prekės puslapyje, nei automatiniame aprašyme; senos reikšmės duomenų bazėje nerodomos.
+
+
+## Originalas „Įkvėpti …“ (v18)
+
+Kortelėse po pavadinimu natų nebėra – vietoj jų originalo blokelis (`inspiredHTML`, 03-catalog.js): kairėje kvadratinė
+originalo nuotrauka (40 px, telefone 36 px; baltas fonas, plonas kontūras, `object-fit: contain`, `loading="lazy"`), dešinėje
+prekės ženklas (mažos didžiosios raidės, pilka) ir kvapo pavadinimas – abu po vieną eilutę su „…“. Laukas `inspired`
+(„Tom Ford – Tobacco Vanille“) skaidomas per pirmą brūkšnį (`splitInspired`). Nėra nuotraukos – prekės ženklo raidė pilkame
+kvadrate; nėra originalo arba išjungta – šūkis (`.cardTag`); `.cardInsp` aukštis rezervuotas, todėl kortelės lieka lygios.
+Produkto puslapyje – tas pats komponentas, didesnis (`insp-lg`: 56 px nuotrauka, rėmelis, „Įkvėpti · Tom Ford“), po pavadinimu
+(telefone – centre, kompiuteryje – kairėje); natų eilutė ir teisinė pastaba lieka. Paieškos pasiūlymuose – `insp-sm`.
+
+Duomenys: `scents.inspired_image` ir `products.inspired_image` (migracijos 20261118010000, 20261121090000 – perkelia jau
+įkeltas nuotraukas į kvapus). Administravime – Kvapai → kvapas → „Originalo nuotrauka“ (įkelti / pakeisti / pašalinti;
+`uploadInspImg`, 600 px WebP, `products/originalai/<kvapo-id>/…`); su „Pakeitimus pritaikyti ir produktams“ – visiems
+susietiems produktams (`SCENT_TO_PRODUCT`). Produkto formoje – miniatiūra ir „Keisti kvape ›“; produktui be kvapo – įkėlimas
+čia pat. Nustatymai (Vitrina → Prekių kortelės): `inspired.show` – rodyti originalą, `inspired.photo` – rodyti nuotrauką.
+Originalo nuotrauka į JSON-LD ir og:image nededama.

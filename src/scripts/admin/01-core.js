@@ -622,6 +622,27 @@ async function uploadImages(files, prefix, max = 1600, opts = {}) {
   }
   return urls;
 }
+// Originalo nuotrauka (v18): grupė su miniatiūra, „Įkelti / Pakeisti“ ir „Pašalinti“ (kvape ir produkte be kvapo)
+function inspImgHTML(src, foot = "Kvadratinė, šviesiame fone. Rodoma kortelėse ir produkto puslapyje.", bare = false) {
+  const rows = `${src ? `<div class="axInspPrev"><img src="${esc(src)}" alt="Originalo nuotrauka" /><button class="axInspRm" type="button" data-insp-rm>Pašalinti</button></div>` : ""}<label class="axRow admUpload">${glyph(
+    "upload"
+  )}<span class="axRowTxt"><b class="axLink">${src ? "Pakeisti nuotrauką" : "Įkelti originalo nuotrauką"}</b></span><input type="file" accept="image/*" hidden data-insp-img /></label>`;
+  return bare ? rows : `<div class="ig axInspImg" data-insp-box>${rows}</div>${foot ? `<p class="igFoot">${foot}</p>` : ""}`;
+}
+// Įkėlimas: kvadratas iki 600 px, WebP (permatomas fonas lieka); kelias products/originalai/<id>-…
+async function uploadInspImg(input, prefix) {
+  const file = input.files[0];
+  input.value = "";
+  if (!file) return null;
+  const lab = input.closest("label");
+  lab.classList.add("loading");
+  try {
+    const [url] = await uploadImages([file], `originalai/${prefix || "be-id"}`, 600);
+    return url;
+  } finally {
+    lab.classList.remove("loading");
+  }
+}
 // Nustatymų (settings.data) dalinis išsaugojimas: sujungiama su naujausia versija duomenų bazėje
 async function saveSettingsPatch(next) {
   const [cur] = (await sbRest("settings?select=data&id=eq.1")) || [];
