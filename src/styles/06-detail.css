@@ -225,6 +225,33 @@
   font-weight: 600;
   color: #000;
 }
+/* v15: kitų kategorijų prekės – kategorijos nuoroda virš pavadinimo; „Šis kvapas taip pat“ – to paties kvapo produktai */
+.pdCat {
+  margin-bottom: 12px;
+  font-size: 13px;
+  letter-spacing: var(--caps);
+  text-transform: uppercase;
+}
+.pdCat a {
+  color: var(--ink3);
+  text-decoration: none;
+}
+.pdCat a:hover {
+  color: #000;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pdForms {
+  margin-top: 18px;
+}
+.pdForms .pdLabel {
+  margin: 0 0 10px;
+}
+.pdFormLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .pdLegal {
   margin-top: 14px;
   font-size: 13.5px;

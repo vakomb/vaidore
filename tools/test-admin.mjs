@@ -260,6 +260,35 @@ check(sb.db.scents.filter(x => x.name === "My Pink").length === 1, "žvakė: nau
 await page.selectOption('#prodForm select[name="type"]', "elektriniai-difuzoriai");
 check((await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.locator('#prodForm [data-attr="tank"]').count()) === 1 && (await page.locator(".admSizeMl").textContent()) === "1 vnt.", "elektrinis difuzorius: be kvapo laukų, savybės ir „1 vnt.“");
 await page.selectOption('#prodForm select[name="type"]', "zvakes");
+// Kategorijos pasirinkimas naujam produktui: forma pagal kategoriją (?kategorija= – parenkama iš karto)
+await page.goto(`${BASE}admin/kvapai/naujas?kategorija=zvakes`);
+await page.waitForSelector("[data-pick-type]");
+check(
+  (await page.locator("[data-pick-type]").count()) === 5 &&
+    (await page.locator('[data-pick-type="zvakes"]').getAttribute("aria-checked")) === "true" &&
+    (await page.locator(".admSize .field span").first().textContent()).startsWith("Svoris") &&
+    (await page.locator('[data-tf="inci"]').textContent()) === "Sudėtis" &&
+    (await page.locator('[data-tf="notes"]').textContent()) === "Kvapas" &&
+    (await page.locator('#prodForm [data-attr="burn"]').count()) === 1 &&
+    (await page.locator('#prodForm select[name="longevity"]').isHidden()),
+  "kategorijos pasirinkimas: žvakė – svoris, sudėtis, degimo trukmė, be ilgaamžiškumo"
+);
+await page.click('[data-pick-type="elektriniai-difuzoriai"]');
+check(
+  (await page.locator('[data-tf-box="inci"]').isHidden()) && (await page.locator("#prodForm #bottlePrev").isHidden()) && (await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.inputValue("#prodForm select[name=type]")) === "elektriniai-difuzoriai",
+  "kategorijos pasirinkimas: elektrinis difuzorius – be kvapo, sudėties ir buteliuko piešinio"
+);
+await page.click('[data-pick-type="kvepalai"]');
+check(
+  (await page.locator('[data-tf="name"]').textContent()).includes("VANOR") && (await page.locator('[data-tf="inci"]').textContent()) === "Ingredientai (INCI)" && !(await page.locator('#prodForm select[name="longevity"]').isHidden()) && !(await page.locator('#prodForm select[name="conc"]').isHidden()),
+  "kategorijos pasirinkimas: kvepalai – koncentracija, ilgaamžiškumas, ingredientai"
+);
+if (shots) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  check((await page.evaluate(() => document.documentElement.scrollWidth)) <= 390, "telefone: kategorijos pasirinkimas be horizontalaus slinkimo");
+  await page.locator(".typeCard").screenshot({ path: path.join(shotDir, "admin-kategorija-tel.png") });
+  await page.setViewportSize({ width: 1440, height: 900 });
+}
 // Skiltis „Kvapai“: sąrašas, redagavimas (pritaikoma susietiems produktams), naujas kvapas iš aprašymo, ištrynimas
 await page.goto(`${BASE}admin/kvapai`);
 await page.click('a[href="admin/kvapu-sarasas"].btn');

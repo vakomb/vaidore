@@ -1580,3 +1580,60 @@ h2.afAuto::after {
 .scNewProd {
   margin-bottom: 16px;
 }
+/* ── Kategorijos pasirinkimas ir forma pagal kategoriją (v15) ── */
+.admForm .field[hidden],
+.admForm .fieldRow[hidden],
+.admBottle[hidden] {
+  display: none !important;
+}
+.typePick {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.typeOpt {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  min-height: 76px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--line2);
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color var(--ease), color var(--ease), box-shadow var(--ease);
+}
+.typeOpt b {
+  font-size: 15px;
+  font-weight: 600;
+}
+.typeOpt small {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--ink3);
+}
+.typeOpt[aria-checked="true"] {
+  background: var(--ink);
+  box-shadow: none;
+  color: #fff;
+}
+.typeOpt[aria-checked="true"] small {
+  color: rgba(255, 255, 255, 0.78);
+}
+.typeOpt:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+@media (max-width: 420px) {
+  .typePick {
+    grid-template-columns: 1fr 1fr;
+  }
+  .typeOpt:last-child {
+    grid-column: 1 / -1;
+  }
+}

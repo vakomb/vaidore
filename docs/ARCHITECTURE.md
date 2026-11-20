@@ -314,6 +314,13 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
   produktams“ (`SCENT_TO_PRODUCT`: originalas, lytis, šeima, natos, savybės, progos – ne pavadinimas, aprašymas, spalvos),
   „Naujas produktas su šiuo kvapu“ (`admin/kvapai/naujas?kvapas=<id>` – kvapas parenkamas iš karto), ištrynimas
   (pirma `products.scent_id = null`, tada `scents` įrašas). Senas `admin/kvapai/kvapu-sarasas` nukreipiamas.
+- **Forma pagal kategoriją** (`TYPE_FORM`, `typePickHTML`, `applyTypeForm` – `04-products.js`): naujam produktui viršuje –
+  5 kategorijų kortelės (`?kategorija=<tipas>` – parenkama iš karto); pasirinkus perpiešiama: užuominos ir pavyzdžiai,
+  „Ingredientai (INCI)“ / „Sudėtis“ (elektriniam – nėra), „Natos ir savybės“ / „Kvapas“, „Sklaida“ / „Kvapo intensyvumas“,
+  ilgaamžiškumas, buteliuko piešinys, dangtelis ir forma – tik kvepalams; talpos / svoris / „1 vnt.“, tipo savybės.
+  Teminės kategorijos formoje vadinamos „Kolekcijos“.
+- **Prekės puslapis pagal kategoriją**: ne kvepalams – kategorijos nuoroda virš pavadinimo (`.pdCat`), „Kvapo natos“,
+  „Panašūs“ → kategorijos puslapis; visiems – „Šis kvapas taip pat“ (`.pdForms`: to paties `scent_id` produktai).
 - **Parduotuvė**: „Savybės“ prekės puslapyje, „Svoris“ žvakėms, elektriniam difuzoriui – be talpos pasirinkimo;
   filtrai „Proga“ (`?proga=`), „Paros laikas“ (`?laikas=`; seni `?proga=diena|vakaras` palaikomi), „Originalo kvapas“
   (`?originalas=`), „Formatas“ kitiems tipams (`?formatas=`); elektriniams difuzoriams kvapo filtrų nėra.

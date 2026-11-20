@@ -95,6 +95,8 @@ const DEVICE = {
 const shopCat = structuredClone(cat);
 shopCat.products.push(DIF, CANDLE, DEVICE);
 shopCat.products.find(p => p.id === "vanor").occasions = ["kasdien", "darbui"];
+// Tas pats kvapas (scent): kvepalai VANOR, difuzorius ir žvakė – „Šis kvapas taip pat“
+for (const p of shopCat.products) if (["vanor", DIF.id, CANDLE.id].includes(p.id)) p.scent = "vanor";
 const shopFile = path.join(verify, "catalog-shop.json");
 fs.writeFileSync(shopFile, JSON.stringify(shopCat));
 const siteA = path.join(verify, "site");
@@ -351,6 +353,12 @@ async function run(viewport) {
       (await accTitles()).includes("Savybės") &&
       (await page.locator("#productRoot .acc").filter({ hasText: "Savybės" }).textContent()).includes("Sojų vaškas"),
     "žvakės puslapis: svoris 180 g, savybės (vaškas, degimo trukmė)"
+  );
+  check(
+    (await page.locator('#productRoot .pdCat a[href="zvakes"]').textContent()) === "Kvapnios žvakės" &&
+      (await page.locator("#productRoot .pdFormLinks a").allTextContents()).join() === "Kvepalai,Namų kvapų difuzorius" &&
+      (await page.locator('#productRoot .pdFormLinks a[href="kvepalai/vanor"]').count()) === 1,
+    "žvakės puslapis: kategorijos nuoroda ir „Šis kvapas taip pat“ (kvepalai, difuzorius)"
   );
   await open(page, `${A}elektriniai-difuzoriai/${DEVICE.id}`);
   await page.waitForSelector("#productRoot [data-add]");

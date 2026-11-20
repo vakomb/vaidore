@@ -28,6 +28,68 @@ const SHAPES = [
   ["square", "Kvadratinis"]
 ];
 const BADGES = ["", "Populiaru", "Naujiena", "Riboto leidimo"];
+// Forma pagal kategoriją (v15): užuominos, pavyzdžiai, pavadinimai – kiekvienam prekės tipui savi
+const TYPE_FORM = {
+  kvepalai: {
+    hint: "Lytis, koncentracija, 33 / 100 ml ir 2 ml mėginukas",
+    name: "Užrašomas ir ant buteliuko etiketės, pvz. VANOR",
+    tagline: "pvz. Ryto gaiva ant baltųjų rožių",
+    desc: "Kaip kvapas atsiskleidžia, kam ir kada tinka",
+    inci: "Ingredientai (INCI)",
+    inciPh: "pvz. Alcohol Denat., Parfum, Aqua, Linalool, Limonene",
+    notes: "Natos ir savybės",
+    sillage: "Sklaida",
+    photos: "Kol nuotraukų nėra – rodomas nupieštas buteliukas.",
+    look: "Buteliuko ir fono spalvos, dangtelis ir forma – kol nėra nuotraukų."
+  },
+  difuzoriai: {
+    hint: "Lazdelės, trukmė, patalpos dydis, talpa ml",
+    name: "pvz. Difuzorius LIBRADORE",
+    tagline: "pvz. Švelnus gėlių aromatas namams",
+    desc: "Kvapas, kokiai erdvei tinka, kiek jo užtenka",
+    inci: "Sudėtis",
+    inciPh: "pvz. Isopropyl Myristate, Parfum, Linalool",
+    notes: "Kvapas",
+    sillage: "Kvapo intensyvumas",
+    photos: "Įkelkite bent vieną nuotrauką – be jos rodomas tik nupieštas buteliukas.",
+    look: "Fono spalva kortelėje ir prekės puslapyje."
+  },
+  zvakes: {
+    hint: "Svoris g, degimo trukmė, vaškas, dagtis",
+    name: "pvz. Kvapni žvakė LIBRADORE",
+    tagline: "pvz. Jaukus vanilės aromatas vakarams",
+    desc: "Kvapas, vaškas, degimo trukmė, kur tinka",
+    inci: "Sudėtis",
+    inciPh: "pvz. Sojų vaškas, kvapioji kompozicija, medvilninė dagtis",
+    notes: "Kvapas",
+    sillage: "Kvapo intensyvumas",
+    photos: "Įkelkite bent vieną nuotrauką – be jos rodomas tik nupieštas buteliukas.",
+    look: "Fono spalva kortelėje ir prekės puslapyje."
+  },
+  aliejai: {
+    hint: "Elektriniams difuzoriams, talpa ml, trukmė",
+    name: "pvz. Aromatinis aliejus LIBRADORE",
+    tagline: "pvz. Gaivus citrusų aromatas difuzoriui",
+    desc: "Kvapas, kaip naudoti, kiek užtenka",
+    inci: "Sudėtis",
+    inciPh: "pvz. Parfum, Dipropylene Glycol",
+    notes: "Kvapas",
+    sillage: "Kvapo intensyvumas",
+    photos: "Įkelkite bent vieną nuotrauką – be jos rodomas tik nupieštas buteliukas.",
+    look: "Fono spalva kortelėje ir prekės puslapyje."
+  },
+  "elektriniai-difuzoriai": {
+    hint: "Prietaisas be kvapo: vandens talpa, veikimo laikas, maitinimas",
+    name: "pvz. Elektrinis difuzorius AROMA",
+    tagline: "pvz. Tylus aromato difuzorius su apšvietimu",
+    desc: "Kaip veikia, kokiai patalpai tinka, kas komplekte",
+    inci: null,
+    notes: "Kvapas",
+    sillage: "Kvapo intensyvumas",
+    photos: "Įkelkite bent vieną nuotrauką – be jos rodomas tik nupieštas buteliukas.",
+    look: "Fono spalva kortelėje ir prekės puslapyje."
+  }
+};
 
 async function renderProducts(main, param, seq) {
   // Senas adresas (iki atskiros skilties „Kvapai“)
@@ -213,11 +275,12 @@ async function renderProductEdit(main, id, seq) {
 ${pageHead(isNew ? "Naujas produktas" : p.name, isNew ? "Įklijuokite aprašymą arba užpildykite ranka – išsaugotas produktas iškart atsiras parduotuvėje." : `vaidore.com/${esc(p.type || "kvepalai")}/${esc(p.id)}`, isNew ? "" : `<a class="btn ghost small" href="${esc(p.type || "kvepalai")}/${esc(p.id)}" target="_blank" rel="noopener">${glyph("eye")}Peržiūrėti</a>`)}
 <form class="admEdit admForm" id="prodForm" novalidate>
 <div class="admEditCols"><div class="admEditMain">
+${isNew && "type" in p ? typePickHTML(p.type || "kvepalai") : ""}
 ${isNew ? afCardHTML(ed, opt) : ""}
 <section class="admCard"><h2>Pagrindinė informacija</h2>
-<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(p.name)}" /><small>Užrašomas ir ant buteliuko etiketės, pvz. VANOR</small></label>${
+<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(p.name)}" /><small data-tf="name"></small></label>${
     "type" in p
-      ? `<label class="field"><span>Kategorija</span><select name="type">${VD.TYPES.map(t => opt(t.id, t.name, p.type || "kvepalai")).join("")}</select><small>Pagal kategoriją prekė rodoma pradžios plytelėje, meniu ir puslapyje. Lytis, koncentracija ir mėginukas – tik kvepalams; elektriniam difuzoriui kvapo laukų nėra</small></label>`
+      ? `<label class="field"${attr(isNew, "hidden")}><span>Kategorija</span><select name="type">${VD.TYPES.map(t => opt(t.id, t.name, p.type || "kvepalai")).join("")}</select><small>Pagal kategoriją prekė rodoma pradžios plytelėje, meniu ir puslapyje. Lytis, koncentracija ir mėginukas – tik kvepalams; elektriniam difuzoriui kvapo laukų nėra</small></label>`
       : ""
   }
 ${"inspired" in p ? `<label class="field scentOnly"><span>Originalo kvapas (įkvėpta)</span><input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="pvz. Tom Ford – Tobacco Vanille" /><small>Prekės ženklas – kvapas. Rodoma „Įkvėpti …“ kortelėse ir kvapo puslapyje</small></label>` : ""}
@@ -231,20 +294,20 @@ ${"inspired" in p ? `<label class="field scentOnly"><span>Originalo kvapas (įkv
     .map(([v, l]) => opt(v, l, p.conc))
     .join("")}</select></label>
 <label class="field scentOnly"><span>Kvapo šeima</span><select name="family">${fams.map(f => opt(f.id, f.name, p.family)).join("")}</select></label></div>
-<label class="field"><span>Trumpas aprašymas</span><input name="tagline" maxlength="90" value="${esc(p.tagline)}" placeholder="pvz. Ryto gaiva ant baltųjų rožių" /><small>Rodomas kortelėje ir paieškoje</small></label>
+<label class="field"><span>Trumpas aprašymas</span><input name="tagline" maxlength="90" value="${esc(p.tagline)}" /><small>Rodomas kortelėje ir paieškoje</small></label>
 <label class="field"><span>Aprašymas</span><textarea name="description" rows="5" maxlength="1500">${esc(p.description)}</textarea></label>${
   "ingredients" in p
     ? `
-<label class="field"><span>Ingredientai (INCI)</span><textarea name="ingredients" rows="3" maxlength="1500" placeholder="pvz. Alcohol Denat., Parfum, Aqua, Linalool, Limonene">${esc(p.ingredients || "")}</textarea><small>Kaip ant pakuotės. Rodoma kvapo puslapyje skiltyje „Ingredientai“; tuščia – skiltis nerodoma</small></label>`
+<label class="field" data-tf-box="inci"><span data-tf="inci">Ingredientai (INCI)</span><textarea name="ingredients" rows="3" maxlength="1500">${esc(p.ingredients || "")}</textarea><small>Kaip ant pakuotės. Rodoma prekės puslapyje; tuščia – skiltis nerodoma</small></label>`
     : ""
 }
 </section>
-<section class="admCard scentOnly"><h2>Natos ir savybės</h2>
+<section class="admCard scentOnly"><h2 data-tf="notes">Natos ir savybės</h2>
 <label class="field"><span>Viršutinės natos</span><input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" /><small>Atskirkite kableliais</small></label>
 <label class="field"><span>Širdies natos</span><input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" /></label>
 <label class="field"><span>Bazinės natos</span><input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" /></label>
-<div class="fieldRow"><label class="field"><span>Ilgaamžiškumas</span><select name="longevity">${lasts(p.longevity)}</select></label>
-<label class="field"><span>Sklaida</span><select name="sillage">${levels(p.sillage)}</select></label></div>
+<div class="fieldRow"><label class="field perfOnly"><span>Ilgaamžiškumas</span><select name="longevity">${lasts(p.longevity)}</select></label>
+<label class="field"><span data-tf="sillage">Sklaida</span><select name="sillage">${levels(p.sillage)}</select></label></div>
 <div class="admChecks"><span>Metų laikai</span>${SEASONS.map(s => check("seasons", s, (p.seasons || []).includes(s), VD.SEASON_NAME[s])).join("")}</div>
 <div class="admChecks"><span>Paros metas</span>${TIMES.map(([v, l]) => check("times", v, (p.times || []).includes(v), l)).join("")}</div>${
     "occasions" in p ? `\n<div class="admChecks"><span>Proga</span>${AF_OCCASIONS.map(([v, l]) => check("occasions", v, (p.occasions || []).includes(v), l)).join("")}</div>` : ""
@@ -257,7 +320,7 @@ ${"inspired" in p ? `<label class="field scentOnly"><span>Originalo kvapas (įkv
 <label class="field"><span>Likutis, vnt.</span><input name="stock" type="number" inputmode="numeric" min="0" step="1" value="${p.stock ?? ""}" placeholder="neskaičiuojamas" /><small>0 – išparduota; tuščia – neskaičiuojama</small></label></div>
 </section>
 <section class="admCard"><h2>Nuotraukos</h2>
-<p class="admNote">Pirmoji – kortelėje ir dalinantis. Įkeliant sumažinama iki 1600 px (WebP). Kol nuotraukų nėra – rodomas nupieštas buteliukas.</p>
+<p class="admNote">Pirmoji – kortelėje ir dalinantis. Įkeliant sumažinama iki 1600 px (WebP). <span data-tf="photos"></span></p>
 <div class="admImgs" id="imgsBox"></div>
 <label class="btn ghost small admUpload">${glyph("upload")}Įkelti nuotraukas<input type="file" accept="image/*" multiple hidden data-img-input /></label>
 </section>
@@ -269,14 +332,15 @@ ${"inspired" in p ? `<label class="field scentOnly"><span>Originalo kvapas (įkv
 <div class="fieldRow"><label class="field"><span>Eilė</span><input name="rank" type="number" inputmode="numeric" value="${esc(p.rank)}" /><small>1 – pirmas („Populiariausi“)</small></label>
 <label class="field"><span>Pridėta</span><input name="added" type="date" value="${esc(p.added || "")}" /><small>Naujienoms</small></label></div>
 </section>
-<section class="admCard"><h2>Kategorijos</h2>${
+<section class="admCard"><h2>Kolekcijos</h2>${
     cats.length ? `<div class="admChecks col">${cats.map(c => check("cats", c.id, ed.cats.has(c.id), c.name)).join("")}</div>` : `<p class="admNote">Kategorijų dar nėra – <a href="admin/kategorijos" data-nav>sukurti</a>.</p>`
   }</section>
 <section class="admCard"><h2>Išvaizda</h2>
-<div class="admBottle" id="bottlePrev"></div>
+<p class="admNote" data-tf="look"></p>
+<div class="admBottle perfOnly" id="bottlePrev"></div>
 <div class="fieldRow"><label class="field"><span>Skysčio spalva</span><input type="color" name="liquid" value="${esc(p.look?.liquid || "#E8D9C4")}" /></label>
 <label class="field"><span>Fono atspalvis</span><input type="color" name="tint" value="${esc(p.look?.tint || "#F7F1E8")}" /></label></div>
-<div class="fieldRow"><label class="field"><span>Dangtelis</span><select name="cap">${CAPS.map(([v, l]) => opt(v, l, p.look?.cap)).join("")}</select></label>
+<div class="fieldRow perfOnly"><label class="field"><span>Dangtelis</span><select name="cap">${CAPS.map(([v, l]) => opt(v, l, p.look?.cap)).join("")}</select></label>
 <label class="field"><span>Forma</span><select name="shape">${SHAPES.map(([v, l]) => opt(v, l, p.look?.shape)).join("")}</select></label></div>
 </section>
 ${isNew ? "" : `<section class="admCard admDangerCard"><h2>Ištrinti</h2><p class="admNote">Geriau paslėpkite – ištrynus dings ir atsiliepimai. Užsakymų įrašai liks.</p><button class="btn danger small" type="button" data-prod-delete>${glyph("trash")}Ištrinti produktą</button></section>`}
@@ -288,6 +352,12 @@ ${isNew ? "" : `<section class="admCard admDangerCard"><h2>Ištrinti</h2><p clas
   paintSizes(form, ed.p.sizes || []);
   paintAttrs(form, ed.p.attrs || {});
   // „Naujas produktas su šiuo kvapu“ (skiltis „Kvapai“): admin/kvapai/naujas?kvapas=<id> – kvapas parenkamas iš karto
+  const preType = isNew && new URLSearchParams(location.search).get("kategorija");
+  if (preType && form.elements.type && VD.TYPES.some(t => t.id === preType)) {
+    form.elements.type.value = preType;
+    paintSizes(form, []);
+    paintAttrs(form, {});
+  }
   const pre = isNew && new URLSearchParams(location.search).get("kvapas");
   if (pre && $("#afScent", form) && (scents || []).some(x => x.id === pre)) {
     $("#afScent", form).value = pre;
@@ -328,6 +398,11 @@ ${isNew ? "" : `<section class="admCard admDangerCard"><h2>Ištrinti</h2><p clas
       A.dirty = true;
     }
     if (t?.closest("[data-prod-delete]")) deleteProduct(ed.p);
+    const pick = t?.closest("[data-pick-type]");
+    if (pick && form.elements.type.value !== pick.dataset.pickType) {
+      form.elements.type.value = pick.dataset.pickType;
+      form.elements.type.dispatchEvent(new Event("change", { bubbles: true }));
+    }
     if (t?.closest("[data-af-run]")) afRun(ed, form);
     const go = t?.closest("[data-af-go]");
     if (go) afGo(form, go.dataset.afGo);
@@ -368,6 +443,7 @@ function paintSizes(form, sizes) {
       : `Įrašykite ${unit === "g" ? "svorį" : "tūrį"} ir kainą (antra eilutė – jei parduodate dviem dydžiais). Tuščia kaina – neparduodama. „Sena kaina“ – tik akcijai (mažiausia kaina per 30 dienų).`;
   $$(".perfOnly", form).forEach(el => (el.hidden = !perf));
   $$(".scentOnly, .afScentField", form).forEach(el => (el.hidden = !AF_SCENTED.has(type)));
+  applyTypeForm(form, type);
 }
 const readSizes = form =>
   $$(".admSize", form).map(r => ({
@@ -745,4 +821,22 @@ async function createScent(ed, row) {
   const [sc] = (await sbRest("scents", { method: "POST", body, prefer: "return=representation" })) || [];
   if (sc) ed.scents.push(sc);
   return sc?.id || id;
+}
+
+// ── Kategorijos pasirinkimas (naujas produktas) ir forma pagal kategoriją ──
+function typePickHTML(cur) {
+  return `<section class="admCard typeCard"><h2>Kategorija</h2><div class="typePick" role="radiogroup" aria-label="Kategorija">${VD.TYPES.map(
+    t => `<button type="button" class="typeOpt" role="radio" data-pick-type="${t.id}" aria-checked="${t.id === cur}"><b>${esc(t.name)}</b><small>${esc(TYPE_FORM[t.id]?.hint || "")}</small></button>`
+  ).join("")}</div></section>`;
+}
+function applyTypeForm(form, type) {
+  const tf = TYPE_FORM[type] || TYPE_FORM.kvepalai;
+  $$("[data-pick-type]", form).forEach(b => b.setAttribute("aria-checked", String(b.dataset.pickType === type)));
+  for (const el of $$("[data-tf]", form)) if (tf[el.dataset.tf] != null) el.textContent = tf[el.dataset.tf];
+  const f = form.elements;
+  f.tagline.placeholder = tf.tagline;
+  f.description.placeholder = tf.desc;
+  if (f.ingredients) f.ingredients.placeholder = tf.inciPh || "";
+  const inci = $('[data-tf-box="inci"]', form);
+  if (inci) inci.hidden = !tf.inci;
 }

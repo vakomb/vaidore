@@ -38,6 +38,9 @@ function productPageHTML(p, ml) {
     }</b></button>`;
   const device = typeOf(p) === "elektriniai-difuzoriai";
   const attrs = attrList(p);
+  const T = TYPE.get(typeOf(p));
+  // Tas pats kvapas kitose kategorijose (products.scent_id): „Šis kvapas taip pat“ – kvepalai, difuzorius, žvakė…
+  const forms = p.scent ? PRODUCTS.filter(x => x.scent === p.scent && x.id !== p.id).sort((a, b) => TYPES.findIndex(t => t.id === typeOf(a)) - TYPES.findIndex(t => t.id === typeOf(b))) : [];
   const similar = PRODUCTS.filter(x => x.id !== p.id && inStock(x) && typeOf(x) === typeOf(p) && (x.family === p.family || x.gender === p.gender || !isPerfume(p)))
     .sort((a, b) => (b.family === p.family) - (a.family === p.family) || a.rank - b.rank)
     .slice(0, 8);
@@ -63,7 +66,7 @@ function productPageHTML(p, ml) {
     .map(t => `<li>${esc(t)}</li>`)
     .join("")}</ul>`;
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
-  return `<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
+  return `<header class="pdHead">${isPerfume(p) ? "" : `<p class="pdCat"><a href="${typeOf(p)}" data-nav>${esc(T.title)}</a></p>`}<h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
     inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
   }<p class="pdKey">${keyLine(p)}</p>${
     rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
@@ -77,7 +80,7 @@ ${galleryHTML(p)}
 <p class="pdDesc">${esc(p.desc)}</p>
 <div class="accs">
 ${isPerfume(p) ? accHTML("user", "Kam skirti", who) : ""}
-${keyNotes(p).length ? accHTML("drop", "Natos", notes, { id: "pdNotesH" }) : ""}
+${keyNotes(p).length ? accHTML("drop", isPerfume(p) ? "Natos" : "Kvapo natos", notes, { id: "pdNotesH" }) : ""}
 ${attrs.length ? accHTML("info", "Savybės", `<dl class="pdNotes">${attrs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`, { open: device }) : ""}
 ${p.ingredients ? accHTML("doc", "Ingredientai", `<p>${esc(p.ingredients)}</p>`) : ""}
 ${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
@@ -92,6 +95,13 @@ ${
 ${sold ? "" : `<p class="pdLabel">Kiekis</p>`}
 <div class="pdBuy" data-buy-anchor>${sold ? "" : qtyHTML()}${buyBtn}</div>
 <p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
+${
+  forms.length
+    ? `<div class="pdForms"><p class="pdLabel">Šis kvapas taip pat</p><div class="pdFormLinks">${forms
+        .map(x => `<a class="chip" href="${productUrl(x)}" data-nav>${esc(TYPE.get(typeOf(x)).one)}</a>`)
+        .join("")}</div></div>`
+    : ""
+}
 <div class="pdActs">${heartBtn(p, "pdAct")}<button class="pdAct" type="button" data-share="${p.id}">${glyph("share")}<span>Dalintis</span></button></div>
 ${inspiredOf(p) && SET.inspired?.note ? `<p class="pdLegal">${esc(SET.inspired.note)}</p>` : ""}
 <div data-note-slot>${ml === SAMPLE_ML && !sold ? sampleNoteHTML() : ""}</div>
@@ -101,9 +111,9 @@ ${inspiredOf(p) && SET.inspired?.note ? `<p class="pdLegal">${esc(SET.inspired.n
 <section class="sec" id="pdReviews" data-pd-reviews hidden></section>
 ${
   similar.length
-    ? `<section class="hsec pdSimilar"><h2 class="band">Jums gali patikti</h2><div class="wrap"><p class="secLine"><span>Panašūs kvapai</span><a href="kvepalai?seima=${encodeURIComponent(
-        p.family
-      )}" data-nav>Peržiūrėti</a></p>${railHTML(similar.map(x => cardHTML(x, { heart: false })).join(""), { cover: true })}</div></section>`
+    ? `<section class="hsec pdSimilar"><h2 class="band">Jums gali patikti</h2><div class="wrap"><p class="secLine"><span>${isPerfume(p) ? "Panašūs kvapai" : esc(T.title)}</span><a href="${
+        isPerfume(p) ? `kvepalai?seima=${encodeURIComponent(p.family)}` : typeOf(p)
+      }" data-nav>Peržiūrėti</a></p>${railHTML(similar.map(x => cardHTML(x, { heart: false })).join(""), { cover: true })}</div></section>`
     : ""
 }
 </div>
