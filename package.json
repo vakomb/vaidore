@@ -12,7 +12,7 @@
     "build:site": "node tools/build-site.mjs",
     "serve": "node tools/serve.mjs",
     "check": "node tools/check.mjs",
-    "test": "node tools/check.mjs && node tools/test-api.mjs && node tools/test-smoke.mjs && node tools/test-admin.mjs",
+    "test": "node tools/check.mjs && node tools/test-autofill.mjs && node tools/test-api.mjs && node tools/test-smoke.mjs && node tools/test-admin.mjs",
     "test:admin": "node tools/test-admin.mjs",
     "seed": "node tools/make-seed.mjs",
     "og": "node tools/make-og.mjs"
