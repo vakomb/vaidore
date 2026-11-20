@@ -108,7 +108,7 @@ ${
   similar.length
     ? `<section class="hsec pdSimilar"><h2 class="band">Jums gali patikti</h2><div class="wrap"><p class="secLine"><span>${isPerfume(p) ? "Panašūs kvapai" : esc(T.title)}</span><a href="${
         isPerfume(p) ? `kvepalai?seima=${encodeURIComponent(p.family)}` : typeOf(p)
-      }" data-nav>Peržiūrėti</a></p>${railHTML(similar.map(x => cardHTML(x, { heart: false })).join(""), { cover: true })}</div></section>`
+      }" data-nav>Peržiūrėti</a></p>${railHTML(similar.map(x => cardHTML(x, { heart: false })).join(""))}</div></section>`
     : ""
 }
 </div>

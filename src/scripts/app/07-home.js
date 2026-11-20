@@ -84,43 +84,33 @@ function tileHTML({ name, href, list, stage, image, focus, dark }) {
   return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileName">${esc(name)}</span><span class="tileArt">${bg}</span></a>`;
 }
 // Skyrius su juosta ir karusele (rodyklės ir „1/3“, kaip parfumada.lt)
-function railHTML(cards, { cover = false } = {}) {
-  return `<div class="railWrap"><div class="rail${cover ? " railCover" : ""}">${cards}</div><div class="railNav" hidden><button class="railBtn" type="button" data-rail-step="-1" aria-label="Atgal">${glyph(
+function railHTML(cards) {
+  return `<div class="railWrap"><div class="rail">${cards}</div><div class="railNav" hidden><button class="railBtn" type="button" data-rail-step="-1" aria-label="Atgal">${glyph(
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
 function railSecHTML({ id, title, line, href, list }) {
   return `<section class="hsec"${id ? ` data-rail="${esc(id)}"` : ""}><h2 class="band">${esc(title)}</h2><div class="wrap">${
     line ? `<p class="secLine"><span>${esc(line)}</span>${href ? `<a href="${esc(href)}" data-nav>Peržiūrėti</a>` : ""}</p>` : ""
-  }${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""), { cover: true })}</div></section>`;
+  }${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""))}</div></section>`;
 }
-// Pradžios karuselė telefone (kaip parfumada.lt): kortelės dydis 0,85–1 pagal atstumą nuo centro
-const coverMQ = matchMedia("(max-width: 699.98px)");
-const coverOn = rail => rail.classList.contains("railCover") && coverMQ.matches;
-const coverStep = rail => (rail.children.length > 1 ? rail.children[1].offsetLeft - rail.children[0].offsetLeft : rail.clientWidth);
-function coverScales(rail) {
-  const items = [...rail.children];
-  if (!coverOn(rail)) return items.forEach(it => (it.style.transform = ""));
-  if (reduceMotion()) return items.forEach(it => (it.style.transform = "none"));
-  if (!rail.clientWidth) return; // paslėptas ekranas – pirmoji 1, kitos 0,85 (CSS)
-  const mid = rail.scrollLeft + rail.clientWidth / 2;
-  const max = rail.clientWidth / 2;
-  for (const it of items) {
-    const t = Math.max(0, 1 - Math.abs(mid - (it.offsetLeft + it.offsetWidth / 2)) / max);
-    it.style.transform = `scale(${(0.85 + 0.15 * t).toFixed(3)}) translateZ(0)`;
-  }
+// Karuselės (v21): visur matosi dalis kitos kortelės (telefone ~2,3, planšetėje ~3,4, kompiuteryje ~4,5) – aišku,
+// kad galima slinkti. Rodyklės (nuo 700 px) slenka per visas matomas korteles; „1/N“ – puslapiai.
+const railCardStep = rail => (rail.children.length > 1 ? rail.children[1].offsetLeft - rail.children[0].offsetLeft : rail.clientWidth);
+function railPageStep(rail) {
+  const c = railCardStep(rail);
+  return Math.max(1, c * Math.max(1, Math.floor((rail.clientWidth + 2) / c)));
 }
 function syncRail(wrap) {
   const rail = $(".rail", wrap);
   const nav = $(".railNav", wrap);
   if (!rail || !nav) return;
-  coverScales(rail);
-  // Telefono karuselė – po vieną kortelę; kitur – po ekraną
-  const cover = coverOn(rail);
-  const step = Math.max(1, cover ? coverStep(rail) : rail.clientWidth);
-  const pages = cover ? rail.children.length : Math.max(1, Math.round(rail.scrollWidth / step));
+  const max = Math.max(0, rail.scrollWidth - rail.clientWidth);
+  const step = railPageStep(rail);
+  const pages = max < 4 ? 1 : Math.ceil((max - 4) / step) + 1;
   nav.hidden = pages < 2;
-  const cur = Math.min(pages, Math.round(rail.scrollLeft / step) + 1);
+  const end = rail.scrollLeft >= max - 4;
+  const cur = end ? pages : Math.min(pages, Math.round(rail.scrollLeft / step) + 1);
   $(".railPage", nav).textContent = `${cur}/${pages}`;
   $(".railPage", nav).setAttribute("aria-label", `${cur} iš ${pages}`);
   $('[data-rail-step="-1"]', nav).disabled = cur <= 1;
@@ -146,7 +136,7 @@ document.addEventListener("click", e => {
   const b = e.target instanceof Element && e.target.closest("[data-rail-step]");
   if (!b) return;
   const rail = $(".rail", b.closest(".railWrap"));
-  rail.scrollBy({ left: Number(b.dataset.railStep) * (coverOn(rail) ? coverStep(rail) : rail.clientWidth), behavior: reduceMotion() ? "auto" : "smooth" });
+  rail.scrollBy({ left: Number(b.dataset.railStep) * railPageStep(rail), behavior: reduceMotion() ? "auto" : "smooth" });
 });
 window.addEventListener("resize", () => {
   clearTimeout(window.__vdRailT);

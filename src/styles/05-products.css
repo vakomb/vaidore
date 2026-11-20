@@ -207,7 +207,7 @@
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 40%;
-  gap: 12px;
+  gap: 10px;
   margin: 0 calc(var(--pad) * -1);
   padding: 2px var(--pad) 6px;
   overflow-x: auto;
@@ -271,11 +271,19 @@
 .tile:active {
   transform: scale(var(--press));
 }
-/* Telefone: ekrane lygiai dvi plytelės, kitos – braukiant; paveikslas beveik kvadratinis.
-   Pavadinimas – tokio pat dydžio kaip visur (22,75 px / 700) */
+/* Telefone (v21): ~2,3 plytelės – trečios dalis matosi krašte, aišku, kad galima slinkti; paveikslas beveik
+   kvadratinis, pavadinimas mažesnis (telpa ir „Elektriniai difuzoriai“ dviem eilutėmis) */
 @media (max-width: 699.98px) {
   .catTiles {
-    grid-auto-columns: calc((100% - 12px) / 2);
+    --tileFs: 17px;
+    grid-auto-columns: calc((100% - 2 * 10px) / 2.3);
+  }
+  .tileName {
+    padding: 14px 0 12px;
+    line-height: 22px;
+  }
+  #homeTilesSec .tileName {
+    padding-top: 10px;
   }
   .tileArt {
     aspect-ratio: 10 / 11;
@@ -658,9 +666,9 @@
   color: var(--ink3);
 }
 
-/* Karuselėje – stambūs, stori pavadinimai (kaip parfumada.lt: 22,75 px / 700), paveikslas – kvadratas */
+/* Karuselėje – stori pavadinimai (telefone 16 px, kompiuteryje – 22,75 px / 700, 09-desktop.css), paveikslas – kvadratas */
 .rail .cardName {
-  font-size: 22.75px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.02em;
   white-space: normal;
@@ -696,9 +704,10 @@
 .rail {
   display: grid;
   grid-auto-flow: column;
-  /* Telefone ~1,6 kortelės: kitos kortelės buteliukas matosi iki pusės – aišku, kad galima slinkti */
-  grid-auto-columns: 62%;
-  gap: 12px;
+  /* v21: telefone ~2,3 kortelės – trečios dalis matosi ekrano krašte, aišku, kad galima slinkti */
+  grid-auto-columns: calc((100% - 2 * var(--railGap)) / 2.3);
+  --railGap: 10px;
+  gap: var(--railGap);
   margin: 0 calc(var(--pad) * -1);
   padding: 2px var(--pad) 8px;
   overflow-x: auto;
@@ -713,26 +722,10 @@
 .rail .card {
   scroll-snap-align: start;
 }
-/* Pradžios karuselės telefone (kaip parfumada.lt): didelė kortelė centre (~73 % ekrano), kaimynės matosi kraštuose
-   ir yra 0,85 dydžio; slenkant dydis keičiasi tolygiai pagal atstumą iki centro (07-home.js, coverScales). Sustoja
-   kiekvienos kortelės centre, rodyklės ir „1/4“ – po vieną kortelę. */
+/* Telefone rodyklių nėra – kad galima slinkti, rodo kitos kortelės dalis ekrano krašte */
 @media (max-width: 699.98px) {
-  .rail.railCover {
-    position: relative;
-    display: flex;
-    gap: 6px;
-    padding: 2px 52px 8px;
-    scroll-padding-inline: 52px;
-    scroll-behavior: smooth;
-  }
-  .railCover > .card {
-    flex: 0 0 100%; /* 100 % = turinio plotis be 52 px kraštų → ~73 % ekrano */
-    scroll-snap-align: center;
-    transform-origin: 50% 50%;
-    will-change: transform;
-  }
-  .railCover > .card:not(:first-child) {
-    transform: scale(0.85) translateZ(0);
+  .railWrap .railNav {
+    display: none;
   }
 }
 .railNav {

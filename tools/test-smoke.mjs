@@ -215,7 +215,7 @@ async function run(viewport) {
       const a = document.querySelector("#homeTiles .tileArt").getBoundingClientRect();
       return { full: t.filter(r => r.left >= 0 && r.right <= innerWidth + 0.5).length, ratio: a.height / a.width };
     });
-    check(tl.full === 2 && tl.ratio > 1 && tl.ratio < 1.15, `pradžia telefone: matomos 2 kategorijos, beveik kvadratinės (${tl.full}, ${tl.ratio.toFixed(2)})`);
+    check(tl.full === 2 && tl.ratio > 1 && tl.ratio < 1.15, `pradžia telefone: matomos 2 kategorijos (+ trečios dalis), beveik kvadratinės (${tl.full}, ${tl.ratio.toFixed(2)})`);
   }
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {
@@ -291,22 +291,17 @@ async function run(viewport) {
   }
   check((await page.locator("#homeRails .card [data-fav]").count()) === 0, "pradžia: karuselių kortelėse širdelių nėra");
   if (mobile && viewport.width < 700) {
-    // Kaip parfumada.lt: didelė kortelė centre, kaimynės 0,85; slenkant – po vieną kortelę, centre visada 1
+    // v21: ~2,3 kortelės – dvi matomos visos, trečios dalis ekrano krašte; rodyklių telefone nėra
     const rail = page.locator("#homeRails .rail").first();
-    const geo = () =>
-      rail.evaluate(r => {
-        const cards = [...r.children];
-        const sc = el => new DOMMatrix(getComputedStyle(el).transform).a;
-        const mid = r.getBoundingClientRect().left + r.clientWidth / 2;
-        const center = cards.reduce((b, c) => (Math.abs(c.getBoundingClientRect().left + c.getBoundingClientRect().width / 2 - mid) < Math.abs(b.getBoundingClientRect().left + b.getBoundingClientRect().width / 2 - mid) ? c : b));
-        return { w: cards[0].offsetWidth / r.clientWidth, center: sc(center), other: sc(cards.find(c => c !== center)), page: r.closest(".railWrap").querySelector(".railPage").textContent };
-      });
-    let g = await geo();
-    check(g.w > 0.68 && g.w < 0.78 && g.center > 0.99 && g.other < 0.87 && g.page === "1/" + (await rail.locator(".card").count()), `pradžios karuselė: kortelė ${Math.round(g.w * 100)} % pločio, centre 1, kaimynės ${g.other.toFixed(2)} (${g.page})`);
-    await rail.evaluate(r => r.scrollBy({ left: r.children[1].offsetLeft - r.children[0].offsetLeft, behavior: "auto" }));
-    await page.waitForTimeout(400);
-    g = await geo();
-    check(g.center > 0.99 && g.page.startsWith("2/"), `pradžios karuselė: po slinkimo – kita kortelė centre (${g.page})`);
+    const g = await rail.evaluate(r => {
+      const rs = [...r.children].map(c => c.getBoundingClientRect());
+      const full = rs.filter(x => x.left >= -0.5 && x.right <= innerWidth + 0.5).length;
+      const part = rs.filter(x => x.left < innerWidth - 1 && x.right > innerWidth + 1).length;
+      return { full, part, nav: getComputedStyle(r.closest(".railWrap").querySelector(".railNav")).display };
+    });
+    check(g.full === 2 && g.part === 1 && g.nav === "none", `pradžios karuselė telefone: 2 kortelės ir trečios dalis (${g.full}+${g.part}), be rodyklių`);
+    const tp = await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].filter(t => { const x = t.getBoundingClientRect(); return x.left < innerWidth - 1 && x.right > innerWidth + 1; }).length);
+    check(tp === 1 || (await page.locator("#homeTiles .tile").count()) <= 2, "pradžia telefone: matosi trečios kategorijos dalis");
     await rail.evaluate(r => r.scrollTo({ left: 0, behavior: "auto" }));
   }
   await shot(page, `${tag}-pradzia`);

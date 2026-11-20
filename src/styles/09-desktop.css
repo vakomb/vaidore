@@ -10,11 +10,15 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 34px 18px;
   }
+  /* Planšetė (v21): ~3,3 kortelės, kitos dalis matosi krašte */
   .rail {
-    grid-auto-columns: calc((100% - 2 * 18px) / 3);
-    gap: 18px;
+    --railGap: 16px;
+    grid-auto-columns: calc((100% - 3 * var(--railGap)) / 3.4);
     padding: 2px var(--pad) 8px;
     scroll-padding: 0 var(--pad);
+  }
+  .rail .cardName {
+    font-size: 18px;
   }
   .rail .card {
     scroll-snap-align: start;
@@ -66,8 +70,12 @@
     padding: 18px 8px;
   }
   .catTiles {
-    grid-auto-columns: calc((100% - 3 * 14px) / 4);
+    grid-auto-columns: calc((100% - 3 * 14px) / 3.4);
     gap: 14px;
+  }
+  /* Kai plytelių mažiau nei 4 – jos telpa ir yra centre */
+  .catTiles:not(:has(> .tile:nth-child(4))) {
+    justify-content: center;
   }
   .promos {
     grid-template-columns: 1fr 1fr;
@@ -451,24 +459,32 @@
     max-width: var(--maxWide);
     padding: 0 var(--pad);
   }
-  /* Plytelės – visos vienoje eilėje, ne platesnės nei 246 px (kaip parfumada.lt), centre */
+  /* Plytelės – iki 5 telpa vienoje eilėje (ne platesnės nei 246 px, centre); daugiau – slenkama eilė, kurioje
+     matosi kitos plytelės dalis (v21) */
   .catTiles {
-    --tileFs: 23.4px;
+    --tileFs: 21px;
     grid-auto-flow: column;
     grid-auto-columns: minmax(0, 246px);
     justify-content: center;
     margin: 0;
-    padding: 0;
-    overflow: visible;
+    padding: 0 0 6px;
+    overflow-x: auto;
     gap: 16px;
   }
-  /* Karuselė (v17) – 4 kortelės eilėje, rodyklės ir „1 / iš N“ */
+  .catTiles:has(> .tile:nth-child(6)) {
+    grid-auto-columns: calc((100% - 5 * 16px) / 5.4);
+    justify-content: start;
+  }
+  /* Karuselė (v21) – ~4,5 kortelės: penktos pusė matosi dešinėje – aišku, kad galima slinkti; rodyklės ir „1/N“ */
   .rail {
-    grid-auto-columns: calc((100% - 3 * 24px) / 4);
-    gap: 24px;
+    --railGap: 24px;
+    grid-auto-columns: calc((100% - 4 * var(--railGap)) / 4.5);
     margin: 0;
     padding: 2px 0 8px;
     scroll-padding: 0;
+  }
+  .rail .cardName {
+    font-size: 22.75px;
   }
   .railNav {
     margin-top: 14px;
