@@ -168,6 +168,23 @@ await page.click('[data-pf="visi"]');
 await page.fill("#prodQ", "tabako");
 check((await prodRows()) >= 1 && (await page.locator('.axCell[data-pid="vanor"]').count()) === 1, "paieška pagal natą");
 await page.fill("#prodQ", "");
+// Filtrai (v20): Kategorija, Originalas, Kam, Kvapo šeima, Kolekcija – pasirenkama apatiniame lape
+const facet = async (k, v) => {
+  await page.click(`#prodFacets [data-facet="${k}"]`);
+  await page.click(`#sheetBody [data-sheet-act="${v}"]`);
+  await page.waitForTimeout(250);
+};
+check((await page.locator("#prodFacets [data-facet]").allTextContents()).join("|").includes("Originalas"), "produktų filtrai: „Originalas“ ir kiti");
+await facet("gender", "v:unisex");
+check((await prodRows()) === cat.products.filter(p => p.gender === "unisex").length && (await page.locator('#prodFacets [data-facet="gender"].on').textContent()) === "Unisex", "filtras „Kam“: Unisex");
+await facet("gender", "__all");
+await facet("inspired", "v:Dior – Sauvage");
+check((await prodRows()) === 1 && (await page.locator('.axCell[data-pid="arven"]').count()) === 1, "filtras „Originalas“: Dior – Sauvage");
+check((await page.locator('#prodFacets [data-facet="type"]').count()) === 0, "„Kategorija“ nerodoma, kai visi produktai vienos kategorijos");
+await facet("family", `v:${cat.products.find(p => p.id === "arven").family}`);
+check((await prodRows()) === 1 && (await page.locator("#prodFacets [data-facet-clear]").count()) === 1, "filtrai derinami, yra „Išvalyti“");
+await page.click("#prodFacets [data-facet-clear]");
+check((await prodRows()) === cat.products.length, "„Išvalyti“ – vėl visi produktai");
 
 // Redagavimas (kompiuteryje – šalia sąrašo; ilgesnės dalys – vidiniuose ekranuose)
 await page.click('.axCell[data-pid="vanor"] .axRow');
@@ -580,6 +597,16 @@ await ed.locator('input[name="rtitle"]').fill("Šilti kvapai");
 check((await ed.locator('select[name="rq_time"], select[name="rq_season"], select[name="rq_occasion"]').count()) === 0, "skyriaus taisyklėje – be paros laiko, sezono ir progos");
 await ed.locator('select[name="rq_family"]').selectOption("ambros");
 await ed.locator('select[name="rq_sort"]').selectOption("price-asc");
+// „Kiek rodyti“ – − / + ir ranka, iki 48
+await ed.locator('[data-he-rstep="1"]').click();
+check((await ed.locator('input[name="rlimit"]').inputValue()) === "13", "skyrius: „Kiek rodyti“ + (12 → 13)");
+await ed.locator('input[name="rlimit"]').fill("30");
+await ed.locator('input[name="rlimit"]').dispatchEvent("change");
+await ed.locator('input[name="rlimit"]').fill("99");
+await ed.locator('input[name="rlimit"]').dispatchEvent("change");
+check((await ed.locator('input[name="rlimit"]').inputValue()) === "48", "skyrius: daugiausia 48");
+await ed.locator('input[name="rlimit"]').fill("30");
+await ed.locator('input[name="rlimit"]').dispatchEvent("change");
 // Vienas produktas aukščiau paslėptas – jo skyriuje nėra
 const evening = await page.evaluate(() => VD.CAT.products.filter(p => p.visible !== false && (p.type || "kvepalai") === "kvepalai" && p.family === "ambros").length);
 check(await until(async () => (await ed.locator("[data-he-rcount]").textContent()).includes(String(evening))), `skyrius pagal taisyklę: „Šilti kvapai“ – ${evening} produktai`);
@@ -611,7 +638,7 @@ check(hs.topbar?.items?.[0]?.text === "Žiemos akcija – *-20 %*" && hs.topbar.
 check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "aliejai").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
 check(
   hs.rails.map(r => r.title).join("|") === "Populiariausi moterims|Kvapnios naujienos|Populiariausi vyrams|Didžiausios nuolaidos|Šilti kvapai|Mūsų rekomendacijos" &&
-    hs.rails[4].rule.family === "ambros" && hs.rails[4].rule.sort === "price-asc" && hs.rails[5].mode === "manual" && hs.rails[5].ids.join() === "safrane,vanor",
+    hs.rails[4].rule.family === "ambros" && hs.rails[4].limit === 30 && hs.rails[4].rule.sort === "price-asc" && hs.rails[5].mode === "manual" && hs.rails[5].ids.join() === "safrane,vanor",
   "skyriai išsaugoti: tvarka, taisyklė, pasirinkti produktai"
 );
 const front = await newPage({ width: 1440, height: 900 });

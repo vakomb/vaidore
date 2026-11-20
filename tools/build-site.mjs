@@ -168,7 +168,7 @@ for (const [g, t] of [
   ["vyrams", "Kvepalai vyrams"],
   ["unisex", "Unisex kvepalai"]
 ])
-  page(`${g}.html`, { route: g, title: `${t} | ${S.shop}`, desc: listDesc(perfumes.filter(p => p.gender === g)) });
+  page(`${g}.html`, { route: g, title: `${t} | ${S.shop}`, desc: listDesc(perfumes.filter(p => p.gender === g || (p.gender === "unisex" && g !== "unisex"))) });
 page("meginukai.html", {
   route: "meginukai",
   title: `Kvepalų mėginukai 2 ml | ${S.shop}`,

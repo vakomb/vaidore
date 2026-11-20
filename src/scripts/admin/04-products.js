@@ -10,7 +10,17 @@ const PROD_FILTERS = [
   ["paslepti", "Paslėpti", p => p.visible === false],
   ["isparduoti", "Išparduoti", p => p.stock === 0]
 ];
-const prodState = { filter: "visi", q: "", rows: [], at: 0, shown: 60 };
+const prodState = { filter: "visi", q: "", rows: [], at: 0, shown: 60, f: {}, pcats: new Map(), cats: [] };
+// Sąrašo filtrai (v20): [raktas, pavadinimas, reikšmės(p) → [id…], vardas(id)]. Rodomi tik turintys ≥ 2 reikšmes.
+const PROD_FACETS = [
+  ["type", "Kategorija", p => [p.type || "kvepalai"], id => VD.TYPES.find(t => t.id === id)?.name || id],
+  ["inspired", "Originalas", p => [(p.inspired || "").trim()], id => id || "Be originalo"],
+  ["gender", "Kam", p => ((p.type || "kvepalai") === "kvepalai" ? [p.gender || ""] : []), id => VD.GENDER_NAME[id] || id],
+  ["family", "Kvapo šeima", p => (p.family ? [p.family] : []), id => famName(id)],
+  ["cat", "Kolekcija", p => prodState.pcats.get(p.id) || [], id => prodState.cats.find(c => c.id === id)?.name || id]
+];
+const facetOk = (p, skip = "") => PROD_FACETS.every(([k, , vals]) => k === skip || !(k in prodState.f) || vals(p).includes(prodState.f[k]));
+const facetCount = () => Object.keys(prodState.f).length;
 const CAPS = [
   ["gold", "Auksinis"],
   ["black", "Juodas"],
@@ -46,7 +56,15 @@ const catalogSeg = cur =>
 
 async function loadProducts(force = false) {
   if (!force && prodState.rows.length && Date.now() - prodState.at < 30000) return prodState.rows;
-  prodState.rows = (await sbRest("products?select=*&order=rank.asc,name.asc")) || [];
+  const [rows, links, cats] = await Promise.all([
+    sbRest("products?select=*&order=rank.asc,name.asc"),
+    sbRest("product_categories?select=product_id,category_id").catch(() => []),
+    sbRest("categories?select=id,name&order=sort.asc").catch(() => [])
+  ]);
+  prodState.rows = rows || [];
+  prodState.cats = cats || [];
+  prodState.pcats = new Map();
+  for (const l of links || []) prodState.pcats.set(l.product_id, [...(prodState.pcats.get(l.product_id) || []), l.category_id]);
   prodState.at = Date.now();
   return prodState.rows;
 }
@@ -85,7 +103,7 @@ function productsListHTML(skeleton) {
     title: "Produktai",
     titleId: !isSplit() || !A.param,
     actions: barLink("plus", "Naujas produktas", "admin/kvapai/naujas"),
-    tools: `${catalogSeg("kvapai")}${searchHTML("prodQ", "Pavadinimas, nata, kategorija", prodState.q, "Paieška produktuose")}<div id="prodSeg"></div>`,
+    tools: `${catalogSeg("kvapai")}${searchHTML("prodQ", "Pavadinimas, nata, kategorija", prodState.q, "Paieška produktuose")}<div id="prodSeg"></div><div class="axFacets" id="prodFacets" role="toolbar" aria-label="Filtrai"></div>`,
     body: `<div id="prodList">${skeleton ? loading(8) : ""}</div>`
   });
 }
@@ -101,6 +119,13 @@ function mountProductsList(box) {
     const f = t?.closest("[data-pf]");
     if (f) {
       prodState.filter = f.dataset.pf;
+      prodState.shown = 60;
+      return paintProducts();
+    }
+    const fc = t?.closest("[data-facet]");
+    if (fc) return pickFacet(fc.dataset.facet);
+    if (t?.closest("[data-facet-clear]")) {
+      prodState.f = {};
       prodState.shown = 60;
       return paintProducts();
     }
@@ -138,11 +163,12 @@ function paintProducts() {
   if (seg) seg.innerHTML = segHTML(PROD_FILTERS.map(([id, name, fn]) => [id, name, prodState.rows.filter(fn).length]), prodState.filter, "data-pf");
   const fn = PROD_FILTERS.find(f => f[0] === prodState.filter)[2];
   const q = fold(prodState.q.trim());
+  paintFacets();
   const rows = prodState.rows.filter(
-    p => fn(p) && (!q || fold([p.name, p.id, p.inspired || "", p.tagline, famName(p.family), typeName(p), ...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])].join(" ")).includes(q))
+    p => fn(p) && facetOk(p) && (!q || fold([p.name, p.id, p.inspired || "", p.tagline, famName(p.family), typeName(p), ...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])].join(" ")).includes(q))
   );
   if (!rows.length) {
-    box.innerHTML = emptyBox(prodState.q ? "Nieko nerasta" : "Produktų nėra", "", `<a class="btn primary" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas produktas</a>`);
+    box.innerHTML = emptyBox(prodState.q || facetCount() ? "Nieko nerasta" : "Produktų nėra", facetCount() ? "Pakeiskite arba išvalykite filtrus." : "", `<a class="btn primary" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas produktas</a>`);
     return hydrateIcons(box);
   }
   const cur = isSplit() && A.sec === "kvapai" ? A.param : "";
@@ -158,6 +184,45 @@ function paintProducts() {
     })
     .join("")}</div>${rows.length > prodState.shown ? `<button class="axMoreBtn" type="button" data-prod-more>Rodyti daugiau (${rows.length - prodState.shown})</button>` : ""}`;
   hydrateIcons(box);
+}
+// Filtrų mygtukai po paieška: „Kategorija ▾“, „Originalas ▾“… (pasirinkta – juodas, su reikšme), „Išvalyti“
+function facetOptions(key) {
+  const [, , vals] = PROD_FACETS.find(f => f[0] === key);
+  const fn = PROD_FILTERS.find(f => f[0] === prodState.filter)[2];
+  const n = new Map();
+  for (const p of prodState.rows) if (fn(p) && facetOk(p, key)) for (const v of new Set(vals(p))) n.set(v, (n.get(v) || 0) + 1);
+  return n;
+}
+function paintFacets() {
+  const box = $("#prodFacets");
+  if (!box) return;
+  const all = key => new Set(prodState.rows.flatMap(PROD_FACETS.find(f => f[0] === key)[2]));
+  const btns = PROD_FACETS.filter(([k]) => k in prodState.f || all(k).size > 1).map(([k, label, , name]) => {
+    const on = k in prodState.f;
+    return `<button type="button" class="axFacet${on ? " on" : ""}" data-facet="${k}" aria-haspopup="menu"${on ? ` aria-label="${esc(label)}: ${esc(name(prodState.f[k]))}"` : ""}><span>${esc(on ? name(prodState.f[k]) : label)}</span>${glyph("chev-down")}</button>`;
+  });
+  box.hidden = !btns.length;
+  box.innerHTML = btns.join("") + (facetCount() ? `<button type="button" class="axFacet axFacetClear" data-facet-clear>${glyph("x")}<span>Išvalyti</span></button>` : "");
+  hydrateIcons(box);
+}
+async function pickFacet(key) {
+  const [, label, , name] = PROD_FACETS.find(f => f[0] === key);
+  const n = facetOptions(key);
+  const cur = prodState.f[key];
+  const opts = [...n.entries()].sort((a, b) => (key === "inspired" && !a[0]) - (key === "inspired" && !b[0]) || name(a[0]).localeCompare(name(b[0]), "lt"));
+  const pick = await actionSheet({
+    title: label,
+    actions: [
+      { key: "__all", label: `Visi (${prodState.rows.filter(p => PROD_FILTERS.find(f => f[0] === prodState.filter)[2](p) && facetOk(p, key)).length})`, checked: cur == null },
+      ...opts.map(([v, c]) => ({ key: `v:${v}`, label: `${name(v)} (${c})`, checked: cur === v }))
+    ]
+  });
+  if (pick == null) return;
+  if (pick === "__all") delete prodState.f[key];
+  else prodState.f[key] = pick.slice(2);
+  prodState.shown = 60;
+  paintProducts();
+  $(`#prodFacets [data-facet="${key}"]`)?.focus();
 }
 async function patchProduct(id, patch) {
   const [row] = (await sbRest(`products?id=eq.${encodeURIComponent(id)}`, { method: "PATCH", body: patch, prefer: "return=representation" })) || [];

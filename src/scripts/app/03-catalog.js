@@ -25,6 +25,8 @@ const typesInUse = () => TYPES.filter(t => PRODUCTS.some(p => typeOf(p) === t.id
 // Po pavadinimu – „Eau de Parfum“ kvepalams, tipas kitoms prekėms
 const kindName = p => (isPerfume(p) ? CONC_NAME[p.conc] || p.conc : TYPE.get(typeOf(p)).one);
 const GENDER_NAME = { moterims: "Moterims", vyrams: "Vyrams", unisex: "Unisex" };
+// Unisex kvapai rodomi ir „Moterims“, ir „Vyrams“ (puslapiai, skyriai, plytelės); „Unisex“ – tik unisex (v20)
+const forGender = (p, g) => !g || g === "all" || p.gender === g || (p.gender === "unisex" && (g === "moterims" || g === "vyrams"));
 const GENDER_TITLE = { moterims: "Kvepalai moterims", vyrams: "Kvepalai vyrams", unisex: "Unisex kvepalai" };
 const CONC_NAME = { EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", Extrait: "Extrait de Parfum" };
 // Tipo savybės (products.attrs) – tos pačios kaip administravime (13-autofill.js)

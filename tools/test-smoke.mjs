@@ -326,8 +326,11 @@ async function run(viewport) {
   }
   await page.waitForURL(/\/moterims$/);
   check((await page.locator("#shopTitle").textContent()) === "Kvepalai moterims", "meniu → „Moterims“");
-  const women = cat.products.filter(p => p.gender === "moterims").length;
-  check((await page.locator("#shopGrid .card").count()) === women, `moterims: ${women} kvapai`);
+  // v20: unisex kvapai – ir „Moterims“, ir „Vyrams“
+  const women = cat.products.filter(p => p.gender === "moterims" || p.gender === "unisex").length;
+  check((await page.locator("#shopGrid .card").count()) === women, `moterims: ${women} kvapai (su unisex)`);
+  const uni = cat.products.find(p => p.gender === "unisex");
+  check((await page.locator(`#shopGrid .card a[href$="/${uni.id}"], #shopGrid .card a[href$="${uni.id}"]`).count()) >= 1, "unisex kvapas – tarp „Moterims“");
   await open(page, `${A}kvepalai`);
   await page.waitForSelector("#shopGrid .card");
   check((await page.locator("#shopCount").textContent()).includes(String(cat.products.length)), `katalogas: ${cat.products.length} kvapų`);

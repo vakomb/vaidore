@@ -359,8 +359,12 @@ function actionSheet({ title = "", text = "", actions = [] }) {
   return new Promise(resolve => {
     let pick = null;
     openSheet({
-      html: `<div class="axSheet">${title || text ? `<div class="axSheetHead">${title ? `<b>${esc(title)}</b>` : ""}${text ? `<p>${esc(text)}</p>` : ""}</div>` : ""}<div class="axActs">${actions
-        .map(a => `<button type="button" class="axAct${a.danger ? " danger" : ""}" data-sheet-act="${esc(a.key)}"${attr(a.disabled, "disabled")}>${a.ico ? glyph(a.ico) : ""}<span>${esc(a.label)}</span></button>`)
+      // Pasirinkimų sąrašas (a.checked apibrėžtas): tekstas kairėje, pasirinktas – su varnele dešinėje
+      html: `<div class="axSheet">${title || text ? `<div class="axSheetHead">${title ? `<b>${esc(title)}</b>` : ""}${text ? `<p>${esc(text)}</p>` : ""}</div>` : ""}<div class="axActs${actions.some(a => "checked" in a) ? " axPick" : ""}">${actions
+        .map(
+          a =>
+            `<button type="button" class="axAct${a.danger ? " danger" : ""}" data-sheet-act="${esc(a.key)}"${attr(a.disabled, "disabled")}${"checked" in a ? ` role="menuitemradio" aria-checked="${!!a.checked}"` : ""}>${a.ico ? glyph(a.ico) : ""}<span>${esc(a.label)}</span>${a.checked ? glyph("check") : ""}</button>`
+        )
         .join("")}</div><button type="button" class="axAct axActCancel" data-sheet-close>Atšaukti</button></div>`,
       onClose: () => resolve(pick)
     });

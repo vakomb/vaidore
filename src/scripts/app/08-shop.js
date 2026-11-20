@@ -77,7 +77,7 @@ function shopFilter(p, skip = "") {
   return (
     ofShopType(p) &&
     (!shop.samples || hasSample(p)) &&
-    (shop.gender === "all" || p.gender === shop.gender) &&
+    forGender(p, shop.gender) &&
     (!shop.category || (p.categories || []).includes(shop.category)) &&
     (!shop.special || SPECIAL[shop.special].test(p)) &&
     (skip === "price" || priceOk(p)) &&
@@ -215,7 +215,7 @@ function renderShop() {
   const stBox = $("#shopStage");
   if (stBox.dataset.key !== stKey) {
     stBox.dataset.key = stKey;
-    const group = PRODUCTS.filter(p => ofShopType(p) && (shop.gender === "all" || p.gender === shop.gender) && (!shop.category || (p.categories || []).includes(shop.category))).sort(
+    const group = PRODUCTS.filter(p => ofShopType(p) && forGender(p, shop.gender) && (!shop.category || (p.categories || []).includes(shop.category))).sort(
       (a, b) => a.rank - b.rank
     );
     stBox.innerHTML = !stName ? "" : photo ? photoHTML(photo, { eager: true, cls: "shopStage" }) : stageHTML(stName, group.length ? group : PRODUCTS, { eager: true, cls: "shopStage" });

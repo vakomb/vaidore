@@ -657,7 +657,8 @@ function railSummary(r) {
     .map(([k, , opts]) => opts.find(o => o[0] === q[k])?.[1] || q[k]);
   if (q.sale) parts.push("su nuolaida");
   parts.push(VD.RAIL_SORTS.find(s => s[0] === (q.sort || "rank"))?.[1] || "");
-  return `${parts.filter(Boolean).join(" · ")} · ${plural(list.length, "produktas", "produktai", "produktų")}`;
+  const all = VD.railMatches(r).length;
+  return `${parts.filter(Boolean).join(" · ")} · ${plural(list.length, "produktas", "produktai", "produktų")}${all > list.length ? ` iš ${all}` : ""}`;
 }
 function railRow(r, i) {
   const list = VD.railProducts(r);
@@ -712,10 +713,11 @@ ${
       }</div>
 ${searchHTML(`rs-${esc(r.id)}`, "Pridėti produktą: pavadinimas, kvapas", "", "Pridėti produktą").replace('type="search"', 'type="search" name="rsearch"')}
 <div class="ig heRResults" data-he-rresults hidden></div>`
-    : `<h2 class="igHead">Taisyklė</h2><div class="ig heRRule">${rule}${fieldHTML("Rikiuoti", `<select name="rq_sort">${VD.RAIL_SORTS.map(([v, l]) => opt(v, l, q.sort || "rank")).join("")}</select>`)}${fieldHTML(
-        "Kiek rodyti",
-        `<input name="rlimit" type="number" inputmode="numeric" min="1" max="24" value="${esc(r.limit || 12)}" />`
-      )}<label class="axField axSwitchRow"><span>Tik su nuolaida</span><input type="checkbox" name="rq_sale" class="admSwitchInp"${attr(!!q.sale, "checked")} /></label></div>`
+    : `<h2 class="igHead">Taisyklė</h2><div class="ig heRRule">${rule}${fieldHTML("Rikiuoti", `<select name="rq_sort">${VD.RAIL_SORTS.map(([v, l]) => opt(v, l, q.sort || "rank")).join("")}</select>`)}${`<div class="axField axStepper"><span>Kiek rodyti</span><span class="axStep"><button type="button" class="roundBtn" data-he-rstep="-1" aria-label="Mažiau">${glyph(
+        "minus"
+      )}</button><input name="rlimit" type="number" inputmode="numeric" min="1" max="${VD.RAIL_MAX}" step="1" value="${esc(VD.railLimit(r))}" aria-label="Kiek produktų rodyti" /><button type="button" class="roundBtn" data-he-rstep="1" aria-label="Daugiau">${glyph(
+        "plus"
+      )}</button></span></div>`}<label class="axField axSwitchRow"><span>Tik su nuolaida</span><input type="checkbox" name="rq_sale" class="admSwitchInp"${attr(!!q.sale, "checked")} /></label></div>`
 }
 <p class="igFoot heRCount" data-he-rcount>${esc(railSummary(r))}</p>
 ${groupHTML(
@@ -776,6 +778,14 @@ function railResults(r, q) {
   hydrateIcons(box);
 }
 function railClick(t, r, it) {
+  // „Kiek rodyti“: − / + (1–48); įrašyti skaičių galima ir ranka
+  const step = t.closest("[data-he-rstep]");
+  if (step) {
+    const inp = $('input[name="rlimit"]', step.closest(".axStep"));
+    inp.value = VD.railLimit({ limit: Number(inp.value || VD.railLimit(r)) + Number(step.dataset.heRstep) });
+    inp.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  }
   const mode = t.closest("[data-he-rmode]");
   if (mode) {
     r.mode = mode.dataset.heRmode;
@@ -815,7 +825,7 @@ function railChange(t, r) {
     if (v) r.rule[k] = v;
     else delete r.rule[k];
   } else if (t.name === "rlimit") {
-    r.limit = Math.max(1, Math.min(24, Math.round(Number(t.value) || 12)));
+    r.limit = VD.railLimit({ limit: t.value });
     t.value = r.limit;
   } else if (t.name === "rhref") {
     const custom = $(".heCustom", t.closest(".heForm"));

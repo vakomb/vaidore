@@ -41,14 +41,22 @@ const RAIL_SORTS = [
   ["sale", "Didžiausia nuolaida"]
 ];
 const homeRails = () => (Array.isArray(SET.rails) ? SET.rails : DEFAULT_RAILS);
-// Skyriaus produktai: pasirinkti ranka (ta tvarka, tik matomi) arba pagal taisyklę
+// Skyriaus produktai: pasirinkti ranka (ta tvarka, tik matomi) arba pagal taisyklę. Kiek rodyti – 1–RAIL_MAX
+// (numatyta 12); railMatches – visi taisyklę atitinkantys (be ribos, administravimo santraukai).
+const RAIL_MAX = 48;
+function railLimit(r) {
+  return Math.max(1, Math.min(RAIL_MAX, Math.round(Number(r.limit) || 12)));
+}
 function railProducts(r) {
+  return r.mode === "manual" ? railMatches(r) : railMatches(r).slice(0, railLimit(r));
+}
+function railMatches(r) {
   if (r.mode === "manual") return (r.ids || []).map(id => BY_ID.get(id)).filter(p => p && p.visible !== false);
   const q = r.rule || {};
   const list = PRODUCTS.filter(
     p =>
       (!q.type || typeOf(p) === q.type) &&
-      (!q.gender || p.gender === q.gender) &&
+      forGender(p, q.gender) &&
       (!q.family || p.family === q.family) &&
       (!q.category || (p.categories || []).includes(q.category)) &&
       (!q.scent || p.scent === q.scent) &&
@@ -61,7 +69,7 @@ function railProducts(r) {
     "price-desc": (a, b) => minPrice(b) - minPrice(a),
     sale: (a, b) => salePct(b) - salePct(a) || a.rank - b.rank
   };
-  return list.sort(by[q.sort] || by.rank).slice(0, Math.max(1, Math.min(24, Number(r.limit) || 12)));
+  return list.sort(by[q.sort] || by.rank);
 }
 // „Peržiūrėti“ nuoroda: nustatyta ranka arba sudaroma iš taisyklės (tie patys filtrai kaip katalogo puslapyje)
 function railHref(r) {
@@ -197,7 +205,7 @@ function homeSlides() {
 // Plytelių šablonai: pavadinimas, adresas, scena, kvapai
 function tilePreset(key) {
   const byRank = byRankAll();
-  const of = g => byRank.filter(p => isPerfume(p) && p.gender === g);
+  const of = g => byRank.filter(p => isPerfume(p) && forGender(p, g));
   // Prekių tipas – be įkeltos plytelės nuotraukos rodoma pirmos to tipo prekės nuotrauka
   if (TYPE.has(key)) {
     const list = byRank.filter(p => typeOf(p) === key);

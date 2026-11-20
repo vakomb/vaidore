@@ -725,6 +725,66 @@ button.axRow:active {
 }
 
 /* Segmentuotas valdiklis, paieška */
+/* Produktų sąrašo filtrai (v20): kapsulės po paieška, pasirinkta – juoda su reikšme */
+.axFacets {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.axFacets::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .axFacets {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+.axFacet {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 240px;
+  min-height: 32px;
+  padding: 0 10px 0 13px;
+  border-radius: 999px;
+  background: var(--ax-fill);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+.axFacet span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.axFacet svg {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+}
+.axFacet:hover {
+  background: var(--ax-press);
+}
+.axFacet.on {
+  background: var(--brand);
+  color: var(--bg);
+}
+.axFacet.on:hover {
+  background: var(--brand2);
+}
+.axFacetClear {
+  padding: 0 13px 0 10px;
+  background: none;
+  color: var(--ink3);
+}
+.axFacetClear:hover {
+  background: var(--ax-fill);
+}
 .axSeg {
   display: flex;
   gap: 2px;
@@ -1254,6 +1314,25 @@ button.axRow:active {
 .axAct svg {
   width: 21px;
   height: 21px;
+}
+.axPick {
+  max-height: min(62vh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.axPick .axAct {
+  justify-content: space-between;
+  min-height: 50px;
+  font-size: 17px;
+  text-align: left;
+}
+.axPick .axAct span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.axPick .axAct[aria-checked="true"] {
+  font-weight: 600;
 }
 .axActs .axAct + .axAct {
   box-shadow: inset 0 1px 0 var(--ax-sep);
