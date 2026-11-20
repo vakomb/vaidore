@@ -10,12 +10,14 @@ const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "seasons", 
 // Laukai, kurie pritaikomi susietiems produktams (pavadinimas, aprašymas, spalvos – produkto)
 const SCENT_TO_PRODUCT = ["inspired", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage"];
 
-async function loadScents() {
+async function loadScents(force = false) {
+  if (!force && scentState.rows.length && Date.now() - (scentState.at || 0) < 30000) return scentState.rows;
   const [rows, products] = await Promise.all([sbRest("scents?select=*&order=name.asc").catch(() => null), sbRest("products?select=id,scent_id")]);
   if (rows) {
     scentState.rows = rows;
     scentState.counts = new Map();
     for (const p of products || []) if (p.scent_id) scentState.counts.set(p.scent_id, (scentState.counts.get(p.scent_id) || 0) + 1);
+    scentState.at = Date.now();
   }
   return rows;
 }
@@ -25,7 +27,7 @@ async function renderScents(main, param, seq) {
     if (fresh) {
       list.innerHTML = scentsListHTML(true);
       hydrateIcons(list);
-      const rows = await loadScents();
+      const rows = await loadScents(true);
       if (stale(seq)) return;
       if (rows === null) {
         list.innerHTML = pageHTML({ title: "Kvapai", body: noScentsTable() });
@@ -42,7 +44,7 @@ async function renderScents(main, param, seq) {
   if (param) return renderScentEdit(main, param, seq);
   main.innerHTML = scentsListHTML(true);
   hydrateIcons(main);
-  const rows = await loadScents();
+  const rows = await loadScents(true);
   if (stale(seq)) return;
   if (rows === null) {
     main.innerHTML = pageHTML({ title: "Kvapai", tools: catalogSeg("kvapu-sarasas"), body: noScentsTable() });
@@ -135,10 +137,11 @@ ${groupHTML(
   { head: "Kvapas" }
 )}
 ${groupHTML(
-  `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`)}${fieldHTML(
+  `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`, { stack: true })}${fieldHTML(
     "Širdies",
-    `<input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" />`
-  )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`)}`,
+    `<input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" />`,
+    { stack: true }
+  )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`, { stack: true })}`,
   { head: "Natos" }
 )}
 ${groupHTML(

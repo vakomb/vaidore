@@ -24,11 +24,13 @@ async function renderOrders(main, param, seq) {
   if (isSplit()) {
     const { list, detail, fresh } = splitPanes(main, "orders");
     if (fresh) {
-      list.innerHTML = ordersListHTML(true);
+      const cached = ordersState.list.length && Date.now() - ordersState.at < 30000;
+      list.innerHTML = ordersListHTML(!cached);
       hydrateIcons(list);
-      await loadOrders(true);
+      if (!cached) await loadOrders(true);
       if (stale(seq)) return;
       mountOrdersList(list);
+      if (cached) loadOrders(true).then(() => !stale(seq) && paintOrders());
     }
     if (!param) {
       detail.innerHTML = detailEmpty("box", "Pasirinkite užsakymą");

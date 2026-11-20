@@ -256,7 +256,7 @@ await page.fill("#afText", fs.readFileSync(path.join(root, "tools/fixtures/autof
 await page.click("[data-af-run]");
 await page.waitForSelector("#afPrev:not([hidden]) [data-af-apply]");
 const fv = n => page.inputValue(`#prodForm [name="${n}"]`);
-check((await fv("name")) === "" && (await page.locator("#afPrev dt").count()) >= 5, "automatinis užpildymas: pirma – peržiūra (forma dar nepakeista)");
+check((await fv("name")) === "" && (await page.locator("#afPrev dt").count()) >= 5 && (await page.locator("#afPrev").textContent()).includes("My Pink"), "automatinis užpildymas: pirma – peržiūra, ką įrašys (forma dar nepakeista)");
 if (shots) {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: path.join(shotDir, "admin-automatinis-tel.png") });

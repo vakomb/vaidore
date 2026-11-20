@@ -59,11 +59,13 @@ async function renderProducts(main, param, seq) {
   if (isSplit()) {
     const { list, detail, fresh } = splitPanes(main, "products");
     if (fresh) {
-      list.innerHTML = productsListHTML(true);
+      const cached = prodState.rows.length && Date.now() - prodState.at < 30000;
+      list.innerHTML = productsListHTML(!cached);
       hydrateIcons(list);
-      await loadProducts(true);
+      if (!cached) await loadProducts(true);
       if (stale(seq)) return;
       mountProductsList(list);
+      if (cached) loadProducts(true).then(() => !stale(seq) && paintProducts());
     } else markCurrent(list, param ? `admin/kvapai/${param}` : "");
     if (!param) {
       detail.innerHTML = detailEmpty("tag", "Pasirinkite produktą arba sukurkite naują");
@@ -377,11 +379,12 @@ ${
 </div>
 <div data-pane="natos" data-title="${esc(tf.notes)}" hidden>
 ${groupHTML(
-  `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`)}${fieldHTML(
+  `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`, { stack: true })}${fieldHTML(
     "Širdies",
-    `<input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" />`
-  )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`)}`,
-  { foot: "Kableliais: Bergamotė, Kriaušė" }
+    `<input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" />`,
+    { stack: true }
+  )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`, { stack: true })}`,
+  { foot: "Natos – kableliais." }
 )}
 ${groupHTML(
   `${chipsRow("Metų laikas", SEASONS.map(s => chipCheck("seasons", s, (p.seasons || []).includes(s), VD.SEASON_NAME[s])).join(""))}${chipsRow(
@@ -810,8 +813,23 @@ function afRun(ed, form) {
   ed.pending = afParse(text, { scent, type: formType(form), families: ed.fams.map(f => f.id) });
   const prev = $("#afPrev", form);
   prev.hidden = false;
-  prev.innerHTML = `<h2 class="igHead">Ką atpažinau</h2><div class="ig"><dl class="afFactList">${ed.pending.facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") || "<div><dd>Nieko neatpažinau</dd></div>"}</dl></div>
-<p class="igFoot">Šios reikšmės bus įrašytos į formą – jas galėsite pakeisti.</p>
+  const x = ed.pending.fields;
+  const famN = id => ed.fams.find(f => f.id === id)?.name || "";
+  const typeN = VD.TYPES.find(t => t.id === x.type)?.name || "";
+  const scented = AF_SCENTED.has(x.type);
+  const notes = scented ? [["Viršutinės natos", x.notes.top], ["Širdies natos", x.notes.heart], ["Bazinės natos", x.notes.base]].filter(([, v]) => v.length).map(([k, v]) => [k, v.join(", ")]) : [];
+  const rows = [
+    ["Pavadinimas", x.name],
+    ["Kategorija", typeN],
+    ["Originalas", x.inspired],
+    ...(scented ? [["Kam", VD.GENDER_NAME[x.gender]], ["Kvapo šeima", famN(x.family)]] : []),
+    ["Koncentracija", x.conc && VD.CONC_NAME[x.conc]],
+    ...notes,
+    ["Talpos", x.sizes.map(z => `${z.ml} ${z.unit || "ml"}`).join(", ")],
+    ["Trumpas aprašymas", x.tagline]
+  ].filter(([, v]) => v);
+  prev.innerHTML = `<h2 class="igHead">Bus įrašyta į formą</h2><div class="ig"><dl class="afFactList">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") || "<div><dd>Nieko neatpažinau</dd></div>"}</dl></div>
+<p class="igFoot">Pritaikius – reikšmes galėsite pakeisti; „Auto“ žymi užpildytus laukus.</p>
 <button class="btn primary block" type="button" data-af-apply>${glyph("check")}Pritaikyti</button>`;
   hydrateIcons(prev);
   prev.scrollIntoView({ block: "start", behavior: reduceMotion() ? "auto" : "smooth" });

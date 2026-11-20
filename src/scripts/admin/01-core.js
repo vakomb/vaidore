@@ -841,4 +841,27 @@ document.addEventListener("keydown", e => {
   }
 });
 
+// Iš anksto įkeliama užvedus pelę ar palietus meniu nuorodą (sąrašų duomenys – talpykloje 30 s)
+const PREFETCH = { "admin/uzsakymai": () => loadOrders(), "admin/kvapai": () => loadProducts() };
+const prefetched = {};
+function prefetch(e) {
+  const a = e.target instanceof Element && e.target.closest("a[href^='admin/']");
+  const key = a && a.getAttribute("href").split("?")[0];
+  if (!key || !PREFETCH[key] || Date.now() - (prefetched[key] || 0) < 20000) return;
+  prefetched[key] = Date.now();
+  PREFETCH[key]().catch(() => {});
+}
+document.addEventListener("pointerover", prefetch, { passive: true });
+document.addEventListener("touchstart", prefetch, { passive: true });
+// Telefone klaviatūra neuždengia aktyvaus lauko: skirtukų juosta slepiama (CSS), laukas parodomas virš klaviatūros
+document.addEventListener("focusin", e => {
+  const t = e.target;
+  if (!(t instanceof Element) || !t.matches("input:not([type=checkbox]):not([type=color]), textarea") || !t.closest(".ax") || window.innerWidth >= 700) return;
+  setTimeout(() => {
+    const vv = window.visualViewport;
+    const r = t.getBoundingClientRect();
+    if (vv && (r.bottom > vv.height - 16 || r.top < 60)) t.scrollIntoView({ block: "center", behavior: reduceMotion() ? "auto" : "smooth" });
+  }, 320);
+});
+
 window.VDAdmin = { render };
