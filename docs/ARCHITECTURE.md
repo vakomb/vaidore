@@ -308,6 +308,8 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
 - **Administravimas** (`04-products.js`, „Produktai“ → „Naujas produktas“): kvapo pasirinkimas (tik jei yra kvapų),
   aprašymo laukas, „Sutvarkyti“, „Auto“ žymos, „Liko užpildyti“, „Ką atpažinau“. Išsaugojus naują produktą be pasirinkto
   kvapo – sukuriamas `scents` įrašas ir susiejamas. Elektriniam difuzoriui kvapo laukai nerodomi.
+- **Kvapų sąrašas** (`14-scents.js`, „Produktai“ → „Kvapų sąrašas“, `admin/kvapai/kvapu-sarasas`): pavadinimas, originalo kvapas
+  (jungikliu – ir visiems susietiems produktams), ištrynimas (pirma `products.scent_id = null`, tada `scents` įrašas).
 - **Parduotuvė**: „Savybės“ prekės puslapyje, „Svoris“ žvakėms, elektriniam difuzoriui – be talpos pasirinkimo;
   filtrai „Proga“ (`?proga=`), „Paros laikas“ (`?laikas=`; seni `?proga=diena|vakaras` palaikomi), „Originalo kvapas“
   (`?originalas=`), „Formatas“ kitiems tipams (`?formatas=`); elektriniams difuzoriams kvapo filtrų nėra.

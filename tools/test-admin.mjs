@@ -260,6 +260,25 @@ check(sb.db.scents.filter(x => x.name === "My Pink").length === 1, "žvakė: nau
 await page.selectOption('#prodForm select[name="type"]', "elektriniai-difuzoriai");
 check((await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.locator('#prodForm [data-attr="tank"]').count()) === 1 && (await page.locator(".admSizeMl").textContent()) === "1 vnt.", "elektrinis difuzorius: be kvapo laukų, savybės ir „1 vnt.“");
 await page.selectOption('#prodForm select[name="type"]', "zvakes");
+// Kvapų sąrašas: originalo keitimas (ir susietuose produktuose), ištrynimas (produktai lieka, tik atsiejami)
+await page.goto(`${BASE}admin/kvapai`);
+await page.click('a[href="admin/kvapai/kvapu-sarasas"]');
+await page.waitForSelector('[data-scent-edit="my-pink"]');
+check((await page.locator('[data-scent-edit="my-pink"]').textContent()).includes("2 produktai"), "kvapų sąrašas: My Pink – 2 produktai");
+await page.click('[data-scent-edit="my-pink"]');
+await page.fill('#sheetBody input[name="inspired"]', "Emporio Armani – My Way");
+await page.click("#sheetBody button[type=submit]");
+check(
+  await until(() => sb.db.scents.find(x => x.id === "my-pink").inspired === "Emporio Armani – My Way" && ["my-pink", "kvapni-zvake-my-pink"].every(id => sb.db.products.find(p => p.id === id).inspired === "Emporio Armani – My Way")),
+  "kvapų sąrašas: originalas pakeistas kvape ir abiejuose susietuose produktuose"
+);
+await page.waitForSelector('[data-scent-edit="silko-rytas"]');
+await page.click('[data-scent-edit="silko-rytas"]');
+await page.click("#sheetBody [data-scent-del]");
+await page.waitForSelector("[data-confirm-ok]");
+await page.click("[data-confirm-ok]");
+check(await until(() => !sb.db.scents.some(x => x.id === "silko-rytas") && sb.db.products.find(p => p.id === "silko-rytas")?.scent_id == null), "kvapų sąrašas: kvapas ištrintas, produktas liko (atsietas)");
+await shot(page, "kvapu-sarasas");
 // Importo iš Allegro nebėra
 await page.goto(`${BASE}admin/kvapai`);
 await page.waitForSelector('a[href="admin/kvapai/naujas"]');

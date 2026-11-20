@@ -30,11 +30,12 @@ const SHAPES = [
 const BADGES = ["", "Populiaru", "Naujiena", "Riboto leidimo"];
 
 async function renderProducts(main, param, seq) {
+  if (param === "kvapu-sarasas") return renderScents(main, seq);
   if (param) return renderProductEdit(main, param, seq);
   main.innerHTML = pageHead("Produktai") + loading();
   prodState.rows = (await sbRest("products?select=*&order=rank.asc,name.asc")) || [];
   if (stale(seq)) return;
-  main.innerHTML = `${pageHead("Produktai", plural(prodState.rows.length, "produktas", "produktai", "produktų"), `<a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas produktas</a>`)}
+  main.innerHTML = `${pageHead("Produktai", plural(prodState.rows.length, "produktas", "produktai", "produktų"), `<a class="btn ghost small" href="admin/kvapai/kvapu-sarasas" data-nav>${glyph("drop")}Kvapų sąrašas</a><a class="btn primary small" href="admin/kvapai/naujas" data-nav>${glyph("plus")}Naujas produktas</a>`)}
 <div class="admToolbar"><div class="seg admSeg" role="tablist">${PROD_FILTERS.map(
     ([id, name, fn]) => `<button role="tab" type="button" data-pf="${id}" aria-selected="${prodState.filter === id}">${name} <small>${prodState.rows.filter(fn).length}</small></button>`
   ).join("")}</div>
@@ -459,6 +460,7 @@ function readProduct(ed, form) {
   if (!/^[a-z0-9-]+$/.test(id)) errors.push("Adresas (id) – tik mažosios raidės, skaičiai ir „-“");
   if (ed.isNew && VD.CAT.products.some(p => p.id === id)) errors.push("Toks adresas jau užimtas – pakeiskite");
   if (VD.SET.discovery?.id === id) errors.push("Šis adresas skirtas atradimų rinkiniui");
+  if (ed.isNew && ["naujas", "kvapu-sarasas"].includes(id)) errors.push("Šis adresas užimtas – pakeiskite");
   const type = row.type || "kvepalai";
   const perf = type === "kvepalai";
   const scented = AF_SCENTED.has(type);
@@ -569,7 +571,7 @@ function afCardHTML(ed, opt) {
     scents.length
       ? `\n<label class="field afScentField"><span>Kvapas</span><select id="afScent"><option value="">Naujas kvapas</option>${scents
           .map(x => opt(x.id, x.inspired ? `${x.name} – ${x.inspired}` : x.name, ""))
-          .join("")}</select><small>Pasirinkus esamą kvapą, jo natos, lytis ir savybės užpildomos iš karto</small></label>`
+          .join("")}</select><small>Pasirinkus esamą kvapą, jo natos, lytis ir savybės užpildomos iš karto · <a href="admin/kvapai/kvapu-sarasas" data-nav>Tvarkyti kvapų sąrašą</a></small></label>`
       : ""
   }
 <label class="field"><span>Prekės aprašymas</span><textarea id="afText" rows="6" placeholder="Įklijuokite visą prekės aprašymą…"></textarea></label>
@@ -599,7 +601,8 @@ function afTypeChanged(ed, form) {
   paintBottle(form);
 }
 function afUniqueId(base) {
-  const taken = new Set([...VD.CAT.products.map(p => p.id), ...prodState.rows.map(p => p.id), VD.SET.discovery?.id].filter(Boolean));
+  // „naujas“ ir „kvapu-sarasas“ – administravimo adresai (admin/kvapai/…)
+  const taken = new Set([...VD.CAT.products.map(p => p.id), ...prodState.rows.map(p => p.id), VD.SET.discovery?.id, "naujas", "kvapu-sarasas"].filter(Boolean));
   let id = base || "produktas";
   for (let i = 2; taken.has(id); i++) id = `${base}-${i}`;
   return id;
