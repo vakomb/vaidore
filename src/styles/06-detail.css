@@ -195,14 +195,6 @@
 .pdH1 span {
   flex: 0 1 auto;
 }
-.pdKey {
-  margin-top: 16px;
-  font-size: 19px;
-  line-height: 1.5;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink2);
-}
 .pdRate {
   display: inline-flex;
   align-items: center;
@@ -589,9 +581,6 @@
 }
 .pdSimilar > .wrap {
   padding: 0;
-}
-.pdInsp + .pdKey {
-  margin-top: 12px;
 }
 
 /* Kaina nuo–iki (kaip parfumada.lt): du laukai su „€“ */

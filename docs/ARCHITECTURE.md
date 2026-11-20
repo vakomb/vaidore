@@ -285,7 +285,9 @@ Produkto puslapyje – tas pats komponentas, didesnis (`insp-lg`: 56 px nuotrauk
 
 Duomenys: `scents.inspired_image` ir `products.inspired_image` (migracijos 20261118010000, 20261121090000 – perkelia jau
 įkeltas nuotraukas į kvapus). Administravime – Kvapai → kvapas → „Originalo nuotrauka“ (įkelti / pakeisti / pašalinti;
-`uploadInspImg`, 600 px WebP, `products/originalai/<kvapo-id>/…`); su „Pakeitimus pritaikyti ir produktams“ – visiems
-susietiems produktams (`SCENT_TO_PRODUCT`). Produkto formoje – miniatiūra ir „Keisti kvape ›“; produktui be kvapo – įkėlimas
-čia pat. Nustatymai (Vitrina → Prekių kortelės): `inspired.show` – rodyti originalą, `inspired.photo` – rodyti nuotrauką.
+`uploadInspImg`, 600 px WebP, `products/originalai/<kvapo-id>/…`); pakeista nuotrauka išsaugant visada pritaikoma
+visiems susietiems produktams (net išjungus „Pakeitimus pritaikyti ir produktams“). Jei `scents.inspired_image` stulpelio
+dar nėra, nuotrauka laikoma tik produktuose (kvapo puslapyje ir sąraše rodoma iš susieto produkto). v19: įkelti galima
+tik kvape – produkto formoje tik miniatiūra ir nuoroda į kvapą. Produkto puslapyje viršuje natų eilutės (`.pdKey`)
+nebėra – po pavadinimu tik originalo blokelis. Nustatymai (Vitrina → Prekių kortelės): `inspired.show` – rodyti originalą, `inspired.photo` – rodyti nuotrauką.
 Originalo nuotrauka į JSON-LD ir og:image nededama.

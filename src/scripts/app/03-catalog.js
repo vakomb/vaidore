@@ -152,7 +152,6 @@ function inspiredHTML(p, size = "card") {
 }
 const cardSub = p => (isPerfume(p) ? `${familyName(p.family)} · ${p.conc}` : TYPE.get(typeOf(p)).one);
 // Po pavadinimu produkto puslapyje: trys natos; prekei be natų (elektrinis difuzorius) – šūkis
-const keyLine = p => (keyNotes(p).length ? keyNotes(p).map(esc).join(" · ") : esc(p.tagline || ""));
 const productUrl = p => `${typeOf(p)}/${p.id}`;
 // Likutis: laukas stock (nėra – neskaičiuojama, 0 – laikinai išparduota). Tą pačią taisyklę tikrina serveris.
 const inStock = p => p.stock == null || p.stock > 0;

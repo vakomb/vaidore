@@ -379,11 +379,29 @@ check(
 await page.goto(`${BASE}admin/kvapai/my-pink`);
 await page.waitForSelector("#prodForm #pInsp .scOrig img");
 check((await page.locator('#prodForm #pInsp a[href="admin/kvapu-sarasas/my-pink"]').count()) === 1, "produkto formoje – originalo miniatiūra ir „Keisti kvape“");
+check((await page.locator("#prodForm [data-insp-img], #prodForm [data-insp-rm]").count()) === 0, "produkto formoje originalo nuotraukos įkelti negalima – tik kvape");
 await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
 await page.waitForSelector("#scentForm [data-insp-rm]");
 await page.click("#scentForm [data-insp-rm]");
 await page.click('.axSave[form="scentForm"]');
 check(await until(() => sb.db.scents.find(x => x.id === "my-pink").inspired_image === "" && sb.db.products.find(p => p.id === "my-pink").inspired_image === ""), "originalo nuotrauka pašalinta (ir produktuose)");
+// Kvapų lentelėje dar nėra stulpelio inspired_image (migracija nepaleista) – nuotrauka vis tiek įkeliama kvape ir
+// išsaugoma susietuose produktuose, net išjungus „Pakeitimus pritaikyti ir produktams“
+for (const x of sb.db.scents) delete x.inspired_image;
+await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
+await page.waitForSelector("#scentForm [data-insp-img]", { state: "attached" });
+await page.setInputFiles("#scentForm [data-insp-img]", path.join(root, "src/public/img/kvapai/arven-1.webp"));
+await page.waitForSelector("#scentForm .axInspPrev img");
+await page.locator('#scentForm input[name="apply"]').evaluate(el => (el.checked = false));
+await page.click('.axSave[form="scentForm"]');
+check(
+  await until(() => ["my-pink", "kvapni-zvake-my-pink"].every(id => /originalai\/my-pink/.test(sb.db.products.find(p => p.id === id).inspired_image)) && !("inspired_image" in sb.db.scents.find(x => x.id === "my-pink"))),
+  "be kvapų stulpelio: originalo nuotrauka įkelta kvape ir išsaugota susietuose produktuose"
+);
+check(await until(async () => (await page.locator('[data-scent-row="my-pink"] .scOrig img').count()) === 1), "kvapų sąraše – originalo miniatiūra (iš produkto)");
+await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
+await page.waitForSelector("#scentForm .axInspPrev img");
+for (const x of sb.db.scents) x.inspired_image = x.id === "my-pink" ? sb.db.products.find(p => p.id === "my-pink").inspired_image : "";
 // Naujas kvapas iš aprašymo
 await page.goto(`${BASE}admin/kvapu-sarasas/naujas`);
 await page.waitForSelector("#afText");

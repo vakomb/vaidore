@@ -398,7 +398,7 @@ async function run(viewport) {
       !(await accTitles()).includes("Natos") &&
       (await page.locator("#productRoot .acc[open]").filter({ hasText: "Savybės" }).textContent()).includes("300") &&
       !/Maitinimas|Plotas/.test(await page.locator("#productRoot .acc[open]").filter({ hasText: "Savybės" }).textContent()) &&
-      (await page.locator("#productRoot .pdKey").textContent()).includes("Tylus"),
+      (await page.locator("#productRoot .pdTag").textContent()).includes("Tylus") && (await page.locator("#productRoot .pdKey").count()) === 0,
     "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės atskleistos (be maitinimo ir ploto)"
   );
   // Nuotrauka su fonu (JPEG) – be šešėlio (kitaip šonuose pilkos juostos), permatoma (WebP) – su šešėliu

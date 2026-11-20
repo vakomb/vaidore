@@ -474,18 +474,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
     }
     if (e.target.id === "afScent") return afScentChanged(ed, form, e.target.value, true);
     afTouched(form, e.target);
-    if (e.target.matches("[data-insp-img]")) {
-      uploadInspImg(e.target, form.elements.id.value.trim())
-        .then(url => {
-          if (!url) return;
-          ed.inspImg = url;
-          A.dirty = true;
-          paintProdInsp(ed, form);
-        })
-        .catch(err => toast(errText(err), { icon: "info", ms: 4200 }));
-      return;
-    }
-    if (e.target.matches("[data-img-input]")) addImages(ed, form, e.target);
+      if (e.target.matches("[data-img-input]")) addImages(ed, form, e.target);
     else if (e.target.id !== "afText") A.dirty = true;
     if (["cap", "shape"].includes(e.target.name)) paintBottle(form);
   });
@@ -497,11 +486,6 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
       return imageAction(ed, form, i, im.dataset.img);
     }
     if (t?.closest("[data-prod-delete]")) deleteProduct(ed.p);
-    if (t?.closest("[data-insp-rm]")) {
-      ed.inspImg = "";
-      A.dirty = true;
-      paintProdInsp(ed, form);
-    }
     const pick = t?.closest("[data-pick-type]");
     if (pick && form.elements.type.value !== pick.dataset.pickType) {
       form.elements.type.value = pick.dataset.pickType;
@@ -517,19 +501,20 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
     busy($(`.axSave[form="prodForm"]`, page), () => saveProduct(ed, form));
   });
 }
-// Originalo nuotrauka produkte: su kvapu – peržiūra ir „Keisti kvape ›“, be kvapo – įkėlimas čia
+// Originalo nuotrauka įkeliama tik Katalogas → Kvapai → kvapas (v19). Produkte – tik peržiūra ir nuoroda į kvapą.
 function paintProdInsp(ed, form) {
   const box = $("#pInsp", form);
   if (!box) return;
   const sid = ed.isNew ? ed.scentId : ed.p.scent_id;
+  box.hidden = !sid;
   box.innerHTML = sid
     ? navRow({
         href: `admin/kvapu-sarasas/${sid}`,
         lead: ed.inspImg ? `<span class="scOrig"><img src="${esc(ed.inspImg)}" alt="" /></span>` : `<span class="axIco" style="background:var(--ink3)">${glyph("upload")}</span>`,
         title: "Originalo nuotrauka",
-        sub: ed.inspImg ? "Keisti kvape" : "Nėra – įkelkite kvape"
+        sub: ed.inspImg ? "Keičiama kvape" : "Įkelkite kvape"
       })
-    : `<div class="axInspIn">${inspImgHTML(ed.inspImg, "", true)}</div>`;
+    : "";
   hydrateIcons(box);
 }
 // Eilučių santraukos (kas įrašyta vidiniuose ekranuose)

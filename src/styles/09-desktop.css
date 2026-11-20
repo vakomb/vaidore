@@ -172,12 +172,6 @@
   .pdH1::after {
     display: none;
   }
-  .pdKey {
-    margin-top: 10px;
-    font-size: 14.5px;
-    letter-spacing: 0.08em;
-    color: var(--ink3);
-  }
   .pdInsp {
     justify-content: flex-start;
     margin-top: 14px;

@@ -12,11 +12,17 @@ const SCENT_TO_PRODUCT = ["inspired", "inspired_image", "gender", "family", "not
 
 async function loadScents(force = false) {
   if (!force && scentState.rows.length && Date.now() - (scentState.at || 0) < 30000) return scentState.rows;
-  const [rows, products] = await Promise.all([sbRest("scents?select=*&order=name.asc").catch(() => null), sbRest("products?select=id,scent_id")]);
+  const [rows, products] = await Promise.all([sbRest("scents?select=*&order=name.asc").catch(() => null), sbRest("products?select=*")]);
   if (rows) {
     scentState.rows = rows;
     scentState.counts = new Map();
-    for (const p of products || []) if (p.scent_id) scentState.counts.set(p.scent_id, (scentState.counts.get(p.scent_id) || 0) + 1);
+    // Originalo nuotrauka sąraše: iš kvapo, o jei jo stulpelio dar nėra – iš susieto produkto
+    scentState.thumbs = new Map();
+    for (const p of products || []) {
+      if (!p.scent_id) continue;
+      scentState.counts.set(p.scent_id, (scentState.counts.get(p.scent_id) || 0) + 1);
+      if (p.inspired_image && !scentState.thumbs.has(p.scent_id)) scentState.thumbs.set(p.scent_id, p.inspired_image);
+    }
     scentState.at = Date.now();
   }
   return rows;
@@ -79,14 +85,14 @@ function paintScents() {
   box.innerHTML = rows.length
     ? `<div class="ig axList">${rows
         .map(
-          x => `<a class="axRow axRow2" href="admin/kvapu-sarasas/${esc(x.id)}" data-nav data-scent-row="${esc(x.id)}"${cur === x.id ? ' aria-current="page"' : ""}>${x.inspired_image ? `<span class="scOrig"><img src="${esc(x.inspired_image)}" alt="" loading="lazy" /></span>` : ""}<span class="scDot"${x.inspired_image ? " hidden" : ""} style="--liquid:${esc(x.look?.liquid || "#E8D9C4")};--tint:${esc(
+          x => ((x = { ...x, inspired_image: x.inspired_image || scentState.thumbs?.get(x.id) || "" }), `<a class="axRow axRow2" href="admin/kvapu-sarasas/${esc(x.id)}" data-nav data-scent-row="${esc(x.id)}"${cur === x.id ? ' aria-current="page"' : ""}>${x.inspired_image ? `<span class="scOrig"><img src="${esc(x.inspired_image)}" alt="" loading="lazy" /></span>` : ""}<span class="scDot"${x.inspired_image ? " hidden" : ""} style="--liquid:${esc(x.look?.liquid || "#E8D9C4")};--tint:${esc(
             x.look?.tint || "#F7F1E8"
           )}" aria-hidden="true"></span><span class="axRowTxt"><b>${esc(x.name)}</b><small>${esc([x.inspired ? `Įkvėpti ${x.inspired}` : "Originalas nenurodytas", fam(x.family)].filter(Boolean).join(" · "))}</small></span><span class="axVal admMuted">${plural(
             scentState.counts.get(x.id) || 0,
             "produktas",
             "produktai",
             "produktų"
-          )}</span><span class="axChev">${glyph("chev-right")}</span></a>`
+          )}</span><span class="axChev">${glyph("chev-right")}</span></a>`)
         )
         .join("")}</div>`
     : emptyBox(scentState.q ? "Nieko nerasta" : "Kvapų dar nėra", "", `<a class="btn primary" href="admin/kvapu-sarasas/naujas" data-nav>${glyph("plus")}Naujas kvapas</a>`);
@@ -101,7 +107,7 @@ async function renderScentEdit(main, id, seq) {
   const [rows, fams, linked, all] = await Promise.all([
     isNew ? Promise.resolve([null]) : sbRest(`scents?select=*&id=eq.${encodeURIComponent(id)}`),
     sbRest("families?select=*&order=sort.asc"),
-    isNew ? Promise.resolve([]) : sbRest(`products?select=id,name,type,images,look&scent_id=eq.${encodeURIComponent(id)}&order=rank.asc`),
+    isNew ? Promise.resolve([]) : sbRest(`products?select=*&scent_id=eq.${encodeURIComponent(id)}&order=rank.asc`),
     sbRest("scents?select=id")
   ]);
   if (stale(seq)) return;
@@ -113,9 +119,13 @@ async function renderScentEdit(main, id, seq) {
     return;
   }
   const ed = { x, isNew, fams, linked: linked || [], ids: new Set((all || []).map(r => r.id)) };
-  // Originalo nuotrauka (v18) – tik jei duomenų bazėje jau yra stulpelis scents.inspired_image (migracija 20261121090000)
+  // Originalo nuotrauka (v18) – įkeliama tik čia, kvape. Saugoma scents.inspired_image (migracija 20261121090000)
+  // ir visada pritaikoma susietiems produktams (products.inspired_image – ją rodo parduotuvė). Jei kvapų lentelėje
+  // stulpelio dar nėra – nuotrauka laikoma tik produktuose.
   ed.imgCol = isNew ? (scentState.rows[0] ? "inspired_image" in scentState.rows[0] : true) : "inspired_image" in x;
-  ed.img = x.inspired_image || "";
+  ed.prodCol = ed.linked.length ? "inspired_image" in ed.linked[0] : true;
+  ed.img0 = x.inspired_image || (ed.prodCol && ed.linked.find(p => p.inspired_image)?.inspired_image) || "";
+  ed.img = ed.img0;
   const n = x.notes || {};
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
   const typeOne = t => VD.TYPES.find(y => y.id === (t || "kvepalai"))?.one || "";
@@ -139,7 +149,7 @@ ${groupHTML(
   )}${fieldHTML("Kvapo šeima", `<select name="family">${fams.map(f => opt(f.id, f.name, x.family)).join("")}</select>`)}`,
   { head: "Kvapas" }
 )}
-${ed.imgCol ? `<h2 class="igHead">Originalo nuotrauka</h2><div id="scInsp">${inspImgHTML(ed.img)}</div>` : ""}
+<h2 class="igHead">Originalo nuotrauka</h2><div id="scInsp">${inspImgHTML(ed.img, scentInspFoot(ed))}</div>
 ${groupHTML(
   `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`, { stack: true })}${fieldHTML(
     "Širdies",
@@ -191,7 +201,7 @@ ${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span cla
   const paintInsp = () => {
     const box = $("#scInsp", form);
     if (box) {
-      box.innerHTML = inspImgHTML(ed.img);
+      box.innerHTML = inspImgHTML(ed.img, scentInspFoot(ed));
       hydrateIcons(box);
     }
   };
@@ -226,6 +236,12 @@ ${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span cla
     e.preventDefault();
     busy($('.axSave[form="scentForm"]', main), () => saveScent(ed, form));
   });
+}
+// Paaiškinimas po nuotrauka: kur ji bus rodoma ir ar bus išsaugota
+function scentInspFoot(ed) {
+  const n = ed.linked.length;
+  if (!ed.imgCol && !n) return "Kad nuotrauka išliktų kvape be produktų, Supabase reikia paleisti migraciją 20261121090000_scent_inspired_image.sql.";
+  return n ? `Kvadratinė, šviesiame fone. Išsaugojus rodoma ${plural(n, "susietame produkte", "susietuose produktuose", "susietų produktų")} – kortelėse ir produkto puslapyje.` : "Kvadratinė, šviesiame fone. Rodoma visuose šio kvapo produktuose – kortelėse ir produkto puslapyje.";
 }
 const scentUniqueId = (ed, base) => {
   let id = base || "kvapas";
@@ -304,16 +320,21 @@ async function saveScent(ed, form) {
   }
   await sbRest(`scents?id=eq.${encodeURIComponent(ed.x.id)}`, { method: "PATCH", body: row });
   const apply = ed.linked.length && form.elements.apply?.checked;
+  // Originalo nuotrauka – kvapo savybė: pakeista visada atsiranda visuose susietuose produktuose
+  const imgChanged = ed.img !== ed.img0 && ed.linked.length && ed.prodCol;
   if (apply) {
     const patch = Object.fromEntries(SCENT_TO_PRODUCT.map(k => [k, row[k]]));
     if (!patch.family) delete patch.family;
+    if (ed.prodCol) patch.inspired_image = ed.img;
+    else delete patch.inspired_image;
     await sbRest(`products?scent_id=eq.${encodeURIComponent(ed.x.id)}`, { method: "PATCH", body: patch });
-  }
+  } else if (imgChanged) await sbRest(`products?scent_id=eq.${encodeURIComponent(ed.x.id)}`, { method: "PATCH", body: { inspired_image: ed.img } });
   const i = scentState.rows.findIndex(r => r.id === ed.x.id);
   if (i >= 0) scentState.rows[i] = { ...scentState.rows[i], ...row };
+  if ((apply || imgChanged) && ed.prodCol) (scentState.thumbs ||= new Map()).set(ed.x.id, ed.img);
   paintScents();
   A.dirty = false;
-  if (apply) await catalogChanged(`Išsaugota – pritaikyta ${plural(ed.linked.length, "produktui", "produktams", "produktų")}`);
+  if (apply || imgChanged) await catalogChanged(`Išsaugota – ${apply ? "pritaikyta" : "nuotrauka atnaujinta"} ${plural(ed.linked.length, "produktui", "produktams", "produktų")}`);
   else toast("Išsaugota", { icon: "check" });
   render(`kvapu-sarasas/${ed.x.id}`);
 }
