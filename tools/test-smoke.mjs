@@ -291,7 +291,7 @@ async function run(viewport) {
   }
   check((await page.locator("#homeRails .card [data-fav]").count()) === 0, "pradžia: karuselių kortelėse širdelių nėra");
   if (mobile && viewport.width < 700) {
-    // v21: ~2,3 kortelės – dvi matomos visos, trečios dalis ekrano krašte; rodyklių telefone nėra
+    // v21b: didelė kortelė (kaip parfumada.lt) ir kitos dalis dešinėje; rodyklės ir „1/N“
     const rail = page.locator("#homeRails .rail").first();
     const g = await rail.evaluate(r => {
       const rs = [...r.children].map(c => c.getBoundingClientRect());
@@ -299,7 +299,8 @@ async function run(viewport) {
       const part = rs.filter(x => x.left < innerWidth - 1 && x.right > innerWidth + 1).length;
       return { full, part, nav: getComputedStyle(r.closest(".railWrap").querySelector(".railNav")).display };
     });
-    check(g.full === 2 && g.part === 1 && g.nav === "none", `pradžios karuselė telefone: 2 kortelės ir trečios dalis (${g.full}+${g.part}), be rodyklių`);
+    const cw = await rail.evaluate(r => r.children[0].getBoundingClientRect().width / innerWidth);
+    check(g.full === 1 && g.part === 1 && g.nav !== "none" && cw > 0.7, `pradžios karuselė telefone: didelė kortelė (${Math.round(cw * 100)} %) ir kitos dalis, rodyklės (${g.full}+${g.part})`);
     const tp = await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].filter(t => { const x = t.getBoundingClientRect(); return x.left < innerWidth - 1 && x.right > innerWidth + 1; }).length);
     check(tp === 1 || (await page.locator("#homeTiles .tile").count()) <= 2, "pradžia telefone: matosi trečios kategorijos dalis");
     await rail.evaluate(r => r.scrollTo({ left: 0, behavior: "auto" }));

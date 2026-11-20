@@ -666,9 +666,9 @@
   color: var(--ink3);
 }
 
-/* Karuselėje – stori pavadinimai (telefone 16 px, kompiuteryje – 22,75 px / 700, 09-desktop.css), paveikslas – kvadratas */
+/* Karuselėje – stambūs, stori pavadinimai (kaip parfumada.lt: 22,75 px / 700), paveikslas – kvadratas */
 .rail .cardName {
-  font-size: 16px;
+  font-size: 22.75px;
   font-weight: 700;
   letter-spacing: 0.02em;
   white-space: normal;
@@ -704,9 +704,10 @@
 .rail {
   display: grid;
   grid-auto-flow: column;
-  /* v21: telefone ~2,3 kortelės – trečios dalis matosi ekrano krašte, aišku, kad galima slinkti */
-  grid-auto-columns: calc((100% - 2 * var(--railGap)) / 2.3);
-  --railGap: 10px;
+  /* v21b: telefone – didelė kortelė (~78 % ekrano, kaip parfumada.lt), kitos kortelės dalis matosi dešinėje –
+     aišku, kad galima slinkti; po karusele – rodyklės ir „1/N“ */
+  grid-auto-columns: 82%;
+  --railGap: 12px;
   gap: var(--railGap);
   margin: 0 calc(var(--pad) * -1);
   padding: 2px var(--pad) 8px;
@@ -721,12 +722,6 @@
 }
 .rail .card {
   scroll-snap-align: start;
-}
-/* Telefone rodyklių nėra – kad galima slinkti, rodo kitos kortelės dalis ekrano krašte */
-@media (max-width: 699.98px) {
-  .railWrap .railNav {
-    display: none;
-  }
 }
 .railNav {
   display: flex;

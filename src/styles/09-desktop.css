@@ -10,15 +10,15 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 34px 18px;
   }
-  /* Planšetė (v21): ~3,3 kortelės, kitos dalis matosi krašte */
+  /* Planšetė (v21b): ~2,4 didelės kortelės, kitos dalis matosi krašte */
   .rail {
-    --railGap: 16px;
-    grid-auto-columns: calc((100% - 3 * var(--railGap)) / 3.4);
+    --railGap: 18px;
+    grid-auto-columns: calc((100% - 2 * var(--railGap)) / 2.4);
     padding: 2px var(--pad) 8px;
     scroll-padding: 0 var(--pad);
   }
   .rail .cardName {
-    font-size: 18px;
+    font-size: 22.75px;
   }
   .rail .card {
     scroll-snap-align: start;
@@ -475,10 +475,10 @@
     grid-auto-columns: calc((100% - 5 * 16px) / 5.4);
     justify-content: start;
   }
-  /* Karuselė (v21) – ~4,5 kortelės: penktos pusė matosi dešinėje – aišku, kad galima slinkti; rodyklės ir „1/N“ */
+  /* Karuselė (v21b) – ~3,4 didelės kortelės (≥ 1280 px – ~3,8), kitos dalis matosi dešinėje; rodyklės ir „1/N“ */
   .rail {
     --railGap: 24px;
-    grid-auto-columns: calc((100% - 4 * var(--railGap)) / 4.5);
+    grid-auto-columns: calc((100% - 3 * var(--railGap)) / 3.4);
     margin: 0;
     padding: 2px 0 8px;
     scroll-padding: 0;
@@ -727,6 +727,9 @@
 }
 /* Katalogas plačiame kompiuteryje – 4 kortelės eilėje, filtrai – 260 px kairėje */
 @media (min-width: 1280px) {
+  .rail {
+    grid-auto-columns: calc((100% - 3 * var(--railGap)) / 3.8);
+  }
   .shopLayout {
     grid-template-columns: 260px minmax(0, 1fr);
     gap: 48px;
