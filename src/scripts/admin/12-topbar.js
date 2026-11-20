@@ -1,4 +1,4 @@
-// 12 – Juosta virš header'io (admin/pradzia, pirmas skyrius): žinutės (tekstas, trumpas variantas telefonui, nuoroda,
+// 12 – Juosta virš header'io (admin/vitrina/juosta): žinutės (tekstas, trumpas variantas telefonui, nuoroda,
 // rodoma / paslėpta, eilė), dizainas (paruošti variantai + savos spalvos, gradientas, šrifto dydis telefone / kompiuteryje,
 // storis, tarpai tarp raidžių, didžiosios raidės, aukštis, linija), keitimosi laikas, rodyklės, animacija.
 // Saugoma settings.topbar (formatas – 21-header.js). Peržiūra – ta pati kaip pradžios puslapio (10-home.js).
@@ -32,64 +32,74 @@ function tbContrast() {
   return Math.min(...bgs.flatMap(b => [tbRatio(fg, b), tbRatio(acc, b)]));
 }
 
-function topbarSectionHTML(S) {
+function initTopbar(S) {
   TB.cfg = clone(S.topbar && typeof S.topbar === "object" ? { ...TB_DEFAULT(), ...S.topbar } : TB_DEFAULT());
   TB.cfg.items = (TB.cfg.items || []).map(x => ({ id: x.id || uid(), on: x.on !== false, ...x }));
   TB.cfg.style = TB.cfg.style || {};
-  return `<section class="admCard tbCard" id="tbSec"><div class="heSecHead"><h2>Juosta virš header'io</h2><label class="admToggleRow tbOn"><span><b>Rodyti</b></span><input type="checkbox" class="admSwitchInp" data-tb="on"${attr(
-    TB.cfg.on !== false,
-    "checked"
-  )} /></label></div>
-<p class="admNote">Trumpos žinutės, kurios keičiasi viena po kitos. Tekste <b>*žodis*</b> – paryškinamas (akcento spalva). „Trumpas“ – rodomas telefone, jei ilgas netelpa į 2 eilutes.</p>
-<div class="heList" id="tbItems"></div>
-<div class="heAdd"><button class="btn ghost small" type="button" data-tb-add>${glyph("plus")}Pridėti žinutę</button><button class="btn ghost small" type="button" data-tb-auto>${glyph("spark")}Numatytosios žinutės</button></div>
-<h3 class="tbSub">Dizainas</h3>
+  TB.open = null;
+}
+function topbarSectionHTML() {
+  return `<div id="tbSec">
+<div class="ig"><label class="axField axSwitchRow"><span>Rodyti juostą</span><input type="checkbox" class="admSwitchInp" data-tb="on"${attr(TB.cfg.on !== false, "checked")} /></label></div>
+<h2 class="igHead">Žinutės</h2><div class="ig heList" id="tbItems"></div>
+<div class="ig"><button class="axRow axAddRow" type="button" data-tb-add>${glyph("plus")}<span class="axRowTxt"><b>Nauja žinutė</b></span></button><button class="axRow" type="button" data-tb-auto><span class="axRowTxt"><b class="axLink">Numatytosios žinutės</b></span></button></div>
+<p class="igFoot">Keičiasi viena po kitos. *žodis* – paryškinamas.</p>
+<h2 class="igHead">Dizainas</h2>
 <div class="tbDesigns" id="tbDesigns"></div>
-<div class="tbGrid" id="tbStyle"></div>
-<h3 class="tbSub">Elgsena</h3>
-<div class="tbGrid">
-<label class="field"><span>Keičiasi kas, s</span><input type="number" min="0" max="30" step="1" data-tb="seconds" value="${esc(TB.cfg.seconds ?? 5)}" /><small>0 – nesikeičia pačios</small></label>
-<label class="field"><span>Animacija</span><select data-tb="anim">${[
+<div class="ig"><button class="axRow" type="button" data-push="tbstyle"><span class="axRowTxt"><b>Spalvos ir šriftas</b></span><span class="axVal" id="tbStyleSum"></span><span class="axChev">${glyph("chev-right")}</span></button></div>
+<h2 class="igHead">Elgsena</h2>
+<div class="ig">
+<label class="field axField"><span>Keičiasi kas, s</span><input type="number" min="0" max="30" step="1" data-tb="seconds" value="${esc(TB.cfg.seconds ?? 5)}" /></label>
+${fieldHTML(
+  "Animacija",
+  `<select data-tb="anim">${[
     ["slide", "Iš apačios"],
     ["fade", "Išryškėja"],
     ["none", "Be animacijos"]
   ]
     .map(([v, n]) => `<option value="${v}"${sel((TB.cfg.anim || "slide") === v)}>${n}</option>`)
-    .join("")}</select></label>
-<label class="admToggleRow"><span><b>Rodyklės ‹ ›</b><small>Pirkėjas gali perjungti pats</small></span><input type="checkbox" class="admSwitchInp" data-tb="arrows"${attr(TB.cfg.arrows !== false, "checked")} /></label>
+    .join("")}</select>`
+)}
+<label class="axField axSwitchRow"><span>Rodyklės ‹ ›</span><input type="checkbox" class="admSwitchInp" data-tb="arrows"${attr(TB.cfg.arrows !== false, "checked")} /></label>
 </div>
-</section>`;
+<p class="igFoot">0 s – žinutės nesikeičia pačios.</p>
+<div class="ig"><button class="axRow" type="button" data-he-reset><span class="axRowTxt"><b class="axLink">Grąžinti numatytuosius</b></span></button></div>
+</div>`;
 }
-function tbItemHTML(x, i) {
-  const open = TB.open === x.id;
+function tbItemRow(x, i) {
+  return heRowHTML({ kind: "tb", id: x.id, on: x.on, title: `${i + 1}. ${VD.fmtNote(x.text || "Nauja žinutė")}`, sub: `${x.href ? `Nuoroda: ${esc(x.href)}` : "Be nuorodos"}${x.short ? " · yra trumpas" : ""}${x.on === false ? " · paslėpta" : ""}`, cls: "tbItem" })
+    .replace("data-he-tb=", "data-tb-item=")
+    .replace("data-he-open", "data-tb-open")
+    .replace("data-he-on", "data-tb-on");
+}
+function tbItemFormHTML(x) {
   const custom = x.href && !isKnownLink(x.href) ? x.href : "";
-  return `<article class="heItem tbItem${open ? " open" : ""}${x.on === false ? " off" : ""}" data-tb-item="${esc(x.id)}">
-<div class="heRow">
-<button class="heRowMain" type="button" data-tb-open aria-expanded="${open}"><span class="heRowTxt"><b>${i + 1}. ${VD.fmtNote(x.text || "Nauja žinutė")}</b><small>${x.href ? `Nuoroda: ${esc(x.href)}` : "Be nuorodos"}${
-    x.short ? " · yra trumpas variantas" : ""
-  }${x.on === false ? " · paslėpta" : ""}</small></span></button>
-<div class="heRowActs"><button class="roundBtn" type="button" data-tb-move="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-tb-move="1" aria-label="Žemiau"${attr(
-    i === TB.cfg.items.length - 1,
-    "disabled"
-  )}>${glyph("chev-right")}</button><input type="checkbox" class="admSwitchInp" data-tb-on aria-label="Rodoma"${attr(x.on !== false, "checked")} /></div>
-</div>
-${
-  open
-    ? `<div class="heForm admForm">
-<label class="field"><span>Tekstas</span><input name="text" maxlength="140" value="${esc(x.text || "")}" placeholder="pvz. Nemokamas pristatymas nuo *60 €*" /></label>
-<label class="field"><span>Trumpas (nebūtina)</span><input name="short" maxlength="70" value="${esc(x.short || "")}" placeholder="pvz. Nemokamai nuo *60 €*" /><small>Rodomas, jei ilgas netelpa (siauras telefonas)</small></label>
-<label class="field"><span>Nuoroda (nebūtina)</span><select name="hrefSel">${linkOptions(x.href || "", "Be nuorodos")}</select></label>
-<label class="field heCustom"${attr(!custom, "hidden")}><span>Adresas</span><input name="hrefCustom" maxlength="200" value="${esc(custom)}" placeholder="pvz. nuolaidos arba https://…" /></label>
-<div class="heFormActs"><button class="btn danger small" type="button" data-tb-del>${glyph("trash")}Ištrinti</button></div>
-</div>`
-    : ""
-}
-</article>`;
+  return `<article class="heItem open tbItem" data-tb-item="${esc(x.id)}"><div class="heForm admForm">
+${groupHTML(
+  `${fieldHTML("Tekstas", `<input name="text" maxlength="140" value="${esc(x.text || "")}" placeholder="Nemokamas pristatymas nuo *60 €*" />`)}${fieldHTML(
+    "Trumpas",
+    `<input name="short" maxlength="70" value="${esc(x.short || "")}" placeholder="Nemokamai nuo *60 €*" />`
+  )}`,
+  { foot: "Trumpas – telefone, jei ilgas netelpa į 2 eilutes." }
+)}
+${groupHTML(linkField(x.href, "Be nuorodos", custom, "nuolaidos arba https://…"))}
+<div class="ig"><button class="axRow danger" type="button" data-tb-del><span class="axRowTxt"><b>Ištrinti žinutę</b></span></button></div>
+</div></article>`;
 }
 function paintTbItems() {
   const box = $("#tbItems");
-  box.innerHTML = TB.cfg.items.length ? TB.cfg.items.map(tbItemHTML).join("") : `<p class="admMuted heEmpty">Žinučių nėra – juosta nerodoma.</p>`;
+  if (!box) return;
+  box.innerHTML = TB.cfg.items.length ? TB.cfg.items.map(tbItemRow).join("") : `<p class="axRowNote heEmpty">Žinučių nėra – juosta nerodoma.</p>`;
   hydrateIcons(box);
+  sortable(box, {
+    item: ".heItem",
+    onMove: (from, to) => {
+      moveItem(TB.cfg.items, from, to);
+      tbChanged({ items: true });
+    }
+  });
+  const x = TB.open && TB.cfg.items.find(y => y.id === TB.open);
+  if (x) openItem(box.closest(".axPage"), `${TB.cfg.items.indexOf(x) + 1} žinutė`, tbItemFormHTML(x));
 }
 function paintTbStyle() {
   const st = TB.cfg.style;
@@ -101,12 +111,15 @@ function paintTbStyle() {
       return `<button class="tbDesign" type="button" data-tb-design="${k}" aria-pressed="${cur === k}" style="background:${bg};color:${s.color}${s.line ? ";box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)" : ""}"><span style="text-transform:${s.upper ? "uppercase" : "none"};font-weight:${s.weight}">Nemokamai nuo <b style="color:${s.accent}">60 €</b></span><small>${esc(d.name)}</small></button>`;
     })
     .join("");
-  const col = (k, label, def) => `<label class="field tbColor"><span>${label}</span><span class="tbColorIn"><input type="color" data-tb-st="${k}" value="${esc(st[k] || def)}" /><code>${esc(st[k] || def)}</code></span></label>`;
+  const col = (k, label, def) => `<label class="field axField tbColor"><span>${label}</span><span class="tbColorIn"><input type="color" data-tb-st="${k}" value="${esc(st[k] || def)}" /><code>${esc(st[k] || def)}</code></span></label>`;
   const rng = (k, label, min, max, step, def, unit) =>
-    `<label class="field tbRange"><span>${label} <output>${esc(st[k] ?? def)}${unit}</output></span><input type="range" data-tb-st="${k}" min="${min}" max="${max}" step="${step}" value="${esc(st[k] ?? def)}" /></label>`;
+    `<label class="field axField stack tbRange"><span>${label} <output>${esc(st[k] ?? def)}${unit}</output></span><input type="range" data-tb-st="${k}" min="${min}" max="${max}" step="${step}" value="${esc(st[k] ?? def)}" /></label>`;
   const ratio = tbContrast();
+  const sum = $("#tbStyleSum");
+  if (sum) sum.innerHTML = `<i class="axSw" style="background:${esc(st.bg || "#111111")}"></i><i class="axSw" style="background:${esc(st.color || "#c7c7c7")}"></i>`;
+  if (!$("#tbStyle")) return;
   $("#tbStyle").innerHTML = `${col("bg", "Fonas", "#111111")}
-<label class="field"><span>Fonas – tipas</span><select data-tb-st="grad">${[
+<label class="field axField"><span>Fono tipas</span><select data-tb-st="grad">${[
     ["solid", "Vienspalvis"],
     ["lr", "Gradientas →"],
     ["mid", "Gradientas ↔ (vidurys šviesus)"]
@@ -118,10 +131,10 @@ ${col("color", "Tekstas", "#c7c7c7")}${col("accent", "Paryškintas tekstas (*…
 ${rng("fs", "Šriftas telefone", 12, 24, 0.5, 19.5, " px")}${rng("fsD", "Šriftas kompiuteryje", 12, 24, 0.5, 17, " px")}
 ${rng("weight", "Storis", 300, 800, 100, 400, "")}${rng("ls", "Tarpai tarp raidžių", 0, 0.2, 0.01, 0.04, " em")}
 ${rng("h", "Aukštis telefone", 36, 96, 1, 66, " px")}${rng("hD", "Aukštis kompiuteryje", 32, 80, 1, 49, " px")}
-<label class="admToggleRow"><span><b>DIDŽIOSIOS RAIDĖS</b></span><input type="checkbox" class="admSwitchInp" data-tb-st="upper"${attr(!!st.upper, "checked")} /></label>
-<label class="admToggleRow"><span><b>Linija apačioje</b><small>Šviesiam fonui</small></span><input type="checkbox" class="admSwitchInp" data-tb-st="line"${attr(!!st.line, "checked")} /></label>
-<p class="tbContrast${ratio < 4.5 ? " bad" : ""}" role="status">${ratio < 4.5 ? `${glyph("info")}Per mažas kontrastas (${ratio.toFixed(1)}:1) – tekstas bus sunkiai įskaitomas. Reikia bent 4,5:1.` : `${glyph("check")}Kontrastas ${ratio.toFixed(1)}:1 – gerai įskaitoma`}</p>
-<button class="btn ghost small tbResetStyle" type="button" data-tb-design="black">Numatytasis dizainas</button>`;
+<label class="axField axSwitchRow"><span>DIDŽIOSIOS RAIDĖS</span><input type="checkbox" class="admSwitchInp" data-tb-st="upper"${attr(!!st.upper, "checked")} /></label>
+<label class="axField axSwitchRow"><span>Linija apačioje</span><input type="checkbox" class="admSwitchInp" data-tb-st="line"${attr(!!st.line, "checked")} /></label>
+<p class="tbContrast axRowNote${ratio < 4.5 ? " bad" : ""}" role="status">${ratio < 4.5 ? `${glyph("info")}Per mažas kontrastas (${ratio.toFixed(1)}:1) – tekstas bus sunkiai įskaitomas. Reikia bent 4,5:1.` : `${glyph("check")}Kontrastas ${ratio.toFixed(1)}:1 – gerai įskaitoma`}</p>
+<button class="axRow tbResetStyle" type="button" data-tb-design="black"><span class="axRowTxt"><b class="axLink">Numatytasis dizainas</b></span></button>`;
   hydrateIcons($("#tbStyle"));
 }
 function tbChanged({ items = false, style = false } = {}) {
@@ -129,10 +142,10 @@ function tbChanged({ items = false, style = false } = {}) {
   if (style) paintTbStyle();
   changed({ scroll: "top" });
 }
-function bindTopbar(main) {
+function bindTopbar(page) {
   paintTbItems();
   paintTbStyle();
-  const sec = $("#tbSec", main);
+  const sec = page;
   const itemAt = el => {
     const a = el.closest("[data-tb-item]");
     const i = a ? TB.cfg.items.findIndex(x => x.id === a.dataset.tbItem) : -1;
@@ -146,7 +159,7 @@ function bindTopbar(main) {
       TB.cfg.items.push(x);
       TB.open = x.id;
       tbChanged({ items: true });
-      return $(`[data-tb-item="${x.id}"] input[name="text"]`)?.focus();
+      return $(`#heItemBox [data-tb-item="${x.id}"] input[name="text"]`)?.focus();
     }
     if (t.closest("[data-tb-auto]")) {
       TB.cfg.items = VD.autoNoteItems().map(x => ({ ...x, on: true }));
@@ -162,19 +175,14 @@ function bindTopbar(main) {
     const it = itemAt(t);
     if (!it) return;
     if (t.closest("[data-tb-open]")) {
-      TB.open = TB.open === it.x.id ? null : it.x.id;
+      TB.open = it.x.id;
       paintTbItems();
       return;
     }
-    const mv = t.closest("[data-tb-move]");
-    if (mv) {
-      const j = it.i + Number(mv.dataset.tbMove);
-      if (j < 0 || j >= TB.cfg.items.length) return;
-      [TB.cfg.items[it.i], TB.cfg.items[j]] = [TB.cfg.items[j], TB.cfg.items[it.i]];
-      return tbChanged({ items: true });
-    }
     if (t.closest("[data-tb-del]")) {
       TB.cfg.items.splice(it.i, 1);
+      TB.open = null;
+      closeItem();
       return tbChanged({ items: true });
     }
   });
@@ -206,7 +214,8 @@ function bindTopbar(main) {
       const v = t.value;
       if (v.trim()) it.x[t.name] = v;
       else delete it.x[t.name];
-      if (t.name === "text") $(".heRowTxt b", t.closest(".heItem")).innerHTML = `${it.i + 1}. ${VD.fmtNote(v || "Nauja žinutė")}`;
+      const b = $(`#tbItems [data-tb-item="${CSS.escape(it.x.id)}"] .heRowTxt b`);
+      if (t.name === "text" && b) b.innerHTML = `${it.i + 1}. ${VD.fmtNote(v || "Nauja žinutė")}`;
       return tbChanged();
     }
     if (t.name === "hrefSel") {

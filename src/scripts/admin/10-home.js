@@ -1,9 +1,11 @@
-// 10 – Pradžios puslapis (admin/pradzia): juosta virš header'io (12-topbar.js), skaidrės, „Produktai“ plytelės ir skyriai su
-// produktais (karuselės, v15: settings.rails – pagal taisyklę arba pasirinkti ranka) su gyva peržiūra (telefonas / kompiuteris).
-// Skaidrė: rodoma / paslėpta, eilė, fonas – nuotrauka (kompiuteriui ir, nebūtinai, telefonui; spustelėjus nurodoma vieta,
-// kuri turi likti matoma) arba Vaidore scena su pasirinkto kvapo buteliukais; tekstai (tušti – iš šablono), mygtukas,
-// nuoroda, tekstas šviesus / tamsus. Plytelė: rodoma, eilė, pavadinimas, nuotrauka. Saugoma settings.slides / tiles /
-// slideSeconds (formatas – 25-home-config.js). Peržiūra – tikra parduotuvė <iframe> (?vdPreview=1), juodraštis – postMessage.
+// 10 – Vitrina (admin/vitrina): viskas, ką mato pirkėjas. Ekranai: Skaidrės, Skyriai su produktais, Plytelės, Juosta virš
+// header'io (12-topbar.js) – su gyva peržiūra (kompiuteryje – šone, telefone – mygtukas „Peržiūra“, visame ekrane);
+// Prekių kortelės ir Mūsų istorija – nustatymų ekranai (08-settings.js).
+// Skaidrė: rodoma / paslėpta, eilė (tempiant), fonas – nuotrauka (kompiuteriui ir, nebūtinai, telefonui; spustelėjus
+// nurodoma vieta, kuri turi likti matoma) arba Vaidore scena su pasirinkto kvapo buteliukais; tekstai (tušti – iš šablono),
+// mygtukas, nuoroda, tekstas šviesus / tamsus. Plytelė: rodoma, eilė, pavadinimas, nuotrauka. Skyrius (v15, settings.rails):
+// pagal taisyklę arba pasirinkti ranka. Saugoma settings.slides / tiles / rails / slideSeconds / topbar (formatas –
+// 25-home-config.js). Peržiūra – tikra parduotuvė <iframe> (?vdPreview=1), juodraštis – postMessage.
 const SCENE_NAMES = {
   collection: "Arka ir postamentas",
   samples: "Mėginukų eilė",
@@ -28,12 +30,58 @@ const TILE_NAMES = {
   rinkinys: "Rinkiniai",
   naujienos: "Naujienos"
 };
-const HE = { slides: [], tiles: [], rails: [], secs: 6, open: null, openTile: null, openRail: null, view: "phone", frame: null, ready: false, focus: 0, scents: [] };
+const HE = { slides: [], tiles: [], rails: [], secs: 6, open: null, openTile: null, openRail: null, view: "phone", frame: null, ready: false, focus: 0, scents: [], part: "" };
 const uid = () => Math.random().toString(36).slice(2, 8);
 const clone = x => JSON.parse(JSON.stringify(x));
+const HE_PARTS = { skaidres: "Skaidrės", skyriai: "Skyriai su produktais", plyteles: "Plytelės", juosta: "Juosta virš header'io" };
 
-async function renderHomeEditor(main, _param, seq) {
-  main.innerHTML = pageHead("Pradžia") + loading();
+async function renderVitrina(main, param, seq) {
+  const back = isSplit() ? null : { href: "admin/vitrina", label: "Vitrina" };
+  if (param === "korteles" || param === "istorija") return renderSettingsPage(main, param, seq, back);
+  if (HE_PARTS[param]) return renderHomeEditor(main, param, seq, back);
+  if (param) return navigate("admin/vitrina", { replace: true });
+  // Vitrinos ekranas: visos dalys su santrauka
+  const paint = S => {
+    const sl = S ? (Array.isArray(S.slides) ? S.slides : VD.DEFAULT_SLIDES) : [];
+    const rl = S ? (Array.isArray(S.rails) ? S.rails : VD.DEFAULT_RAILS) : [];
+    const tl = S ? (Array.isArray(S.tiles) ? S.tiles : VD.DEFAULT_TILES) : [];
+    const tb = S?.topbar;
+    const on = a => a.filter(x => x.on !== false).length;
+    const v = t => (S ? `<span class="axValTxt">${t}</span>` : "");
+    return pageHTML({
+      title: "Vitrina",
+      sub: "Viskas, ką mato pirkėjas",
+      actions: barLink("eye", "Peržiūrėti parduotuvę", "./"),
+      cls: "axNarrow",
+      body: `${groupHTML(
+        [
+          navRow({ href: "admin/vitrina/skaidres", ico: "home", icoBg: "var(--brand)", title: "Skaidrės", value: v(`${on(sl)} iš ${sl.length}`) }),
+          navRow({ href: "admin/vitrina/skyriai", ico: "grid", icoBg: "var(--brand)", title: "Skyriai su produktais", value: v(`${on(rl)} iš ${rl.length}`) }),
+          navRow({ href: "admin/vitrina/plyteles", ico: "tag", icoBg: "var(--brand)", title: "Plytelės", value: v(`${on(tl)} iš ${tl.length}`) }),
+          navRow({ href: "admin/vitrina/juosta", ico: "bell", icoBg: "var(--brand)", title: "Juosta virš header'io", value: v(tb?.on === false ? "Išjungta" : "Įjungta") })
+        ].join(""),
+        { head: "Pradžios puslapis" }
+      )}
+${groupHTML(
+  [
+    navRow({ href: "admin/vitrina/korteles", ico: "heart", icoBg: "var(--ink2)", title: "Prekių kortelės", sub: "Širdelė, ženkliukai, „Įkvėpti …“" }),
+    navRow({ href: "admin/vitrina/istorija", ico: "doc", icoBg: "var(--ink2)", title: "Mūsų istorija", value: v(S?.story?.text ? "Rodoma" : "Nerodoma") })
+  ].join(""),
+  { head: "Visi puslapiai" }
+)}`
+    });
+  };
+  main.innerHTML = paint(null);
+  hydrateIcons(main);
+  const S = await loadSettings().catch(() => null);
+  if (stale(seq) || !S) return;
+  main.innerHTML = paint(S);
+  hydrateIcons(main);
+}
+
+async function renderHomeEditor(main, part, seq, back) {
+  const title = HE_PARTS[part];
+  main.innerHTML = pageHTML({ title, back, body: loading(5) });
   const [rows, categories, scents] = await Promise.all([
     sbRest("settings?select=data&id=eq.1"),
     sbRest("categories?select=id,name,image,visible&order=sort.asc,name.asc"),
@@ -41,52 +89,98 @@ async function renderHomeEditor(main, _param, seq) {
   ]);
   if (stale(seq)) return;
   const S = rows?.[0]?.data || VD.SET;
+  HE.part = part;
   HE.slides = clone(Array.isArray(S.slides) ? S.slides : VD.DEFAULT_SLIDES).map(s => ({ id: s.id || uid(), on: s.on !== false, ...s }));
   HE.tiles = clone(Array.isArray(S.tiles) ? S.tiles : VD.DEFAULT_TILES);
   HE.secs = Number(S.slideSeconds ?? 6);
   HE.rails = clone(Array.isArray(S.rails) ? S.rails : VD.DEFAULT_RAILS).map(r => ({ ...r, id: r.id || uid(), rule: r.rule || {}, ids: r.ids || [] }));
   HE.scents = scents || [];
-  HE.openRail = null;
   HE.cats = categories;
-  HE.open = null;
-  HE.openTile = null;
+  HE.open = HE.openTile = HE.openRail = null;
   HE.ready = false;
-  main.innerHTML = `${pageHead("Pradžios puslapis", "Juosta virš header'io, skaidrės ir „Produktai“ plytelės. Peržiūra – kaip pirkėjui, dar prieš išsaugant.")}
-<div class="heLayout">
+  HE.focus = 0;
+  initTopbar(S);
+  const resetRow = `<div class="ig"><button class="axRow" type="button" data-he-reset><span class="axRowTxt"><b class="axLink">Grąžinti numatytuosius</b></span></button></div>`;
+  const sections = {
+    skaidres: `<div class="ig"><label class="field axField"><span>Keičiasi kas, s</span><input type="number" inputmode="numeric" min="0" max="30" value="${HE.secs}" data-he-secs aria-label="Sekundės" /></label></div>
+<p class="igFoot">0 – skaidrės nesikeičia pačios.</p>
+<h2 class="igHead">Skaidrės</h2><div class="ig heList" id="heSlides"></div>
+<div class="ig"><button class="axRow axAddRow" type="button" data-he-add-menu>${glyph("plus")}<span class="axRowTxt"><b>Nauja skaidrė</b></span></button></div>
+<p class="igFoot">Pirmoji – svarbiausia. Eilę keiskite tempdami ⋮⋮.</p>
+${resetRow}`,
+    plyteles: `<h2 class="igHead">Plytelės po skaidrėmis</h2><div class="ig heList" id="heTiles"></div>
+<div class="ig" id="heTileAdd"></div>
+<p class="igFoot">Nuotrauka – stati 4:5 (1000 × 1250). Be nuotraukos – Vaidore scena su tos grupės buteliukais.</p>
+${resetRow}`,
+    skyriai: `<h2 class="igHead">Karuselės pradžios puslapyje</h2><div class="ig heList" id="heRails"></div>
+<div class="ig"><button class="axRow axAddRow" type="button" data-he-addrail="auto">${glyph("plus")}<span class="axRowTxt"><b>Naujas skyrius pagal taisyklę</b></span></button><button class="axRow axAddRow" type="button" data-he-addrail="manual">${glyph(
+      "plus"
+    )}<span class="axRowTxt"><b>Naujas skyrius – pasirinkti produktus</b></span></button></div>
+<p class="igFoot">Skyrius be produktų nerodomas.</p>
+${resetRow}`,
+    juosta: topbarSectionHTML()
+  };
+  main.innerHTML = pageHTML({
+    title,
+    back,
+    actions: `${barBtn("eye", "Peržiūra", 'data-he-preview class="axBarBtn hePrevBtn"')}${saveBtn({ attrs: "data-he-save" })}`,
+    cls: "heLayoutPage",
+    body: `<div class="heLayout">
 <div class="heEdit">
-${topbarSectionHTML(S)}
-<section class="admCard"><div class="heSecHead"><h2>Skaidrės</h2><label class="heSecs">Keičiasi kas <input type="number" inputmode="numeric" min="0" max="30" value="${HE.secs}" data-he-secs aria-label="Sekundės" /> s</label></div>
-<p class="admNote">Rodoma iš eilės, pirmoji – svarbiausia. Nuotrauka – kompiuteriui plati (2880 × 934), telefonui – 1000 × 1150 (nebūtina – nėra, naudojama ta pati). „Tik nuotrauka“ – be jokių užrašų ant jos. 0 s – skaidrės nesikeičia pačios.</p>
-<div class="heList" id="heSlides"></div>
-<div class="heAdd"><span class="admMuted">Pridėti:</span>${Object.entries(VD.SLIDE_PRESETS)
-    .map(([k, p]) => `<button class="btn ${k === "photo" ? "primary" : "ghost"} small" type="button" data-he-add="${k}">${glyph(k === "photo" ? "upload" : "plus")}${esc(p.name)}</button>`)
-    .join("")}</div>
-</section>
-<section class="admCard"><h2>„Produktai“ plytelės</h2>
-<p class="admNote">Kategorijų plytelės po skaidrėmis: pavadinimas virš plytelės (kaip parfumada.lt), po juo – nuotrauka (4:5, 1000 × 1250). Be nuotraukos – Vaidore scena su tos grupės buteliukais. Ta pati nuotrauka rodoma ir grupės puslapio viršuje.</p>
-<div class="heList" id="heTiles"></div>
-<div class="heAdd" id="heTileAdd"></div>
-</section>
-<section class="admCard"><h2>Skyriai su produktais</h2>
-<p class="admNote">Karuselės pradžios puslapyje, pvz. „Kvapnios naujienos“, „Populiariausi moterims“. Produktai – pagal taisyklę (kategorija, lytis, kvapo šeima, kolekcija, kvapas, paros laikas, sezonas, proga, nuolaida) arba pasirinkti ranka. Skyrius be produktų nerodomas.</p>
-<div class="heList" id="heRails"></div>
-<div class="heAdd"><span class="admMuted">Pridėti:</span><button class="btn ghost small" type="button" data-he-addrail="auto">${glyph("plus")}Pagal taisyklę</button><button class="btn ghost small" type="button" data-he-addrail="manual">${glyph("plus")}Pasirinkti produktus</button></div>
-</section>
-<div class="admSaveBar"><p class="formErr" role="alert" hidden></p><button class="btn ghost" type="button" data-he-reset>Numatytieji</button><button class="btn primary" type="button" data-he-save>${glyph("check")}Išsaugoti</button></div>
+<div data-pane="main"><p class="formErr axErr" role="alert" hidden></p>${sections[part]}</div>
+<div data-pane="item" data-title="" data-focus="no" hidden><div id="heItemBox"></div></div>
+${part === "juosta" ? `<div data-pane="tbstyle" data-title="Spalvos ir šriftas" data-focus="no" hidden><div class="ig tbGrid" id="tbStyle"></div></div>` : ""}
 </div>
 <aside class="hePrev" aria-label="Peržiūra">
-<div class="hePrevHead"><b>Peržiūra</b><div class="seg heSeg" role="tablist"><button type="button" role="tab" data-he-view="phone" aria-selected="true">Telefonas</button><button type="button" role="tab" data-he-view="desktop" aria-selected="false">Kompiuteris</button></div></div>
-<div class="heFrameBox" data-view="phone"><iframe id="heFrame" title="Pradžios puslapio peržiūra" src="./?vdPreview=1" loading="eager"></iframe></div>
+<div class="hePrevHead"><div class="axSeg heSeg" role="tablist"><button type="button" role="tab" data-he-view="phone" aria-selected="${HE.view === "phone"}">Telefonas</button><button type="button" role="tab" data-he-view="desktop" aria-selected="${
+      HE.view === "desktop"
+    }">Kompiuteris</button></div><button class="roundBtn hePrevClose" type="button" data-he-preview-close aria-label="Uždaryti peržiūrą">${glyph("x")}</button></div>
+<div class="heFrameBox" data-view="${HE.view}"><iframe id="heFrame" title="Pradžios puslapio peržiūra"${window.matchMedia("(min-width: 1024px)").matches ? ' src="./?vdPreview=1"' : ""} loading="eager"></iframe></div>
 </aside>
-</div>`;
+</div>`
+  });
   hydrateIcons(main);
-  HE.frame = $("#heFrame");
-  paintSlides();
-  paintTiles();
-  paintRails();
+  HE.frame = $("#heFrame", main);
+  const page = $(".axPage", main);
+  if (part === "skaidres") paintSlides();
+  if (part === "plyteles") paintTiles();
+  if (part === "skyriai") paintRails();
   fitFrame();
-  bindHomeEditor(main);
-  bindTopbar(main);
+  bindHomeEditor(page);
+  if (part === "juosta") bindTopbar(page);
+  page.addEventListener("axpop", e => {
+    if (e.detail.pane !== "item") return;
+    HE.open = HE.openTile = HE.openRail = null;
+    TB.open = null;
+    ({ skaidres: paintSlides, plyteles: paintTiles, skyriai: paintRails, juosta: paintTbItems })[HE.part]?.();
+  });
+}
+// Elemento redagavimas – atskirame ekrane (iOS „push“)
+function openItem(page, title, html) {
+  const pane = $('[data-pane="item"]', page);
+  pane.dataset.title = title;
+  $("#heItemBox", page).innerHTML = html;
+  hydrateIcons(pane);
+  if (pane.hidden) pushPane(page, "item");
+  else setPageTitle(page, title, page._panes?.at(-1)?.title ?? null);
+}
+function closeItem() {
+  const page = $(".heLayoutPage");
+  if (page?._panes?.length) popPane(page);
+}
+// Peržiūra telefone – visame ekrane
+function openPreview() {
+  const box = $(".hePrev");
+  if (!box) return;
+  if (HE.frame && !HE.frame.getAttribute("src")) HE.frame.src = "./?vdPreview=1";
+  box.classList.add("open");
+  document.documentElement.classList.add("axNoScroll");
+  fitFrame();
+  sendPreview({ slide: HE.focus });
+}
+function closePreview() {
+  $(".hePrev")?.classList.remove("open");
+  document.documentElement.classList.remove("axNoScroll");
 }
 
 // ── Peržiūra ──────────────────────────────────────────
@@ -104,10 +198,13 @@ function fitFrame() {
   if (!box || !HE.frame) return;
   const W = HE.view === "phone" ? 390 : 1440;
   const H = HE.view === "phone" ? 760 : 900;
-  const k = Math.min(1, box.clientWidth / W);
+  const full = box.closest(".hePrev.open");
+  const availH = full ? box.parentElement.clientHeight - $(".hePrevHead", box.parentElement).offsetHeight - 16 : Infinity;
+  const k = Math.min(1, box.clientWidth / W, availH / H);
   box.dataset.view = HE.view;
   Object.assign(HE.frame.style, { width: `${W}px`, height: `${H}px`, transform: `scale(${k})` });
   box.style.height = `${Math.round(H * k)}px`;
+  box.style.width = full ? `${Math.round(W * k)}px` : "";
 }
 window.addEventListener("message", e => {
   if (e.origin !== location.origin || e.data?.type !== "vd-home-preview-ready" || !HE.frame || e.source !== HE.frame.contentWindow) return;
@@ -135,28 +232,26 @@ function linkOptions(cur, empty = "Pagal šabloną") {
 function thumbHTML(bg, list, image, focus) {
   return `<span class="heThumb">${image ? `<img src="${esc(image)}" alt="" style="object-position:${esc(focus || "50% 50%")}" />` : VD.stageHTML(bg, list)}</span>`;
 }
+// Sąrašo eilutė: ⋮⋮ (eilė), miniatiūra, pavadinimas, jungiklis „Rodoma“, „›“
+function heRowHTML({ kind, id, thumb: th = "", title, sub, on, cls = "" }) {
+  return `<div class="heItem${on === false ? " off" : ""}${cls ? ` ${cls}` : ""}" data-he-${kind}="${esc(id)}"><div class="heRow">${gripHTML()}<button class="heRowMain" type="button" data-he-open>${th}<span class="heRowTxt"><b>${title}</b><small>${sub}</small></span></button><input type="checkbox" class="admSwitchInp" data-he-on aria-label="Rodoma"${attr(
+    on !== false,
+    "checked"
+  )} /><span class="axChev" aria-hidden="true">${glyph("chev-right")}</span></div></div>`;
+}
 function slideRow(s, i) {
   const r = VD.resolveSlide(s) || {};
-  const open = HE.open === s.id;
   const preset = VD.SLIDE_PRESETS[s.preset] || VD.SLIDE_PRESETS.custom;
-  return `<article class="heItem${open ? " open" : ""}${s.on === false ? " off" : ""}" data-he-slide="${esc(s.id)}">
-<div class="heRow">
-<button class="heRowMain" type="button" data-he-open aria-expanded="${open}">${
-    s.preset === "photo" && !s.image && !s.imageM ? `<span class="heThumb heThumbEmpty">${glyph("upload")}</span>` : thumbHTML(r.stage, r.list || [], s.image || s.imageM, s.focus)
-  }<span class="heRowTxt"><b>${i + 1}. ${esc(s.preset === "photo" ? s.title || "Nuotrauka" : r.title || "Be pavadinimo")}</b><small>${esc(preset.name)} · ${
-    s.preset === "photo"
-      ? [s.image && "kompiuteriui", s.imageM && "telefonui"].filter(Boolean).join(" ir ") || "įkelkite nuotrauką"
-      : s.image
-        ? "nuotrauka"
-        : "scena"
-  }${s.on === false ? " · paslėpta" : ""}</small></span></button>
-<div class="heRowActs"><button class="roundBtn" type="button" data-he-move="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-he-move="1" aria-label="Žemiau"${attr(
-    i === HE.slides.length - 1,
-    "disabled"
-  )}>${glyph("chev-right")}</button><input type="checkbox" class="admSwitchInp" data-he-on aria-label="Rodoma"${attr(s.on !== false, "checked")} /></div>
-</div>
-${open ? slideFormHTML(s, r) : ""}
-</article>`;
+  return heRowHTML({
+    kind: "slide",
+    id: s.id,
+    on: s.on,
+    thumb: s.preset === "photo" && !s.image && !s.imageM ? `<span class="heThumb heThumbEmpty">${glyph("upload")}</span>` : thumbHTML(r.stage, r.list || [], s.image || s.imageM, s.focus),
+    title: `${i + 1}. ${esc(s.preset === "photo" ? s.title || "Nuotrauka" : r.title || "Be pavadinimo")}`,
+    sub: `${esc(preset.name)} · ${
+      s.preset === "photo" ? [s.image && "kompiuteriui", s.imageM && "telefonui"].filter(Boolean).join(" ir ") || "įkelkite nuotrauką" : s.image ? "nuotrauka" : "scena"
+    }${s.on === false ? " · paslėpta" : ""}`
+  });
 }
 function imgZone(field, label, hint, src, focus) {
   return `<div class="heZone${src ? " has" : ""}" data-he-zone="${field}">
@@ -164,56 +259,73 @@ function imgZone(field, label, hint, src, focus) {
 ${
   src
     ? `<div class="heFocus" data-he-focus="${field}"><img src="${esc(src)}" alt="" /><i class="heDot" style="left:${esc((focus || "50% 50%").split(" ")[0])};top:${esc((focus || "50% 50%").split(" ")[1])}"></i></div>
-<p class="admNote">Spustelėkite vietą, kuri turi likti matoma siaurame ekrane.</p>
 <div class="heZoneActs"><label class="btn ghost small admUpload">${glyph("upload")}Pakeisti<input type="file" accept="image/*" hidden data-he-file="${field}" /></label><button class="btn ghost small" type="button" data-he-rmimg="${field}">${glyph("trash")}Pašalinti</button></div>`
-    : `<label class="heDrop">${glyph("upload")}<span>Įkelti nuotrauką</span><small>arba nutempkite čia · JPG, PNG, WebP</small><input type="file" accept="image/*" hidden data-he-file="${field}" /></label>`
+    : `<label class="heDrop">${glyph("upload")}<span>Įkelti nuotrauką</span><small>arba nutempkite čia</small><input type="file" accept="image/*" hidden data-he-file="${field}" /></label>`
 }
 </div>`;
 }
+const itemActs = (dup = true, del = "Ištrinti") =>
+  `<div class="ig">${dup ? `<button class="axRow" type="button" data-he-dup><span class="axRowTxt"><b class="axLink">Kopijuoti</b></span></button>` : ""}<button class="axRow danger" type="button" data-he-del><span class="axRowTxt"><b>${del}</b></span></button></div>`;
+const linkField = (cur, empty, custom, ph = "kvepalai?seima=gurmaniski") =>
+  `${fieldHTML("Nuoroda", `<select name="hrefSel">${linkOptions(cur || "", empty)}</select>`)}${fieldHTML("Adresas", `<input name="hrefCustom" maxlength="200" value="${esc(custom)}" placeholder="${esc(ph)}" />`, {
+    cls: "heCustom",
+    attrs: custom ? "" : "hidden"
+  })}`;
 // „Tik nuotrauka“: dvi nuotraukos (kompiuteriui / telefonui), nebūtina nuoroda ir aprašymas skaitytuvams – be kvapo ir tekstų
 function photoSlideFormHTML(s) {
   const custom = s.href && !isKnownLink(s.href) ? s.href : "";
   return `<div class="heForm admForm">
-<p class="admNote heFirst">Įkelkite nuotrauką kompiuteriui ir (nebūtinai) telefonui. Svetainė ant jos nieko neuždeda – jei reikia teksto, jis turi būti pačioje nuotraukoje.</p>
 <div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2880 × 934", s.image, s.focus)}${imgZone("imageM", "Telefonui", "1000 × 1150", s.imageM, s.focusM)}</div>
-<label class="field"><span>Nuoroda (nebūtina)</span><select name="hrefSel">${linkOptions(s.href || "", "Be nuorodos")}</select><small>Paspaudus skaidrę – atidaromas šis puslapis</small></label>
-<label class="field heCustom"${attr(!custom, "hidden")}><span>Adresas</span><input name="hrefCustom" maxlength="200" value="${esc(custom)}" placeholder="pvz. kvepalai?seima=gurmaniski" /><small>Svetainės adresas be „/“ pradžioje</small></label>
-<label class="field"><span>Aprašymas (nebūtina)</span><input name="title" maxlength="80" value="${esc(s.title || "")}" placeholder="pvz. Žiemos kolekcija – Ventor" /><small>Nerodomas – skaitytuvams ir šiam sąrašui</small></label>
-<div class="heFormActs"><button class="btn ghost small" type="button" data-he-dup>${glyph("copy")}Kopijuoti</button><button class="btn danger small" type="button" data-he-del>${glyph("trash")}Ištrinti</button></div>
+<p class="igFoot">Spustelėkite nuotraukoje vietą, kuri turi likti matoma siaurame ekrane. Tekstas – pačioje nuotraukoje.</p>
+${groupHTML(`${linkField(s.href, "Be nuorodos", custom)}${fieldHTML("Aprašymas", `<input name="title" maxlength="80" value="${esc(s.title || "")}" placeholder="Žiemos kolekcija – Ventor" />`)}`, {
+  foot: "Aprašymas nerodomas – skaitytuvams ir šiam sąrašui."
+})}
+${itemActs()}
 </div>`;
 }
-function slideFormHTML(s, r) {
+function slideFormHTML(s) {
   if (s.preset === "photo") return photoSlideFormHTML(s);
   const d = VD.slideDefaults(s);
   const custom = s.href && !isKnownLink(s.href) ? s.href : "";
   const prods = VD.CAT.products;
-  const fld = (name, label, ph, max) =>
-    `<label class="field"><span>${label}</span><input name="${name}" maxlength="${max}" value="${esc(s[name] || "")}" placeholder="${esc(ph || "")}" /><small>Tuščia – „${esc(ph || "nerodoma")}“</small></label>`;
+  const fld = (name, label, ph, max) => fieldHTML(label, `<input name="${name}" maxlength="${max}" value="${esc(s[name] || "")}" placeholder="${esc(ph || "")}" />`);
+  const photo = !!(s.image || s.bg === "photo");
   return `<div class="heForm admForm">
-<div class="seg heSeg" role="tablist" aria-label="Fonas"><button type="button" role="tab" data-he-bg="photo" aria-selected="${!!(s.image || s.bg === "photo")}">Nuotrauka</button><button type="button" role="tab" data-he-bg="scene" aria-selected="${!(s.image || s.bg === "photo")}">Vaidore scena</button></div>
+<div class="axSeg heSeg" role="tablist" aria-label="Fonas"><button type="button" role="tab" data-he-bg="photo" aria-selected="${photo}">Nuotrauka</button><button type="button" role="tab" data-he-bg="scene" aria-selected="${!photo}">Vaidore scena</button></div>
 ${
-  s.image || s.bg === "photo"
+  photo
     ? `<div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2880 × 934", s.image, s.focus)}${imgZone("imageM", "Telefonui (nebūtina)", "1000 × 1150", s.imageM, s.focusM)}</div>
-<div class="seg heSeg" role="tablist" aria-label="Tekstas"><button type="button" role="tab" data-he-dark="0" aria-selected="${!s.dark}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!s.dark}">Baltas tekstas</button></div>`
-    : `<label class="field"><span>Kompozicija</span><select name="scene">${Object.keys(SCENE_NAMES)
-        .map(k => `<option value="${k}"${sel((s.scene || d.scene) === k)}>${SCENE_NAMES[k]}</option>`)
-        .join("")}</select></label>`
+<div class="axSeg heSeg" role="tablist" aria-label="Tekstas"><button type="button" role="tab" data-he-dark="0" aria-selected="${!s.dark}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!s.dark}">Baltas tekstas</button></div>`
+    : groupHTML(fieldHTML("Kompozicija", `<select name="scene">${Object.keys(SCENE_NAMES).map(k => `<option value="${k}"${sel((s.scene || d.scene) === k)}>${SCENE_NAMES[k]}</option>`).join("")}</select>`))
 }
-<label class="field"><span>Kvapas</span><select name="product"><option value="">${esc(VD.CAT.products.find(p => p.id === VD.SET.hero?.product)?.name || "Pagal nustatymus")} (numatytas)</option>${prods
-    .map(p => `<option value="${esc(p.id)}"${sel(p.id === s.product)}>${esc(p.name)}</option>`)
-    .join("")}</select><small>Jo buteliukas scenoje ir numatytieji tekstai</small></label>
-${fld("eyebrow", "Antraštė virš pavadinimo", d.eyebrow, 40)}
-${fld("title", "Pavadinimas", d.title, 60)}
-<label class="field"><span>Tekstas</span><textarea name="text" rows="${String(d.text || "").includes("\n") ? 4 : 2}" maxlength="240" placeholder="${esc(d.text || "")}">${esc(s.text || "")}</textarea><small>Kelios eilutės – teiginiai su auksinėmis linijomis (kaip parfumada.lt). Tuščia – numatytasis tekstas</small></label>
-<div class="fieldRow">${fld("cta", "Mygtukas", d.cta, 30)}<label class="field"><span>Nuoroda</span><select name="hrefSel">${linkOptions(s.href || "")}</select><small>Tuščia – „${esc(d.href)}“</small></label></div>
-<label class="field heCustom"${attr(!custom, "hidden")}><span>Adresas</span><input name="hrefCustom" maxlength="200" value="${esc(custom)}" placeholder="pvz. kvepalai?seima=gurmaniski" /><small>Svetainės adresas be „/“ pradžioje</small></label>
-<div class="heFormActs"><button class="btn ghost small" type="button" data-he-dup>${glyph("copy")}Kopijuoti</button><button class="btn danger small" type="button" data-he-del>${glyph("trash")}Ištrinti</button></div>
+${groupHTML(
+  fieldHTML(
+    "Kvapas",
+    `<select name="product"><option value="">${esc(VD.CAT.products.find(p => p.id === VD.SET.hero?.product)?.name || "Pagal nustatymus")} (numatytas)</option>${prods
+      .map(p => `<option value="${esc(p.id)}"${sel(p.id === s.product)}>${esc(p.name)}</option>`)
+      .join("")}</select>`
+  ),
+  { foot: "Jo buteliukas scenoje ir numatytieji tekstai." }
+)}
+${groupHTML(
+  `${fld("eyebrow", "Virš pavadinimo", d.eyebrow, 40)}${fld("title", "Pavadinimas", d.title, 60)}${fieldHTML(
+    "Tekstas",
+    `<textarea name="text" rows="${String(d.text || "").includes("\n") ? 4 : 2}" maxlength="240" placeholder="${esc(d.text || "")}">${esc(s.text || "")}</textarea>`,
+    { stack: true }
+  )}${fld("cta", "Mygtukas", d.cta, 30)}${linkField(s.href, "Pagal šabloną", custom)}`,
+  { head: "Tekstai", foot: "Tuščias laukas – šablono tekstas (rodomas pilkai). Kelios teksto eilutės – teiginiai su linijomis." }
+)}
+${itemActs()}
 </div>`;
 }
 function paintSlides() {
   const box = $("#heSlides");
-  box.innerHTML = HE.slides.length ? HE.slides.map(slideRow).join("") : `<p class="admMuted heEmpty">Skaidrių nėra – pradžios puslapis prasidės plytelėmis.</p>`;
+  if (!box) return;
+  box.innerHTML = HE.slides.length ? HE.slides.map(slideRow).join("") : `<p class="axRowNote heEmpty">Skaidrių nėra – pradžios puslapis prasidės plytelėmis.</p>`;
   hydrateIcons(box);
+  sortable(box, { item: ".heItem", onMove: (from, to) => (moveItem(HE.slides, from, to), changed({ repaint: "slides", slide: to })) });
+  const s = HE.open && HE.slides.find(x => x.id === HE.open);
+  if (s) openItem(box.closest(".axPage"), `${HE.slides.indexOf(s) + 1} skaidrė`, `<article class="heItem open" data-he-slide="${esc(s.id)}">${slideFormHTML(s)}</article>`);
 }
 
 // ── Plytelės ──────────────────────────────────────────
@@ -221,48 +333,47 @@ function tileName(t) {
   if (TILE_NAMES[t.key]) return TILE_NAMES[t.key];
   return HE.cats.find(c => `kat-${c.id}` === t.key)?.name || t.key;
 }
-function tileRow(t, i) {
+function tileRow(t) {
   const p = VD.tilePreset(t.key);
-  const open = HE.openTile === t.key;
   const img = t.image || p?.image || "";
-  return `<article class="heItem${open ? " open" : ""}${t.on === false ? " off" : ""}" data-he-tile="${esc(t.key)}">
-<div class="heRow">
-<button class="heRowMain" type="button" data-he-open aria-expanded="${open}">${thumbHTML(p?.stage || "unisex", p?.list || [], img, t.focus)}<span class="heRowTxt"><b>${esc(t.title || tileName(t))}</b><small>${
-    img ? "nuotrauka" : "scena"
-  }${p?.list?.length === 0 ? " · nėra prekių – nerodoma" : ""}${t.on === false ? " · paslėpta" : ""}</small></span></button>
-<div class="heRowActs"><button class="roundBtn" type="button" data-he-move="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-he-move="1" aria-label="Žemiau"${attr(
-    i === HE.tiles.length - 1,
-    "disabled"
-  )}>${glyph("chev-right")}</button><input type="checkbox" class="admSwitchInp" data-he-on aria-label="Rodoma"${attr(t.on !== false, "checked")} /></div>
-</div>
-${
-  open
-    ? `<div class="heForm admForm">
-<label class="field"><span>Pavadinimas</span><input name="title" maxlength="30" value="${esc(t.title || "")}" placeholder="${esc(p?.name || tileName(t))}" /><small>Rodomas virš plytelės didžiosiomis raidėmis (kaip parfumada.lt). Tuščia – „${esc(p?.name || tileName(t))}“</small></label>
-<div class="heZones one">${imgZone("image", "Nuotrauka", "stati 4:5, 1000 × 1250; užrašas – pačioje nuotraukoje", t.image, t.focus)}</div>
+  return heRowHTML({
+    kind: "tile",
+    id: t.key,
+    on: t.on,
+    thumb: thumbHTML(p?.stage || "unisex", p?.list || [], img, t.focus),
+    title: esc(t.title || tileName(t)),
+    sub: `${img ? "nuotrauka" : "scena"}${p?.list?.length === 0 ? " · nėra prekių – nerodoma" : ""}${t.on === false ? " · paslėpta" : ""}`
+  });
+}
+function tileFormHTML(t) {
+  const p = VD.tilePreset(t.key);
+  return `<div class="heForm admForm">
+${groupHTML(fieldHTML("Pavadinimas", `<input name="title" maxlength="30" value="${esc(t.title || "")}" placeholder="${esc(p?.name || tileName(t))}" />`), { foot: "Rodomas virš plytelės didžiosiomis raidėmis." })}
+<div class="heZones one">${imgZone("image", "Nuotrauka", "stati 4:5, 1000 × 1250", t.image, t.focus)}</div>
 ${
   t.image
-    ? `<div class="seg heSeg" role="tablist" aria-label="Tekstas"><button type="button" role="tab" data-he-dark="0" aria-selected="${!t.dark}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!t.dark}">Baltas tekstas</button></div>`
+    ? `<div class="axSeg heSeg" role="tablist" aria-label="Tekstas"><button type="button" role="tab" data-he-dark="0" aria-selected="${!t.dark}">Juodas tekstas</button><button type="button" role="tab" data-he-dark="1" aria-selected="${!!t.dark}">Baltas tekstas</button></div>`
     : p?.image
-      ? `<p class="admNote">Dabar rodomas kategorijos paveikslas (Kategorijos).</p>`
+      ? `<p class="igFoot">Dabar rodomas kategorijos paveikslas.</p>`
       : ""
 }
-${t.key.startsWith("kat-") ? `<div class="heFormActs"><button class="btn danger small" type="button" data-he-del>${glyph("trash")}Pašalinti iš pradžios</button></div>` : ""}
-</div>`
-    : ""
-}
-</article>`;
+${t.key.startsWith("kat-") ? itemActs(false, "Pašalinti iš pradžios") : ""}
+</div>`;
 }
 function paintTiles() {
   const box = $("#heTiles");
+  if (!box) return;
   box.innerHTML = HE.tiles.map(tileRow).join("");
   const have = new Set(HE.tiles.map(t => t.key));
-  const add = [...Object.keys(TILE_NAMES).filter(k => !have.has(k)).map(k => [k, TILE_NAMES[k]]), ...HE.cats.filter(c => !have.has(`kat-${c.id}`)).map(c => [`kat-${c.id}`, c.name])];
-  $("#heTileAdd").innerHTML = add.length
-    ? `<span class="admMuted">Pridėti:</span>${add.map(([k, n]) => `<button class="btn ghost small" type="button" data-he-addtile="${esc(k)}">${glyph("plus")}${esc(n)}</button>`).join("")}`
-    : "";
+  const add = [...Object.keys(TILE_NAMES).filter(k => !have.has(k)), ...HE.cats.filter(c => !have.has(`kat-${c.id}`)).map(c => `kat-${c.id}`)];
+  const addBox = $("#heTileAdd");
+  addBox.hidden = !add.length;
+  addBox.innerHTML = add.length ? `<button class="axRow axAddRow" type="button" data-he-addtile-menu>${glyph("plus")}<span class="axRowTxt"><b>Pridėti plytelę</b></span></button>` : "";
   hydrateIcons(box);
-  hydrateIcons($("#heTileAdd"));
+  hydrateIcons(addBox);
+  sortable(box, { item: ".heItem", onMove: (from, to) => (moveItem(HE.tiles, from, to), changed({ repaint: "tiles", scroll: "tiles" })) });
+  const t = HE.openTile && HE.tiles.find(x => x.key === HE.openTile);
+  if (t) openItem(box.closest(".axPage"), t.title || tileName(t), `<article class="heItem open" data-he-tile="${esc(t.key)}">${tileFormHTML(t)}</article>`);
 }
 
 // ── Veiksmai ──────────────────────────────────────────
@@ -302,9 +413,11 @@ async function setImage(el, field, file) {
   }
 }
 function bindHomeEditor(main) {
-  main.addEventListener("click", e => {
+  main.addEventListener("click", async e => {
     const t = e.target instanceof Element ? e.target : null;
     if (!t) return;
+    if (t.closest("[data-he-preview]")) return openPreview();
+    if (t.closest("[data-he-preview-close]")) return closePreview();
     const view = t.closest("[data-he-view]");
     if (view) {
       HE.view = view.dataset.heView;
@@ -312,17 +425,21 @@ function bindHomeEditor(main) {
       fitFrame();
       return sendPreview({ slide: HE.focus });
     }
-    const add = t.closest("[data-he-add]");
-    if (add) {
-      const s = { id: uid(), on: true, preset: add.dataset.heAdd };
+    if (t.closest("[data-he-add-menu]")) {
+      const k = await actionSheet({ title: "Nauja skaidrė", actions: Object.entries(VD.SLIDE_PRESETS).map(([key, p]) => ({ key, label: p.name, ico: key === "photo" ? "upload" : "home" })) });
+      if (!k) return;
+      const s = { id: uid(), on: true, preset: k };
       HE.slides.push(s);
       HE.open = s.id;
       return changed({ repaint: "slides", slide: HE.slides.length - 1 });
     }
-    const addTile = t.closest("[data-he-addtile]");
-    if (addTile) {
-      HE.tiles.push({ key: addTile.dataset.heAddtile, on: true });
-      HE.openTile = addTile.dataset.heAddtile;
+    if (t.closest("[data-he-addtile-menu]")) {
+      const have = new Set(HE.tiles.map(x => x.key));
+      const opts = [...Object.keys(TILE_NAMES).filter(k => !have.has(k)).map(k => [k, TILE_NAMES[k], "tag"]), ...HE.cats.filter(c => !have.has(`kat-${c.id}`)).map(c => [`kat-${c.id}`, `Kolekcija: ${c.name}`, "grid"])];
+      const k = await actionSheet({ title: "Pridėti plytelę", actions: opts.map(([key, label, ico]) => ({ key, label, ico })) });
+      if (!k) return;
+      HE.tiles.push({ key: k, on: true });
+      HE.openTile = k;
       return changed({ repaint: "tiles", scroll: "tiles" });
     }
     const addRail = t.closest("[data-he-addrail]");
@@ -341,19 +458,12 @@ function bindHomeEditor(main) {
     const isSlide = it.kind === "slides";
     if (it.kind === "rails" && railClick(t, x, it)) return;
     if (t.closest("[data-he-open]")) {
-      if (isSlide) HE.open = HE.open === x.id ? null : x.id;
-      else if (it.kind === "rails") HE.openRail = HE.openRail === x.id ? null : x.id;
-      else HE.openTile = HE.openTile === x.key ? null : x.key;
+      if (isSlide) HE.open = x.id;
+      else if (it.kind === "rails") HE.openRail = x.id;
+      else HE.openTile = x.key;
       if (isSlide) HE.focus = it.i;
       ({ slides: paintSlides, tiles: paintTiles, rails: paintRails })[it.kind]();
       return sendPreview({ slide: HE.focus, scroll: isSlide ? "" : it.kind === "rails" ? `rail:${x.id}` : "tiles" });
-    }
-    const mv = t.closest("[data-he-move]");
-    if (mv) {
-      const j = it.i + Number(mv.dataset.heMove);
-      if (j < 0 || j >= it.arr.length) return;
-      [it.arr[it.i], it.arr[j]] = [it.arr[j], it.arr[it.i]];
-      return changed({ repaint: it.kind, slide: isSlide ? j : null, scroll: isSlide ? "" : it.kind === "rails" ? `rail:${x.id}` : "tiles" });
     }
     const bg = t.closest("[data-he-bg]");
     if (bg) {
@@ -396,15 +506,15 @@ function bindHomeEditor(main) {
       return changed({ repaint: "slides", slide: it.i + 1 });
     }
     if (t.closest("[data-he-del]")) {
-      askConfirm(isSlide ? `Skaidrė „${VD.resolveSlide(x)?.title || ""}“ bus pašalinta (išsaugojus).` : it.kind === "rails" ? `Skyrius „${x.title}“ bus pašalintas iš pradžios puslapio (išsaugojus).` : "Plytelė bus pašalinta iš pradžios puslapio.", {
-        title: "Pašalinti?",
-        ok: "Pašalinti",
-        danger: true
-      }).then(ok => {
-        if (!ok) return;
-        it.arr.splice(it.i, 1);
-        changed({ repaint: it.kind, slide: 0, scroll: isSlide ? "" : "tiles" });
-      });
+      const ok = await askConfirm(
+        isSlide ? `Skaidrė „${VD.resolveSlide(x)?.title || ""}“ bus pašalinta (išsaugojus).` : it.kind === "rails" ? `Skyrius „${x.title}“ bus pašalintas iš pradžios puslapio (išsaugojus).` : "Plytelė bus pašalinta iš pradžios puslapio.",
+        { title: "Pašalinti?", ok: "Pašalinti", danger: true }
+      );
+      if (!ok) return;
+      it.arr.splice(it.i, 1);
+      HE.open = HE.openTile = HE.openRail = null;
+      closeItem();
+      changed({ repaint: it.kind, slide: 0, scroll: isSlide ? "" : "tiles" });
     }
   });
   main.addEventListener("change", e => {
@@ -419,7 +529,8 @@ function bindHomeEditor(main) {
     const x = it.arr[it.i];
     if (t.matches("[data-he-on]")) {
       x.on = t.checked;
-      return changed({ repaint: it.kind, slide: it.kind === "slides" ? it.i : null, scroll: it.kind === "tiles" ? "tiles" : it.kind === "rails" ? `rail:${x.id}` : "" });
+      t.closest(".heItem").classList.toggle("off", !t.checked);
+      return changed({ slide: it.kind === "slides" ? it.i : null, scroll: it.kind === "tiles" ? "tiles" : it.kind === "rails" ? `rail:${x.id}` : "" });
     }
     if (it.kind === "rails") return railChange(t, x);
     if (t.matches("[data-he-file]")) {
@@ -450,9 +561,8 @@ function bindHomeEditor(main) {
     if (t.name === "hrefCustom") x.href = v.replace(/^\/+/, "");
     else if (v) x[t.name] = v;
     else delete x[t.name];
-    const b = $(".heRowTxt b", t.closest(".heItem"));
-    if (b && it.kind === "slides" && t.name === "title") b.textContent = `${it.i + 1}. ${VD.resolveSlide(x)?.title || ""}`;
-    if (b && it.kind === "tiles" && t.name === "title") b.textContent = v || tileName(x);
+    const row = it.kind === "slides" ? $(`#heSlides [data-he-slide="${CSS.escape(x.id)}"] .heRowTxt b`) : $(`#heTiles [data-he-tile="${CSS.escape(x.key)}"] .heRowTxt b`);
+    if (row && t.name === "title") row.textContent = it.kind === "slides" ? `${it.i + 1}. ${(x.preset === "photo" ? x.title : VD.resolveSlide(x)?.title) || "Be pavadinimo"}` : v || tileName(x);
     changed({ slide: it.kind === "slides" ? it.i : null, scroll: it.kind === "tiles" ? "tiles" : "" });
   });
   // Nuotraukos nutempimas ant zonos
@@ -471,25 +581,35 @@ function bindHomeEditor(main) {
     setImage(z, z.dataset.heZone, e.dataTransfer.files[0]);
   });
 }
+// Numatytieji – tik šio ekrano daliai
 async function resetHome() {
-  const ok = await askConfirm("Skaidrės, plytelės ir skyriai grįš į numatytuosius (Vaidore scenos). Įkeltos nuotraukos liks saugykloje, bet nebus rodomos.", {
-    title: "Grąžinti numatytuosius?",
-    ok: "Grąžinti"
-  });
+  const what = { skaidres: "Skaidrės", plyteles: "Plytelės", skyriai: "Skyriai", juosta: "Juostos žinutės ir dizainas" }[HE.part];
+  const ok = await askConfirm(`${what} grįš į numatytuosius (išsaugojus). Įkeltos nuotraukos liks saugykloje, bet nebus rodomos.`, { title: "Grąžinti numatytuosius?", ok: "Grąžinti" });
   if (!ok) return;
-  HE.slides = clone(VD.DEFAULT_SLIDES);
-  HE.tiles = clone(VD.DEFAULT_TILES);
-  HE.rails = clone(VD.DEFAULT_RAILS);
-  HE.openRail = null;
-  HE.secs = 6;
-  $("[data-he-secs]").value = 6;
-  HE.open = HE.openTile = null;
-  changed({ repaint: "slides", slide: 0 });
-  paintTiles();
-  paintRails();
+  if (HE.part === "skaidres") {
+    HE.slides = clone(VD.DEFAULT_SLIDES);
+    HE.secs = 6;
+    const sec = $("[data-he-secs]");
+    if (sec) sec.value = 6;
+    return changed({ repaint: "slides", slide: 0 });
+  }
+  if (HE.part === "plyteles") {
+    HE.tiles = clone(VD.DEFAULT_TILES);
+    return changed({ repaint: "tiles", scroll: "tiles" });
+  }
+  if (HE.part === "skyriai") {
+    HE.rails = clone(VD.DEFAULT_RAILS);
+    return changed({ repaint: "rails" });
+  }
+  if (HE.part === "juosta") {
+    TB.cfg = TB_DEFAULT();
+    TB.cfg.items = TB.cfg.items.map(x => ({ id: uid(), ...x }));
+    $('[data-tb="on"]').checked = true;
+    return tbChanged({ items: true, style: true });
+  }
 }
 async function saveHome() {
-  const err = $(".admSaveBar .formErr");
+  const err = $(".heLayoutPage .formErr");
   const problems = [];
   HE.slides.forEach((s, i) => {
     if (s.preset === "photo" && !s.image && !s.imageM) problems.push(`${i + 1} skaidrė: įkelkite nuotrauką (kompiuteriui ar telefonui)`);
@@ -504,16 +624,12 @@ async function saveHome() {
   TB.cfg?.items.forEach((x, i) => {
     if (x.href && /^(https?:)?\/\//.test(x.href) && !/^https:\/\//.test(x.href)) problems.push(`${i + 1} žinutė: nuoroda turi prasidėti https://`);
   });
-  err.hidden = !problems.length;
-  err.textContent = problems.join(" · ");
+  if (err) showFormErr(err.closest(".heEdit"), problems);
   if (problems.length) return;
   const slides = HE.slides.map(({ bg, ...s }) => ({ ...s, ...(s.image ? {} : { focus: undefined, focusM: undefined }) }));
-  const [cur] = (await sbRest("settings?select=data&id=eq.1")) || [];
   const rails = HE.rails.map(r => ({ id: r.id, on: r.on !== false, title: r.title.trim(), line: (r.line || "").trim(), mode: r.mode, ...(r.mode === "manual" ? { ids: r.ids } : { rule: r.rule, limit: r.limit }), ...(r.href ? { href: r.href } : {}) }));
-  const data = { ...(cur?.data || VD.SET), slides: clone(slides), tiles: clone(HE.tiles), rails: clone(rails), slideSeconds: HE.secs, topbar: topbarData() };
-  const saved = await sbRest("settings?id=eq.1", { method: "PATCH", body: { data }, prefer: "return=representation" });
-  if (!saved?.length) throw new Error("Nustatymų įrašo nėra – paleiskite supabase/seed.sql");
-  await catalogChanged("Pradžios puslapis išsaugotas");
+  await saveSettingsPatch({ slides: clone(slides), tiles: clone(HE.tiles), rails: clone(rails), slideSeconds: HE.secs, topbar: topbarData() });
+  await catalogChanged(`${HE_PARTS[HE.part] || "Pradžios puslapis"}: išsaugota`);
 }
 
 // ── Skyriai su produktais (karuselės, v15) ────────────
@@ -543,20 +659,15 @@ function railSummary(r) {
   return `${parts.filter(Boolean).join(" · ")} · ${plural(list.length, "produktas", "produktai", "produktų")}`;
 }
 function railRow(r, i) {
-  const open = HE.openRail === r.id;
   const list = VD.railProducts(r);
-  return `<article class="heItem${open ? " open" : ""}${r.on === false ? " off" : ""}" data-he-rail="${esc(r.id)}">
-<div class="heRow">
-<button class="heRowMain" type="button" data-he-open aria-expanded="${open}"><span class="heThumb heRailThumb">${
-    list.length ? list.slice(0, 3).map(p => `<span style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span>`).join("") : glyph("grid")
-  }</span><span class="heRowTxt"><b>${i + 1}. ${esc(r.title || "Be pavadinimo")}</b><small>${esc(railSummary(r))}${list.length ? "" : " · nerodoma"}${r.on === false ? " · paslėpta" : ""}</small></span></button>
-<div class="heRowActs"><button class="roundBtn" type="button" data-he-move="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-he-move="1" aria-label="Žemiau"${attr(
-    i === HE.rails.length - 1,
-    "disabled"
-  )}>${glyph("chev-right")}</button><input type="checkbox" class="admSwitchInp" data-he-on aria-label="Rodomas"${attr(r.on !== false, "checked")} /></div>
-</div>
-${open ? railFormHTML(r) : ""}
-</article>`;
+  return heRowHTML({
+    kind: "rail",
+    id: r.id,
+    on: r.on,
+    thumb: `<span class="heThumb heRailThumb">${list.length ? list.slice(0, 3).map(p => `<span style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span>`).join("") : glyph("grid")}</span>`,
+    title: `${i + 1}. ${esc(r.title || "Be pavadinimo")}`,
+    sub: `${esc(railSummary(r))}${list.length ? "" : " · nerodoma"}${r.on === false ? " · paslėpta" : ""}`
+  });
 }
 function railLinkOptions(r) {
   const auto = VD.railHref({ ...r, href: "" });
@@ -571,55 +682,83 @@ function railFormHTML(r) {
   const custom = r.href && r.href !== "none" && !isKnownLink(r.href) ? r.href : "";
   const opt = (v, l, cur) => `<option value="${esc(v)}"${sel(String(cur ?? "") === String(v))}>${esc(l)}</option>`;
   const rule = railRuleFields()
-    .map(([k, label, opts, any]) => `<label class="field"><span>${label}</span><select name="rq_${k}">${opt("", any, q[k] || "")}${opts.map(([v, l]) => opt(v, l, q[k])).join("")}</select></label>`)
+    .map(([k, label, opts, any]) => fieldHTML(label, `<select name="rq_${k}">${opt("", any, q[k] || "")}${opts.map(([v, l]) => opt(v, l, q[k])).join("")}</select>`))
     .join("");
   const chosen = (r.ids || []).map(id => VD.CAT.products.find(p => p.id === id)).filter(Boolean);
   return `<div class="heForm admForm">
-<label class="field"><span>Pavadinimas</span><input name="rtitle" maxlength="60" value="${esc(r.title || "")}" placeholder="pvz. Populiariausi vyrams" /><small>Juodoje juostoje virš karuselės</small></label>
-<label class="field"><span>Paantraštė (nebūtina)</span><input name="rline" maxlength="90" value="${esc(r.line || "")}" placeholder="pvz. Kvapai, kuriuos dažniausiai renkasi vyrai" /><small>Rodoma su nuoroda „Peržiūrėti“</small></label>
-<div class="seg heSeg" role="tablist" aria-label="Produktai"><button type="button" role="tab" data-he-rmode="auto" aria-selected="${r.mode !== "manual"}">Pagal taisyklę</button><button type="button" role="tab" data-he-rmode="manual" aria-selected="${r.mode === "manual"}">Pasirinkti ranka</button></div>
+${groupHTML(
+  `${fieldHTML("Pavadinimas", `<input name="rtitle" maxlength="60" value="${esc(r.title || "")}" placeholder="Populiariausi vyrams" />`)}${fieldHTML(
+    "Paantraštė",
+    `<input name="rline" maxlength="90" value="${esc(r.line || "")}" placeholder="Nebūtina" />`
+  )}`,
+  { foot: "Pavadinimas – juodoje juostoje virš karuselės." }
+)}
+<div class="axSeg heSeg" role="tablist" aria-label="Produktai"><button type="button" role="tab" data-he-rmode="auto" aria-selected="${r.mode !== "manual"}">Pagal taisyklę</button><button type="button" role="tab" data-he-rmode="manual" aria-selected="${
+    r.mode === "manual"
+  }">Pasirinkti ranka</button></div>
 ${
   r.mode === "manual"
-    ? `<div class="heRChosen">${
+    ? `<div class="ig heRChosen">${
         chosen.length
           ? chosen
               .map(
-                (p, i) => `<div class="heRProd" data-rid="${esc(p.id)}"><span class="admThumb" style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span><span class="rowTxt">${esc(p.name)}<small>${esc(railTypeName(p))}${p.visible === false ? " · paslėptas" : ""}</small></span><span class="heRProdActs"><button class="roundBtn" type="button" data-he-rmv="-1" aria-label="Aukščiau"${attr(i === 0, "disabled")}>${glyph("chev-left")}</button><button class="roundBtn" type="button" data-he-rmv="1" aria-label="Žemiau"${attr(
-                  i === chosen.length - 1,
-                  "disabled"
-                )}>${glyph("chev-right")}</button><button class="roundBtn" type="button" data-he-rrm aria-label="Pašalinti ${esc(p.name)}">${glyph("x")}</button></span></div>`
+                p => `<div class="heRProd" data-rid="${esc(p.id)}">${gripHTML()}${thumb(p)}<span class="axRowTxt"><b>${esc(p.name)}</b><small>${esc(railTypeName(p))}${p.visible === false ? " · paslėptas" : ""}</small></span><button class="roundBtn" type="button" data-he-rrm aria-label="Pašalinti ${esc(
+                  p.name
+                )}">${glyph("x")}</button></div>`
               )
               .join("")
-          : `<p class="admMuted heEmpty">Dar nepasirinkta – raskite produktą žemiau.</p>`
+          : `<p class="axRowNote heEmpty">Dar nepasirinkta – raskite produktą žemiau.</p>`
       }</div>
-<label class="search admSearch heRSearch"><span data-glyph="search" aria-hidden="true"></span><input type="search" name="rsearch" placeholder="Pridėti produktą: pavadinimas, kvapas, kategorija" aria-label="Pridėti produktą" /></label>
-<div class="heRResults" data-he-rresults></div>`
-    : `<div class="heRRule">${rule}</div>
-<div class="fieldRow"><label class="field"><span>Rikiuoti</span><select name="rq_sort">${VD.RAIL_SORTS.map(([v, l]) => opt(v, l, q.sort || "rank")).join("")}</select></label>
-<label class="field"><span>Kiek rodyti</span><input name="rlimit" type="number" inputmode="numeric" min="1" max="24" value="${esc(r.limit || 12)}" /></label></div>
-<label class="admToggleRow"><span><b>Tik su nuolaida</b><small>Tik turimi produktai su tikra sena kaina</small></span><input type="checkbox" name="rq_sale" class="admSwitchInp"${attr(!!q.sale, "checked")} /></label>`
+${searchHTML(`rs-${esc(r.id)}`, "Pridėti produktą: pavadinimas, kvapas", "", "Pridėti produktą").replace('type="search"', 'type="search" name="rsearch"')}
+<div class="ig heRResults" data-he-rresults hidden></div>`
+    : `<h2 class="igHead">Taisyklė</h2><div class="ig heRRule">${rule}${fieldHTML("Rikiuoti", `<select name="rq_sort">${VD.RAIL_SORTS.map(([v, l]) => opt(v, l, q.sort || "rank")).join("")}</select>`)}${fieldHTML(
+        "Kiek rodyti",
+        `<input name="rlimit" type="number" inputmode="numeric" min="1" max="24" value="${esc(r.limit || 12)}" />`
+      )}<label class="axField axSwitchRow"><span>Tik su nuolaida</span><input type="checkbox" name="rq_sale" class="admSwitchInp"${attr(!!q.sale, "checked")} /></label></div>`
 }
-<p class="admNote heRCount" data-he-rcount>${esc(railSummary(r))}</p>
-<label class="field"><span>Nuoroda „Peržiūrėti“</span><select name="rhref">${railLinkOptions(r)}</select></label>
-<label class="field heCustom"${attr(!custom, "hidden")}><span>Adresas</span><input name="rhrefCustom" maxlength="200" value="${esc(custom)}" placeholder="pvz. kvepalai?seima=gurmaniski" /><small>Svetainės adresas be „/“ pradžioje</small></label>
-<div class="heFormActs"><button class="btn ghost small" type="button" data-he-dup>${glyph("copy")}Kopijuoti</button><button class="btn danger small" type="button" data-he-del>${glyph("trash")}Ištrinti</button></div>
+<p class="igFoot heRCount" data-he-rcount>${esc(railSummary(r))}</p>
+${groupHTML(
+  `${fieldHTML("„Peržiūrėti“", `<select name="rhref">${railLinkOptions(r)}</select>`)}${fieldHTML("Adresas", `<input name="rhrefCustom" maxlength="200" value="${esc(custom)}" placeholder="kvepalai?seima=gurmaniski" />`, {
+    cls: "heCustom",
+    attrs: custom ? "" : "hidden"
+  })}`
+)}
+${itemActs()}
 </div>`;
 }
 function paintRails() {
   const box = $("#heRails");
   if (!box) return;
-  box.innerHTML = HE.rails.length ? HE.rails.map(railRow).join("") : `<p class="admMuted heEmpty">Skyrių nėra – pridėkite žemiau.</p>`;
+  box.innerHTML = HE.rails.length ? HE.rails.map(railRow).join("") : `<p class="axRowNote heEmpty">Skyrių nėra – pridėkite žemiau.</p>`;
   hydrateIcons(box);
+  sortable(box, { item: ".heItem", onMove: (from, to) => (moveItem(HE.rails, from, to), changed({ repaint: "rails", scroll: `rail:${HE.rails[to].id}` })) });
+  const r = HE.openRail && HE.rails.find(x => x.id === HE.openRail);
+  if (r) {
+    const page = box.closest(".axPage");
+    const focused = document.activeElement?.name === "rsearch";
+    openItem(page, r.title || "Skyrius", `<article class="heItem open" data-he-rail="${esc(r.id)}">${railFormHTML(r)}</article>`);
+    const chosen = $("#heItemBox .heRChosen", page);
+    if (chosen)
+      sortable(chosen, {
+        item: ".heRProd",
+        onMove: (from, to) => {
+          const rr = HE.rails.find(x => x.id === HE.openRail);
+          moveItem(rr.ids, from, to);
+          changed({ repaint: "rails", scroll: `rail:${rr.id}` });
+        }
+      });
+    if (focused) $('#heItemBox input[name="rsearch"]', page)?.focus();
+  }
 }
 // Atnaujinama tik skyriaus santrauka (ne visa forma – kad nedingtų fokusas)
 function railRefresh(r) {
-  const it = $(`[data-he-rail="${CSS.escape(r.id)}"]`);
-  if (!it) return;
   const txt = railSummary(r);
-  const c = $("[data-he-rcount]", it);
-  if (c) c.textContent = txt;
-  const small = $(".heRowTxt small", it);
-  if (small) small.textContent = `${txt}${VD.railProducts(r).length ? "" : " · nerodoma"}${r.on === false ? " · paslėpta" : ""}`;
+  $$(`[data-he-rail="${CSS.escape(r.id)}"]`).forEach(it => {
+    const c = $("[data-he-rcount]", it);
+    if (c) c.textContent = txt;
+    const small = $(".heRowTxt small", it);
+    if (small) small.textContent = `${txt}${VD.railProducts(r).length ? "" : " · nerodoma"}${r.on === false ? " · paslėpta" : ""}`;
+  });
 }
 function railResults(r, q) {
   const box = $(`[data-he-rail="${CSS.escape(r.id)}"] [data-he-rresults]`);
@@ -629,11 +768,10 @@ function railResults(r, q) {
   const hits = f
     ? VD.CAT.products.filter(p => !have.has(p.id) && fold([p.name, p.inspired || "", railTypeName(p), ...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])].join(" ")).includes(f)).slice(0, 8)
     : [];
-  box.innerHTML = hits
-    .map(
-      p => `<button class="heRPick" type="button" data-he-rpick="${esc(p.id)}"><span class="admThumb" style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span><span class="rowTxt">${esc(p.name)}<small>${esc(railTypeName(p))}</small></span>${glyph("plus")}</button>`
-    )
-    .join("");
+  box.hidden = !f;
+  box.innerHTML = hits.length
+    ? hits.map(p => `<button class="axRow heRPick" type="button" data-he-rpick="${esc(p.id)}">${thumb(p)}<span class="axRowTxt"><b>${esc(p.name)}</b><small>${esc(railTypeName(p))}</small></span><span class="axAddIco">${glyph("plus")}</span></button>`).join("")
+    : `<p class="axRowNote">Nieko nerasta</p>`;
   hydrateIcons(box);
 }
 function railClick(t, r, it) {
@@ -691,7 +829,7 @@ function railInput(t, r) {
   if (t.name === "rsearch") return railResults(r, t.value);
   if (t.name === "rtitle" || t.name === "rline") {
     r[t.name === "rtitle" ? "title" : "line"] = t.value;
-    const b = $(".heRowTxt b", t.closest(".heItem"));
+    const b = $(`#heRails [data-he-rail="${CSS.escape(r.id)}"] .heRowTxt b`);
     if (b && t.name === "rtitle") b.textContent = `${HE.rails.indexOf(r) + 1}. ${t.value || "Be pavadinimo"}`;
   } else if (t.name === "rhrefCustom") r.href = t.value.trim().replace(/^\/+/, "");
   else return;

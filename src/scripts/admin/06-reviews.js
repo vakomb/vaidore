@@ -7,14 +7,17 @@ const REV_FILTERS = [
 const revState = { filter: "pending", rows: [] };
 
 async function renderReviews(main, _param, seq) {
-  main.innerHTML = pageHead("Atsiliepimai") + loading();
+  const back = hubBack();
+  main.innerHTML = pageHTML({ title: "Atsiliepimai", back, body: loading(4) });
   revState.rows = (await sbRest("reviews?select=*&order=created_at.desc&limit=500")) || [];
   if (stale(seq)) return;
-  main.innerHTML = `${pageHead("Atsiliepimai", "Atsiliepimus rašyti gali tik pirkę kvapą. Parduotuvėje rodomi tik paskelbti.")}
-<div class="admToolbar"><div class="seg admSeg" role="tablist">${REV_FILTERS.map(
-    ([id, name]) => `<button role="tab" type="button" data-rf="${id}" aria-selected="${revState.filter === id}">${name} <small>${revState.rows.filter(r => r.status === id).length}</small></button>`
-  ).join("")}</div></div>
-<div id="revList"></div>`;
+  main.innerHTML = pageHTML({
+    title: "Atsiliepimai",
+    back,
+    tools: segHTML(REV_FILTERS.map(([id, name]) => [id, name, revState.rows.filter(r => r.status === id).length]), revState.filter, "data-rf"),
+    body: `<div id="revList"></div><p class="igFoot">Rašyti gali tik pirkę. Parduotuvėje rodomi tik paskelbti.</p>`,
+    cls: "axNarrow"
+  });
   paintReviews();
   main.addEventListener("click", reviewsClick);
 }
@@ -33,11 +36,11 @@ function paintReviews() {
   const pname = id => VD.CAT.products.find(p => p.id === id)?.name || id;
   box.innerHTML = `<div class="admReviews">${rows
     .map(
-      r => `<article class="admCard admReview" data-rid="${esc(r.id)}">
+      r => `<article class="ig admReview" data-rid="${esc(r.id)}">
 <header><a href="admin/kvapai/${esc(r.product_id)}" data-nav><b>${esc(pname(r.product_id))}</b></a><span class="admStars" aria-label="${r.rating || 0} iš 5">${"★".repeat(r.rating || 0)}<span>${"★".repeat(5 - (r.rating || 0))}</span></span></header>
 <p class="admRevText">${esc(r.text)}</p>
 <p class="admMuted">${esc(r.name)} · ${fmtDate(r.created_at)}${r.verified ? " · Patvirtintas pirkėjas" : ""}</p>
-<div class="admOActs">${r.status !== "approved" ? `<button class="btn primary small" type="button" data-ra="approved">${glyph("check")}Paskelbti</button>` : ""}${
+<div class="axActRow">${r.status !== "approved" ? `<button class="btn primary small" type="button" data-ra="approved">${glyph("check")}Paskelbti</button>` : ""}${
         r.status !== "hidden" ? `<button class="btn ghost small" type="button" data-ra="hidden">${glyph("eye-off")}Paslėpti</button>` : ""
       }<button class="btn danger small" type="button" data-ra="delete">${glyph("trash")}Ištrinti</button></div>
 </article>`

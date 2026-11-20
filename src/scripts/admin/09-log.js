@@ -1,13 +1,14 @@
 // 09 – Veiksmų žurnalas (audit_log, pildo duomenų bazės trigeriai): kas, kada ir ką pakeitė kvapuose, kategorijose,
 // šeimose, nustatymuose, užsakymuose, atsiliepimuose. Tik skaitomas.
 const LOG_ENTITY = {
-  products: "Kvapas",
+  products: "Produktas",
   categories: "Kategorija",
   families: "Kvapo šeima",
   settings: "Nustatymai",
   orders: "Užsakymas",
   reviews: "Atsiliepimas",
-  product_categories: "Kvapo kategorija"
+  product_categories: "Produkto kolekcija",
+  scents: "Kvapas"
 };
 const LOG_ACTION = { insert: ["Sukurta", "green"], update: ["Pakeista", "blue"], delete: ["Ištrinta", "red"] };
 const LOG_FIELD = {
@@ -50,18 +51,19 @@ function logChanges(row) {
     .join("");
 }
 async function renderLog(main, _param, seq) {
-  main.innerHTML = pageHead("Žurnalas") + loading();
+  const back = hubBack();
+  main.innerHTML = pageHTML({ title: "Žurnalas", back, body: loading(8) });
   const rows = (await sbRest("audit_log?select=*&order=at.desc&limit=300")) || [];
   if (stale(seq)) return;
-  main.innerHTML = `${pageHead("Žurnalas", "Paskutiniai 300 pakeitimų. Įrašo duomenų bazė – ištrinti ar pakeisti negalima.")}${
+  main.innerHTML = pageHTML({ title: "Žurnalas", back, cls: "axNarrow", body: `${
     rows.length
-      ? `<div class="group admLog">${rows
+      ? `<div class="ig admLog">${rows
           .map(
-            r => `<div class="row"><span class="rowTxt"><span class="admLogHead"><span class="pill ${LOG_ACTION[r.action]?.[1] || ""}">${LOG_ACTION[r.action]?.[0] || esc(r.action)}</span><b>${esc(LOG_ENTITY[r.entity] || r.entity)}</b>${
+            r => `<div class="axRow axLogRow"><span class="axRowTxt"><span class="admLogHead"><span class="pill ${LOG_ACTION[r.action]?.[1] || ""}">${LOG_ACTION[r.action]?.[0] || esc(r.action)}</span><b>${esc(LOG_ENTITY[r.entity] || r.entity)}</b>${
               r.entity_id ? `<code>${esc(r.entity_id.length > 12 && r.entity === "orders" ? r.entity_id.slice(-8).toUpperCase() : r.entity_id)}</code>` : ""
             }</span><span class="admLogCh">${logChanges(r)}</span><small>${fmtDateTime(r.at)} · ${esc(r.actor_email || "sistema (pirkimas, Stripe)")}</small></span></div>`
           )
-          .join("")}</div>`
-      : emptyBox("Įrašų dar nėra", "Čia matysite visus kvapų, nustatymų ir užsakymų pakeitimus.")
-  }`;
+          .join("")}</div><p class="igFoot">Paskutiniai 300 pakeitimų. Įrašo duomenų bazė – keisti negalima.</p>`
+      : emptyBox("Įrašų dar nėra", "Čia matysite visus produktų, nustatymų ir užsakymų pakeitimus.")
+  }` });
 }

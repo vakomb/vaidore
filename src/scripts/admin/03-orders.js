@@ -1,6 +1,6 @@
-// 03 – Užsakymai: filtras pagal būseną, paieška (nr., vardas, el. paštas, telefonas), užsakymo turinys, veiksmai:
-// „Supakuota“ → „Išsiųsta“ (siuntos nr. + laiškas pirkėjui, shop/admin) → „Pristatyta“; „Grąžinti pinigus“ (Stripe + likučiai).
-// CSV – buhalterijai (filtruotas sąrašas).
+// 03 – Užsakymai: sąrašas (filtras pagal būseną, paieška – nr., vardas, el. paštas, telefonas, CSV buhalterijai) ir
+// užsakymo ekranas admin/uzsakymai/<nr.> (kompiuteryje – šalia sąrašo). Veiksmai: „Supakuota“ → „Išsiųsta“ (siuntos nr. +
+// laiškas pirkėjui, shop/admin) → „Pristatyta“; „Grąžinti pinigus“ (Stripe + likučiai). Greiti veiksmai sąraše – braukiant.
 const ORDER_FILTERS = [
   ["laukia", "Laukia", o => o.status === "paid" || o.status === "packed"],
   ["issiusti", "Išsiųsti", o => o.status === "shipped"],
@@ -8,30 +8,74 @@ const ORDER_FILTERS = [
   ["grazinti", "Grąžinti", o => o.status === "refunded" || o.status === "cancelled"]
 ];
 const SHIP_NAME = id => VD.SET.shipping?.find(s => s.id === id)?.name || id || "—";
-const ordersState = { filter: "laukia", q: "", list: [], open: null };
+const ordersState = { filter: "laukia", q: "", list: [], at: 0, shown: 50 };
+const orderKey = o => o.ref || o.id;
+const findOrder = key => ordersState.list.find(o => o.ref === key || o.id === key);
 
-async function renderOrders(main, _param, seq) {
-  const nr = new URLSearchParams(location.search).get("nr");
-  if (nr) {
-    ordersState.q = nr;
-    ordersState.filter = "visi";
-    ordersState.open = nr;
-  }
-  main.innerHTML = pageHead("Užsakymai") + loading();
+async function loadOrders(force = false) {
+  if (!force && ordersState.list.length && Date.now() - ordersState.at < 30000) return ordersState.list;
   ordersState.list = (await sbRest("orders?select=*&order=created_at.desc&limit=1000")) || [];
-  if (stale(seq)) return;
-  main.innerHTML = `${pageHead("Užsakymai", "", `<button class="btn ghost small" type="button" data-orders-csv>${glyph("doc")}CSV buhalterijai</button>`)}
-<div class="admToolbar"><div class="seg admSeg" role="tablist">${ORDER_FILTERS.map(
-    ([id, name, fn]) => `<button role="tab" type="button" data-of="${id}" aria-selected="${ordersState.filter === id}">${name} <small>${ordersState.list.filter(fn).length}</small></button>`
-  ).join("")}</div>
-<label class="search admSearch"><span data-glyph="search" aria-hidden="true"></span><input type="search" id="ordersQ" placeholder="Nr., vardas, el. paštas, telefonas" value="${esc(ordersState.q)}" aria-label="Paieška užsakymuose" /></label></div>
-<div id="ordersList"></div>`;
+  ordersState.at = Date.now();
+  return ordersState.list;
+}
+async function renderOrders(main, param, seq) {
+  const nr = new URLSearchParams(location.search).get("nr");
+  if (nr && !param) return navigate(`admin/uzsakymai/${nr}`, { replace: true });
+  if (isSplit()) {
+    const { list, detail, fresh } = splitPanes(main, "orders");
+    if (fresh) {
+      list.innerHTML = ordersListHTML(true);
+      hydrateIcons(list);
+      await loadOrders(true);
+      if (stale(seq)) return;
+      mountOrdersList(list);
+    }
+    if (!param) {
+      detail.innerHTML = detailEmpty("box", "Pasirinkite užsakymą");
+      return;
+    }
+    if (!fresh) await loadOrders();
+    if (stale(seq)) return;
+    markCurrent(list, `admin/uzsakymai/${param}`);
+    return renderOrder(detail, param, seq);
+  }
+  if (param) {
+    main.innerHTML = pageHTML({ title: "Užsakymas", back: { href: "admin/uzsakymai", label: "Užsakymai" }, body: loading(5) });
+    await loadOrders();
+    if (stale(seq)) return;
+    return renderOrder(main, param, seq);
+  }
+  main.innerHTML = ordersListHTML(!ordersState.list.length);
   hydrateIcons(main);
+  if (ordersState.list.length) {
+    mountOrdersList(main);
+    loadOrders(true).then(() => !stale(seq) && paintOrders());
+  } else {
+    await loadOrders(true);
+    if (stale(seq)) return;
+    mountOrdersList(main);
+  }
+}
+function ordersListHTML(skeleton) {
+  return pageHTML({
+    title: "Užsakymai",
+    titleId: !isSplit(),
+    actions: barBtn("doc", "CSV buhalterijai", "data-orders-csv"),
+    tools: `${searchHTML("ordersQ", "Nr., vardas, el. paštas, telefonas", ordersState.q, "Paieška užsakymuose")}<div id="ordersSeg"></div>`,
+    body: `<div id="ordersList">${skeleton ? loading(7) : ""}</div>`
+  });
+}
+function mountOrdersList(box) {
   paintOrders();
-  main.addEventListener("click", ordersClick);
-  $("#ordersQ").addEventListener("input", e => {
+  box.addEventListener("click", ordersListClick);
+  $("#ordersQ", box).addEventListener("input", e => {
     ordersState.q = e.target.value;
+    ordersState.shown = 50;
     paintOrders();
+  });
+  rowActions($("#ordersList", box), orderRowActs, (cell, k) => {
+    const o = findOrder(cell.dataset.order);
+    if (o) orderAction(o, k, null);
   });
 }
 function filteredOrders() {
@@ -39,25 +83,21 @@ function filteredOrders() {
   const q = fold(ordersState.q.trim());
   return ordersState.list.filter(o => fn(o) && (!q || fold([o.ref, o.name, o.email, o.phone, o.tracking].join(" ")).includes(q)));
 }
-function orderItemRow(i) {
-  const picks = i.picks?.length ? `<small>${esc(i.picks.map(id => VD.CAT.products.find(p => p.id === id)?.name || id).join(", "))}</small>` : "";
-  return `<li><span>${esc(i.name)}${picks}</span><span class="admMuted">${i.qty} × ${centsEur(i.unit)}</span><b class="money">${centsEur(i.total ?? i.unit * i.qty)}</b></li>`;
+function orderRowActs(cell) {
+  const o = findOrder(cell.dataset.order);
+  if (!o) return [];
+  const a = [];
+  if (o.status === "paid") a.push({ key: "packed", label: "Supakuota", ico: "box", tone: "gray" });
+  if (o.status === "paid" || o.status === "packed") a.push({ key: "ship", label: "Išsiųsta…", short: "Išsiųsta", ico: "truck", tone: "dark" });
+  if (o.status === "shipped") a.push({ key: "delivered", label: "Pristatyta", ico: "check", tone: "dark" });
+  a.push({ key: "copy", label: "Kopijuoti adresą", short: "Adresas", ico: "copy", tone: "gray" });
+  return a;
 }
-function orderActions(o) {
-  const b = [];
-  if (o.status === "paid") b.push(`<button class="btn ghost small" type="button" data-oa="packed">${glyph("box")}Supakuota</button>`);
-  if (o.status === "paid" || o.status === "packed") b.push(`<button class="btn primary small" type="button" data-oa="ship">${glyph("truck")}Išsiųsta…</button>`);
-  if (o.status === "shipped") b.push(`<button class="btn primary small" type="button" data-oa="delivered">${glyph("check")}Pristatyta</button>`);
-  if (o.status === "shipped") b.push(`<button class="btn ghost small" type="button" data-oa="ship">${glyph("edit")}Siuntos nr.</button>`);
-  b.push(`<button class="btn ghost small" type="button" data-oa="copy">${glyph("copy")}Kopijuoti adresą</button>`);
-  if (o.status !== "refunded" && o.status !== "cancelled" && o.payment_intent) b.push(`<button class="btn danger small" type="button" data-oa="refund">${glyph("return")}Grąžinti pinigus</button>`);
-  return b.join("");
-}
-const shipTo = o => (o.shipping?.locker ? `Omniva paštomatas: ${o.shipping.locker}` : o.shipping?.address || "");
 function paintOrders() {
   const box = $("#ordersList");
   if (!box) return;
-  $$("[data-of]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.of === ordersState.filter)));
+  const seg = $("#ordersSeg");
+  if (seg) seg.innerHTML = segHTML(ORDER_FILTERS.map(([id, name, fn]) => [id, name, ordersState.list.filter(fn).length]), ordersState.filter, "data-of");
   const items = filteredOrders();
   if (!items.length) {
     box.innerHTML = emptyBox(
@@ -66,27 +106,99 @@ function paintOrders() {
     );
     return;
   }
-  box.innerHTML = `<div class="orders admOrders">${items
-    .map(
-      o => `<details class="order" data-order="${esc(o.id)}"${ordersState.open === o.ref || ordersState.open === o.id ? " open" : ""}>
-<summary><span class="oMain"><b>${esc(o.ref)} · ${esc(o.name || o.email || "—")}</b><small>${fmtDateTime(o.created_at)} · ${esc((o.items || []).map(i => `${i.name}${i.qty > 1 ? ` × ${i.qty}` : ""}`).join(", "))}</small></span>${statusPill(o.status)}<b class="money">${centsEur(o.amount_total)}</b>${glyph("chev-down")}</summary>
-<div class="oBody admOBody">
-<div class="admOGrid">
-<div><h3>Pirkėjas</h3><p>${esc(o.name || "—")}<br />${o.email ? `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>` : ""}${o.phone ? `<br /><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>` : ""}${o.user_id ? `<br /><span class="pill blue">Su paskyra</span>` : ""}</p></div>
-<div><h3>Pristatymas</h3><p>${esc(SHIP_NAME(o.shipping?.method))} · ${centsEur(o.amount_shipping)}<br />${esc(shipTo(o) || "Adresas – Stripe užsakyme")}${o.tracking ? `<br />Siuntos nr.: <b>${esc(o.tracking)}</b>` : ""}${
-        o.shipped_at ? `<br /><small>Išsiųsta ${fmtDateTime(o.shipped_at)}</small>` : ""
-      }</p></div>
-${o.gift ? `<div><h3>Dovanų pakavimas</h3><p>${o.gift.note ? `Rašteliukas: „${esc(o.gift.note)}“` : "Be rašteliuko"}</p></div>` : ""}
-${o.credit_code ? `<div><h3>Mėginukų kodas</h3><p><b>${esc(o.credit_code)}</b></p></div>` : ""}
-</div>
-<ul class="admItems">${(o.items || []).map(orderItemRow).join("")}<li class="admTotal"><span>Iš viso (su pristatymu)</span><span></span><b class="money">${centsEur(o.amount_total)}</b></li></ul>
-<div class="oActs admOActs">${orderActions(o)}${
-        o.payment_intent ? `<a class="linkBtn" href="https://dashboard.stripe.com/payments/${esc(o.payment_intent)}" target="_blank" rel="noopener">Stripe ${glyph("ext")}</a>` : ""
-      }</div>
-</div></details>`
-    )
-    .join("")}</div>`;
+  const cur = isSplit() ? A.param : "";
+  box.innerHTML = `<div class="ig axList admOrders">${items
+    .slice(0, ordersState.shown)
+    .map(o => {
+      const what = (o.items || []).map(i => `${i.name}${i.qty > 1 ? ` × ${i.qty}` : ""}`).join(", ");
+      return `<div class="axCell" data-order="${esc(orderKey(o))}" data-title="${esc(o.ref)}"><a class="axRow axRow2" href="admin/uzsakymai/${esc(orderKey(o))}" data-nav${
+        cur && (cur === o.ref || cur === o.id) ? ' aria-current="page"' : ""
+      }><span class="axRowTxt"><b>${esc(o.ref)} · ${esc(o.name || o.email || "—")}</b><small>${fmtDateTime(o.created_at)} · ${esc(what)}</small></span><span class="axVal axValCol"><b class="money">${centsEur(
+        o.amount_total
+      )}</b>${statusPill(o.status)}</span><span class="axChev">${glyph("chev-right")}</span></a><button class="axRowMore" type="button" data-row-more aria-label="Veiksmai">${glyph("dots")}</button></div>`;
+    })
+    .join("")}</div>${items.length > ordersState.shown ? `<button class="axMoreBtn" type="button" data-orders-more>Rodyti daugiau (${items.length - ordersState.shown})</button>` : ""}`;
   hydrateIcons(box);
+}
+function ordersListClick(e) {
+  const t = e.target instanceof Element ? e.target : null;
+  const f = t?.closest("[data-of]");
+  if (f) {
+    ordersState.filter = f.dataset.of;
+    ordersState.shown = 50;
+    return paintOrders();
+  }
+  if (t?.closest("[data-orders-more]")) {
+    ordersState.shown += 100;
+    return paintOrders();
+  }
+  if (t?.closest("[data-orders-csv]")) return exportOrders();
+}
+
+// ── Užsakymo ekranas ──
+function orderItemRow(i) {
+  const picks = i.picks?.length ? `<small>${esc(i.picks.map(id => VD.CAT.products.find(p => p.id === id)?.name || id).join(", "))}</small>` : "";
+  return `<li><span>${esc(i.name)}${picks}</span><span class="admMuted">${i.qty} × ${centsEur(i.unit)}</span><b class="money">${centsEur(i.total ?? i.unit * i.qty)}</b></li>`;
+}
+const shipTo = o => (o.shipping?.locker ? `Omniva paštomatas: ${o.shipping.locker}` : o.shipping?.address || "");
+function orderActionsHTML(o) {
+  const b = [];
+  if (o.status === "paid" || o.status === "packed") b.push(`<button class="btn primary" type="button" data-oa="ship">${glyph("truck")}Išsiųsta…</button>`);
+  if (o.status === "paid") b.push(`<button class="btn ghost" type="button" data-oa="packed">${glyph("box")}Supakuota</button>`);
+  if (o.status === "shipped") b.push(`<button class="btn primary" type="button" data-oa="delivered">${glyph("check")}Pristatyta</button>`);
+  return b.length ? `<div class="axActRow">${b.join("")}</div>` : "";
+}
+function renderOrder(box, key, seq) {
+  const o = findOrder(key);
+  const back = isSplit() ? null : { href: "admin/uzsakymai", label: "Užsakymai" };
+  if (!o) {
+    box.innerHTML = pageHTML({ title: "Užsakymas nerastas", back, body: emptyBox("Tokio užsakymo nėra", "Patikrinkite numerį.") });
+    return;
+  }
+  const kv = (k, v) => `<div class="axKV"><span>${k}</span><span>${v}</span></div>`;
+  const body = `<div class="axOrder" data-order="${esc(orderKey(o))}">
+<div class="axOrderHead">${statusPill(o.status)}<b class="money">${centsEur(o.amount_total)}</b><small>${fmtDateTime(o.created_at)}</small></div>
+${orderActionsHTML(o)}
+${groupHTML(
+  kv("Vardas", esc(o.name || "—")) +
+    (o.email ? kv("El. paštas", `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`) : "") +
+    (o.phone ? kv("Telefonas", `<a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>`) : "") +
+    (o.user_id ? kv("Paskyra", "Su paskyra") : ""),
+  { head: "Pirkėjas" }
+)}
+${groupHTML(
+  kv("Būdas", `${esc(SHIP_NAME(o.shipping?.method))} · ${centsEur(o.amount_shipping)}`) +
+    kv("Adresas", esc(shipTo(o) || "Stripe užsakyme")) +
+    (o.tracking ? kv("Siuntos nr.", `<b>${esc(o.tracking)}</b>`) : "") +
+    (o.shipped_at ? kv("Išsiųsta", fmtDateTime(o.shipped_at)) : "") +
+    `<button class="axRow" type="button" data-oa="copy"><span class="axRowTxt"><b class="axLink">Kopijuoti adresą</b></span></button>` +
+    (o.status === "shipped" ? `<button class="axRow" type="button" data-oa="ship"><span class="axRowTxt"><b class="axLink">Keisti siuntos nr.</b></span></button>` : ""),
+  { head: "Pristatymas" }
+)}
+<h2 class="igHead">Prekės</h2><div class="ig"><ul class="admItems">${(o.items || []).map(orderItemRow).join("")}<li class="admTotal"><span>Iš viso (su pristatymu)</span><span></span><b class="money">${centsEur(o.amount_total)}</b></li></ul></div>
+${o.gift || o.credit_code ? groupHTML((o.gift ? kv("Dovanų pakavimas", o.gift.note ? `„${esc(o.gift.note)}“` : "Be rašteliuko") : "") + (o.credit_code ? kv("Mėginukų kodas", `<b>${esc(o.credit_code)}</b>`) : "")) : ""}
+${
+  o.payment_intent
+    ? groupHTML(
+        navRow({ href: `https://dashboard.stripe.com/payments/${o.payment_intent}`, title: "Mokėjimas Stripe", ext: true }) +
+          (o.status !== "refunded" && o.status !== "cancelled" ? `<button class="axRow danger" type="button" data-oa="refund"><span class="axRowTxt"><b>Grąžinti pinigus</b></span></button>` : "")
+      )
+    : ""
+}
+</div>`;
+  box.innerHTML = pageHTML({ title: o.ref, back, body, cls: "axNarrow" });
+  hydrateIcons(box);
+  watchTitle(box);
+  $(".axPage", box).addEventListener("click", e => {
+    const b = e.target instanceof Element && e.target.closest("[data-oa]");
+    if (b) orderAction(o, b.dataset.oa, b);
+  });
+}
+function repaintOrder(o) {
+  paintOrders();
+  const d = $(".axOrder");
+  if (d && d.dataset.order === orderKey(o)) renderOrder(d.closest("#admDetail") || $("#admMain"), orderKey(o), A.seq);
+  loadCounts();
 }
 async function setOrderStatus(o, status) {
   const patch = { status, ...(status === "delivered" ? { delivered_at: new Date().toISOString() } : {}) };
@@ -97,11 +209,9 @@ function openShipSheet(o) {
   openSheet({
     title: `Išsiųsti ${o.ref}`,
     html: `<form class="sheetPad admForm" novalidate>
-<p class="admNote">${esc(SHIP_NAME(o.shipping?.method))}: ${esc(shipTo(o) || "adresas – Stripe užsakyme")}</p>
-<label class="field"><span>Siuntos numeris</span><input name="tracking" maxlength="80" autocomplete="off" value="${esc(o.tracking || "")}" placeholder="pvz. CE123456789EE" /><small>${
-      o.email ? `Pirkėjui (${esc(o.email)}) bus išsiųstas laiškas su siuntos numeriu.` : "Pirkėjo el. pašto nėra – laiškas nebus siunčiamas."
-    }</small></label>
-<p class="formErr" role="alert" hidden></p>
+<p class="axSheetNote">${esc(SHIP_NAME(o.shipping?.method))}: ${esc(shipTo(o) || "adresas – Stripe užsakyme")}</p>
+<div class="ig"><label class="field axField"><span>Siuntos nr.</span><input name="tracking" maxlength="80" autocomplete="off" value="${esc(o.tracking || "")}" placeholder="CE123456789EE" /></label></div>
+<p class="igFoot">${o.email ? `Pirkėjui (${esc(o.email)}) bus išsiųstas laiškas su siuntos numeriu.` : "Pirkėjo el. pašto nėra – laiškas nebus siunčiamas."}</p>
 <button class="btn primary block" type="submit">${glyph("truck")}Pažymėti išsiųstu</button></form>`
   });
   const form = $("#sheetBody form");
@@ -113,54 +223,38 @@ function openShipSheet(o) {
       Object.assign(o, { status: "shipped", tracking: tracking || null, shipped_at: new Date().toISOString() });
       closeSheet();
       toast(d.mailed ? "Išsiųsta – pirkėjui išsiųstas laiškas" : "Pažymėta išsiųstu (laiškas nesiųstas)", { icon: "truck", ms: 3600 });
-      ordersState.open = o.id;
-      paintOrders();
-      loadCounts();
+      repaintOrder(o);
     });
   });
 }
-async function ordersClick(e) {
-  const t = e.target instanceof Element ? e.target : null;
-  const f = t?.closest("[data-of]");
-  if (f) {
-    ordersState.filter = f.dataset.of;
-    ordersState.open = null;
-    return paintOrders();
-  }
-  if (t?.closest("[data-orders-csv]")) return exportOrders();
-  const btn = t?.closest("[data-oa]");
-  if (!btn) return;
-  const o = ordersState.list.find(x => x.id === btn.closest("[data-order]").dataset.order);
-  if (!o) return;
-  const act = btn.dataset.oa;
-  ordersState.open = o.id;
+async function orderAction(o, act, btn) {
   if (act === "ship") return openShipSheet(o);
   if (act === "copy") {
     const txt = [o.name, o.phone, shipTo(o)].filter(Boolean).join("\n");
     return navigator.clipboard?.writeText(txt).then(() => toast("Adresas nukopijuotas", { icon: "copy" }));
   }
   if (act === "refund") {
-    const ok = await askConfirm(`Pirkėjui ${o.name || o.email} bus grąžinta ${centsEur(o.amount_total)} per Stripe, o kvapų likučiai – atstatyti. Atšaukti nebus galima.`, {
+    const ok = await askConfirm(`Pirkėjui ${o.name || o.email} bus grąžinta ${centsEur(o.amount_total)} per Stripe, o likučiai – atstatyti. Atšaukti nebus galima.`, {
       title: `Grąžinti pinigus už ${o.ref}?`,
       ok: "Grąžinti pinigus",
       danger: true
     });
     if (!ok) return;
-    return busy(btn, async () => {
+    const run = async () => {
       await shopAdmin({ action: "refund", order_id: o.id });
       o.status = "refunded";
       toast("Pinigai grąžinami – Stripe juos perves per 5–10 d.", { icon: "return", ms: 4200 });
-      paintOrders();
-      loadCounts();
+      repaintOrder(o);
       VD.refreshCatalog({ rerender: false }).catch(() => {});
-    });
+    };
+    return btn ? busy(btn, run) : run().catch(err => toast(errText(err), { icon: "info" }));
   }
-  return busy(btn, async () => {
+  const run = async () => {
     await setOrderStatus(o, act);
     toast(act === "packed" ? "Pažymėta: supakuota" : "Pažymėta: pristatyta", { icon: "check" });
-    paintOrders();
-    loadCounts();
-  });
+    repaintOrder(o);
+  };
+  return btn ? busy(btn, run) : run().catch(err => toast(errText(err), { icon: "info" }));
 }
 function exportOrders() {
   const rows = filteredOrders();

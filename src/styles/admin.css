@@ -1,74 +1,582 @@
-/* Administravimo skydelis (/admin) – įkeliamas tik administratoriui (assets/admin.css). Naudoja bendrus programėlės
-   komponentus (.btn, .field, .seg, .group, .row, .pill, .order…) ir tuos pačius dizaino kintamuosius (01-tokens.css).
-   Telefone – skyriai slenkama juosta viršuje; kompiuteryje – šoninis meniu kairėje. */
+/* Administravimo skydelis (/admin, v16) – iOS stilius: sugrupuoti įtraukti sąrašai, navigacijos juosta su didele antrašte,
+   skirtukų juosta telefone (apačioje), ikonų juosta planšetėje ir telefone gulsčiai (kairėje), šoninis meniu kompiuteryje.
+   Įkeliamas tik administratoriui (assets/admin.css). Spalvos, kampai, šešėliai – 01-tokens.css (--ax-*). */
 
+/* ── Parduotuvės dalių administravime nerodome ── */
+.isAdmin .hdr,
+.isAdmin .topNote,
 .isAdmin .ftr,
-.isAdmin .topNote {
-  display: none;
+.isAdmin .drawerWrap {
+  display: none !important;
 }
-.adminRoot {
-  max-width: var(--maxW);
-  margin: 0 auto;
-  padding: 0 var(--pad) calc(var(--safeB) + 96px);
+.isAdmin body {
+  background: var(--ax-bg);
 }
-.adm {
-  display: block;
+.isAdmin .main {
+  min-height: 100dvh;
+}
+.axNoScroll body {
+  overflow: hidden;
+}
+.ax [hidden],
+.sheetBody [hidden] {
+  display: none !important;
 }
 
-/* Meniu */
-.admSide {
-  position: sticky;
-  top: var(--hdrAll);
-  z-index: 5;
-  margin: 0 calc(var(--pad) * -1);
-  padding: 8px var(--pad) 0;
-  background: rgba(255, 255, 255, 0.92);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
-  border-bottom: 1px solid var(--line);
+/* ── Apvalkalas ── */
+.ax {
+  min-height: 100dvh;
+  background: var(--ax-bg);
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  -webkit-tap-highlight-color: transparent;
 }
-.admBrand {
+.axMain {
+  min-width: 0;
+  padding-bottom: calc(64px + var(--safeB));
+}
+.axSide {
   display: none;
 }
-.admNav {
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 8px;
+/* Skirtukų juosta (telefonas) */
+.axTabs {
+  position: fixed;
+  z-index: 50;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 0 env(safe-area-inset-right) var(--safeB) env(safe-area-inset-left);
+  background: var(--ax-bar);
+  box-shadow: 0 -1px 0 var(--ax-sep);
 }
-.admNav::-webkit-scrollbar {
-  display: none;
-}
-.admNav a {
+.axTab {
   position: relative;
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 7px;
-  flex: 0 0 auto;
+  justify-content: center;
+  gap: 2px;
+  height: 54px;
+  color: var(--ink3);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color 0.15s ease;
+}
+.axTab svg {
+  width: 25px;
+  height: 25px;
+}
+.axTab[aria-current="page"] {
+  color: var(--ink);
+}
+.axTab[aria-current="page"] svg {
+  stroke-width: 2;
+}
+.axTab .axBadge {
+  position: absolute;
+  top: 4px;
+  left: calc(50% + 5px);
+}
+.axTab:active svg {
+  transform: scale(0.92);
+}
+
+/* Planšetė ir telefonas gulsčiai: ikonų juosta kairėje */
+@media (min-width: 700px) {
+  .ax {
+    padding-left: calc(76px + env(safe-area-inset-left));
+  }
+  .axMain {
+    padding-bottom: 24px;
+  }
+  .axTabs {
+    top: 0;
+    right: auto;
+    width: calc(76px + env(safe-area-inset-left));
+    grid-template-columns: 1fr;
+    grid-auto-rows: 62px;
+    align-content: start;
+    padding: calc(var(--safeT) + 10px) 0 var(--safeB) env(safe-area-inset-left);
+    box-shadow: 1px 0 0 var(--ax-sep);
+    background: var(--ax-side);
+  }
+  .axTab {
+    height: 62px;
+  }
+}
+/* Kompiuteris: šoninis meniu */
+@media (min-width: 1024px) {
+  .ax {
+    padding-left: 264px;
+  }
+  .axTabs {
+    display: none;
+  }
+  .axSide {
+    position: fixed;
+    z-index: 40;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 264px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px 16px;
+    overflow-y: auto;
+    background: var(--ax-side);
+    box-shadow: 1px 0 0 var(--ax-sep);
+  }
+}
+.axBrand {
+  display: grid;
+  gap: 3px;
+  padding: 4px 12px 20px;
+}
+.axBrand [data-logo] svg {
+  display: block;
+  width: auto;
+  height: 19px;
+}
+.axBrand small {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+.axNav {
+  display: grid;
+  gap: 2px;
+}
+.axNavItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
   min-height: 40px;
-  padding: 0 13px;
-  border-radius: 999px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+.axNavItem svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: var(--ink2);
+}
+.axNavItem span {
+  flex: 1;
+}
+.axNavItem:hover {
+  background: var(--ax-hover);
+}
+.axNavItem[aria-current="page"] {
+  background: var(--brand);
+  color: #fff;
+}
+.axNavItem[aria-current="page"] svg {
+  color: #fff;
+}
+.axNavSub {
+  display: grid;
+  gap: 1px;
+  padding: 2px 0 8px 31px;
+}
+.axNavSub a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 8px;
   color: var(--ink2);
   font-size: 14.5px;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: background-color 0.18s ease, color 0.18s ease;
+  transition: background-color 0.15s ease;
 }
-.admNav svg {
+.axNavSub a:hover {
+  background: var(--ax-hover);
+}
+.axNavSub a[aria-current="page"] {
+  background: var(--brand);
+  color: #fff;
+  font-weight: 500;
+}
+.axSideFoot {
+  display: grid;
+  gap: 1px;
+  margin-top: auto;
+  padding-top: 14px;
+  box-shadow: 0 -1px 0 var(--ax-sep);
+}
+.axSideLink {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--ink2);
+  font-size: 14.5px;
+  text-align: left;
+}
+.axSideLink svg {
+  width: 19px;
+  height: 19px;
+}
+.axSideLink:hover {
+  background: var(--ax-hover);
+}
+
+/* ── Puslapis: juosta, didelė antraštė, turinys ── */
+.axPage {
+  min-width: 0;
+  overflow-x: clip;
+}
+.axBar {
+  position: sticky;
+  z-index: 30;
+  top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  height: calc(52px + var(--safeT));
+  padding: var(--safeT) max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
+  background: var(--ax-bg);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.axPage.scrolled > .axBar {
+  background: var(--ax-bar);
+  box-shadow: 0 1px 0 var(--ax-sep);
+}
+.axBarL,
+.axBarR {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.axBarR {
+  justify-content: flex-end;
+  gap: 2px;
+}
+.axBarT {
+  max-width: 52vw;
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.axPage.scrolled .axBarT {
+  opacity: 1;
+}
+.axBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  min-width: 44px;
+  max-width: 100%;
+  height: 44px;
+  padding: 0 8px 0 0;
+  color: var(--ink);
+  font-size: 17px;
+  white-space: nowrap;
+}
+.axBack span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.axBack svg {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  stroke-width: 2;
+}
+.axBarBtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--ink);
+  transition: background-color 0.15s ease;
+}
+.axBarBtn svg {
+  width: 23px;
+  height: 23px;
+}
+.axBarBtn:hover {
+  background: var(--ax-hover);
+}
+.axBarBtn:active {
+  background: var(--ax-press);
+}
+.axSave {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  margin-left: 6px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s var(--spring);
+}
+.axSave:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.axSave:disabled:not(.loading) {
+  background: var(--ax-fill);
+  color: var(--ink4);
+  cursor: default;
+}
+.axSave .spin {
+  width: 14px;
+  height: 14px;
+}
+.axBody {
+  padding: 0 max(16px, env(safe-area-inset-right)) 36px max(16px, env(safe-area-inset-left));
+}
+.axHead {
+  padding: 2px 4px 14px;
+}
+.axLarge {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: 0.005em;
+  overflow-wrap: anywhere;
+}
+.axSub {
+  margin-top: 4px;
+  color: var(--ink3);
+  font-size: 15px;
+}
+.axSub::first-letter {
+  text-transform: uppercase;
+}
+.axTools {
+  position: sticky;
+  z-index: 20;
+  top: calc(52px + var(--safeT));
+  display: grid;
+  gap: 10px;
+  margin: -6px -16px 8px;
+  padding: 4px 16px 12px;
+  background: var(--ax-bg);
+}
+.axNarrow .axBody {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.axLead {
+  margin: -4px 4px 18px;
+  color: var(--ink3);
+  font-size: 15px;
+  line-height: 1.45;
+}
+@media (min-width: 1024px) {
+  .axBody {
+    padding: 0 32px 48px;
+  }
+  .axTools {
+    margin: -6px -32px 8px;
+    padding: 4px 32px 12px;
+  }
+  .axCatSeg {
+    display: none !important;
+  }
+}
+
+/* ── Sugrupuoti sąrašai ── */
+.ig {
+  margin: 0 0 22px;
+  overflow: hidden;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
+}
+.ig > * {
+  position: relative;
+}
+.ig > * + *::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: var(--sepL, 16px);
+  right: 0;
+  height: 1px;
+  background: var(--ax-sep);
+  pointer-events: none;
+}
+.igHead {
+  margin: 26px 16px 7px;
+  color: var(--ink3);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.igHead:first-child {
+  margin-top: 4px;
+}
+.ig + .igFoot,
+.igFoot {
+  margin: -14px 16px 24px;
+  color: var(--ink3);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.axRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 50px;
+  padding: 8px 16px;
+  background: none;
+  color: var(--ink);
+  font-size: 17px;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+.axRow:has(> .axIco),
+.axRow:has(> .admThumb),
+.axRow:has(> .scDot),
+.axRow:has(> .admFam),
+.axRow:has(> .admCatImg) {
+  --sepL: 60px;
+}
+.ig > .axCell:has(.admThumb) {
+  --sepL: 68px;
+}
+a.axRow:active,
+button.axRow:active {
+  background: var(--ax-press);
+}
+@media (hover: hover) {
+  a.axRow:hover,
+  button.axRow:hover {
+    background: var(--ax-hover);
+  }
+}
+.axRow[aria-current="page"] {
+  background: var(--brand) !important;
+  color: #fff;
+}
+.axRow[aria-current="page"] small,
+.axRow[aria-current="page"] .axVal,
+.axRow[aria-current="page"] .axChev,
+.axRow[aria-current="page"] .admMuted {
+  color: rgba(255, 255, 255, 0.82);
+}
+.axRowTxt {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.axRowTxt b {
+  overflow: hidden;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.axRow2 .axRowTxt b {
+  font-weight: 500;
+}
+.axRowTxt small {
+  overflow: hidden;
+  color: var(--ink3);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.axVal {
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 60%;
+  color: var(--ink3);
+  font-size: 16px;
+  white-space: nowrap;
+}
+.axValCol,
+.axVal:has(.money),
+.axVal:has(.pill),
+.axVal:has(.admRowNum) {
+  flex-shrink: 0;
+}
+.axValCol {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.axValCol .money {
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 500;
+}
+.axRow[aria-current="page"] .axValCol .money {
+  color: #fff;
+}
+.axValTxt,
+.axSum {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.axPills {
+  display: flex;
+  gap: 4px;
+}
+.axPills .pill,
+.axValCol .pill {
+  height: 22px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+.axChev {
+  flex: 0 0 auto;
+  display: grid;
+  color: var(--ink4);
+}
+.axChev svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.2;
+}
+.axIco {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--ink2);
+  color: #fff;
+}
+.axIco svg {
   width: 18px;
   height: 18px;
 }
-.admNav a[aria-current="page"] {
-  background: var(--ink);
-  color: #fff;
-}
-.admCount {
+.axBadge {
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--red);
+  background: var(--badge);
   color: #fff;
   font-size: 12px;
   font-weight: 600;
@@ -76,121 +584,826 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.admSideFoot {
-  display: none;
-}
-.admMain {
-  padding-top: 20px;
-  min-width: 0;
-}
-
-/* Antraštės ir tekstai */
-.admHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px 16px;
-  margin-bottom: 18px;
-}
-.admHead h1 {
-  font-size: 28px;
-  line-height: 1.15;
-  letter-spacing: 0.01em;
-}
-.admHead .pageSub {
-  margin-top: 4px;
-}
-.admHeadActs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.admH2 {
-  margin: 28px 2px 10px;
-  font-size: 17px;
-  letter-spacing: 0.01em;
-}
-.admNote {
-  margin: 0 2px 12px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--ink3);
-}
-.admNote a {
+.axLink {
   color: var(--brand);
-  font-weight: 500;
+  font-weight: 500 !important;
 }
+.axRow.danger b {
+  color: var(--red);
+}
+.axAddRow {
+  color: var(--brand);
+}
+.axAddRow > svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  stroke-width: 2;
+}
+.axAddRow b {
+  font-weight: 500 !important;
+}
+.axRowNote {
+  padding: 13px 16px;
+  color: var(--ink3);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.axWarn {
+  color: var(--amber);
+}
+.axMuted2,
 .admMuted {
   color: var(--ink3);
+}
+.admMuted {
   font-size: 14px;
   white-space: nowrap;
 }
-.admCrumbs {
-  margin-bottom: 6px;
+.axSw {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
 }
-.admCrumbs a {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 36px;
+.axMoreBtn {
+  display: block;
+  width: 100%;
+  margin: -10px 0 22px;
+  padding: 12px;
   color: var(--brand);
   font-size: 15px;
   font-weight: 500;
 }
-.admCrumbs svg {
-  width: 18px;
-  height: 18px;
+.axCols {
+  display: grid;
+}
+@media (min-width: 1100px) {
+  .axCols {
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
 }
 
-/* Apžvalga */
+/* Sąrašo eilutė su greitais veiksmais (braukiant / „⋯“) */
+.axCell {
+  overflow: hidden;
+}
+.axCell > .axRow {
+  position: relative;
+  z-index: 1;
+  background: var(--ax-card);
+  transition: transform 0.32s var(--spring), background-color 0.15s ease;
+  touch-action: pan-y;
+}
+.axCell.off .admThumb,
+.axCell.off .axRowTxt b {
+  opacity: 0.55;
+}
+.axSwipe {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+}
+.axSwAct {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 78px;
+  background: var(--ax-gray);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.axSwAct svg {
+  width: 21px;
+  height: 21px;
+}
+.axSwAct.dark {
+  background: var(--brand);
+}
+.axSwAct.red {
+  background: var(--red);
+}
+.axRowMore {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--ax-card);
+  box-shadow: var(--ax-shadow);
+  color: var(--ink);
+  opacity: 0;
+  translate: 0 -50%;
+  transition: opacity 0.15s ease;
+}
+.axRowMore svg {
+  width: 20px;
+  height: 20px;
+}
+@media (hover: hover) {
+  .axCell:hover .axRowMore,
+  .axRowMore:focus-visible {
+    opacity: 1;
+  }
+}
+@media (hover: none) {
+  .axRowMore {
+    display: none;
+  }
+}
+
+/* Segmentuotas valdiklis, paieška */
+.axSeg {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  overflow-x: auto;
+  border-radius: 10px;
+  background: var(--ax-fill);
+  scrollbar-width: none;
+}
+.axSeg::-webkit-scrollbar {
+  display: none;
+}
+.axSeg > button,
+.axSeg > a {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.axSeg [aria-selected="true"] {
+  background: var(--ax-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+}
+.axSeg small {
+  color: var(--ink3);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.axSearch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 11px;
+  border-radius: 11px;
+  background: var(--ax-fill);
+  color: var(--ink3);
+}
+.axSearch svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+.axSearch input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+}
+.axSearch input::placeholder {
+  color: var(--ink3);
+}
+
+/* ── Laukai (forma kaip iOS „Nustatymai“) ── */
+.axField {
+  display: grid;
+  grid-template-columns: minmax(96px, 42%) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 4px 16px;
+  margin: 0;
+  position: relative;
+}
+.axField.axField > span:first-child {
+  display: block;
+  margin: 0;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+.axField.axField > input:not([type="checkbox"]),
+.axField.axField > select,
+.axField.axField > textarea {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+  text-align: right;
+}
+.axField.axField > input:focus,
+.axField.axField > select:focus,
+.axField.axField > textarea:focus {
+  box-shadow: none;
+}
+.axField.axField > input::placeholder,
+.axField.axField > textarea::placeholder {
+  color: var(--ink4);
+}
+.axField.axField > input[readonly] {
+  color: var(--ink3);
+}
+.axField.axField > select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 18px;
+  color: var(--ink3);
+  text-align-last: right;
+  cursor: pointer;
+}
+.axField:has(> select)::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -6px;
+  border-right: 1.8px solid var(--ink4);
+  border-bottom: 1.8px solid var(--ink4);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.axField.axField > input[type="color"] {
+  justify-self: end;
+  width: 46px;
+  height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.axField.axField > input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.axField.axField > input[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.axField.axField > input[type="date"] {
+  justify-self: end;
+  width: auto;
+}
+.axField.stack {
+  grid-template-columns: 1fr;
+  gap: 2px;
+  padding: 10px 16px 8px;
+}
+.axField.axField.stack > span:first-child {
+  color: var(--ink3);
+  font-size: 13px;
+  font-weight: 500;
+}
+.axField.axField.stack > input,
+.axField.axField.stack > textarea {
+  text-align: left;
+}
+.axField.axField > textarea {
+  height: auto;
+  min-height: 72px;
+  padding: 4px 0;
+  line-height: 1.5;
+  resize: vertical;
+}
+.axField:focus-within > span:first-child {
+  color: var(--ink);
+}
+.axSwitchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 50px;
+  padding: 6px 16px;
+  font-size: 17px;
+}
+.axCheckRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 4px 16px;
+  font-size: 17px;
+  cursor: pointer;
+}
+.axCheckRow input {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+.axCheckRow input:checked::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 3px;
+  width: 7px;
+  height: 13px;
+  border: solid var(--brand);
+  border-width: 0 2.4px 2.4px 0;
+  transform: rotate(45deg);
+}
+.axCheckRow input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.formErr.axErr {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-radius: var(--ax-r);
+  background: var(--ax-red-soft);
+  color: var(--red);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.axKV {
+  display: grid;
+  grid-template-columns: minmax(96px, 36%) 1fr;
+  gap: 12px;
+  padding: 13px 16px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.axKV > span:first-child {
+  color: var(--ink3);
+}
+.axKV > span:last-child {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.axKV a {
+  color: var(--brand);
+  font-weight: 500;
+}
+.axActRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 22px;
+}
+.axActRow .btn {
+  flex: 1 1 140px;
+}
+.axImgBox .admTaxoImg:empty {
+  display: none;
+}
+
+/* Jungiklis (iOS) */
+.admSwitchInp {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  flex: 0 0 auto;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--ax-fill);
+  transition: background-color 0.25s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.admSwitchInp::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.15), 0 1px 1px rgba(15, 23, 42, 0.16);
+  transition: transform 0.35s var(--spring);
+}
+.admSwitchInp:checked {
+  background: var(--green);
+}
+.admSwitchInp:checked::after {
+  transform: translateX(20px);
+}
+.admSwitchInp:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Žymimi „lustai“ (metų laikas, paros metas, proga) */
+.admChecks {
+  display: grid;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.admChecks > span {
+  color: var(--ink3);
+  font-size: 13px;
+  font-weight: 500;
+}
+.admChipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.admCheck:not(.axCheckRow) {
+  position: relative;
+  cursor: pointer;
+}
+.admCheck:not(.axCheckRow) input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.admCheck:not(.axCheckRow) span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--ax-fill);
+  color: var(--ink);
+  font-size: 15px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.admCheck input:checked + span {
+  background: var(--brand);
+  color: #fff;
+}
+.admCheck input:focus-visible + span {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Vidiniai ekranai (push / pop) */
+.axIn {
+  animation: axPush 0.34s var(--spring);
+}
+.axBackIn {
+  animation: axPop 0.34s var(--spring);
+}
+@keyframes axPush {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+@keyframes axPop {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+/* Kraunant – skeleton eilutės */
+.axSkel .axSkelRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+.axSkelRow i {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+}
+.axSkelRow span {
+  flex: 1;
+}
+.axSkelRow b,
+.axSkelRow s {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+}
+.axSkelRow b {
+  width: 58%;
+}
+.axSkelRow s {
+  width: 34%;
+  margin-top: 9px;
+}
+.axSkelRow i,
+.axSkelRow b,
+.axSkelRow s {
+  background: linear-gradient(90deg, var(--ax-fill) 0%, var(--ax-hover) 50%, var(--ax-fill) 100%);
+  background-size: 200% 100%;
+  animation: axShimmer 1.3s linear infinite;
+}
+@keyframes axShimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.axEmpty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 44px 24px;
+  color: var(--ink3);
+  text-align: center;
+}
+.axEmpty h3 {
+  color: var(--ink);
+  font-size: 20px;
+}
+.axEmpty p {
+  max-width: 36ch;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.axEmpty .btn {
+  margin-top: 8px;
+}
+
+/* ── Dviejų stulpelių vaizdas (kompiuteryje) ── */
+@media (min-width: 1024px) {
+  .ax.isSplit .axMain {
+    height: 100dvh;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+  .axSplit {
+    display: grid;
+    grid-template-columns: minmax(330px, 32%) minmax(0, 1fr);
+    height: 100dvh;
+  }
+  .axCol {
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .axListCol {
+    background: var(--ax-bg);
+    box-shadow: 1px 0 0 var(--ax-sep);
+  }
+  .axListCol .axBody {
+    padding: 0 16px 32px;
+  }
+  .axListCol .axTools {
+    margin: -6px -16px 8px;
+    padding: 4px 16px 12px;
+  }
+  .axListCol .axLarge {
+    font-size: 28px;
+  }
+  .axDetailCol {
+    background: var(--ax-bg);
+  }
+  .axDetailCol .axNarrow .axBody {
+    max-width: 720px;
+  }
+}
+.axDetailEmpty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 60vh;
+  color: var(--ink3);
+  font-size: 16px;
+}
+.axDetailEmpty svg {
+  width: 44px;
+  height: 44px;
+  color: var(--ink4);
+  stroke-width: 1.4;
+}
+
+/* ── Veiksmų lapas (action sheet) ir patvirtinimai ── */
+.sheet:has(.axSheet) {
+  background: var(--ax-bg);
+}
+.axSheet {
+  padding: 14px 12px 0;
+}
+.axSheetHead {
+  padding: 4px 16px 12px;
+  text-align: center;
+}
+.axSheetHead b {
+  display: block;
+  color: var(--ink3);
+  font-size: 13px;
+  font-weight: 600;
+}
+.axSheetHead p {
+  margin-top: 4px;
+  color: var(--ink3);
+  font-size: 13px;
+}
+.axActs {
+  display: grid;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--ax-card);
+}
+.axAct {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  color: var(--ink);
+  font-size: 18px;
+}
+.axAct svg {
+  width: 21px;
+  height: 21px;
+}
+.axActs .axAct + .axAct {
+  box-shadow: inset 0 1px 0 var(--ax-sep);
+}
+.axAct:active {
+  background: var(--ax-press);
+}
+.axAct:disabled {
+  color: var(--ink4);
+}
+.axAct.danger {
+  color: var(--red);
+}
+.axActCancel {
+  margin-top: 8px;
+  border-radius: 14px;
+  background: var(--ax-card);
+  font-weight: 600;
+}
+.isAdmin .confirmActs {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+}
+.isAdmin .confirmActs .btn {
+  width: 100%;
+  min-height: 50px;
+}
+.axSheetNote {
+  margin: 0 4px 14px;
+  color: var(--ink2);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.axDangerBtn {
+  margin-top: 10px;
+  color: var(--red) !important;
+}
+.sheetBody .ig {
+  background: var(--ax-bg);
+}
+.sheetBody .btn.block {
+  margin-top: 4px;
+}
+.axStepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 60px;
+  padding: 8px 16px;
+  font-size: 17px;
+}
+.axStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.axStep input {
+  width: 84px;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ax-card);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+.axStep .roundBtn {
+  width: 44px;
+  height: 44px;
+}
+
+/* Pranešimai – apačioje, virš skirtukų juostos */
+.isAdmin .toastWrap {
+  top: auto;
+  bottom: calc(70px + var(--safeB));
+}
+@media (min-width: 700px) {
+  .isAdmin .toastWrap {
+    bottom: 24px;
+    padding-left: 76px;
+  }
+}
+@media (min-width: 1024px) {
+  .isAdmin .toastWrap {
+    padding-left: 264px;
+  }
+}
+
+/* ── Šiandien ── */
 .admKpis {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  margin: 0 0 24px;
+}
+@media (min-width: 700px) {
+  .admKpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 .admKpi {
   display: grid;
-  gap: 4px;
-  padding: 16px;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: var(--elev-1);
+  gap: 3px;
+  padding: 14px 16px;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
 }
 .admKpi span {
-  font-size: 13.5px;
-  font-weight: 500;
   color: var(--ink3);
+  font-size: 13px;
+  font-weight: 500;
 }
 .admKpi b {
-  font-size: 22px;
-  letter-spacing: 0.01em;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  font-variant-numeric: tabular-nums;
 }
 .admKpi small {
-  font-size: 13px;
   color: var(--ink3);
-}
-.admCols {
-  display: grid;
-  gap: 0 32px;
+  font-size: 13px;
 }
 .admRowNum {
+  color: var(--ink);
   font-size: 17px;
   font-variant-numeric: tabular-nums;
 }
 .admRank {
-  width: 22px;
+  width: 16px;
+  flex: 0 0 auto;
   color: var(--ink3);
-  font-variant-numeric: tabular-nums;
+  font-size: 14px;
   text-align: center;
+  font-variant-numeric: tabular-nums;
 }
+.axRow:has(> .admRank) {
+  --sepL: 88px;
+}
+
+/* Produkto miniatiūra */
 .admThumb {
   position: relative;
-  width: 44px;
-  height: 52px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
+  width: 42px;
+  height: 50px;
   overflow: hidden;
   border-radius: 10px;
   background: var(--tint, var(--bg-soft));
@@ -211,910 +1424,649 @@
 .admThumb img.flat {
   filter: none;
 }
-.group .row .money {
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Įrankių juosta: filtrai + paieška */
-.admToolbar {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.admSeg {
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.admSeg::-webkit-scrollbar {
-  display: none;
-}
-.admSeg button {
-  flex: 1 0 auto;
-  padding: 0 12px;
-  white-space: nowrap;
-}
-.admSeg small {
-  margin-left: 2px;
-  color: var(--ink3);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Užsakymai */
-.admOrders .order summary {
-  grid-template-columns: minmax(0, 1fr) auto 20px;
-}
-.admOrders .order summary .pill {
-  grid-column: 2;
-  grid-row: 1;
-}
-.admOrders .order summary .money {
-  display: none;
-}
-.admOBody {
-  padding-top: 4px;
-}
-.admOGrid {
-  display: grid;
-  gap: 14px;
-  padding: 14px 0 4px;
-}
-.admOGrid h3 {
-  margin-bottom: 4px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink3);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.admOGrid p {
-  font-size: 15px;
-  line-height: 1.5;
-}
-.admOGrid a {
-  color: var(--brand);
-}
-.admItems {
-  margin-top: 12px;
-  border-top: 1px solid var(--line);
-}
-.admItems li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: baseline;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 15px;
-}
-.admItems li small {
-  display: block;
-  font-size: 13px;
-  color: var(--ink3);
-}
-.admItems .money {
-  min-width: 72px;
-  text-align: right;
-  font-weight: 500;
-}
-.admItems .admTotal {
-  border-bottom: 0;
-  font-weight: 600;
-}
-.admOActs {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-}
-.admOActs .linkBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  font-size: 14px;
-}
-.admOActs .linkBtn svg {
-  width: 15px;
-  height: 15px;
-}
-
-/* Kvapų lentelė */
-.admTable {
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--line);
-  overflow: hidden;
-}
-.admTr {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 76px 52px;
-  grid-template-areas: "prod stock vis" "price stock vis";
-  align-items: center;
-  gap: 2px 12px;
-  padding: 10px 14px;
-}
-.admTr + .admTr {
-  border-top: 1px solid var(--line);
-}
-.admTr.off .admProd {
-  opacity: 0.55;
-}
-.admTh {
-  display: none;
-}
-.admProd {
-  grid-area: prod;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  color: var(--ink);
-}
-.admProd b {
-  display: block;
-  font-size: 15.5px;
-}
-.admProd small {
-  display: block;
-  font-size: 13px;
-  color: var(--ink3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.admPrice {
-  grid-area: price;
-  padding-left: 56px;
-  font-size: 14px;
-  color: var(--ink2);
-}
-.admTr > span:nth-child(3) {
-  grid-area: stock;
-}
-.admTr > span:nth-child(4) {
-  grid-area: vis;
-  justify-self: end;
-}
-.admEditBtn {
-  display: none;
-}
-.admStock {
-  width: 100%;
-  height: 40px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--line2);
-  color: var(--ink);
-  font: inherit;
-  font-size: 16px;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-  -moz-appearance: textfield;
-}
-.admStock::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-}
-.admStock:focus {
-  outline: 0;
-  box-shadow: inset 0 0 0 2px var(--brand);
-}
-
-/* Jungiklis (iOS) */
-.admSwitch,
-.admSwitchInp {
-  position: relative;
-  width: 51px;
-  height: 31px;
+.admFam,
+.admCatImg {
   flex: 0 0 auto;
-  border-radius: 999px;
-  background: #e2e8f0;
-  transition: background-color 0.25s ease;
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-}
-.admSwitch::after,
-.admSwitchInp::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 27px;
-  height: 27px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.15), 0 1px 1px rgba(15, 23, 42, 0.16);
-  transition: transform 0.35s var(--spring);
-}
-.admSwitch[aria-checked="true"],
-.admSwitchInp:checked {
-  background: var(--green);
-}
-.admSwitch[aria-checked="true"]::after,
-.admSwitchInp:checked::after {
-  transform: translateX(20px);
-}
-.admSwitch:focus-visible,
-.admSwitchInp:focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
-}
-.admSwitch.loading::after {
-  opacity: 0.6;
-}
-.admSwitch .spin {
-  display: none;
-}
-.admToggleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 56px;
-  margin-bottom: 14px;
-}
-.admToggleRow b {
-  display: block;
-  font-size: 15.5px;
-}
-.admToggleRow small {
-  display: block;
-  font-size: 13px;
-  color: var(--ink3);
-}
-
-/* Formos */
-.admCard {
-  padding: 18px 16px 6px;
-  border-radius: var(--r-card);
-  background: #fff;
-  box-shadow: var(--elev-1);
-}
-.admCard + .admCard {
-  margin-top: 14px;
-}
-.admCard h2 {
-  margin-bottom: 14px;
-  font-size: 17px;
-  letter-spacing: 0.01em;
-}
-.admForm .field input[type="color"] {
-  height: 48px;
-  padding: 6px;
-  cursor: pointer;
-}
-.admForm .field input[readonly] {
-  background: var(--bg-soft);
-  color: var(--ink2);
-}
-.fieldRow3 {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0 12px;
-}
-.admChecks {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.admChecks > span {
-  width: 100%;
-  margin: 0 2px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink2);
-}
-.admChecks.col {
-  flex-direction: column;
-  align-items: stretch;
-}
-.admCheck {
-  position: relative;
-  display: inline-flex;
-}
-.admCheck input {
-  position: absolute;
-  opacity: 0;
-  inset: 0;
-  cursor: pointer;
-}
-.admCheck span {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px var(--line2);
-  font-size: 14.5px;
-  font-weight: 500;
-  transition: background-color 0.18s ease, color 0.18s ease;
-}
-.admChecks.col .admCheck span {
-  width: 100%;
-  border-radius: 12px;
-}
-.admCheck input:checked + span {
-  background: var(--ink);
-  color: #fff;
-  box-shadow: none;
-}
-.admCheck input:focus-visible + span {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
-}
-.admSizes {
-  display: grid;
-  gap: 0;
-}
-.admSize {
-  display: grid;
-  grid-template-columns: 76px 1fr 1fr;
-  align-items: end;
-  gap: 10px;
-}
-.admSizeMl {
-  align-self: center;
-  margin-top: 10px;
-  font-size: 17px;
-  font-weight: 600;
-}
-.admTaxoImg .roundBtn svg {
-  width: 18px;
-  height: 18px;
-}
-.admUpload {
-  position: relative;
-  cursor: pointer;
-  margin-bottom: 14px;
-}
-.admUpload.loading {
-  opacity: 0.6;
-  pointer-events: none;
-}
-.admImgs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.admImgs > p {
-  grid-column: 1 / -1;
-}
-.admImg {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--bg-soft);
-}
-.admImg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.admImg .pill {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  height: 22px;
-  font-size: 11.5px;
-}
-.admImgActs {
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  bottom: 6px;
-  display: flex;
-  justify-content: space-between;
-}
-.admImgActs button {
+  place-items: center;
   width: 32px;
   height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  color: var(--ink);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
-}
-.admImgActs button:disabled {
-  opacity: 0.35;
-}
-.admImgActs svg {
-  width: 16px;
-  height: 16px;
-}
-.admBottle {
-  display: grid;
-  place-items: center;
-  height: 180px;
-  margin-bottom: 14px;
-  border-radius: 16px;
-  background: var(--tint, var(--bg-soft));
-  transition: background-color 0.3s ease;
-}
-.admBottle .bottle {
-  width: 96px;
-  height: 160px;
-}
-.admDangerCard h2 {
-  color: var(--red);
-}
-.admDangerCard .btn {
-  margin-bottom: 14px;
-}
-.admSaveBar {
-  position: sticky;
-  bottom: calc(var(--safeB) + 12px);
-  z-index: 6;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
-  padding: 12px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.9);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  backdrop-filter: blur(20px) saturate(150%);
-  box-shadow: var(--elev-2);
-}
-.admSaveBar .formErr {
-  flex: 1 1 100%;
-  margin: 0 4px;
-}
-.admSaveBar .btn {
-  flex: 1 1 auto;
-}
-.admEditSide {
-  margin-top: 14px;
-}
-
-/* Kategorijos ir šeimos */
-.admSec + .admSec {
-  margin-top: 12px;
-}
-.admSecHead {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-}
-.admSecHead .btn {
-  margin-bottom: 12px;
-}
-.admFam {
-  width: 36px;
-  height: 36px;
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 .admFam svg {
   width: 22px;
   height: 22px;
 }
-.admCatImg {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  object-fit: cover;
-}
-.admTaxoImg {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-.admTaxoImg:not(:empty) {
-  margin-bottom: 10px;
-}
-.admTaxoImg img {
-  width: 120px;
-  height: 90px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-.admTaxoImg .roundBtn {
-  box-shadow: none;
-  background: var(--bg-soft);
+.scDot {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, var(--liquid) 0 44%, var(--tint) 46%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
-/* Atsiliepimai, laukiantys */
-.admReviews {
+/* ── Užsakymai ── */
+.axOrderHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: -6px 4px 16px;
+}
+.axOrderHead .money {
+  font-size: 24px;
+  font-weight: 600;
+}
+.axOrderHead small {
+  width: 100%;
+  color: var(--ink3);
+  font-size: 14px;
+}
+.admItems {
   display: grid;
-  gap: 12px;
 }
-.admReviews .admCard + .admCard {
-  margin-top: 0;
+.admItems li {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 12px 16px;
+  font-size: 16px;
 }
-.admReview,
-.admRestock {
-  padding-bottom: 16px;
+.admItems li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 0;
+  height: 1px;
+  background: var(--ax-sep);
 }
-.admReview header,
-.admRestock header {
+.admItems li small {
+  display: block;
+  color: var(--ink3);
+  font-size: 13.5px;
+}
+.admItems .money {
+  font-weight: 500;
+}
+.admItems .admTotal {
+  font-weight: 600;
+}
+
+/* ── Atsiliepimai, laukiantys, naujienlaiškis, žurnalas ── */
+.admReview {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+}
+.admReview header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 .admReview header a {
-  color: var(--ink);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .admStars {
-  color: var(--amber);
-  letter-spacing: 1px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
   white-space: nowrap;
 }
 .admStars span {
   color: var(--line2);
 }
 .admRevText {
-  margin: 10px 0 8px;
-  font-size: 15.5px;
-  line-height: 1.55;
-  white-space: pre-line;
+  font-size: 16px;
+  line-height: 1.5;
 }
-.admRestock details {
-  margin-top: 12px;
+.admReview .axActRow {
+  margin: 4px 0 0;
 }
-.admRestock summary {
-  min-height: 36px;
+.admRestock header {
   display: flex;
   align-items: center;
-  font-size: 14.5px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+.admProd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.admProd span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.admProd b {
+  overflow: hidden;
   font-weight: 500;
-  color: var(--ink2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admProd small {
+  color: var(--ink3);
+  font-size: 13.5px;
+}
+.admRestock details summary {
+  padding: 12px 16px;
+  box-shadow: inset 0 1px 0 var(--ax-sep);
+  color: var(--ink3);
+  font-size: 14.5px;
   cursor: pointer;
 }
 .admEmails li {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 36px;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  border-top: 1px solid var(--line);
-  font-size: 14.5px;
+  gap: 2px 10px;
+  padding: 8px 8px 8px 16px;
+}
+.admEmails li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 0;
+  height: 1px;
+  background: var(--ax-sep);
 }
 .admEmails li > span {
   overflow: hidden;
+  font-size: 16px;
   text-overflow: ellipsis;
 }
 .admEmails small {
+  grid-column: 1;
   color: var(--ink3);
   font-size: 13px;
 }
 .admEmails .roundBtn {
-  width: 32px;
-  height: 32px;
+  grid-column: 2;
+  grid-row: 1 / 3;
+  width: 40px;
+  height: 40px;
   box-shadow: none;
-  background: var(--bg-soft);
+  background: none;
+  color: var(--ink3);
 }
 .admEmails .roundBtn svg {
-  width: 16px;
-  height: 16px;
+  width: 19px;
+  height: 19px;
 }
-
-/* Nustatymai */
-.admSettings .admCard {
-  scroll-margin-top: calc(var(--hdrAll) + 72px);
-}
-.admShipRow + .admShipRow {
-  margin-top: 4px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-}
-.admShipRow > p {
-  margin-bottom: 8px;
-}
-
-/* Žurnalas */
-.admLog .row {
+.axLogRow {
   align-items: flex-start;
 }
 .admLogHead {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+.admLogHead .pill {
+  height: 22px;
+  font-size: 12px;
+}
+.admLogHead b {
+  font-weight: 600 !important;
 }
 .admLogHead code {
-  padding: 2px 6px;
+  padding: 1px 6px;
   border-radius: 6px;
-  background: var(--bg-soft);
-  font-size: 13px;
+  background: var(--ax-fill);
+  font-size: 12.5px;
 }
 .admLogCh {
   display: grid;
   gap: 2px;
-  margin: 6px 0 2px;
-  font-size: 14px;
   color: var(--ink2);
-  word-break: break-word;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .admLogCh s {
   color: var(--ink3);
 }
 
-/* Planšetė */
-@media (min-width: 640px) {
-  .admKpis {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .admToolbar {
-    grid-template-columns: auto minmax(220px, 360px);
-    justify-content: space-between;
-    align-items: center;
-  }
-  .fieldRow3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .admOGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .admImgs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .admTr {
-    grid-template-columns: minmax(0, 1fr) 150px 92px 64px 40px;
-    grid-template-areas: none;
-    gap: 16px;
-    padding: 10px 16px;
-  }
-  .admTr > * {
-    grid-area: auto !important;
-  }
-  .admTh {
-    display: grid;
-    min-height: 40px;
-    padding-top: 0;
-    padding-bottom: 0;
-    background: var(--bg-soft);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink3);
-  }
-  .admPrice {
-    padding-left: 0;
-  }
-  .admTr > span:nth-child(4) {
-    justify-self: start;
-  }
-  .admEditBtn {
-    display: grid;
-    width: 36px;
-    height: 36px;
-    box-shadow: none;
-    background: var(--bg-soft);
-  }
-  .admEditBtn svg {
-    width: 17px;
-    height: 17px;
-  }
-  .admOrders .order summary {
-    grid-template-columns: minmax(0, 1fr) auto auto 20px;
-  }
-  .admOrders .order summary .money {
-    display: block;
-  }
-  .admSaveBar .btn {
-    flex: 0 0 auto;
+/* ── Produkto forma ── */
+.prodForm,
+#scentForm,
+#setForm {
+  display: block;
+}
+.typePick {
+  display: flex;
+  gap: 7px;
+  margin: 0 -16px 18px;
+  padding: 0 16px 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.typePick::-webkit-scrollbar {
+  display: none;
+}
+.typeOpt {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--ax-card);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.typeOpt[aria-checked="true"] {
+  background: var(--brand);
+  color: #fff;
+}
+.typeOpt:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.axAfEntry {
+  margin-bottom: 14px;
+}
+.admImgs {
+  display: flex;
+  gap: 12px;
+  margin: 0 -16px 18px;
+  padding: 8px 16px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.admImgs::-webkit-scrollbar {
+  display: none;
+}
+.admImg,
+.admImgAdd {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100px;
+  height: 124px;
+  border-radius: 14px;
+}
+.admImg {
+  margin: 0;
+  background: var(--ax-card);
+}
+.admImg img {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  object-fit: contain;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+@media (pointer: fine) {
+  .admImg img {
+    cursor: grab;
   }
 }
-
-/* Kompiuteris: šoninis meniu */
-@media (min-width: 1024px) {
-  .adm {
-    display: grid;
-    grid-template-columns: 224px minmax(0, 1fr);
-    gap: 40px;
-    align-items: start;
-  }
-  .admSide {
-    top: calc(var(--hdrAll) + 20px);
-    margin: 20px 0 0;
-    padding: 0;
-    background: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    border: 0;
-  }
-  .admBrand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 12px 12px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink3);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .admBrand svg {
-    width: 16px;
-    height: 16px;
-  }
-  .admNav {
-    flex-direction: column;
-    gap: 2px;
-    overflow: visible;
-    padding: 0;
-  }
-  .admNav a {
-    min-height: 44px;
-    border-radius: 12px;
-    font-size: 15px;
-  }
-  .admNav a:hover {
-    background: var(--bg-soft);
-  }
-  .admNav a[aria-current="page"] {
-    background: var(--brand-soft);
-    color: var(--brand);
-  }
-  .admCount {
-    margin-left: auto;
-  }
-  .admSideFoot {
-    display: grid;
-    justify-items: start;
-    gap: 8px;
-    margin: 20px 12px 0;
-    padding-top: 18px;
-    border-top: 1px solid var(--line);
-  }
-  .admMain {
-    padding-top: 28px;
-  }
-  .admHead h1 {
-    font-size: 32px;
-  }
-  .admCols {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .admEditCols {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 20px;
-    align-items: start;
-  }
-  .admEditSide {
-    position: sticky;
-    top: calc(var(--hdrAll) + 20px);
-    margin-top: 0;
-  }
-  .admSettings {
-    max-width: 760px;
-  }
-  .admReviews {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.admImg.axDragging {
+  z-index: 5;
+  box-shadow: var(--ax-drag);
+}
+.admImgMain {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.66);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+}
+.admImgRm {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--ax-bg);
+}
+.admImgRm::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+}
+.admImgRm svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.4;
+}
+.admImgAdd {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 4px;
+  border: 1.5px dashed var(--line2);
+  color: var(--ink2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.admImgAdd svg {
+  width: 26px;
+  height: 26px;
+}
+.admImgAdd.loading,
+.admUpload.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.admSizes {
+  display: grid;
+}
+.admSize {
+  position: relative;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 10px;
+  padding: 10px 16px 12px;
+}
+.admSize.free {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.admSize + .admSize::before,
+.admSizes + *::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 0;
+  height: 1px;
+  background: var(--ax-sep);
+}
+.admSizeMl {
+  align-self: center;
+  padding-top: 18px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.admSize .field {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.admSize .field > span {
+  margin: 0;
+  color: var(--ink3);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.admSize .field input {
+  width: 100%;
+  height: 40px;
+  min-height: 0;
+  box-shadow: none;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  outline: 0;
+  background: var(--ax-fill);
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+  text-align: right;
+}
+.admSize .field input:focus {
+  box-shadow: 0 0 0 2px var(--brand-ring);
+}
+.admBottle,
+.scPrev {
+  display: grid;
+  place-items: center;
+  height: 170px;
+  margin: 0 0 18px;
+  border-radius: var(--ax-r);
+  background: var(--tint, var(--bg-soft));
+}
+.admBottle svg,
+.scPrev svg {
+  width: 90px;
+  height: 150px;
+}
+.perfOnly[hidden],
+.scentOnly[hidden],
+.afScentField[hidden] {
+  display: none !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .admSwitch::after,
-  .admSwitchInp::after {
-    transition: none;
-  }
+/* Automatinis užpildymas */
+.afRun {
+  margin: 0 0 22px;
+}
+.afOut {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+.afMissing {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
+}
+.afMissing > b,
+.afFacts summary {
+  color: var(--ink3);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.afChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.afChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--ax-fill);
+  color: var(--ink);
+  font-size: 15px;
+}
+.afChip::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.afAll {
+  color: var(--green);
+  font-size: 15px;
+}
+.afFacts summary {
+  padding: 6px 16px;
+  cursor: pointer;
+}
+.afFacts dl,
+.afFactList {
+  display: grid;
+}
+.afFacts dl {
+  margin-top: 6px;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
+}
+.afFacts dl div,
+.afFactList div {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(100px, 36%) 1fr;
+  gap: 12px;
+  padding: 11px 16px;
+  font-size: 15px;
+}
+.afFacts dl div + div::before,
+.afFactList div + div::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 0;
+  height: 1px;
+  background: var(--ax-sep);
+}
+.afFacts dt,
+.afFactList dt {
+  color: var(--ink3);
+}
+.afFacts dd,
+.afFactList dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.afAuto > span:first-child::after,
+.igHead.afAuto::after,
+.axRow.afAuto .axRowTxt b::after,
+.admChecks.afAuto > span::after {
+  content: "Auto";
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ax-fill);
+  color: var(--ink2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  vertical-align: 2px;
 }
 
-.adm .btn:disabled:not(.loading) {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-/* ── Pradžios puslapis (10-home.js): redaktorius + gyva peržiūra ── */
+/* ── Vitrina: redaktorius su peržiūra ── */
 .heLayout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
+  gap: 24px;
 }
 .heEdit {
   min-width: 0;
 }
-.hePrev {
-  min-width: 0;
-  padding: 14px;
-  border-radius: var(--r-card);
-  background: #fff;
-  box-shadow: var(--elev-1);
+@media (min-width: 1024px) {
+  .heLayout {
+    grid-template-columns: minmax(0, 620px) minmax(340px, 1fr);
+    align-items: start;
+  }
+  .hePrev {
+    position: sticky;
+    top: 64px;
+    padding: 12px;
+    border-radius: 16px;
+    background: var(--ax-card);
+  }
+  .hePrevBtn,
+  .hePrevClose {
+    display: none !important;
+  }
+}
+@media (max-width: 1023.98px) {
+  .hePrev {
+    position: fixed;
+    z-index: 85;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: calc(var(--safeT) + 10px) 12px calc(var(--safeB) + 12px);
+    background: var(--ax-bg);
+    transform: translateY(100%);
+    visibility: hidden;
+    transition: transform 0.4s var(--spring), visibility 0s linear 0.4s;
+  }
+  .hePrev.open {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.4s var(--spring);
+  }
+  .hePrev .heFrameBox {
+    flex: 0 0 auto;
+    margin: 0 auto;
+  }
 }
 .hePrevHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  width: 100%;
   margin-bottom: 12px;
 }
-.heSeg {
-  border-radius: 999px;
+.hePrevHead .axSeg {
+  flex: 1;
+  max-width: 320px;
 }
-.heSeg button {
-  min-height: 38px;
-  padding: 0 14px;
-  font-size: 14px;
+.hePrevClose {
+  width: 40px;
+  height: 40px;
 }
 .heFrameBox {
   position: relative;
+  width: 100%;
   overflow: hidden;
-  border-radius: 14px;
-  background: var(--bg-soft);
-  box-shadow: inset 0 0 0 1px var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--ax-shadow);
 }
 .heFrameBox iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: block;
   border: 0;
-  background: #fff;
   transform-origin: 0 0;
 }
-.heFrameBox[data-view="phone"] iframe {
-  left: 50%;
-  transform-origin: 50% 0;
-  translate: -50% 0;
+.heSeg {
+  margin: 0 0 16px;
 }
-.heSecHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.heSecs {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--ink2);
-}
-.heSecs input {
-  width: 56px;
-  height: 36px;
-  padding: 0 8px;
-  border-radius: 10px;
-  border: 1px solid var(--line2);
-  text-align: center;
-  font: inherit;
-}
-.heList {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  margin: 14px 0;
-}
-.heEmpty {
-  padding: 14px 4px;
-}
-.heItem {
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--line);
-  transition: box-shadow var(--ease);
-}
-.heItem.open {
-  box-shadow: inset 0 0 0 1.5px var(--ink);
-}
-.heItem.off .heThumb {
-  opacity: 0.45;
+.heList:empty {
+  display: none;
 }
 .heRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px 8px 8px;
+  gap: 6px;
+  min-height: 62px;
+  padding: 4px 14px 4px 2px;
+}
+.heItem {
+  background: var(--ax-card);
+}
+.heItem.open {
+  background: none;
+}
+.heItem:has(.heThumb) {
+  --sepL: 118px;
+}
+.heItem.axDragging {
+  z-index: 5;
+  box-shadow: var(--ax-drag);
 }
 .heRowMain {
   flex: 1;
@@ -1122,16 +2074,44 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-height: 54px;
+  padding: 4px 0;
+  background: none;
   text-align: left;
-  color: var(--ink);
+}
+.heRowTxt {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.heRowTxt b {
+  overflow: hidden;
+  font-size: 16.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.heRowTxt small {
+  overflow: hidden;
+  color: var(--ink3);
+  font-size: 13.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.heItem.off .heThumb,
+.heItem.off .heRowTxt b {
+  opacity: 0.5;
 }
 .heThumb {
   position: relative;
   flex: 0 0 auto;
-  width: 104px;
-  aspect-ratio: 16 / 10;
-  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 46px;
   overflow: hidden;
+  border-radius: 8px;
   background: var(--bg-soft);
 }
 .heThumb > img,
@@ -1143,91 +2123,116 @@
   object-fit: cover;
 }
 .heThumb > .stage {
-  --uh: 0.9;
-  --uw: 0.6;
+  font-size: 4px;
 }
-.heRowTxt {
-  min-width: 0;
-}
-.heRowTxt b {
-  display: block;
-  overflow: hidden;
-  font-size: 15px;
-  font-weight: 600;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.heRowTxt small {
-  display: block;
-  font-size: 13px;
+.heThumbEmpty {
+  border: 1.5px dashed var(--line2);
+  background: none;
   color: var(--ink3);
 }
-.heRowActs {
+.heThumbEmpty svg {
+  width: 20px;
+  height: 20px;
+}
+.heRailThumb {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 2px;
+  padding: 3px;
 }
-.heRowActs .roundBtn {
-  width: 34px;
-  height: 34px;
+.heRailThumb > span {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 5px;
+  background: var(--tint, var(--bg-soft));
 }
-.heRowActs [data-he-move] svg {
-  rotate: 90deg;
+.heRailThumb > span > img,
+.heRailThumb > span > svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
-.heRowActs .roundBtn:disabled {
-  opacity: 0.3;
+.axGrip {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 46px;
+  color: var(--ink4);
+  cursor: grab;
+  touch-action: none;
 }
-.heRowActs .admSwitchInp {
-  margin-left: 6px;
+.axGrip svg {
+  width: 20px;
+  height: 20px;
+}
+.axGrip:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -4px;
+  border-radius: 8px;
+  color: var(--ink);
+}
+.axDragging .axGrip {
+  cursor: grabbing;
+}
+.heItem .admSwitchInp {
+  margin-left: 4px;
+}
+.heItem .axChev {
+  margin-left: 4px;
 }
 .heForm {
-  display: grid;
-  gap: 4px;
-  padding: 6px 14px 16px;
-  border-top: 1px solid var(--line);
-}
-.heForm > .heSeg {
-  margin: 10px 0 8px;
+  display: block;
 }
 .heZones {
   display: grid;
   gap: 12px;
-  margin-bottom: 6px;
+  margin: 0 0 22px;
+}
+@media (min-width: 560px) {
+  .heZones:not(.one) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.heZones + .igFoot {
+  margin-top: -12px;
 }
 .heZone {
-  position: relative;
-  padding: 10px;
-  border-radius: 14px;
-  background: var(--bg-soft);
-  transition: box-shadow var(--ease);
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--ax-r);
+  background: var(--ax-card);
 }
 .heZone.drag {
-  box-shadow: inset 0 0 0 2px var(--ink);
+  box-shadow: 0 0 0 2px var(--brand);
 }
 .heZone.busy {
-  opacity: 0.55;
+  opacity: 0.5;
   pointer-events: none;
 }
 .heZoneLab {
-  display: grid;
-  gap: 1px;
-  margin-bottom: 8px;
-  font-size: 14px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
 }
 .heZoneLab small {
-  font-size: 12.5px;
   color: var(--ink3);
+  font-size: 12.5px;
 }
 .heDrop {
   display: grid;
+  place-content: center;
   justify-items: center;
   gap: 4px;
-  padding: 22px 10px;
+  min-height: 132px;
   border: 1.5px dashed var(--line2);
-  border-radius: 12px;
-  background: #fff;
+  border-radius: 10px;
   color: var(--ink2);
-  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
 }
 .heDrop svg {
@@ -1235,8 +2240,9 @@
   height: 26px;
 }
 .heDrop small {
-  font-size: 12.5px;
   color: var(--ink3);
+  font-size: 12.5px;
+  font-weight: 400;
 }
 .heFocus {
   position: relative;
@@ -1247,9 +2253,9 @@
 .heFocus img {
   display: block;
   width: 100%;
-  max-height: 260px;
+  max-height: 220px;
   object-fit: contain;
-  background: #fff;
+  background: var(--bg-soft);
 }
 .heDot {
   position: absolute;
@@ -1258,505 +2264,199 @@
   translate: -50% -50%;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ink), 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0, 0, 0, 0.35);
   pointer-events: none;
 }
 .heZoneActs {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
 }
-.heFormActs {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+.heZoneActs .btn {
+  flex: 1;
 }
-.heAdd {
+.heRChosen .heRProd {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  min-height: 62px;
+  padding: 4px 8px 4px 2px;
+  background: var(--ax-card);
 }
-.heAdd .admMuted {
-  font-size: 14px;
+.heRProd .axRowTxt b {
+  font-size: 16px;
 }
-@media (min-width: 900px) {
-  .heZones {
-    grid-template-columns: 1.4fr 1fr;
-  }
-  .heZones.one {
-    grid-template-columns: minmax(0, 360px);
-  }
+.heRProd .roundBtn {
+  width: 36px;
+  height: 36px;
+  box-shadow: none;
+  background: var(--ax-fill);
 }
-@media (min-width: 1100px) {
-  .heLayout {
-    grid-template-columns: minmax(0, 1fr) 400px;
-    align-items: start;
-  }
-  .hePrev {
-    position: sticky;
-    top: 16px;
-  }
+.heRProd .roundBtn svg {
+  width: 16px;
+  height: 16px;
 }
-.heForm .fieldRow > *,
-.heForm .field {
-  min-width: 0;
+.heRChosen + .axSearch {
+  margin: -10px 0 10px;
 }
-.heForm select {
-  width: 100%;
-  min-width: 0;
-  text-overflow: ellipsis;
+.heRResults {
+  margin-top: 0;
 }
-@media (max-width: 520px) {
-  .heForm .fieldRow {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .heThumb {
-    width: 76px;
-  }
-  .heRowActs .roundBtn {
-    width: 30px;
-    height: 30px;
-  }
-}
-
-/* „Tik nuotrauka“ – tuščia miniatiūra ir pirmas užrašas formoje */
-.heThumbEmpty {
+.axAddIco {
   display: grid;
-  place-items: center;
-  color: var(--ink3);
+  color: var(--brand);
 }
-.heThumbEmpty svg {
+.axAddIco svg {
   width: 22px;
   height: 22px;
 }
-.heFirst {
-  margin-top: 12px;
-}
 
-/* Juosta virš header'io (Pradžia → 12-topbar.js): dizaino variantai, spalvos, slankikliai, kontrastas */
-.tbOn {
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  gap: 10px;
-}
-.tbSub {
-  margin: 22px 0 10px;
-  font-size: 16px;
-  font-weight: 600;
-}
+/* Juosta virš header'io */
 .tbDesigns {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  display: flex;
   gap: 10px;
+  margin: 0 -16px 14px;
+  padding: 0 16px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tbDesigns::-webkit-scrollbar {
+  display: none;
 }
 .tbDesign {
+  flex: 0 0 auto;
   display: grid;
-  gap: 6px;
-  min-height: 72px;
-  padding: 12px 10px 10px;
+  gap: 4px;
+  width: 168px;
+  padding: 14px 12px 10px;
   border-radius: 12px;
-  font-size: 13px;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s var(--spring), box-shadow 0.2s ease;
+}
+.tbDesign span {
+  font-size: 13px;
+  white-space: nowrap;
 }
 .tbDesign small {
-  font-size: 11.5px;
+  font-size: 11px;
   opacity: 0.85;
 }
 .tbDesign[aria-pressed="true"] {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--ax-bg), 0 0 0 4px var(--brand) !important;
 }
-.tbDesign:hover {
-  transform: translateY(-1px);
-}
-.tbGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px 16px;
-  align-items: end;
-  margin-top: 14px;
+.tbDesign:active {
+  transform: scale(0.97);
 }
 .tbColorIn {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
 }
 .tbColorIn input[type="color"] {
-  width: 48px;
-  height: 40px;
+  width: 46px;
+  height: 30px;
   padding: 0;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: none;
   cursor: pointer;
 }
 .tbColorIn code {
+  color: var(--ink3);
   font-size: 13px;
-  color: var(--ink2);
 }
-.tbRange span {
+.tbRange > span:first-child {
   display: flex;
   justify-content: space-between;
 }
 .tbRange output {
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
-  color: var(--ink2);
 }
 .tbRange input[type="range"] {
   width: 100%;
-  accent-color: var(--ink);
+  height: 32px;
+  accent-color: var(--brand);
+  -webkit-appearance: auto;
+  appearance: auto;
 }
 .tbContrast {
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 0 0;
-  font-size: 14px;
-  color: var(--green, #1f7a3d);
+  color: var(--green);
 }
 .tbContrast.bad {
-  color: #b3001b;
+  color: var(--red);
 }
 .tbContrast svg {
   width: 18px;
   height: 18px;
-}
-.tbResetStyle {
-  justify-self: start;
+  flex: 0 0 auto;
 }
 .tbItem .heRowTxt b b {
-  display: inline;
-  font-weight: 800;
-}
-.field.tbRange input[type="range"] {
-  -webkit-appearance: auto;
-  appearance: auto;
-  min-height: 0;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-}
-.field.tbColor input[type="color"] {
-  min-height: 0;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+  color: inherit;
+  font-weight: 700;
 }
 
-/* Kvepalų laukai (lytis, koncentracija, mėginukas) – paslepiami difuzoriams ir aliejams */
-.perfOnly[hidden] {
-  display: none !important;
-}
-/* ── Automatinis užpildymas (v15, 04-products.js) ── */
-.scentOnly[hidden],
-.afScentField[hidden],
-#attrsCard[hidden] {
-  display: none !important;
-}
-.afCard textarea {
-  min-height: 132px;
-}
-.afRun {
-  margin: 2px 0 16px;
-}
-.afOut {
-  display: grid;
-  gap: 14px;
-  margin-bottom: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-.afMissing > b,
-.afFacts summary {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink2);
-}
-.afChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-}
-.afChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--bg-soft);
-  box-shadow: inset 0 0 0 1px var(--line2);
-  font: inherit;
-  font-size: 13.5px;
-  color: var(--ink);
-  cursor: pointer;
-}
-.afChip::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ink);
-}
-.afAll {
-  margin-top: 6px;
-  font-size: 14px;
-  color: var(--ink3);
-}
-.afFacts summary {
-  cursor: pointer;
-}
-.afFacts dl {
-  display: grid;
-  gap: 6px;
-  margin-top: 10px;
-  font-size: 13.5px;
-}
-.afFacts dl div {
-  display: grid;
-  grid-template-columns: minmax(104px, 36%) minmax(0, 1fr);
-  gap: 10px;
-}
-.afFacts dt {
-  color: var(--ink3);
-}
-.afFacts dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.afAuto > span:first-child::after,
-h2.afAuto::after {
-  content: "Auto";
-  display: inline-block;
-  margin-left: 8px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--bg-soft);
-  box-shadow: inset 0 0 0 1px var(--line2);
-  color: var(--ink2);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  vertical-align: 2px;
-}
-.admAttrs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0 12px;
-}
-.admAttrs .admToggleRow {
-  grid-column: 1 / -1;
-}
-/* ── Kvapai (v15, 14-scents.js) ── */
-.scDot {
-  flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 62%, var(--liquid) 0 44%, var(--tint) 46%);
-  box-shadow: inset 0 0 0 1px var(--line2);
-}
-.scPrev {
-  display: grid;
-  place-items: center;
-  height: 168px;
-  margin-bottom: 12px;
-  border-radius: 14px;
-  background: var(--tint, var(--bg-soft));
-}
-.scPrev svg {
-  height: 140px;
-  width: auto;
-}
-.scLinked {
-  margin-bottom: 12px;
-}
-.scNewProd {
-  margin-bottom: 16px;
-}
-/* ── Kategorijos pasirinkimas ir forma pagal kategoriją (v15) ── */
-.admForm .field[hidden],
-.admForm .fieldRow[hidden],
-.admBottle[hidden] {
-  display: none !important;
-}
-.typePick {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 16px;
-}
-.typeOpt {
-  flex: 0 0 auto;
-  min-height: 40px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--line2);
-  font: inherit;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--ink);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.typeOpt[aria-checked="true"] {
-  background: var(--ink);
-  box-shadow: none;
-  color: #fff;
-}
-.typeOpt:focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
-}
-/* Produkto forma (v15, minimalistinė): be paaiškinimų, vienodi tarpai, telefone – viena kolona */
-.prodForm .admCard > h2 {
-  margin-bottom: 14px;
-}
-.prodForm .afRun {
-  width: 100%;
-}
-.prodForm #sizesNote {
-  margin: 4px 0 0;
-}
-@media (max-width: 639px) {
-  .prodForm .fieldRow3 {
-    grid-template-columns: 1fr 1fr;
-  }
-  .prodForm .fieldRow3 > .scentOnly {
-    grid-column: 1 / -1;
-  }
-}
-.prodForm .admSize + .admSize .field > span {
-  display: none;
-}
-.prodForm .admSizeMl {
-  align-self: end;
-  display: flex;
-  align-items: center;
-  min-height: 58px;
-  margin: 0 0 14px;
-}
-.prodForm .admDelBtn {
-  justify-self: start;
-}
-@media (max-width: 720px) {
-  .typePick {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-  .typePick::-webkit-scrollbar {
-    display: none;
-  }
-}
-/* ── Pradžia: skyriai su produktais (v15, 10-home.js) ── */
-.heRailThumb {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  place-items: center;
-  color: var(--ink3);
-}
-.heRailThumb > span {
+/* Kategorijos, istorija: paveikslas */
+.admTaxoImg:not(:empty) {
   position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--tint, var(--bg-soft));
+  padding: 12px 16px;
 }
-.heRailThumb > span > img,
-.heRailThumb > span > svg {
-  position: absolute;
-  inset: 0;
+.admTaxoImg img {
+  display: block;
   width: 100%;
-  height: 100%;
+  max-height: 220px;
+  border-radius: 10px;
   object-fit: cover;
 }
-.heRRule {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0 12px;
+.admTaxoImg .roundBtn {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 38px;
+  height: 38px;
 }
-.heRChosen {
-  display: grid;
-  gap: 6px;
-  margin: 4px 0 12px;
+.admTaxoImg .roundBtn svg {
+  width: 17px;
+  height: 17px;
 }
-.heRProd,
-.heRPick {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 8px;
-  border-radius: 12px;
-  background: var(--bg-soft);
-}
-.heRProd .admThumb,
-.heRPick .admThumb {
-  width: 44px;
-  height: 44px;
-}
-.heRProd .rowTxt,
-.heRPick .rowTxt {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.heRProd .rowTxt small,
-.heRPick .rowTxt small {
-  display: block;
-  color: var(--ink3);
-}
-.heRProdActs {
-  display: flex;
-  gap: 4px;
-}
-.heRProdActs .roundBtn {
-  width: 34px;
-  height: 34px;
-}
-.heRSearch {
-  margin-bottom: 8px;
-}
-.heRResults {
-  display: grid;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.heRPick {
-  width: 100%;
-  border: 0;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--line2);
-  font: inherit;
-  text-align: left;
-  color: var(--ink);
+.admUpload {
   cursor: pointer;
 }
-.heRPick svg {
-  width: 18px;
-  height: 18px;
+
+/* Fokusas klaviatūrai */
+.ax a:focus-visible,
+.ax button:focus-visible,
+.ax summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  border-radius: 10px;
 }
-.heRCount {
-  margin-top: 4px;
+.axField.axField > input:focus-visible,
+.axField.axField > select:focus-visible,
+.axField.axField > textarea:focus-visible {
+  outline: 0;
 }
-.heRProdActs [data-he-rmv] svg {
-  rotate: 90deg;
+
+@media (prefers-reduced-motion: reduce) {
+  .axIn,
+  .axBackIn,
+  .axSkelRow i,
+  .axSkelRow b,
+  .axSkelRow s {
+    animation: none !important;
+  }
+  .hePrev,
+  .axCell > .axRow,
+  .admSwitchInp::after {
+    transition: none !important;
+  }
 }
-.heRProdActs .roundBtn:disabled {
-  opacity: 0.3;
+.axValCol .money small {
+  color: inherit;
+  font-size: 12.5px;
+  font-weight: 400;
+  opacity: 0.75;
 }

@@ -3,7 +3,8 @@
 const restockState = { rows: [] };
 
 async function renderRestock(main, _param, seq) {
-  main.innerHTML = pageHead("Laukiantys") + loading();
+  const back = hubBack();
+  main.innerHTML = pageHTML({ title: "Laukiantys", back, body: loading(4) });
   const [rows, products] = await Promise.all([sbRest("restock_requests?select=*&order=created_at.desc&limit=2000"), sbRest("products?select=id,name,stock,look,images,visible")]);
   if (stale(seq)) return;
   restockState.rows = rows;
@@ -13,7 +14,7 @@ async function renderRestock(main, _param, seq) {
     if (!groups.has(r.product_id)) groups.set(r.product_id, []);
     groups.get(r.product_id).push(r);
   }
-  main.innerHTML = `${pageHead("Laukiantys", "Pirkėjai, paspaudę „Pranešti, kai bus“ prie išparduoto kvapo.")}${
+  main.innerHTML = pageHTML({ title: "Laukiantys", back, cls: "axNarrow", body: `<p class="axLead">Pirkėjai, paspaudę „Pranešti, kai bus“ prie išparduotos prekės.</p>${
     groups.size
       ? `<div class="admReviews">${[...groups]
           .sort((a, b) => b[1].filter(r => !r.notified).length - a[1].filter(r => !r.notified).length)
@@ -21,7 +22,7 @@ async function renderRestock(main, _param, seq) {
             const p = byId.get(pid) || { id: pid, name: pid, look: {} };
             const waiting = list.filter(r => !r.notified);
             const inStock = p.stock == null || p.stock > 0;
-            return `<article class="admCard admRestock" data-pid="${esc(pid)}">
+            return `<article class="ig admRestock" data-pid="${esc(pid)}">
 <header><a class="admProd" href="admin/kvapai/${esc(pid)}" data-nav><span class="admThumb" style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span><span><b>${esc(p.name)}</b><small>${
               inStock ? `Vėl prekyboje${p.stock != null ? ` · liko ${p.stock}` : ""}` : "Išparduota – papildykite likutį, tada praneškite"
             }</small></span></a>${
@@ -37,8 +38,8 @@ async function renderRestock(main, _param, seq) {
 </article>`;
           })
           .join("")}</div>`
-      : emptyBox("Niekas nelaukia", "Kai kvapas išparduotas (likutis 0), pirkėjai gali palikti el. paštą – jie atsiras čia.")
-  }`;
+      : emptyBox("Niekas nelaukia", "Kai prekė išparduota (likutis 0), pirkėjai gali palikti el. paštą – jie atsiras čia.")
+  }` });
   hydrateIcons(main);
   main.addEventListener("click", async e => {
     const t = e.target instanceof Element ? e.target : null;

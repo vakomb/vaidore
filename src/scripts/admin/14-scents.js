@@ -10,25 +10,59 @@ const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "seasons", 
 // Laukai, kurie pritaikomi susietiems produktams (pavadinimas, aprašymas, spalvos – produkto)
 const SCENT_TO_PRODUCT = ["inspired", "gender", "family", "notes", "seasons", "times", "occasions", "longevity", "sillage"];
 
-async function renderScents(main, param, seq) {
-  if (param) return renderScentEdit(main, param, seq);
-  main.innerHTML = pageHead("Kvapai") + loading();
+async function loadScents() {
   const [rows, products] = await Promise.all([sbRest("scents?select=*&order=name.asc").catch(() => null), sbRest("products?select=id,scent_id")]);
+  if (rows) {
+    scentState.rows = rows;
+    scentState.counts = new Map();
+    for (const p of products || []) if (p.scent_id) scentState.counts.set(p.scent_id, (scentState.counts.get(p.scent_id) || 0) + 1);
+  }
+  return rows;
+}
+async function renderScents(main, param, seq) {
+  if (isSplit()) {
+    const { list, detail, fresh } = splitPanes(main, "scents");
+    if (fresh) {
+      list.innerHTML = scentsListHTML(true);
+      hydrateIcons(list);
+      const rows = await loadScents();
+      if (stale(seq)) return;
+      if (rows === null) {
+        list.innerHTML = pageHTML({ title: "Kvapai", body: noScentsTable() });
+        return;
+      }
+      mountScentsList(list);
+    } else markCurrent(list, param ? `admin/kvapu-sarasas/${param}` : "");
+    if (!param) {
+      detail.innerHTML = detailEmpty("drop", "Pasirinkite kvapą");
+      return;
+    }
+    return renderScentEdit(detail, param, seq);
+  }
+  if (param) return renderScentEdit(main, param, seq);
+  main.innerHTML = scentsListHTML(true);
+  hydrateIcons(main);
+  const rows = await loadScents();
   if (stale(seq)) return;
   if (rows === null) {
-    main.innerHTML = pageHead("Kvapai") + emptyBox("Kvapų lentelės dar nėra", "Reikia duomenų bazės migracijos 20261120120000_scents_types.sql.", "");
+    main.innerHTML = pageHTML({ title: "Kvapai", tools: catalogSeg("kvapu-sarasas"), body: noScentsTable() });
     return;
   }
-  scentState.rows = rows;
-  scentState.counts = new Map();
-  for (const p of products || []) if (p.scent_id) scentState.counts.set(p.scent_id, (scentState.counts.get(p.scent_id) || 0) + 1);
-  main.innerHTML = `${pageHead("Kvapai", plural(rows.length, "kvapas", "kvapai", "kvapų"), `<a class="btn primary small" href="admin/kvapu-sarasas/naujas" data-nav>${glyph("plus")}Naujas kvapas</a>`)}
-<p class="admNote">Vienas kvapas – keli produktai (kvepalai, difuzorius, žvakė, aliejus). Kuriant produktą pasirinkus kvapą, natos, lytis ir savybės užpildomos iš karto.</p>
-<div class="admToolbar"><label class="search admSearch"><span data-glyph="search" aria-hidden="true"></span><input type="search" id="scentQ" placeholder="Pavadinimas, originalas, nata" value="${esc(scentState.q)}" aria-label="Paieška kvapuose" /></label></div>
-<div id="scentList"></div>`;
-  hydrateIcons(main);
+  mountScentsList(main);
+}
+const noScentsTable = () => emptyBox("Kvapų lentelės dar nėra", "Reikia duomenų bazės migracijos 20261120120000_scents_types.sql.");
+function scentsListHTML(skeleton) {
+  return pageHTML({
+    title: "Kvapai",
+    titleId: !isSplit() || !A.param,
+    actions: barLink("plus", "Naujas kvapas", "admin/kvapu-sarasas/naujas"),
+    tools: `${catalogSeg("kvapu-sarasas")}${searchHTML("scentQ", "Pavadinimas, originalas, nata", scentState.q, "Paieška kvapuose")}`,
+    body: `<div id="scentList">${skeleton ? loading(8) : ""}</div><p class="igFoot">Vienas kvapas – keli produktai (kvepalai, difuzorius, žvakė, aliejus).</p>`
+  });
+}
+function mountScentsList(box) {
   paintScents();
-  $("#scentQ").addEventListener("input", e => {
+  $("#scentQ", box).addEventListener("input", e => {
     scentState.q = e.target.value;
     paintScents();
   });
@@ -39,22 +73,29 @@ function paintScents() {
   const q = fold(scentState.q.trim());
   const fam = id => VD.CAT.families.find(f => f.id === id)?.name || "";
   const rows = scentState.rows.filter(x => !q || fold([x.name, x.inspired, fam(x.family), ...(x.notes?.top || []), ...(x.notes?.heart || []), ...(x.notes?.base || [])].join(" ")).includes(q));
+  const cur = isSplit() && A.sec === "kvapu-sarasas" ? A.param : "";
   box.innerHTML = rows.length
-    ? `<div class="group">${rows
+    ? `<div class="ig axList">${rows
         .map(
-          x => `<a class="row" href="admin/kvapu-sarasas/${esc(x.id)}" data-nav data-scent-row="${esc(x.id)}"><span class="scDot" style="--liquid:${esc(x.look?.liquid || "#E8D9C4")};--tint:${esc(x.look?.tint || "#F7F1E8")}" aria-hidden="true"></span><span class="rowTxt">${esc(x.name)}<small>${esc(
-            [x.inspired ? `Įkvėpti ${x.inspired}` : "Originalas nenurodytas", fam(x.family)].filter(Boolean).join(" · ")
-          )}</small></span><span class="admMuted">${plural(scentState.counts.get(x.id) || 0, "produktas", "produktai", "produktų")}</span><span class="chev">${glyph("chev-right")}</span></a>`
+          x => `<a class="axRow axRow2" href="admin/kvapu-sarasas/${esc(x.id)}" data-nav data-scent-row="${esc(x.id)}"${cur === x.id ? ' aria-current="page"' : ""}><span class="scDot" style="--liquid:${esc(x.look?.liquid || "#E8D9C4")};--tint:${esc(
+            x.look?.tint || "#F7F1E8"
+          )}" aria-hidden="true"></span><span class="axRowTxt"><b>${esc(x.name)}</b><small>${esc([x.inspired ? `Įkvėpti ${x.inspired}` : "Originalas nenurodytas", fam(x.family)].filter(Boolean).join(" · "))}</small></span><span class="axVal admMuted">${plural(
+            scentState.counts.get(x.id) || 0,
+            "produktas",
+            "produktai",
+            "produktų"
+          )}</span><span class="axChev">${glyph("chev-right")}</span></a>`
         )
         .join("")}</div>`
     : emptyBox(scentState.q ? "Nieko nerasta" : "Kvapų dar nėra", "", `<a class="btn primary" href="admin/kvapu-sarasas/naujas" data-nav>${glyph("plus")}Naujas kvapas</a>`);
   hydrateIcons(box);
 }
 
-// ── Kvapo puslapis ──
+// ── Kvapo ekranas ──
 async function renderScentEdit(main, id, seq) {
   const isNew = id === "naujas";
-  main.innerHTML = pageHead(isNew ? "Naujas kvapas" : "Kvapas") + loading();
+  const back = isSplit() ? null : { href: "admin/kvapu-sarasas", label: "Kvapai" };
+  main.innerHTML = pageHTML({ title: isNew ? "Naujas kvapas" : "Kvapas", back, body: loading(6) });
   const [rows, fams, linked, all] = await Promise.all([
     isNew ? Promise.resolve([null]) : sbRest(`scents?select=*&id=eq.${encodeURIComponent(id)}`),
     sbRest("families?select=*&order=sort.asc"),
@@ -66,84 +107,74 @@ async function renderScentEdit(main, id, seq) {
     ? { id: "", name: "", inspired: "", gender: "unisex", family: fams[0]?.id || "", notes: { top: [], heart: [], base: [] }, seasons: [], times: ["diena"], occasions: [], longevity: 3, sillage: 3, look: { liquid: "#E8D9C4", tint: "#F7F1E8" } }
     : rows?.[0];
   if (!x) {
-    main.innerHTML = pageHead("Kvapas nerastas") + emptyBox("Tokio kvapo nėra", "Galbūt jis ištrintas.", `<a class="btn primary" href="admin/kvapu-sarasas" data-nav>Visi kvapai</a>`);
+    main.innerHTML = pageHTML({ title: "Kvapas nerastas", back, body: emptyBox("Tokio kvapo nėra", "Galbūt jis ištrintas.", `<a class="btn primary" href="admin/kvapu-sarasas" data-nav>Visi kvapai</a>`) });
     return;
   }
   const ed = { x, isNew, fams, linked: linked || [], ids: new Set((all || []).map(r => r.id)) };
   const n = x.notes || {};
-  const check = (name, value, on, label) => `<label class="admCheck"><input type="checkbox" name="${name}" value="${esc(value)}"${attr(on, "checked")} /><span>${esc(label)}</span></label>`;
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
   const typeOne = t => VD.TYPES.find(y => y.id === (t || "kvepalai"))?.one || "";
-  main.innerHTML = `<nav class="crumbs admCrumbs"><a href="admin/kvapu-sarasas" data-nav>${glyph("chev-left")}Kvapai</a></nav>
-${pageHead(
-  isNew ? "Naujas kvapas" : x.name,
-  isNew ? "Įklijuokite kvapo aprašymą arba užpildykite ranka. Nieko neišsaugoma, kol nepaspausite „Sukurti kvapą“." : x.inspired ? `Įkvėpti ${esc(x.inspired)}` : "Originalas nenurodytas",
-  isNew ? "" : `<a class="btn primary small" href="admin/kvapai/naujas?kvapas=${esc(x.id)}" data-nav>${glyph("plus")}Naujas produktas</a>`
-)}
-<form class="admEdit admForm" id="scentForm" novalidate>
-<div class="admEditCols"><div class="admEditMain">
+  const body = `<form class="admForm" id="scentForm" novalidate>
+<p class="formErr axErr" role="alert" hidden></p>
 ${
   isNew
-    ? `<section class="admCard afCard" id="afCard"><h2>Automatinis užpildymas</h2>
-<p class="admNote">Įklijuokite kvepalų ar kito produkto aprašymą (lietuvių, lenkų ar anglų kalba) – kvapo duomenys bus užpildyti lietuviškai.</p>
-<label class="field"><span>Aprašymas</span><textarea id="afText" rows="6" placeholder="Įklijuokite visą aprašymą…"></textarea></label>
-<button class="btn primary small afRun" type="button" data-af-run>${glyph("spark")}Sutvarkyti</button>
-<div class="afOut" id="afOut" hidden></div>
-</section>`
+    ? `<h2 class="igHead">Užpildyti iš aprašymo</h2><div class="ig afCard" id="afCard"><label class="field axField stack"><span>Aprašymas</span><textarea id="afText" rows="5" placeholder="Įklijuokite kvapo aprašymą (LT, PL, EN)"></textarea></label><button class="axRow" type="button" data-af-run>${glyph(
+        "spark"
+      )}<span class="axRowTxt"><b class="axLink">Sutvarkyti</b></span></button></div>
+<div class="afOut" id="afOut" hidden></div>`
     : ""
 }
-<section class="admCard"><h2>Pagrindinė informacija</h2>
-<label class="field"><span>Pavadinimas</span><input name="name" required maxlength="60" value="${esc(x.name)}" /></label>
-${
-  isNew
-    ? `<label class="field"><span>Adresas (id)</span><input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="" placeholder="mazosios-raides" /></label>`
-    : ""
-}
-<label class="field"><span>Originalo kvapas (įkvėpta)</span><input name="inspired" maxlength="120" value="${esc(x.inspired || "")}" placeholder="pvz. Emporio Armani – My Way" /></label>
-<div class="fieldRow"><label class="field"><span>Kam</span><select name="gender">${Object.entries(VD.GENDER_NAME)
-    .map(([v, l]) => opt(v, l, x.gender))
-    .join("")}</select></label>
-<label class="field"><span>Kvapo šeima</span><select name="family">${fams.map(f => opt(f.id, f.name, x.family)).join("")}</select></label></div>
-</section>
-<section class="admCard"><h2>Natos</h2>
-<label class="field"><span>Viršutinės natos</span><input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" /></label>
-<label class="field"><span>Širdies natos</span><input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" /></label>
-<label class="field"><span>Bazinės natos</span><input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" /></label>
-</section>
-<section class="admCard"><h2>Kada tinka</h2>
-<div class="admChecks"><span>Metų laikai</span>${SEASONS.map(s => check("seasons", s, (x.seasons || []).includes(s), VD.SEASON_NAME[s])).join("")}</div>
-<div class="admChecks"><span>Paros metas</span>${TIMES.map(([v, l]) => check("times", v, (x.times || []).includes(v), l)).join("")}</div>
-<div class="admChecks"><span>Proga</span>${AF_OCCASIONS.map(([v, l]) => check("occasions", v, (x.occasions || []).includes(v), l)).join("")}</div>
-</section>
-</div>
-<aside class="admEditSide">
-<section class="admCard"><h2>Spalvos</h2>
 <div class="scPrev" id="scPrev"></div>
-<div class="fieldRow"><label class="field"><span>Skysčio spalva</span><input type="color" name="liquid" value="${esc(x.look?.liquid || "#E8D9C4")}" /></label>
-<label class="field"><span>Fono atspalvis</span><input type="color" name="tint" value="${esc(x.look?.tint || "#F7F1E8")}" /></label></div>
-<p class="admNote">Naujiems produktams su šiuo kvapu – buteliuko ir fono spalva.</p>
-</section>
+${groupHTML(
+  `${fieldHTML("Pavadinimas", `<input name="name" required maxlength="60" value="${esc(x.name)}" />`)}${
+    isNew ? fieldHTML("Adresas", `<input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="" placeholder="mazosios-raides" />`) : ""
+  }${fieldHTML("Originalas", `<input name="inspired" maxlength="120" value="${esc(x.inspired || "")}" placeholder="Emporio Armani – My Way" />`)}${fieldHTML(
+    "Kam",
+    `<select name="gender">${Object.entries(VD.GENDER_NAME).map(([v, l]) => opt(v, l, x.gender)).join("")}</select>`
+  )}${fieldHTML("Kvapo šeima", `<select name="family">${fams.map(f => opt(f.id, f.name, x.family)).join("")}</select>`)}`,
+  { head: "Kvapas" }
+)}
+${groupHTML(
+  `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`)}${fieldHTML(
+    "Širdies",
+    `<input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" />`
+  )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`)}`,
+  { head: "Natos" }
+)}
+${groupHTML(
+  `${chipsRow("Metų laikai", SEASONS.map(s => chipCheck("seasons", s, (x.seasons || []).includes(s), VD.SEASON_NAME[s])).join(""))}${chipsRow(
+    "Paros metas",
+    TIMES.map(([v, l]) => chipCheck("times", v, (x.times || []).includes(v), l)).join("")
+  )}${chipsRow("Proga", AF_OCCASIONS.map(([v, l]) => chipCheck("occasions", v, (x.occasions || []).includes(v), l)).join(""))}`,
+  { head: "Kada tinka" }
+)}
+${groupHTML(
+  `${fieldHTML("Skystis", `<input type="color" name="liquid" value="${esc(x.look?.liquid || "#E8D9C4")}" />`)}${fieldHTML("Fonas", `<input type="color" name="tint" value="${esc(x.look?.tint || "#F7F1E8")}" />`)}`,
+  { head: "Spalvos", foot: "Naujiems produktams su šiuo kvapu." }
+)}
 ${
   isNew
     ? ""
-    : `<section class="admCard"><h2>Produktai su šiuo kvapu</h2>${
+    : `<h2 class="igHead">Produktai su šiuo kvapu</h2><div class="ig scLinked">${ed.linked
+        .map(p => navRow({ href: `admin/kvapai/${p.id}`, lead: thumb(p), title: esc(p.name), sub: esc(typeOne(p.type)) }))
+        .join("")}${
         ed.linked.length
-          ? `<div class="group scLinked">${ed.linked
-              .map(
-                p => `<a class="row" href="admin/kvapai/${esc(p.id)}" data-nav><span class="admThumb" style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span><span class="rowTxt">${esc(p.name)}<small>${esc(typeOne(p.type))}</small></span><span class="chev">${glyph("chev-right")}</span></a>`
-              )
-              .join("")}</div>
-<label class="admToggleRow"><span><b>Pritaikyti pakeitimus produktams</b><small>${plural(ed.linked.length, "produktas", "produktai", "produktų")}</small></span><input type="checkbox" name="apply" class="admSwitchInp" checked /></label>`
-          : `<p class="admNote">Su šiuo kvapu produktų dar nėra.</p>`
-      }
-<a class="btn ghost small scNewProd" href="admin/kvapai/naujas?kvapas=${esc(x.id)}" data-nav>${glyph("plus")}Naujas produktas su šiuo kvapu</a></section>
-<section class="admCard admDangerCard"><h2>Ištrinti</h2><p class="admNote">Kvapas dings iš sąrašo. Produktai liks parduotuvėje – tik nebebus susieti su šiuo kvapu.</p><button class="btn danger small" type="button" data-scent-del>${glyph("trash")}Ištrinti kvapą</button></section>`
+          ? `<label class="axField axSwitchRow"><span>Pakeitimus pritaikyti ir produktams</span><input type="checkbox" name="apply" class="admSwitchInp" checked /></label>`
+          : ""
+      }<a class="axRow axAddRow scNewProd" href="admin/kvapai/naujas?kvapas=${esc(x.id)}" data-nav>${glyph("plus")}<span class="axRowTxt"><b>Naujas produktas su šiuo kvapu</b></span></a></div>
+${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span class="axRowTxt"><b>Ištrinti kvapą</b></span></button>`, { foot: "Produktai liks parduotuvėje – tik nebebus susieti su šiuo kvapu." })}`
 }
-</aside></div>
-<div class="admSaveBar"><p class="formErr" role="alert" hidden></p><a class="btn ghost" href="admin/kvapu-sarasas" data-nav>Atšaukti</a><button class="btn primary" type="submit">${glyph("check")}${isNew ? "Sukurti kvapą" : "Išsaugoti"}</button></div>
 </form>`;
+  main.innerHTML = pageHTML({
+    title: isNew ? "Naujas kvapas" : x.name,
+    sub: isNew ? "" : x.inspired ? `Įkvėpti ${esc(x.inspired)}` : "",
+    back,
+    actions: saveBtn({ form: "scentForm", label: isNew ? "Sukurti" : "Išsaugoti", always: isNew }),
+    body,
+    cls: "axNarrow"
+  });
   hydrateIcons(main);
-  const form = $("#scentForm");
+  const form = $("#scentForm", main);
   const paintPrev = () => {
     const box = $("#scPrev", form);
     box.style.setProperty("--tint", form.elements.tint.value);
@@ -170,7 +201,7 @@ ${
   });
   form.addEventListener("submit", e => {
     e.preventDefault();
-    busy($("button[type=submit]", form), () => saveScent(ed, form));
+    busy($('.axSave[form="scentForm"]', main), () => saveScent(ed, form));
   });
 }
 const scentUniqueId = (ed, base) => {
@@ -241,13 +272,13 @@ function readScent(ed, form) {
   return { row, errors };
 }
 async function saveScent(ed, form) {
-  const err = $(".formErr", form);
   const { row, errors } = readScent(ed, form);
-  err.hidden = !errors.length;
-  err.textContent = errors.join(" · ");
+  showFormErr(form, errors);
   if (errors.length) return;
   if (ed.isNew) {
-    await sbRest("scents", { method: "POST", body: row, prefer: "return=representation" });
+    const [sc] = (await sbRest("scents", { method: "POST", body: row, prefer: "return=representation" })) || [];
+    if (sc) scentState.rows = [...scentState.rows, sc].sort((a, b) => a.name.localeCompare(b.name, "lt"));
+    paintScents();
     A.dirty = false;
     toast("Kvapas sukurtas", { icon: "check" });
     return navigate(`admin/kvapu-sarasas/${row.id}`, { replace: true });
@@ -259,6 +290,9 @@ async function saveScent(ed, form) {
     if (!patch.family) delete patch.family;
     await sbRest(`products?scent_id=eq.${encodeURIComponent(ed.x.id)}`, { method: "PATCH", body: patch });
   }
+  const i = scentState.rows.findIndex(r => r.id === ed.x.id);
+  if (i >= 0) scentState.rows[i] = { ...scentState.rows[i], ...row };
+  paintScents();
   A.dirty = false;
   if (apply) await catalogChanged(`Išsaugota – pritaikyta ${plural(ed.linked.length, "produktui", "produktams", "produktų")}`);
   else toast("Išsaugota", { icon: "check" });
@@ -275,6 +309,8 @@ async function deleteScent(ed) {
   try {
     if (n) await sbRest(`products?scent_id=eq.${encodeURIComponent(ed.x.id)}`, { method: "PATCH", body: { scent_id: null } });
     await sbRest(`scents?id=eq.${encodeURIComponent(ed.x.id)}`, { method: "DELETE" });
+    scentState.rows = scentState.rows.filter(r => r.id !== ed.x.id);
+    paintScents();
     A.dirty = false;
     toast("Kvapas ištrintas", { icon: "check" });
     navigate("admin/kvapu-sarasas", { replace: true });
