@@ -9,6 +9,10 @@
 //                      aliejai (prekių tipai) / moterims / vyrams / unisex / meginukai / rinkinys / naujienos /
 //                      kat-<kategorijos id>. Nėra lauko – trys tipai. Plytelė be prekių nerodoma.
 //   settings.slideSeconds – kas kiek sekundžių keičiasi skaidrės (0 – nesikeičia pačios).
+//   settings.rails   – skyriai su produktais (karuselės, v15): { id, on, title, line, mode, rule, ids, limit, href }.
+//                      mode "auto" – pagal taisyklę rule { type, gender, family, category, scent, time, season,
+//                      occasion, sale, sort }; "manual" – ids (pasirinkti produktai, ta tvarka). href: "" – automatiškai,
+//                      "none" – be nuorodos, kitaip – adresas. Nėra lauko – DEFAULT_RAILS. Skyrius be produktų nerodomas.
 // Fonas: įkelta nuotrauka (kompiuteriui ir, nebūtinai, telefonui; „focus“ – kuri vieta lieka matoma) arba Vaidore
 // scena (24-stage.js) su pasirinkto kvapo buteliukais. dark – tamsi nuotrauka, tekstas ant jos baltas.
 // Peržiūra: administravimo skydelis įkelia parduotuvę į <iframe> (?vdPreview=1) ir siunčia juodraštį postMessage.
@@ -21,6 +25,65 @@ const DEFAULT_SLIDES = [
   { id: "teiginiai", on: true, preset: "claims" }
 ];
 const DEFAULT_TILES = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"].map(key => ({ key, on: true }));
+// Numatytieji skyriai – tokie pat kaip iki v15 (naujienos, moterims, vyrams, unisex, nuolaidos)
+const DEFAULT_RAILS = [
+  { id: "naujienos", on: true, title: "Kvapnios naujienos", line: "", mode: "auto", rule: { type: "kvepalai", sort: "new" }, limit: 8 },
+  { id: "moterims", on: true, title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", mode: "auto", rule: { type: "kvepalai", gender: "moterims", sort: "rank" }, limit: 12 },
+  { id: "vyrams", on: true, title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", mode: "auto", rule: { type: "kvepalai", gender: "vyrams", sort: "rank" }, limit: 12 },
+  { id: "unisex", on: true, title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", mode: "auto", rule: { type: "kvepalai", gender: "unisex", sort: "rank" }, limit: 12 },
+  { id: "nuolaidos", on: true, title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", mode: "auto", rule: { sale: true, sort: "sale" }, limit: 12 }
+];
+const RAIL_SORTS = [
+  ["rank", "Populiariausi"],
+  ["new", "Naujausi"],
+  ["price-asc", "Pigiausi"],
+  ["price-desc", "Brangiausi"],
+  ["sale", "Didžiausia nuolaida"]
+];
+const homeRails = () => (Array.isArray(SET.rails) ? SET.rails : DEFAULT_RAILS);
+// Skyriaus produktai: pasirinkti ranka (ta tvarka, tik matomi) arba pagal taisyklę
+function railProducts(r) {
+  if (r.mode === "manual") return (r.ids || []).map(id => BY_ID.get(id)).filter(p => p && p.visible !== false);
+  const q = r.rule || {};
+  const list = PRODUCTS.filter(
+    p =>
+      (!q.type || typeOf(p) === q.type) &&
+      (!q.gender || p.gender === q.gender) &&
+      (!q.family || p.family === q.family) &&
+      (!q.category || (p.categories || []).includes(q.category)) &&
+      (!q.scent || p.scent === q.scent) &&
+      (!q.time || p.time.includes(q.time)) &&
+      (!q.season || p.seasons.includes(q.season)) &&
+      (!q.occasion || (p.occasions || []).includes(q.occasion)) &&
+      (!q.sale || (onSale(p) && inStock(p)))
+  );
+  const by = {
+    rank: (a, b) => a.rank - b.rank,
+    new: (a, b) => String(b.added).localeCompare(String(a.added)) || a.rank - b.rank,
+    "price-asc": (a, b) => minPrice(a) - minPrice(b),
+    "price-desc": (a, b) => minPrice(b) - minPrice(a),
+    sale: (a, b) => salePct(b) - salePct(a) || a.rank - b.rank
+  };
+  return list.sort(by[q.sort] || by.rank).slice(0, Math.max(1, Math.min(24, Number(r.limit) || 12)));
+}
+// „Peržiūrėti“ nuoroda: nustatyta ranka arba sudaroma iš taisyklės (tie patys filtrai kaip katalogo puslapyje)
+function railHref(r) {
+  if (r.href === "none") return "";
+  if (r.href) return r.href;
+  if (r.mode === "manual") return "";
+  const q = r.rule || {};
+  if (q.sale) return "nuolaidos";
+  if (q.category) return `kategorija/${q.category}`;
+  const base = q.gender && (!q.type || q.type === "kvepalai") ? q.gender : q.type || "kvepalai";
+  const ps = new URLSearchParams();
+  if (q.family) ps.set("seima", q.family);
+  if (q.time) ps.set("laikas", q.time);
+  if (q.season) ps.set("sezonas", q.season);
+  if (q.occasion) ps.set("proga", q.occasion);
+  if (q.sort && q.sort !== "rank" && q.sort !== "sale") ps.set("rikiuoti", q.sort);
+  const qs = ps.toString();
+  return base + (qs ? `?${qs}` : "");
+}
 
 // Skaidrių šablonai – numatytieji tekstai ir scena (galioja, kol administratorius neįrašė savo)
 const SLIDE_PRESETS = {
@@ -224,6 +287,7 @@ if (PREVIEW) {
       if (r && i >= 0) r.scrollLeft = i * r.clientWidth;
       if (e.data.scroll === "top") window.scrollTo(0, 0);
       else if (e.data.scroll === "tiles") $("#homeTiles")?.scrollIntoView({ block: "center" });
+      else if (String(e.data.scroll || "").startsWith("rail:")) $(`#homeRails [data-rail="${CSS.escape(e.data.scroll.slice(5))}"]`)?.scrollIntoView({ block: "center" });
       else if (!rail) window.scrollTo(0, 0);
     }
   });

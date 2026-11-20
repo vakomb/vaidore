@@ -58,6 +58,13 @@ window.VD = {
   catalogFromDb, fetchCatalog,
   // Pradžios puslapio redaktorius (admin/pradzia): šablonai, numatytieji, scenos, nuotraukos
   stageHTML, photoHTML, slideDefaults, resolveSlide, tilePreset, productUrl, autoNoteItems, fmtNote,
+  railProducts, railHref, OCCASION_NAME,
+  get RAIL_SORTS() {
+    return RAIL_SORTS;
+  },
+  get DEFAULT_RAILS() {
+    return DEFAULT_RAILS;
+  },
   get DEFAULT_SLIDES() {
     return DEFAULT_SLIDES;
   },

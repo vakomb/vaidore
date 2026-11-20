@@ -326,3 +326,13 @@ pašalintas visiškai. Vėliau bus kuriama nauja prekių kūrimo sistema.
   (`?originalas=`), „Formatas“ kitiems tipams (`?formatas=`); elektriniams difuzoriams kvapo filtrų nėra.
 - Testai: `tools/test-autofill.mjs` (priimamumo „My Pink“ – `tools/fixtures/autofill-my-pink.txt`, žvakė su kvapu,
   PL / EN / LT difuzorius, aliejus, elektrinis difuzorius), `test-admin.mjs` (forma), `test-smoke.mjs` (parduotuvė).
+
+## Pradžios skyriai su produktais (v15)
+
+Karuselės po plytelėmis („Kvapnios naujienos“, „Populiariausi moterims“, „Populiariausi vyrams“, „Unisex kvapai“, „Didžiausios nuolaidos“) – nebe kodas, o nustatymas `settings.rails` (masyvas, tvarka = rodymo tvarka). Kol administratorius nieko neišsaugojo, naudojami `DEFAULT_RAILS` (`25-home-config.js`) – parduotuvė atrodo kaip anksčiau.
+
+- Skyrius: `{ id, on, title, line, mode, rule, ids, limit, href }`. `on:false` – paslėptas; `line` – paantraštė su nuoroda „Peržiūrėti“.
+- `mode:"auto"` – `rule` filtruoja matomus produktus: `type`, `gender`, `family`, `category` (kolekcija), `scent` (bendras kvapas), `time` (diena / vakaras), `season`, `occasion`, `sale` (tik su tikra sena kaina, turimi); `sort` – `rank` (populiariausi), `new`, `price-asc`, `price-desc`, `sale` (didžiausia nuolaida). `limit` 1–24 (numatyta 12).
+- `mode:"manual"` – `ids` (administratoriaus nurodyta tvarka); paslėpti / ištrinti produktai praleidžiami.
+- `href`: tuščia – automatinė nuoroda iš taisyklės (`kvepalai?lytis=…&laikas=…`, `kategorija/<id>`, `nuolaidos`); `"none"` – be nuorodos; kitaip – santykinis adresas.
+- Skyrius be produktų nerodomas. Administravime („Pradžia“ → „Skyriai su produktais“): pridėti pagal taisyklę arba ranka, keisti, kopijuoti, ištrinti, perkelti aukštyn / žemyn, slėpti; produktų paieška pagal pavadinimą, originalą, natas; pakeitimai iš karto matomi peržiūroje. Testai – `test-admin.mjs` („skyriai…“).

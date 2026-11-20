@@ -454,6 +454,31 @@ check((await page.locator("#tbStyle .tbContrast:not(.bad)").count()) === 1, "juo
 check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,zvakes,aliejai,elektriniai-difuzoriai", "plytelės: numatytosios – 5 prekių tipai");
 await page.locator('#heTiles [data-he-tile="aliejai"] [data-he-on]').click();
 await page.click('[data-he-addtile="kat-vakarui"]');
+// Skyriai su produktais (v15): numatytieji 5; naujas pagal taisyklę (vakarui), naujas pasirinktas ranka, ištrynimas
+check((await page.locator("#heRails [data-he-rail]").count()) === 5, "skyriai: numatytieji 5 (naujienos, moterims, vyrams, unisex, nuolaidos)");
+await page.click('[data-he-addrail="auto"]');
+const newRail = page.locator("#heRails [data-he-rail]").last();
+await newRail.locator('input[name="rtitle"]').fill("Vakarui");
+await newRail.locator('select[name="rq_time"]').selectOption("vakaras");
+await newRail.locator('select[name="rq_sort"]').selectOption("price-asc");
+// Vienas kvapas aukščiau paslėptas – jo skyriuje nėra
+const evening = await page.evaluate(() => VD.CAT.products.filter(p => p.visible !== false && (p.type || "kvepalai") === "kvepalai" && p.time.includes("vakaras")).length);
+check(await until(async () => (await newRail.locator("[data-he-rcount]").textContent()).includes(String(evening))), `skyrius pagal taisyklę: „Vakarui“ – ${evening} kvapai`);
+check(await until(async () => (await pv.locator("#homeRails .band").allTextContents()).includes("Vakarui")), "skyrius: iškart matomas peržiūroje");
+await page.click('[data-he-addrail="manual"]');
+const pickRail = page.locator("#heRails [data-he-rail]").last();
+await pickRail.locator('input[name="rtitle"]').fill("Mūsų rekomendacijos");
+await pickRail.locator('input[name="rsearch"]').fill("vanor");
+await pickRail.locator('[data-he-rpick="vanor"]').click();
+await pickRail.locator('input[name="rsearch"]').fill("safrane");
+await pickRail.locator('[data-he-rpick="safrane"]').click();
+await pickRail.locator('[data-rid="safrane"] [data-he-rmv="-1"]').click();
+check((await pickRail.locator("[data-rid]").evaluateAll(a => a.map(x => x.dataset.rid))).join() === "safrane,vanor", "skyrius ranka: produktai pridėti ir sukeisti vietomis");
+await page.locator('#heRails [data-he-rail="unisex"] [data-he-open]').click();
+await page.locator('#heRails [data-he-rail="unisex"] [data-he-del]').click();
+await page.click("[data-confirm-ok]");
+check(await until(async () => (await page.locator('#heRails [data-he-rail="unisex"]').count()) === 0), "skyrius ištrintas");
+await page.locator('#heRails [data-he-rail="naujienos"] [data-he-move="1"]').click();
 await shot(page, "pradzia");
 await page.click("[data-he-save]");
 check(await until(() => Array.isArray(sb.db.settings[0].data.slides)), "pradžia išsaugota");
@@ -464,10 +489,23 @@ check(
 );
 check(hs.topbar?.items?.[0]?.text === "Žiemos akcija – *-20 %*" && hs.topbar.style.grad === "mid" && hs.topbar.style.fs === 16, "juosta: tekstas, dizainas ir dydis išsaugoti");
 check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "aliejai").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
+check(
+  hs.rails.map(r => r.title).join("|") === "Populiariausi moterims|Kvapnios naujienos|Populiariausi vyrams|Didžiausios nuolaidos|Vakarui|Mūsų rekomendacijos" &&
+    hs.rails[4].rule.time === "vakaras" && hs.rails[4].rule.sort === "price-asc" && hs.rails[5].mode === "manual" && hs.rails[5].ids.join() === "safrane,vanor",
+  "skyriai išsaugoti: tvarka, taisyklė, pasirinkti produktai"
+);
 const front = await newPage({ width: 1440, height: 900 });
 await front.goto(BASE);
 await front.waitForLoadState("networkidle").catch(() => {});
 check(await until(async () => (await front.locator("#homeHero .slide").count()) === 5, 6000), "parduotuvėje: 5 rodomos skaidrės (viena paslėpta)");
+check(
+  await until(async () => {
+    const bands = await front.locator("#homeRails .band").allTextContents();
+    const picked = await front.locator('#homeRails [data-rail] .card a.cardLink').evaluateAll(a => a.map(x => x.getAttribute("href")));
+    return bands.slice(0, 2).join("|") === "Populiariausi moterims|Kvapnios naujienos" && bands.includes("Vakarui") && !bands.includes("Unisex kvapai") && picked.slice(-2).join() === "kvepalai/safrane,kvepalai/vanor";
+  }),
+  "parduotuvėje: skyriai pagal nustatymus (tvarka, „Vakarui“, ranka pasirinkti, be „Unisex“)"
+);
 check(await until(async () => (await front.locator("#topNoteTxt b").first().textContent().catch(() => "")) === "-20 %"), "parduotuvėje: juosta su nauju tekstu (paryškinta dalis)");
 check((await front.locator("#homeHero div.slide.textless .scenePic img").count()) === 1 && (await front.locator("#homeHero div.slide.textless .heroTxt").count()) === 0, "parduotuvėje: „Tik nuotrauka“ – tik paveikslas, be teksto ir nuorodos");
 check(
@@ -527,6 +565,21 @@ for (const sec of ["admin", "admin/uzsakymai", "admin/kvapai", "admin/kvapai/van
   await shot(page, `tel-${sec.replace(/\//g, "-")}`);
 }
 check(await page.locator(".admSaveBar button[type=submit]").isVisible(), "telefone – „Išsaugoti“ juosta matoma");
+// Skyriai su produktais telefone: atidaryta taisyklė ir pasirinkimas ranka telpa ekrane
+await page.goto(`${BASE}admin/pradzia`);
+await page.waitForSelector("#heRails [data-he-rail]");
+for (const mode of ["auto", "manual"]) {
+  await page.click(`[data-he-addrail="${mode}"]`);
+  const rail = page.locator("#heRails [data-he-rail]").last();
+  if (mode === "manual") {
+    await rail.locator('input[name="rsearch"]').fill("a");
+    await rail.locator("[data-he-rpick]").first().click();
+    await rail.locator('input[name="rsearch"]').fill("o");
+  }
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  check(over <= 0, `telefone – skyrius (${mode === "auto" ? "pagal taisyklę" : "ranka"}) telpa ekrane`);
+  if (shots) await rail.screenshot({ path: path.join(shotDir, `admin-tel-skyrius-${mode}.png`) });
+}
 await page.goto(`${BASE}admin/uzsakymai`);
 await page.waitForSelector(".admOrders .order");
 await page.locator(".admOrders .order summary").first().click();

@@ -89,9 +89,9 @@ function railHTML(cards, { cover = false } = {}) {
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
-function railSecHTML({ title, line, href, list }) {
-  return `<section class="hsec"><h2 class="band">${esc(title)}</h2><div class="wrap">${
-    line ? `<p class="secLine"><span>${esc(line)}</span><a href="${href}" data-nav>Peržiūrėti</a></p>` : ""
+function railSecHTML({ id, title, line, href, list }) {
+  return `<section class="hsec"${id ? ` data-rail="${esc(id)}"` : ""}><h2 class="band">${esc(title)}</h2><div class="wrap">${
+    line ? `<p class="secLine"><span>${esc(line)}</span>${href ? `<a href="${esc(href)}" data-nav>Peržiūrėti</a>` : ""}</p>` : ""
   }${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""), { cover: true })}</div></section>`;
 }
 // Pradžios karuselė telefone (kaip parfumada.lt): kortelės dydis 0,85–1 pagal atstumą nuo centro
@@ -155,25 +155,18 @@ window.addEventListener("resize", () => {
 
 function renderHome() {
   $("#homeHero").innerHTML = heroHTML();
-  const byRank = [...PRODUCTS].sort((a, b) => a.rank - b.rank);
-  // Karuselės – tik kvepalai (difuzoriai ir aliejai – savo plytelėse ir puslapiuose)
-  const fresh = perfumes().sort((a, b) => String(b.added).localeCompare(String(a.added)));
-  const of = g => byRank.filter(p => isPerfume(p) && p.gender === g);
   const tiles = homeTiles();
   $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 
-  // Tvarka: „Produktai“ plytelės (view-home.html) → naujienos → moterims → vyrams → unisex → nuolaidos (jei yra).
-  // Skyrius rodomas, jei jame yra bent vienas kvapas.
-  const sec = [
-    { title: "Kvapnios naujienos", href: "kvepalai?rikiuoti=new", list: fresh.slice(0, 8) },
-    { title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", href: "moterims", list: of("moterims") },
-    { title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", href: "vyrams", list: of("vyrams") },
-    { title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", href: "unisex", list: of("unisex") }
-  ].filter(x => x.list.length);
-  const more = [{ title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", href: "nuolaidos", list: saleList() }].filter(x => x.list.length);
+  // Skyriai su produktais (v15: settings.rails – administravime „Pradžia“; numatytieji – naujienos, moterims, vyrams,
+  // unisex, nuolaidos). Skyrius rodomas, jei jame yra bent vienas produktas.
+  const sec = homeRails()
+    .filter(r => r && r.on !== false && r.title)
+    .map(r => ({ id: r.id, title: r.title, line: r.line, href: railHref(r), list: railProducts(r) }))
+    .filter(x => x.list.length);
   $("#homeRails").innerHTML = sec.map(railSecHTML).join("");
-  $("#homeRailsMore").innerHTML = more.map(railSecHTML).join("");
+  $("#homeRailsMore").innerHTML = "";
   bindRails($("#view-home"));
 
   renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai – rašo tik pirkę" });

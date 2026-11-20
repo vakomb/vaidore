@@ -1637,3 +1637,102 @@ h2.afAuto::after {
     grid-column: 1 / -1;
   }
 }
+/* ── Pradžia: skyriai su produktais (v15, 10-home.js) ── */
+.heRailThumb {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  place-items: center;
+  color: var(--ink3);
+}
+.heRailThumb > span {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--tint, var(--bg-soft));
+}
+.heRailThumb > span > img,
+.heRailThumb > span > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.heRRule {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0 12px;
+}
+.heRChosen {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 12px;
+}
+.heRProd,
+.heRPick {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: var(--bg-soft);
+}
+.heRProd .admThumb,
+.heRPick .admThumb {
+  width: 44px;
+  height: 44px;
+}
+.heRProd .rowTxt,
+.heRPick .rowTxt {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.heRProd .rowTxt small,
+.heRPick .rowTxt small {
+  display: block;
+  color: var(--ink3);
+}
+.heRProdActs {
+  display: flex;
+  gap: 4px;
+}
+.heRProdActs .roundBtn {
+  width: 34px;
+  height: 34px;
+}
+.heRSearch {
+  margin-bottom: 8px;
+}
+.heRResults {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.heRPick {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--line2);
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
+.heRPick svg {
+  width: 18px;
+  height: 18px;
+}
+.heRCount {
+  margin-top: 4px;
+}
+.heRProdActs [data-he-rmv] svg {
+  rotate: 90deg;
+}
+.heRProdActs .roundBtn:disabled {
+  opacity: 0.3;
+}
