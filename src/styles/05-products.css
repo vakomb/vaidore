@@ -171,12 +171,12 @@
 }
 .bandSub {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px 14px;
+  gap: 3px 16px;
   margin-top: 3px;
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.35;
   letter-spacing: 0.02em;
   color: var(--band-sub);
@@ -437,8 +437,8 @@
 }
 .cardName {
   max-width: 100%;
-  font-size: 15.6px;
-  font-weight: 400;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1.25;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -497,14 +497,14 @@
   white-space: nowrap;
 }
 .inspBrand {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink3);
 }
 .inspName {
-  font-size: 13.5px;
+  font-size: 14.5px;
   letter-spacing: 0.02em;
   color: #000;
 }
@@ -513,7 +513,7 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
   letter-spacing: 0.04em;
   color: var(--ink2);
@@ -569,10 +569,10 @@
     gap: 7px;
   }
   .cardInsp .inspName {
-    font-size: 12.5px;
+    font-size: 13.5px;
   }
   .cardInsp .inspBrand {
-    font-size: 10.5px;
+    font-size: 11.5px;
     letter-spacing: 0.08em;
   }
 }
@@ -594,7 +594,7 @@
   color: var(--text);
 }
 .cardPrice small {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink3);
 }
 .money.sale {
@@ -691,6 +691,49 @@
 .rail .art {
   border-radius: var(--r-photo);
 }
+/* Karuselėse (v23) – originalas vienoje eilutėje: prekės ženklas (pusjuodis) ir kvapas, stambiau; ilgas – iki 2 eil. */
+.rail .cardInsp {
+  min-height: 48px;
+  margin-top: 2px;
+}
+.rail .insp {
+  gap: 10px;
+}
+.rail .inspPh {
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+}
+.rail .inspTxt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: #000;
+}
+.rail .inspBrand,
+.rail .inspName {
+  display: inline;
+  overflow: visible;
+  white-space: normal;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+  color: inherit;
+}
+.rail .inspBrand {
+  margin-right: 0.3em;
+  font-weight: 600;
+}
+.rail .inspName {
+  font-weight: 400;
+}
+.rail .cardTag {
+  font-size: 15px;
+}
 /* Katalogo tinklelyje – paveikslas 4:5 (kaip parfumada.lt); buteliukas užima beveik visą aukštį (nuotrauka kvadratinė,
    buteliukas jos centre, todėl „cover“ nukerpa tik tuščius šonus) */
 .grid .art {
@@ -738,6 +781,10 @@
 }
 .rail::-webkit-scrollbar {
   display: none;
+}
+/* Kai visos kortelės telpa (v23) – jos centre, ne prie kairio krašto */
+.railWrap[data-fit] .rail {
+  justify-content: center;
 }
 .rail .card {
   scroll-snap-align: start;

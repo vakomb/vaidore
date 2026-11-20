@@ -294,6 +294,8 @@ async function run(viewport) {
   const heads = await page.locator("#homeRails .hsec").evaluateAll(a => a.map(s => [!!s.querySelector(".bandBox .band"), !!s.querySelector(".bandBox .bandSub span"), !s.querySelector(".secLine")]));
   check(heads.length && heads.every(h => h.every(Boolean)), "pradžia: kiekvieno skyriaus antraštė su paantrašte, be linijų");
   check((await page.locator('#homeRails .bandSub a', { hasText: "Peržiūrėti viską" }).count()) >= 3, "pradžia: „Peržiūrėti viską“ skyrių antraštėse");
+  const ri = await page.locator("#homeRails .rail .inspTxt").first().evaluate(el => [getComputedStyle(el.querySelector(".inspBrand")).display, parseFloat(getComputedStyle(el).fontSize)]);
+  check(ri[0] === "inline" && ri[1] >= 16, `pradžia: originalas vienoje eilutėje, stambiau (${ri.join(", ")})`);
   if (mobile && viewport.width < 700) {
     // v21b: didelė kortelė (kaip parfumada.lt) ir kitos dalis dešinėje; rodyklės ir „1/N“
     const rail = page.locator("#homeRails .rail").first();
@@ -472,6 +474,8 @@ async function run(viewport) {
   await open(page, `${A}kvepalai/vanor`);
   await page.waitForSelector("#productRoot h1");
   check((await page.locator("#productRoot h1").textContent()).includes("Vanor"), "kvapo puslapis: pavadinimas");
+  const ord = await page.evaluate(() => ["pdPrice", "pdBuy", "pdDesc"].map(c => document.querySelector(`#productRoot .${c}`).getBoundingClientRect().top));
+  check(ord[0] < ord[1] && ord[1] < ord[2], "kvapo puslapis: kaina ir „Į krepšelį“ – prieš aprašymą (v23)");
   await page.locator("#productRoot .pdActs [data-fav]").click();
   check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė kvapo puslapyje → mėgstami (1)");
   check(

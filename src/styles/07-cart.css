@@ -48,9 +48,10 @@
   background: #000;
 }
 
-/* Eilutės – be dėžutės, atskirtos linijomis */
+/* Eilutės – be dėžutės, atskirtos linijomis (v23: be „Prekė / Suma“ antraštės) */
 .lines {
-  margin-top: 0;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
 }
 .line {
   display: grid;
@@ -251,17 +252,6 @@
   color: #000;
   text-decoration: underline;
   text-underline-offset: 6px;
-}
-.cartCols {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 26px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  font-size: 13px;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--ink2);
 }
 .cartMain > .ship {
   margin-top: 4px;

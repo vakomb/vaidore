@@ -246,8 +246,54 @@
   line-height: 1.5;
   color: var(--ink3);
 }
+/* Tvarka (v23 – ir telefone, kaip programėlėje): kaina → talpa → kiekis → „Į krepšelį“ → pristatymas → kitos formos →
+   mėgstami / dalintis; po linija – aprašymas, išskleidžiamos dalys, teisinė pastaba */
 .pdInfo {
-  padding-top: 26px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+}
+.pdPrice {
+  order: 1;
+}
+.pdLabSize {
+  order: 2;
+}
+.pdInfo .sizes {
+  order: 3;
+}
+.pdLabQty {
+  order: 4;
+}
+.pdBuy {
+  order: 5;
+}
+.pdInfo [data-note-slot] {
+  order: 6;
+}
+.pdShip {
+  order: 7;
+}
+.pdForms {
+  order: 8;
+}
+.pdActs {
+  order: 9;
+}
+.pdTag {
+  order: 10;
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.pdDesc {
+  order: 11;
+}
+.pdInfo .accs {
+  order: 12;
+}
+.pdLegal {
+  order: 13;
 }
 .pdTag {
   font-size: var(--fs);
@@ -265,7 +311,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 14px;
-  margin-top: 26px;
+  margin-top: 18px;
 }
 .pdPrice b {
   font-size: 20.8px;

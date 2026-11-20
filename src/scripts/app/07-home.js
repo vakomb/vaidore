@@ -112,6 +112,7 @@ function syncRail(wrap) {
   const step = railPageStep(rail);
   const pages = max < 4 ? 1 : Math.ceil((max - 4) / step) + 1;
   nav.hidden = pages < 2;
+  wrap.toggleAttribute("data-fit", pages < 2);
   const end = rail.scrollLeft >= max - 4;
   const cur = end ? pages : Math.min(pages, Math.round(rail.scrollLeft / step) + 1);
   $(".railPage", nav).textContent = `${cur}/${pages}`;

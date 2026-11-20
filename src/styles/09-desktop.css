@@ -20,6 +20,9 @@
   .rail .cardName {
     font-size: 22.75px;
   }
+  .rail .inspTxt {
+    font-size: 16.5px;
+  }
   .rail .card {
     scroll-snap-align: start;
   }
@@ -69,6 +72,8 @@
     padding: 14px var(--pad) 15px;
   }
   .bandSub {
+    flex-direction: row;
+    flex-wrap: wrap;
     margin-top: 4px;
     font-size: 16px;
   }
@@ -189,52 +194,10 @@
   }
   .pdInfo {
     grid-area: info;
-    display: flex;
-    flex-direction: column;
     padding-top: 0;
   }
   .pdPrice {
-    order: 1;
     margin-top: 18px;
-  }
-  .pdLabSize {
-    order: 2;
-  }
-  .pdInfo .sizes {
-    order: 3;
-  }
-  .pdLabQty {
-    order: 4;
-  }
-  .pdBuy {
-    order: 5;
-  }
-  .pdInfo [data-note-slot] {
-    order: 6;
-  }
-  .pdShip {
-    order: 7;
-  }
-  .pdForms {
-    order: 8;
-  }
-  .pdActs {
-    order: 9;
-  }
-  .pdTag {
-    order: 10;
-    margin-top: 30px;
-    padding-top: 26px;
-    border-top: 1px solid var(--line);
-  }
-  .pdDesc {
-    order: 11;
-  }
-  .pdInfo .accs {
-    order: 12;
-  }
-  .pdLegal {
-    order: 13;
   }
   .discGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -546,13 +509,6 @@
     overflow-y: auto;
     padding-right: 8px;
     scrollbar-width: thin;
-  }
-  .filters::before {
-    content: "Filtruoti:";
-    display: block;
-    padding-bottom: 6px;
-    font-size: 15px;
-    color: var(--ink2);
   }
   .filterBtn {
     display: none;
