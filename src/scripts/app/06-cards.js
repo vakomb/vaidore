@@ -33,7 +33,7 @@ function cardHTML(p, opts = {}) {
   const sold = !inStock(p);
   const rate = ratingOf(p);
   return `<article class="card${sold ? " sold" : ""}">
-<div class="art${p.images?.length ? ` hasPhoto${flatImg(p.images[0]) ? " isFlat" : ""}` : ""}" style="--tint:${p.look.tint}">${artImg(p)}${SET.cards?.badges !== false ? badgePill(p) : ""}${
+<div class="art${p.images?.length ? ` hasPhoto${isPerfume(p) ? " isPerf" : ""}` : ""}" style="--tint:${p.look.tint}">${artImg(p)}${SET.cards?.badges !== false ? badgePill(p) : ""}${
     opts.heart !== false && SET.cards?.heart !== false ? heartBtn(p) : ""
   }</div>
 <div class="cardTxt"><span class="cardName">${esc(p.name)}</span><span class="cardInsp">${inspiredHTML(p) || `<span class="cardTag">${esc(p.tagline || keyNotes(p).join(" · "))}</span>`}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${

@@ -464,8 +464,8 @@ async function run(viewport) {
   await page.waitForSelector("#backdrop", { state: "hidden" });
   await page.evaluate(() => window.scrollTo(0, 0));
   check((await page.locator("#shopGrid .card [data-fav]").count()) === 0, "katalogo kortelėse širdelių nėra (v22)");
-  const flatArt = await page.locator("#shopGrid .art.isFlat").first().evaluate(el => [getComputedStyle(el).aspectRatio, getComputedStyle(el.querySelector("img")).objectFit].join()).catch(() => "nėra");
-  check(flatArt === "nėra" || flatArt === "1 / 1,contain", `katalogas: nuotrauka su fonu – kvadratinė, visa (${flatArt})`);
+  const perfArt = await page.locator("#shopGrid .art.isPerf img.photo").first().evaluate(el => [getComputedStyle(el.parentElement).aspectRatio, getComputedStyle(el).transform, getComputedStyle(el).transformOrigin.split(" ")[1]].join("|")).catch(() => "nėra");
+  check(perfArt === "nėra" || /^0\.8|^4 \/ 5/.test(perfArt.split("|")[0]) && perfArt.includes("1.06") && perfArt.endsWith("|0px"), `katalogas: kvepalų nuotrauka – to paties dydžio, kamštelis nenukerpamas (${perfArt})`);
 
   // Kvapo puslapis
   const vanor = cat.products.find(p => p.id === "vanor");

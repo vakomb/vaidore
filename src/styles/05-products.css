@@ -703,14 +703,12 @@
 }
 .grid .art img.photo {
   object-fit: cover;
-  object-position: 50% 0;
+  transform: scale(1.06);
+  transform-origin: 50% 46%;
 }
-/* Nuotrauka su fonu (JPEG, v22): kvadratinė, rodoma visa – buteliuko kamštelis nenukerpamas */
-.grid .art.isFlat {
-  aspect-ratio: 1 / 1;
-}
-.grid .art.isFlat img.photo {
-  object-fit: contain;
+/* Kvepalai (v22b): tas pats dydis, bet padidinama žemyn – viršus (buteliuko kamštelis) nenukerpamas */
+.grid .art.isPerf img.photo {
+  transform-origin: 50% 0;
 }
 
 /* ── Tinklelis ir karuselė ── */
