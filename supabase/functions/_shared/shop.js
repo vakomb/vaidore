@@ -12,6 +12,9 @@ export const CORS = {
 };
 export const json = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { ...CORS, "Content-Type": "application/json", "Cache-Control": "no-store" } });
 const SAMPLE_ML = 2;
+// Prekių tipai (v15) – tie patys kaip TYPES (src/scripts/app/03-catalog.js): Stripe aprašymui ir nuorodoms
+const TYPE_ONE = { difuzoriai: "Namų kvapų difuzorius", zvakes: "Kvapni žvakė", aliejai: "Aromatinis aliejus", "elektriniai-difuzoriai": "Elektrinis difuzorius" };
+const typePath = p => (TYPE_ONE[p.type] ? p.type : "kvepalai");
 const cents = v => Math.round(Number(v) * 100);
 const inStock = p => p.stock == null || p.stock > 0;
 export const eurTxt = c => `${(c / 100).toFixed(2).replace(".", ",")} €`;
@@ -162,7 +165,7 @@ export function createShop(env) {
           unit_amount: cents(price),
           product_data: {
             name: `${S.shop || "Vaidore"} ${p.name} · ${ml === SAMPLE_ML ? "mėginukas 2 ml" : `${ml} ml`}`,
-            description: `${!p.type || p.type === "kvepalai" ? p.conc : p.type === "difuzoriai" ? "Namų kvapų difuzorius" : "Kvapusis aliejus"}${p.tagline ? ` · ${p.tagline}` : ""}`.slice(0, 250),
+            description: `${TYPE_ONE[p.type] || p.conc}${p.tagline ? ` · ${p.tagline}` : ""}`.slice(0, 250),
             metadata: { product_id: p.id, ml: String(ml) }
           }
         }
@@ -442,7 +445,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
       return json(200, { ok: true });
     }
     if (body.action === "restock-notify") {
-      const p = (await db(`products?id=eq.${encodeURIComponent(body.product_id)}&select=id,name`))?.[0];
+      const p = (await db(`products?id=eq.${encodeURIComponent(body.product_id)}&select=*`))?.[0];
       if (!p) return json(404, { error: "Kvapas nerastas" });
       const list = (await db(`restock_requests?product_id=eq.${encodeURIComponent(p.id)}&notified=eq.false&select=id,email`)) || [];
       let sent = 0;
@@ -450,7 +453,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
         const ok = await sendMail({
           to: r.email,
           subject: `${p.name} – vėl turime`,
-          html: wrapMail(`<p>Sveiki!</p><p>Kvapas <b>${escHtml(p.name)}</b>, kurio laukėte, vėl prekyboje.</p><p><a href="${siteUrl()}/${["difuzoriai", "aliejai"].includes(p.type) ? p.type : "kvepalai"}/${p.id}" style="color:#284CA2;font-weight:700">Peržiūrėti</a></p>`),
+          html: wrapMail(`<p>Sveiki!</p><p>Kvapas <b>${escHtml(p.name)}</b>, kurio laukėte, vėl prekyboje.</p><p><a href="${siteUrl()}/${typePath(p)}/${p.id}" style="color:#284CA2;font-weight:700">Peržiūrėti</a></p>`),
           idem: `vd-restock-${r.id}`
         });
         if (ok) {

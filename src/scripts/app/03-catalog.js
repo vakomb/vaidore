@@ -6,12 +6,15 @@ const SAMPLE_ML = 2;
 // Buteliukų talpos – tik 33 ml ir 100 ml (+ 2 ml mėginukas). Kitos (seni 30 / 50 ml įrašai) parduotuvėje nerodomos.
 const BOTTLE_ML = [33, 100];
 
-// Prekės tipai (v13): pradžios plytelės, meniu, katalogo puslapiai /kvepalai, /difuzoriai, /aliejai.
+// Prekės tipai (v13, v15 – 5 tipai): pradžios plytelės, meniu, katalogo puslapiai /<tipas>.
 // Lytis, mėginukas 2 ml, koncentracija ir talpos 33 / 100 ml – tik kvepalams. Tipas be prekių – nerodomas.
+// scented – turi kvapą (elektrinis difuzorius – prietaisas be kvapo); n – daiktavardis skaičiui (1 / 2 / 10).
 const TYPES = [
-  { id: "kvepalai", name: "Kvepalai", one: "Kvepalai", title: "Visi kvepalai" },
-  { id: "difuzoriai", name: "Difuzoriai", one: "Namų kvapų difuzorius", title: "Namų kvapų difuzoriai" },
-  { id: "aliejai", name: "Aliejai", one: "Kvapusis aliejus", title: "Kvapieji aliejai" }
+  { id: "kvepalai", name: "Kvepalai", one: "Kvepalai", title: "Visi kvepalai", scented: true, n: ["kvapas", "kvapai", "kvapų"] },
+  { id: "difuzoriai", name: "Difuzoriai", one: "Namų kvapų difuzorius", title: "Namų kvapų difuzoriai", scented: true, n: ["difuzorius", "difuzoriai", "difuzorių"] },
+  { id: "zvakes", name: "Žvakės", one: "Kvapni žvakė", title: "Kvapnios žvakės", scented: true, n: ["žvakė", "žvakės", "žvakių"] },
+  { id: "aliejai", name: "Aliejai", one: "Aromatinis aliejus", title: "Aromatiniai aliejai difuzoriams", scented: true, n: ["aliejus", "aliejai", "aliejų"] },
+  { id: "elektriniai-difuzoriai", name: "Elektriniai difuzoriai", one: "Elektrinis difuzorius", title: "Elektriniai difuzoriai", scented: false, n: ["difuzorius", "difuzoriai", "difuzorių"] }
 ];
 const TYPE = new Map(TYPES.map(t => [t.id, t]));
 const typeOf = p => (TYPE.has(p?.type) ? p.type : "kvepalai");

@@ -305,7 +305,7 @@ await page.locator('#tbStyle input[data-tb-st="fs"]').fill("16");
 check(await until(async () => (await pv.locator("#topNoteTxt").textContent()).includes("Žiemos akcija")), "juosta: peržiūroje – naujas tekstas");
 check(await until(async () => (await pv.locator("#topNote").evaluate(e => getComputedStyle(e).backgroundImage)).includes("gradient")), "juosta: peržiūroje – aukso gradientas");
 check((await page.locator("#tbStyle .tbContrast:not(.bad)").count()) === 1, "juosta: kontrastas tikrinamas");
-check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,aliejai", "plytelės: numatytosios – Kvepalai, Difuzoriai, Aliejai");
+check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,zvakes,aliejai,elektriniai-difuzoriai", "plytelės: numatytosios – 5 prekių tipai");
 await page.locator('#heTiles [data-he-tile="aliejai"] [data-he-on]').click();
 await page.click('[data-he-addtile="kat-vakarui"]');
 await shot(page, "pradzia");

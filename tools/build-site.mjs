@@ -143,11 +143,13 @@ const listDesc = list =>
     .slice(0, 5)
     .map(p => p.name)
     .join(", ")}${list.length > 5 ? " ir kiti" : ""}. Mėginukai 2 ml, nemokamas pristatymas nuo ${S.freeShippingFrom} €.`;
-// Prekių tipai (v13): kvepalai / difuzoriai / aliejai – sąrašo puslapis tik tipui, kuriame yra prekių
+// Prekių tipai (v13, v15 – 5 tipai; tie patys kaip TYPES, 03-catalog.js) – sąrašo puslapis tik tipui, kuriame yra prekių
 const TYPE_PAGE = {
-  kvepalai: { name: "Kvepalai", one: "Kvepalai" },
-  difuzoriai: { name: "Namų kvapų difuzoriai", one: "Namų kvapų difuzorius" },
-  aliejai: { name: "Kvapieji aliejai", one: "Kvapusis aliejus" }
+  kvepalai: { name: "Kvepalai", one: "Kvepalai", what: "kvapai" },
+  difuzoriai: { name: "Namų kvapų difuzoriai", one: "Namų kvapų difuzorius", what: "difuzoriai" },
+  zvakes: { name: "Kvapnios žvakės", one: "Kvapni žvakė", what: "žvakės" },
+  aliejai: { name: "Aromatiniai aliejai difuzoriams", one: "Aromatinis aliejus", what: "aliejai" },
+  "elektriniai-difuzoriai": { name: "Elektriniai difuzoriai", one: "Elektrinis difuzorius", what: "difuzoriai" }
 };
 const typeOf = p => (TYPE_PAGE[p.type] ? p.type : "kvepalai");
 const perfumes = products.filter(p => typeOf(p) === "kvepalai");
@@ -157,9 +159,9 @@ const productList = (list, what = "kvapai") =>
     .map(p => p.name)
     .join(", ")}${list.length > 5 ? " ir kiti" : ""}.`;
 page("kvepalai/index.html", { route: "kvepalai", title: `Kvepalai | ${S.shop}`, desc: listDesc(perfumes) });
-for (const t of ["difuzoriai", "aliejai"]) {
+for (const t of Object.keys(TYPE_PAGE).filter(t => t !== "kvepalai")) {
   const list = products.filter(p => typeOf(p) === t);
-  if (list.length) page(`${t}/index.html`, { route: t, title: `${TYPE_PAGE[t].name} | ${S.shop}`, desc: productList(list, t === "difuzoriai" ? "difuzoriai" : "aliejai") });
+  if (list.length) page(`${t}/index.html`, { route: t, title: `${TYPE_PAGE[t].name} | ${S.shop}`, desc: productList(list, TYPE_PAGE[t].what) });
 }
 for (const [g, t] of [
   ["moterims", "Kvepalai moterims"],

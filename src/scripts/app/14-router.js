@@ -15,12 +15,12 @@ function currentPath() {
 }
 function matchRoute(path) {
   if (path === "") return { view: "home" };
-  if (["kvepalai", "difuzoriai", "aliejai", "moterims", "vyrams", "unisex", "meginukai", "bestselleriai", "nuolaidos"].includes(path)) return { view: "shop", base: path };
+  if (TYPE.has(path) || ["moterims", "vyrams", "unisex", "meginukai", "bestselleriai", "nuolaidos"].includes(path)) return { view: "shop", base: path };
   let m = path.match(/^kategorija\/([a-z0-9-]+)$/);
   if (m) return CATEGORY.get(m[1]) ? { view: "shop", base: path } : { view: "404" };
   // Prekė: <tipas>/<id> (kvepalai/rasa, difuzoriai/…); senas adresas su kitu tipu – pataisomas (renderProduct)
-  m = path.match(/^(kvepalai|difuzoriai|aliejai)\/([a-z0-9-]+)$/);
-  if (m) return { view: "product", id: m[2] };
+  m = path.match(/^([a-z-]+)\/([a-z0-9-]+)$/);
+  if (m && TYPE.has(m[1])) return { view: "product", id: m[2] };
   if (path === "krepselis") return { view: "cart" };
   if (path === "megstami") return { view: "fav" };
   if (path === "paskyra" || path.startsWith("paskyra/")) return { view: "account", sub: path.split("/")[1] || "" };

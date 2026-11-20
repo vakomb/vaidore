@@ -20,7 +20,7 @@ const DEFAULT_SLIDES = [
   { id: "dovana", on: true, preset: "gift" },
   { id: "teiginiai", on: true, preset: "claims" }
 ];
-const DEFAULT_TILES = ["kvepalai", "difuzoriai", "aliejai"].map(key => ({ key, on: true }));
+const DEFAULT_TILES = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"].map(key => ({ key, on: true }));
 
 // Skaidrių šablonai – numatytieji tekstai ir scena (galioja, kol administratorius neįrašė savo)
 const SLIDE_PRESETS = {
@@ -144,7 +144,7 @@ function tilePreset(key) {
   // Prekių tipas – be įkeltos plytelės nuotraukos rodoma pirmos to tipo prekės nuotrauka
   if (TYPE.has(key)) {
     const list = byRank.filter(p => typeOf(p) === key);
-    return { name: TYPE.get(key).name, href: key, stage: { kvepalai: "unisex", difuzoriai: "fresh", aliejai: "women" }[key], list, image: list.find(p => p.images?.[0])?.images[0] || "" };
+    return { name: TYPE.get(key).name, href: key, stage: { kvepalai: "unisex", difuzoriai: "fresh", zvakes: "set", aliejai: "vials", "elektriniai-difuzoriai": "fresh" }[key], list, image: list.find(p => p.images?.[0])?.images[0] || "" };
   }
   if (key === "moterims" || key === "vyrams" || key === "unisex") {
     const st = { moterims: "women", vyrams: "men", unisex: "unisex" }[key];
@@ -164,8 +164,19 @@ function tilePreset(key) {
   }
   return null;
 }
+// Išsaugotame sąraše trūkstami prekių tipai (nauji, v15) įterpiami po paskutinio esamo tipo – įjungti
+// (rodomi tik atsiradus prekių); jei administratorius tipą išjungė, jis lieka išjungtas
+function tileList() {
+  if (!Array.isArray(SET.tiles)) return DEFAULT_TILES;
+  const raw = [...SET.tiles];
+  const last = raw.findLastIndex(t => TYPE.has(t?.key));
+  if (last < 0) return raw;
+  const missing = TYPES.filter(t => !raw.some(x => x?.key === t.id)).map(t => ({ key: t.id, on: true }));
+  raw.splice(last + 1, 0, ...missing);
+  return raw;
+}
 function homeTiles() {
-  const raw = Array.isArray(SET.tiles) ? SET.tiles : DEFAULT_TILES;
+  const raw = tileList();
   return raw
     .filter(t => t && t.on !== false)
     .map(t => {

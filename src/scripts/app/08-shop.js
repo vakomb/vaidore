@@ -36,7 +36,7 @@ const SPECIAL = {
   nuolaidos: { title: "Didžiausios nuolaidos", sub: "Kvapai su nuolaida. Perbraukta – mažiausia kaina per 30 dienų iki nuolaidos.", test: p => onSale(p) }
 };
 const PAGE = 24;
-// type – prekės tipas (kvepalai / difuzoriai / aliejai); lyties, mėginukų puslapiai – tik kvepalai; kategorijos,
+// type – prekės tipas (TYPES, 03-catalog); lyties, mėginukų puslapiai – tik kvepalai; kategorijos,
 // bestselleriai, nuolaidos – visi tipai (type: null)
 const shop = { base: "kvepalai", type: "kvepalai", gender: "all", category: null, samples: false, special: null, q: "", sort: "rank", pmin: null, pmax: null, limit: PAGE };
 for (const k in SET_FILTERS) shop[k] = new Set();
@@ -228,7 +228,7 @@ function renderShop() {
     list.length > shop.limit
       ? `<span>Rodoma ${shown.length} iš ${list.length}</span><button class="btn ghost" type="button" data-shop-more>Rodyti daugiau</button>`
       : "";
-  const nouns = { difuzoriai: ["difuzorius", "difuzoriai", "difuzorių"], aliejai: ["aliejus", "aliejai", "aliejų"] }[shop.type] || ["kvapas", "kvapai", "kvapų"];
+  const nouns = TYPE.get(shop.type)?.n || TYPES[0].n;
   $("#shopCount").textContent = plural(list.length, ...nouns);
   $("#shopSort").value = shop.sort;
   const n = filterCount();
