@@ -136,7 +136,17 @@ async function decodeImage(file) {
     }
   }
 }
-async function prepareImage(file, max = 1600) {
+// Ar paveikslas turi permatomų vietų (tikrinama kas kelintas taškas – greitai ir dideliems paveikslams)
+function hasAlpha(ctx, w, h) {
+  const d = ctx.getImageData(0, 0, w, h).data;
+  const step = Math.max(1, Math.floor((w * h) / 250000)) * 4;
+  for (let i = 3; i < d.length; i += step) if (d[i] < 250) return true;
+  return false;
+}
+// Prekės nuotrauka (v15b): permatomas fonas išlieka (WebP, o jei naršyklė WebP nekoduoja, pvz. senesnis iPhone – PNG,
+// ne JPEG, kuris fonas taptų baltas). Nepermatoma prekės nuotrauka – JPEG: parduotuvė pagal .jpg žino, kad tai
+// stačiakampė nuotrauka, ir nededa šešėlio (kitaip šonuose matomos pilkos juostos).
+async function prepareImage(file, max = 1600, { product = false } = {}) {
   if (!/^image\//.test(file.type) && !/\.(jpe?g|png|webp|gif|avif|hei[cf])$/i.test(file.name)) throw new Error(`${file.name}: ne paveikslas`);
   const bmp = await decodeImage(file);
   const bw = bmp.naturalWidth || bmp.width;
@@ -145,18 +155,21 @@ async function prepareImage(file, max = 1600) {
   const c = document.createElement("canvas");
   c.width = Math.round(bw * k);
   c.height = Math.round(bh * k);
-  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  const ctx = c.getContext("2d");
+  ctx.drawImage(bmp, 0, 0, c.width, c.height);
   bmp.close?.();
   const toBlob = (type, q) => new Promise(res => c.toBlob(res, type, q));
+  const alpha = hasAlpha(ctx, c.width, c.height);
+  if (product && !alpha) return toBlob("image/jpeg", 0.86);
   let blob = await toBlob("image/webp", 0.84);
-  if (!blob || blob.type !== "image/webp") blob = await toBlob("image/jpeg", 0.86);
+  if (!blob || blob.type !== "image/webp") blob = alpha ? await toBlob("image/png") : await toBlob("image/jpeg", 0.86);
   return blob;
 }
-async function uploadImages(files, prefix, max = 1600) {
+async function uploadImages(files, prefix, max = 1600, opts = {}) {
   const urls = [];
   for (const f of files) {
-    const blob = await prepareImage(f, max);
-    const ext = blob.type === "image/webp" ? "webp" : "jpg";
+    const blob = await prepareImage(f, max, opts);
+    const ext = { "image/webp": "webp", "image/png": "png" }[blob.type] || "jpg";
     urls.push(await sbUpload("products", `${prefix}/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}.${ext}`, blob));
   }
   return urls;

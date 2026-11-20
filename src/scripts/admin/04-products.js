@@ -419,7 +419,7 @@ async function addImages(ed, form, input) {
   const label = input.closest("label");
   label.classList.add("loading");
   try {
-    const urls = await uploadImages(files, id);
+    const urls = await uploadImages(files, id, 1600, { product: true });
     ed.images.push(...urls);
     paintImages(ed);
     afDone("images");

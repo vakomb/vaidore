@@ -83,6 +83,9 @@
   object-fit: contain;
   filter: drop-shadow(calc(-0.6 * var(--u)) calc(0.8 * var(--u)) calc(1.2 * var(--u)) rgba(30, 24, 16, 0.14));
 }
+.sb img.flat {
+  filter: none;
+}
 .sb::after,
 .sv::after,
 .sx::after {

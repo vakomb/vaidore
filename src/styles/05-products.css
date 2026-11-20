@@ -310,6 +310,10 @@
   object-fit: contain;
   filter: var(--bottle-shadow);
 }
+/* Nuotrauka su fonu (JPEG): be šešėlio – kitaip šešėlis apibrėžia stačiakampį ir šonuose matosi juostos (v15b) */
+.art img.photo.flat {
+  filter: none;
+}
 .art .pill {
   position: absolute;
   top: 10px;

@@ -23,6 +23,9 @@
   filter: var(--bottle-shadow);
   scroll-snap-align: center;
 }
+.gal img.flat {
+  filter: none;
+}
 .galDots {
   position: absolute;
   z-index: 2;

@@ -88,6 +88,7 @@ const DEVICE = {
   inspired: "",
   sizes: [{ ml: 1, price: 29.9, unit: "vnt" }],
   attrs: { tank: 300, runtime: 10, power: "USB", light: "LED" },
+  images: ["og/home.jpg"],
   sample: 0,
   rank: 97,
   badge: null
@@ -370,8 +371,11 @@ async function run(viewport) {
       (await page.locator("#productRoot .pdKey").textContent()).includes("Tylus"),
     "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės atskleistos (be maitinimo ir ploto)"
   );
+  // Nuotrauka su fonu (JPEG) – be šešėlio (kitaip šonuose pilkos juostos), permatoma (WebP) – su šešėliu
+  check((await page.locator("#productRoot .gal img").evaluate(el => el.classList.contains("flat") && getComputedStyle(el).filter)) === "none", "JPEG nuotrauka prekės puslapyje – be šešėlio (be juostų šonuose)");
   await open(page, `${A}elektriniai-difuzoriai`);
   await page.waitForSelector("#shopGrid .card");
+  check((await page.locator("#shopGrid .art img.photo").first().evaluate(el => el.classList.contains("flat") && getComputedStyle(el).filter)) === "none", "JPEG nuotrauka kortelėje – be šešėlio");
   check(!(await page.locator("#shopFilters").textContent()).match(/Natos|Kvapo pobūdis|Sezonas|Pagal lytį/), "elektrinių difuzorių filtruose – be kvapo filtrų");
   await open(page, `${A}kvepalai?proga=kasdien`);
   await page.waitForSelector("#shopGrid .card");

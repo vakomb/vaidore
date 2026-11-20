@@ -166,7 +166,11 @@ await page.locator('.admCheck:has(input[value="vakarui"])').click();
 const imgs0 = sb.db.products.find(x => x.id === "vanor").images.length;
 await page.setInputFiles("[data-img-input]", path.join(root, "src/public/icons/icon-512.png"));
 check(await until(async () => (await page.locator(".admImg").count()) === imgs0 + 1), "nuotrauka pridėta prie esamų");
-check(sb.uploads.length === 1 && /image\/(webp|jpeg)/.test(sb.uploads[0].type), "nuotrauka sumažinta ir įkelta (WebP)");
+check(sb.uploads.length === 1 && sb.uploads[0].type === "image/jpeg" && /\.jpg$/.test(sb.uploads[0].path), "nuotrauka su fonu – sumažinta, JPEG (parduotuvėje be šešėlio)");
+await page.setInputFiles("[data-img-input]", path.join(root, "src/public/img/kvapai/arven-1.webp"));
+check(await until(() => sb.uploads.length === 2), "permatoma nuotrauka įkelta");
+check(sb.uploads[1].type === "image/webp" && /\.webp$/.test(sb.uploads[1].path), "permatoma nuotrauka – WebP (fonas lieka permatomas)");
+await page.locator('.admImg[data-img-i="' + (imgs0 + 1) + '"] [data-img="rm"]').click();
 await page.click("#prodForm button[type=submit]");
 check(
   await until(() => {

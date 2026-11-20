@@ -10,11 +10,13 @@ function badgePill(p) {
   if (!p.badge) return "";
   return `<span class="pill glass">${esc(p.badge)}</span>`;
 }
+// Nuotrauka su fonu (JPEG – visada stačiakampė, be permatomumo): be šešėlio, kad šonuose nebūtų pilkų juostų (v15b)
+const flatImg = src => /\.jpe?g(?:[?#]|$)/i.test(src || "");
 // Paveikslas: tikra nuotrauka (images[0], WebP), jei yra; kitaip – buteliuko SVG
 function artImg(p, { eager = false } = {}) {
   const src = p.images?.[0];
   return src
-    ? `<img class="photo" src="${esc(src)}" alt="${esc(p.name)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />`
+    ? `<img class="photo${flatImg(src) ? " flat" : ""}" src="${esc(src)}" alt="${esc(p.name)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />`
     : bottleSVG(p);
 }
 const defaultMl = p => (p.sizes.find(s => s.ml === BOTTLE_ML[0]) || p.sizes[0]).ml;

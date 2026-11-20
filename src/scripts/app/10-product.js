@@ -9,7 +9,7 @@ function galleryHTML(p) {
   return `<div class="gal" tabindex="0" aria-label="${esc(p.name)} nuotraukos">${imgs
     .map(
       (src, i) =>
-        `<img src="${esc(src)}" alt="${esc(p.name)}${imgs.length > 1 ? ` – ${i + 1} iš ${imgs.length}` : ""}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" />`
+        `<img${flatImg(src) ? ' class="flat"' : ""} src="${esc(src)}" alt="${esc(p.name)}${imgs.length > 1 ? ` – ${i + 1} iš ${imgs.length}` : ""}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" />`
     )
     .join("")}</div>${imgs.length > 1 ? `<div class="galDots" aria-hidden="true">${imgs.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}`;
 }

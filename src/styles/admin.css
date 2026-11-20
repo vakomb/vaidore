@@ -208,6 +208,9 @@
   object-fit: contain;
   filter: var(--bottle-shadow);
 }
+.admThumb img.flat {
+  filter: none;
+}
 .group .row .money {
   font-weight: 600;
   white-space: nowrap;
