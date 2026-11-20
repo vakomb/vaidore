@@ -28,6 +28,36 @@ const GENDER_NAME = { moterims: "Moterims", vyrams: "Vyrams", unisex: "Unisex" }
 const GENDER_TITLE = { moterims: "Kvepalai moterims", vyrams: "Kvepalai vyrams", unisex: "Unisex kvepalai" };
 const CONC_NAME = { EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", Extrait: "Extrait de Parfum" };
 const SEASON_NAME = { pavasaris: "Pavasaris", vasara: "Vasara", ruduo: "Ruduo", žiema: "Žiema" };
+// Progos (v15, products.occasions) ir tipo savybės (products.attrs) – tie patys kaip administravime (13-autofill.js)
+const OCCASION_NAME = { kasdien: "Kasdien", darbui: "Darbui", pasimatymui: "Pasimatymui", vakareliui: "Vakarėliui", sventei: "Šventei" };
+const ATTR_DEFS = {
+  difuzoriai: [
+    ["sticks", "Lazdelių skaičius", "vnt."],
+    ["weeks", "Trukmė", "sav."],
+    ["room", "Patalpos dydis", "m²"]
+  ],
+  zvakes: [
+    ["burn", "Degimo trukmė", "val."],
+    ["wax", "Vaškas", ""],
+    ["wick", "Dagtis", ""]
+  ],
+  aliejai: [
+    ["weeks", "Trukmė", "sav."],
+    ["forDiffuser", "Elektriniams difuzoriams", ""]
+  ],
+  "elektriniai-difuzoriai": [
+    ["tank", "Vandens talpa", "ml"],
+    ["runtime", "Veikimo laikas", "val."],
+    ["area", "Plotas", "m²"],
+    ["power", "Maitinimas", ""],
+    ["light", "Apšvietimas", ""]
+  ]
+};
+// Prekės savybės puslapiui: [[pavadinimas, reikšmė]] (tik įrašytos)
+const attrList = p =>
+  (ATTR_DEFS[typeOf(p)] || [])
+    .filter(([k]) => p.attrs?.[k] != null && p.attrs[k] !== "" && p.attrs[k] !== false)
+    .map(([k, label, unit]) => [label, p.attrs[k] === true ? "Taip" : nb(`${p.attrs[k]}${unit ? ` ${unit}` : ""}`)]);
 const LEVEL = ["", "Labai lengvas", "Lengvas", "Vidutinis", "Stiprus", "Labai stiprus"];
 const LASTS = ["", "2–3 val.", "3–5 val.", "5–7 val.", "7–9 val.", "9+ val."];
 
@@ -63,7 +93,9 @@ function setCatalog(c) {
           ...p.notes.heart,
           ...p.notes.base,
           ...p.seasons,
-          ...p.time
+          ...p.time,
+          TYPE.get(p.type)?.one || "",
+          ...(p.occasions || []).map(o => OCCASION_NAME[o] || "")
         ].join(" ")
       )
     ])
@@ -96,10 +128,18 @@ function ratingOf(p) {
 }
 const familyName = id => FAMILY?.get(id)?.name || "";
 const priceOf = (p, ml) => (ml === SAMPLE_ML ? p.sample : p.sizes.find(s => s.ml === ml)?.price);
-const sizeLabel = ml => (ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${ml} ml`);
+// Talpos vienetas (v15): sizes[].unit – "g" (žvakės), "vnt" (elektrinis difuzorius), kitaip ml
+const unitOf = (p, ml) => p?.sizes?.find(s => s.ml === ml)?.unit || "ml";
+const sizeLabel = (ml, p) => {
+  if (ml === SAMPLE_ML && (!p || isPerfume(p))) return "Mėginukas 2 ml";
+  const u = unitOf(p, ml);
+  return u === "vnt" ? "1 vnt." : `${ml} ${u}`;
+};
 // „Įkvėpti Tom Ford – Tobacco Vanille“ – rodoma, jei kvapas turi lauką inspired ir nustatymuose neišjungta
 const inspiredOf = p => (SET.inspired?.show !== false && p.inspired) || "";
-const cardSub = p => `${familyName(p.family)} · ${p.conc}`;
+const cardSub = p => (isPerfume(p) ? `${familyName(p.family)} · ${p.conc}` : TYPE.get(typeOf(p)).one);
+// Po pavadinimu kortelėje ir puslapyje: trys natos; prekei be natų (elektrinis difuzorius) – šūkis
+const keyLine = p => (keyNotes(p).length ? keyNotes(p).map(esc).join(" · ") : esc(p.tagline || ""));
 const productUrl = p => `${typeOf(p)}/${p.id}`;
 // Likutis: laukas stock (nėra – neskaičiuojama, 0 – laikinai išparduota). Tą pačią taisyklę tikrina serveris.
 const inStock = p => p.stock == null || p.stock > 0;

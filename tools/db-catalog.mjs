@@ -46,7 +46,9 @@ export async function dbCatalog(sb, fallback) {
       occasions: p.occasions || [],
       attrs: p.attrs || {},
       scent: p.scent_id || null,
-        sizes: (p.sizes || []).map(s => ({ ml: Number(s.ml), price: Number(s.price), ...(Number(s.was) > Number(s.price) ? { was: Number(s.was) } : {}) })).sort((a, b) => a.ml - b.ml),
+        sizes: (p.sizes || [])
+        .map(s => ({ ml: Number(s.ml), price: Number(s.price), ...(Number(s.was) > Number(s.price) ? { was: Number(s.was) } : {}), ...(s.unit && s.unit !== "ml" ? { unit: s.unit } : {}) }))
+        .sort((a, b) => a.ml - b.ml),
         sample: Number(p.sample),
         look: p.look,
         badge: p.badge || null,

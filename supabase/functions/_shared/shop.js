@@ -15,6 +15,12 @@ const SAMPLE_ML = 2;
 // Prekių tipai (v15) – tie patys kaip TYPES (src/scripts/app/03-catalog.js): Stripe aprašymui ir nuorodoms
 const TYPE_ONE = { difuzoriai: "Namų kvapų difuzorius", zvakes: "Kvapni žvakė", aliejai: "Aromatinis aliejus", "elektriniai-difuzoriai": "Elektrinis difuzorius" };
 const typePath = p => (TYPE_ONE[p.type] ? p.type : "kvepalai");
+// Talpos pavadinimas (v15): sizes[].unit – "g" (žvakės), "vnt" (elektrinis difuzorius), kitaip ml
+const sizeName = (p, ml) => {
+  if (ml === SAMPLE_ML && !TYPE_ONE[p.type]) return "mėginukas 2 ml";
+  const unit = (p.sizes || []).find(s => Number(s.ml) === ml)?.unit || "ml";
+  return unit === "vnt" ? "1 vnt." : `${ml} ${unit}`;
+};
 const cents = v => Math.round(Number(v) * 100);
 const inStock = p => p.stock == null || p.stock > 0;
 export const eurTxt = c => `${(c / 100).toFixed(2).replace(".", ",")} €`;
@@ -164,7 +170,7 @@ export function createShop(env) {
           currency,
           unit_amount: cents(price),
           product_data: {
-            name: `${S.shop || "Vaidore"} ${p.name} · ${ml === SAMPLE_ML ? "mėginukas 2 ml" : `${ml} ml`}`,
+            name: `${S.shop || "Vaidore"} ${p.name} · ${sizeName(p, ml)}`,
             description: `${TYPE_ONE[p.type] || p.conc}${p.tagline ? ` · ${p.tagline}` : ""}`.slice(0, 250),
             metadata: { product_id: p.id, ml: String(ml) }
           }

@@ -188,7 +188,9 @@ for (const p of products) {
   const prices = p.sizes.map(s => s.price);
   const notes = [...p.notes.top, ...p.notes.heart, ...p.notes.base].slice(0, 5).join(", ");
   const insp = S.inspired?.show !== false && p.inspired ? `Įkvėpti ${p.inspired}. ` : "";
-  const desc = `${insp}${p.tagline ? `${p.tagline}. ` : ""}${FAM[p.family]} kvapas: ${notes}. ${p.sizes.map(s => `${s.ml} ml`).join(" / ")} nuo ${money(Math.min(...prices))}${
+  const sizeTxt = s => (s.unit === "vnt" ? "" : `${s.ml} ${s.unit || "ml"}`);
+  const scentTxt = notes ? `${FAM[p.family]} kvapas: ${notes}. ` : "";
+  const desc = `${insp}${p.tagline ? `${p.tagline}. ` : ""}${scentTxt}${p.sizes.map(sizeTxt).filter(Boolean).join(" / ")}${p.sizes.some(sizeTxt) ? " " : ""}nuo ${money(Math.min(...prices))}${
     perf && Number(p.sample) > 0 ? `, mėginukas 2 ml – ${money(p.sample)}` : ""
   }.`.slice(0, 300);
   const image = p.images?.length ? p.images.map(i => new URL(i, `${SITE}/`).href) : [`${SITE}/${ogFile(p.id)}`];

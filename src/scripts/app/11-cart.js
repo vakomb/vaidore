@@ -20,7 +20,7 @@ function lineHTML(l) {
     : `<a class="art" href="${productUrl(p)}${l.ml === SAMPLE_ML ? "?ml=2" : ""}" data-nav style="--tint:${p.look.tint}" aria-hidden="true" tabindex="-1">${artImg(p)}</a>`;
   const name = disc
     ? `<b>${esc(DISC.name)}</b><small>${esc(l.picks.map(id => BY_ID.get(id).name).join(", "))}</small>`
-    : `<a href="${productUrl(p)}${l.ml === SAMPLE_ML ? "?ml=2" : ""}" data-nav>${esc(p.name)}</a><small>${esc(sizeLabel(l.ml))} · ${esc(isPerfume(p) ? p.conc : TYPE.get(typeOf(p)).one)}</small>`;
+    : `<a href="${productUrl(p)}${l.ml === SAMPLE_ML ? "?ml=2" : ""}" data-nav>${esc(p.name)}</a><small>${esc(sizeLabel(l.ml, p))} · ${esc(isPerfume(p) ? p.conc : TYPE.get(typeOf(p)).one)}</small>`;
   return `<div class="line" data-line="${esc(lineKey(l))}">
 ${art}
 <div class="lineName">${name}</div>

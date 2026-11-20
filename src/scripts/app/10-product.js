@@ -22,7 +22,7 @@ function sampleNoteHTML() {
 }
 function priceBlockHTML(p, ml) {
   const was = wasOf(p, ml);
-  return `${was ? `<s class="money" data-buy-was>${eur(was)}</s>` : ""}<b class="money${was ? " sale" : ""}" data-buy-price>${eur(priceOf(p, ml))}</b><small data-buy-size>${sizeLabel(ml)}</small>${
+  return `${was ? `<s class="money" data-buy-was>${eur(was)}</s>` : ""}<b class="money${was ? " sale" : ""}" data-buy-price>${eur(priceOf(p, ml))}</b><small data-buy-size>${sizeLabel(ml, p)}</small>${
     was ? `<span class="pill salePill">Akcija</span>` : ""
   }`;
 }
@@ -33,7 +33,11 @@ const qtyHTML = (cls = "") =>
 function productPageHTML(p, ml) {
   const sizes = [...p.sizes.map(s => ({ ml: s.ml, price: s.price, was: s.was })), ...(hasSample(p) ? [{ ml: SAMPLE_ML, price: p.sample }] : [])];
   const sizeBtn = s =>
-    `<button class="sizeOpt" type="button" role="radio" data-ml="${s.ml}" aria-checked="${s.ml === ml}" aria-label="${s.ml === SAMPLE_ML ? "Mėginukas 2 ml" : `${s.ml} ml`}, ${eur(s.price)}"><b>${s.ml === SAMPLE_ML ? "2 ml mėginukas" : `${s.ml} ml`}</b></button>`;
+    `<button class="sizeOpt" type="button" role="radio" data-ml="${s.ml}" aria-checked="${s.ml === ml}" aria-label="${sizeLabel(s.ml, p)}, ${eur(s.price)}"><b>${
+      s.ml === SAMPLE_ML && isPerfume(p) ? "2 ml mėginukas" : sizeLabel(s.ml, p)
+    }</b></button>`;
+  const device = typeOf(p) === "elektriniai-difuzoriai";
+  const attrs = attrList(p);
   const similar = PRODUCTS.filter(x => x.id !== p.id && inStock(x) && typeOf(x) === typeOf(p) && (x.family === p.family || x.gender === p.gender || !isPerfume(p)))
     .sort((a, b) => (b.family === p.family) - (a.family === p.family) || a.rank - b.rank)
     .slice(0, 8);
@@ -52,7 +56,8 @@ function productPageHTML(p, ml) {
     p.gender === "unisex" ? "Unisex – moterims ir vyrams" : GENDER_NAME[p.gender],
     familyName(p.family) && `${familyName(p.family)} kvapai`,
     cap(when),
-    seasons && cap(seasons)
+    seasons && cap(seasons),
+    (p.occasions || []).length && `Proga: ${(p.occasions || []).map(o => (OCCASION_NAME[o] || "").toLowerCase()).filter(Boolean).join(", ")}`
   ]
     .filter(Boolean)
     .map(t => `<li>${esc(t)}</li>`)
@@ -60,7 +65,7 @@ function productPageHTML(p, ml) {
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
   return `<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
     inspiredOf(p) ? `<p class="pdInsp">Įkvėpti <b>${esc(inspiredOf(p))}</b></p>` : ""
-  }<p class="pdKey">${keyNotes(p).map(esc).join(" · ")}</p>${
+  }<p class="pdKey">${keyLine(p)}</p>${
     rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
   }</header>
 <article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
@@ -72,13 +77,18 @@ ${galleryHTML(p)}
 <p class="pdDesc">${esc(p.desc)}</p>
 <div class="accs">
 ${isPerfume(p) ? accHTML("user", "Kam skirti", who) : ""}
-${accHTML("drop", "Natos", notes, { id: "pdNotesH" })}
+${keyNotes(p).length ? accHTML("drop", "Natos", notes, { id: "pdNotesH" }) : ""}
+${attrs.length ? accHTML("info", "Savybės", `<dl class="pdNotes">${attrs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`, { open: device }) : ""}
 ${p.ingredients ? accHTML("doc", "Ingredientai", `<p>${esc(p.ingredients)}</p>`) : ""}
 ${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
 </div>
 <div class="pdPrice">${sold ? `<b>Laikinai išparduota</b>` : priceBlockHTML(p, ml)}</div>
-<p class="pdLabel">Talpa</p>
-<div class="sizes" role="radiogroup" aria-label="Talpa">${sizes.map(sizeBtn).join("")}</div>
+${
+  device
+    ? ""
+    : `<p class="pdLabel">${typeOf(p) === "zvakes" ? "Svoris" : "Talpa"}</p>
+<div class="sizes" role="radiogroup" aria-label="${typeOf(p) === "zvakes" ? "Svoris" : "Talpa"}">${sizes.map(sizeBtn).join("")}</div>`
+}
 ${sold ? "" : `<p class="pdLabel">Kiekis</p>`}
 <div class="pdBuy" data-buy-anchor>${sold ? "" : qtyHTML()}${buyBtn}</div>
 <p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
@@ -100,7 +110,7 @@ ${
 <div class="buyBar" id="buyBar"><div class="bbIn"><span class="bbProd"><span class="bbThumb">${artImg(p)}</span><b>${esc(p.name)}</b></span><span class="price">${
     sold
       ? `<b>Išparduota</b><small>${esc(p.name)}</small>`
-      : `<span class="bbNow">${wasOf(p, ml) ? `<s class="money" data-bb-was>${eur(wasOf(p, ml))}</s>` : ""}<b class="money${wasOf(p, ml) ? " sale" : ""}" data-buy-price>${eur(priceOf(p, ml))}</b></span><small data-buy-size>${esc(p.name)} · ${sizeLabel(ml)}</small>`
+      : `<span class="bbNow">${wasOf(p, ml) ? `<s class="money" data-bb-was>${eur(wasOf(p, ml))}</s>` : ""}<b class="money${wasOf(p, ml) ? " sale" : ""}" data-buy-price>${eur(priceOf(p, ml))}</b></span><small data-buy-size>${esc(p.name)} · ${sizeLabel(ml, p)}</small>`
   }</span>${sold ? "" : qtyHTML(" bbQty")}${buyBtn}</div></div>`;
 }
 function bindGallery(root) {
@@ -164,7 +174,7 @@ function bindProduct() {
         $(".bbNow", root)?.querySelector("[data-bb-was]")?.remove();
         if (was) $(".bbNow", root)?.insertAdjacentHTML("afterbegin", `<s class="money" data-bb-was>${eur(was)}</s>`);
         $(".pdPrice", root).innerHTML = priceBlockHTML(p, pdState.ml);
-        $("#buyBar [data-buy-size]", root).textContent = `${p.name} · ${sizeLabel(pdState.ml)}`;
+        $("#buyBar [data-buy-size]", root).textContent = `${p.name} · ${sizeLabel(pdState.ml, p)}`;
         $("[data-note-slot]", root).innerHTML = pdState.ml === SAMPLE_ML ? sampleNoteHTML() : "";
       }
       return;
@@ -185,7 +195,7 @@ function bindProduct() {
         b.classList.add("added");
       });
       setTimeout(() => $$("[data-add]", root).forEach(b => ((b.innerHTML = "Įdėti į krepšelį"), b.classList.remove("added"))), 1400);
-      openMiniCart({ added: `${p.name} · ${sizeLabel(pdState.ml)}` });
+      openMiniCart({ added: `${p.name} · ${sizeLabel(pdState.ml, p)}` });
     }
   });
 }

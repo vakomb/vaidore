@@ -66,8 +66,35 @@ const DIF = {
   rank: 99,
   badge: null
 };
+// v15: kvapni žvakė (svoris g, savybės) ir elektrinis difuzorius (be kvapo, „1 vnt.“); kvepalams – progos
+const CANDLE = {
+  ...structuredClone(cat.products.find(p => p.id === "vanor")),
+  id: "kvapni-zvake-test",
+  name: "Kvapni žvakė TEST",
+  type: "zvakes",
+  sizes: [{ ml: 180, price: 14.9, unit: "g" }],
+  attrs: { burn: 40, wax: "Sojų vaškas" },
+  sample: 0,
+  rank: 98,
+  badge: null
+};
+const DEVICE = {
+  ...structuredClone(cat.products.find(p => p.id === "vanor")),
+  id: "elektrinis-difuzorius-test",
+  name: "Elektrinis difuzorius TEST",
+  type: "elektriniai-difuzoriai",
+  tagline: "Tylus aromato difuzorius su apšvietimu",
+  notes: { top: [], heart: [], base: [] },
+  inspired: "",
+  sizes: [{ ml: 1, price: 29.9, unit: "vnt" }],
+  attrs: { tank: 300, runtime: 10, power: "USB", light: "LED" },
+  sample: 0,
+  rank: 97,
+  badge: null
+};
 const shopCat = structuredClone(cat);
-shopCat.products.push(DIF);
+shopCat.products.push(DIF, CANDLE, DEVICE);
+shopCat.products.find(p => p.id === "vanor").occasions = ["kasdien", "darbui"];
 const shopFile = path.join(verify, "catalog-shop.json");
 fs.writeFileSync(shopFile, JSON.stringify(shopCat));
 const siteA = path.join(verify, "site");
@@ -147,7 +174,15 @@ async function run(viewport) {
   await open(page, A);
   await page.waitForSelector("#homeTiles a");
   const tileHrefs = await page.locator("#homeTiles .tile").evaluateAll(a => a.map(x => x.getAttribute("href")));
-  check(tileHrefs.join() === "kvepalai,difuzoriai", `pradžia: kategorijos – Kvepalai, Difuzoriai (aliejų dar nėra – nerodoma): ${tileHrefs.join(", ")}`);
+  check(tileHrefs.join() === "kvepalai,difuzoriai,zvakes,elektriniai-difuzoriai", `pradžia: kategorijos – su prekėmis (aliejų dar nėra – nerodoma): ${tileHrefs.join(", ")}`);
+  check(
+    await page.evaluate(() => {
+      const t = [...document.querySelectorAll("#homeTiles .tile")];
+      const arts = t.map(x => Math.round(x.querySelector(".tileArt").getBoundingClientRect().top - x.getBoundingClientRect().top));
+      return t.every(x => x.querySelector(".tileName").scrollWidth <= x.querySelector(".tileName").clientWidth + 1) && new Set(arts).size === 1;
+    }),
+    "pradžia: ilgi kategorijų pavadinimai telpa, nuotraukos – vienoje linijoje"
+  );
   check((await page.locator("#homeHero h1.heroTitle").textContent()).length > 2 && !(await page.locator("#homeMarquee, .marquee").count()), "pradžia: kolekcijos paveikslas, be bėgančios juostos");
   check(
     (await page.locator("#homeRails .band").allTextContents()).slice(0, 4).join("|").toLowerCase() === "kvapnios naujienos|populiariausi moterims|populiariausi vyrams|unisex kvapai" &&
@@ -301,10 +336,39 @@ async function run(viewport) {
   await page.waitForSelector("#productRoot .sizeOpt");
   check(page.url().endsWith(`/difuzoriai/${DIF.id}`), "senas adresas kvepalai/<difuzorius> – pataisomas į difuzoriai/<id>");
   check(
-    (await page.locator("#productRoot .sizeOpt").allTextContents()).join() === "100 ml" &&
+    (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "100 ml" &&
       !(await page.locator("#productRoot .acc summary").allTextContents()).includes("Kam skirti") &&
       (await page.title()).includes("Namų kvapų difuzorius"),
     "difuzoriaus puslapis: tik 100 ml (be mėginuko), be „Kam skirti“, be „Eau de Parfum“"
+  );
+  // v15: žvakė – svoris g ir savybės; elektrinis difuzorius – be talpos ir kvapo, savybės atskleistos
+  await open(page, `${A}zvakes/${CANDLE.id}`);
+  await page.waitForSelector("#productRoot .sizeOpt");
+  const accTitles = async () => (await page.locator("#productRoot .acc summary").allTextContents()).map(t => t.trim());
+  check(
+    (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "180 g" &&
+      (await page.locator("#productRoot .pdLabel").first().textContent()) === "Svoris" &&
+      (await accTitles()).includes("Savybės") &&
+      (await page.locator("#productRoot .acc").filter({ hasText: "Savybės" }).textContent()).includes("Sojų vaškas"),
+    "žvakės puslapis: svoris 180 g, savybės (vaškas, degimo trukmė)"
+  );
+  await open(page, `${A}elektriniai-difuzoriai/${DEVICE.id}`);
+  await page.waitForSelector("#productRoot [data-add]");
+  check(
+    (await page.locator("#productRoot .sizes").count()) === 0 &&
+      !(await accTitles()).includes("Natos") &&
+      (await page.locator("#productRoot .acc[open]").filter({ hasText: "Savybės" }).textContent()).includes("300") &&
+      (await page.locator("#productRoot .pdKey").textContent()).includes("Tylus"),
+    "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės atskleistos"
+  );
+  await open(page, `${A}elektriniai-difuzoriai`);
+  await page.waitForSelector("#shopGrid .card");
+  check(!(await page.locator("#shopFilters").textContent()).match(/Natos|Kvapo pobūdis|Sezonas|Pagal lytį/), "elektrinių difuzorių filtruose – be kvapo filtrų");
+  await open(page, `${A}kvepalai?proga=kasdien`);
+  await page.waitForSelector("#shopGrid .card");
+  check(
+    (await page.locator("#shopGrid .card").count()) === 1 && (await page.locator("#shopFilters").textContent()).includes("Proga") && (await page.locator("#shopFilters").textContent()).includes("Originalo kvapas"),
+    "kvepalų filtrai: „Proga“ (progos) ir „Originalo kvapas“"
   );
   await open(page, `${A}kvepalai`);
   await page.waitForSelector("#shopGrid .card");
@@ -355,7 +419,7 @@ async function run(viewport) {
   await page.waitForSelector("#productRoot h1");
   check((await page.locator("#productRoot h1").textContent()).includes("Vanor"), "kvapo puslapis: pavadinimas");
   check(
-    (await page.locator("#productRoot .sizeOpt").allTextContents()).join() === "33 ml,100 ml,2 ml mėginukas",
+    (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "33 ml,100 ml,2 ml mėginukas",
     "kvapo puslapis: talpos – tik 33 ml, 100 ml ir 2 ml mėginukas"
   );
   const accs = await page.locator("#productRoot .acc summary").allTextContents();

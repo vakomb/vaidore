@@ -218,25 +218,30 @@
 .catTiles::-webkit-scrollbar {
   display: none;
 }
+/* v15: ilgas pavadinimas („Elektriniai difuzoriai“) keliamas į antrą eilutę; pavadinimai ir paveikslai – bendrose
+   eilėse (subgrid), todėl visų plytelių paveikslai prasideda vienoje linijoje */
+.catTiles {
+  grid-template-rows: auto auto;
+}
 .tile {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
   color: #000;
   scroll-snap-align: start;
 }
 .tileName {
   display: block;
+  align-self: end;
   padding: 17px 0 16px;
-  overflow: hidden;
   font-size: var(--tileFs, 22.75px);
   font-weight: 700;
   line-height: 30px;
   letter-spacing: 0.03em;
   text-align: center;
   text-transform: uppercase;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-wrap: balance;
   color: #000;
 }
 .tile:hover .tileName {

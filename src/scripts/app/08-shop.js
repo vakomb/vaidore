@@ -1,7 +1,8 @@
 // 08 – Katalogas: /kvepalai, /moterims, /vyrams, /unisex, /meginukai, /kategorija/<id>, /bestselleriai, /nuolaidos.
-// Filtrai ir paieška – adreso parametruose (?q=&seima=&natos=&proga=&sezonas=&konc=&kaina=nuo-iki&likutis=&rikiuoti=),
+// Filtrai ir paieška – adreso parametruose (?q=&seima=&natos=&laikas=&proga=&sezonas=&originalas=&konc=&formatas=&kaina=nuo-iki&likutis=&rikiuoti=),
 // todėl nuorodą galima nukopijuoti ir pasidalinti. Kaip parfumada.lt: Pagal lytį · Kategorija · Kvapo pobūdis · Natos ·
-// Proga · Sezonas · Kaina (nuo–iki) · Likutis (+ koncentracija, formatas).
+// Paros laikas · Proga · Sezonas · Originalo kvapas · Kaina (nuo–iki) · Likutis (+ koncentracija, formatas).
+// v15: proga – products.occasions; formatas – kitų tipų talpa / svoris; elektriniams difuzoriams kvapo filtrų nėra.
 // Kompiuteryje filtrai – kairėje šoninėje juostoje, telefone – lange („Filtrai“). Po 24 kvapus, „Rodyti daugiau“.
 const STOCK_NAME = { yra: "Yra sandėlyje", nera: "Išparduota" };
 const SORTS = [
@@ -13,14 +14,19 @@ const SORTS = [
 const TIME_NAME = { diena: "Dienai", vakaras: "Vakarui" };
 const SEASONS = ["pavasaris", "vasara", "ruduo", "žiema"];
 const noteList = p => [...p.notes.top, ...p.notes.heart, ...p.notes.base];
+// Formatas (ne kvepalams): „100 ml“, „180 g“ – raktas ir pavadinimas sutampa
+const fmtKey = (p, ml) => sizeLabel(ml, p).replace(/\u00a0/g, " ");
 const allNotes = () => [...new Set(PRODUCTS.flatMap(noteList))].sort((a, b) => a.localeCompare(b, "lt"));
 // Sąrašo filtrai: būsenos raktas → adreso parametras ir tikrinimas
 const SET_FILTERS = {
   families: { param: "seima", test: (p, set) => set.has(p.family) },
   notes: { param: "natos", test: (p, set) => noteList(p).some(n => set.has(n)) },
-  time: { param: "proga", test: (p, set) => p.time.some(t => set.has(t)) },
+  time: { param: "laikas", test: (p, set) => p.time.some(t => set.has(t)) },
+  occasions: { param: "proga", test: (p, set) => (p.occasions || []).some(t => set.has(t)) },
   seasons: { param: "sezonas", test: (p, set) => p.seasons.some(t => set.has(t)) },
+  inspired: { param: "originalas", test: (p, set) => set.has(inspiredOf(p)) },
   conc: { param: "konc", test: (p, set) => set.has(p.conc) },
+  fmt: { param: "formatas", test: (p, set) => p.sizes.some(s => set.has(fmtKey(p, s.ml))) },
   stock: { param: "likutis", test: (p, set) => (set.has("yra") && inStock(p)) || (set.has("nera") && !inStock(p)) }
 };
 // Kaina nuo–iki (pagal pigiausią tūrį arba mėginuką): ?kaina=20-40
@@ -57,6 +63,8 @@ function shopFromRoute(base, params) {
   shop.pmin = lo !== "" && lo != null && isFinite(lo) ? Number(lo) : null;
   shop.pmax = hi !== "" && hi != null && isFinite(hi) ? Number(hi) : null;
   for (const [k, f] of Object.entries(SET_FILTERS)) shop[k] = setOf(params.get(f.param));
+  // Seni adresai (iki v15): ?proga=diena,vakaras – paros laikas
+  for (const t of ["diena", "vakaras"]) if (shop.occasions.delete(t)) shop.time.add(t);
   shop.sort = SORTS.some(s => s.id === params.get("rikiuoti")) ? params.get("rikiuoti") : "rank";
   shop.limit = PAGE;
 }
@@ -142,6 +150,11 @@ function filtersHTML(live = true) {
   const group = (title, body, open = true) => `<details class="fGroup"${og(title, open)}><summary>${title}${glyph("chev-down")}</summary><div class="fChecks">${body}</div></details>`;
   const notes = allNotes().filter(x => n(p => noteList(p).includes(x), "notes") || shop.notes.has(x));
   const perf = shop.type === "kvepalai";
+  const scented = !shop.type || TYPE.get(shop.type).scented;
+  const inType = PRODUCTS.filter(ofShopType);
+  const occ = Object.entries(OCCASION_NAME).filter(([id]) => inType.some(p => (p.occasions || []).includes(id)) || shop.occasions.has(id));
+  const insp = [...new Set(inType.map(inspiredOf).filter(Boolean))].sort((a, b) => a.localeCompare(b, "lt")).filter(x => n(p => inspiredOf(p) === x, "inspired") || shop.inspired.has(x));
+  const fmts = perf || !shop.type ? [] : [...new Map(inType.flatMap(p => p.sizes.map(s => [fmtKey(p, s.ml), s.ml]))).entries()].sort((a, b) => a[1] - b[1]).map(([k]) => k);
   return `${sortGroup}${
     !perf
       ? ""
@@ -161,12 +174,19 @@ ${
         .join("")}</div></details>`
     : ""
 }
-${group("Kvapo pobūdis", visibleFamilies()
-  .map(f => check("families", f.id, f.name, n(p => p.family === f.id, "families")))
-  .join(""), !!shop.families.size)}
+${
+  scented
+    ? `${group("Kvapo pobūdis", visibleFamilies()
+        .map(f => check("families", f.id, f.name, n(p => p.family === f.id, "families")))
+        .join(""), !!shop.families.size)}
 ${group("Natos", `<div class="fScroll">${notes.map(x => check("notes", x, x, n(p => noteList(p).includes(x), "notes"))).join("")}</div>`, !!shop.notes.size)}
-${group("Proga", Object.entries(TIME_NAME).map(([id, name]) => check("time", id, name, n(p => p.time.includes(id), "time"))).join(""), !!shop.time.size)}
+${occ.length ? group("Proga", occ.map(([id, name]) => check("occasions", id, name, n(p => (p.occasions || []).includes(id), "occasions"))).join(""), !!shop.occasions.size) : ""}
+${group("Paros laikas", Object.entries(TIME_NAME).map(([id, name]) => check("time", id, name, n(p => p.time.includes(id), "time"))).join(""), !!shop.time.size)}
 ${group("Sezonas", SEASONS.map(id => check("seasons", id, SEASON_NAME[id], n(p => p.seasons.includes(id), "seasons"))).join(""), !!shop.seasons.size)}
+${insp.length ? group("Originalo kvapas", `<div class="fScroll">${insp.map(x => check("inspired", x, x, n(p => inspiredOf(p) === x, "inspired"))).join("")}</div>`, !!shop.inspired.size) : ""}`
+    : ""
+}
+${fmts.length > 1 || shop.fmt.size ? group("Formatas", fmts.map(x => check("fmt", x, x, n(p => p.sizes.some(s => fmtKey(p, s.ml) === x), "fmt"))).join(""), !!shop.fmt.size) : ""}
 ${
   perf
     ? `<details class="fGroup"${og("Koncentracija", !!shop.conc.size)}><summary>Koncentracija${glyph("chev-down")}</summary><div class="fChecks">${concs()
@@ -239,7 +259,10 @@ function renderShop() {
     ...[...shop.families].map(id => ["families", id, familyName(id)]),
     ...[...shop.notes].map(id => ["notes", id, id]),
     ...[...shop.time].map(id => ["time", id, TIME_NAME[id] || id]),
+    ...[...shop.occasions].map(id => ["occasions", id, OCCASION_NAME[id] || id]),
     ...[...shop.seasons].map(id => ["seasons", id, SEASON_NAME[id] || id]),
+    ...[...shop.inspired].map(id => ["inspired", id, `Įkvėpti ${id}`]),
+    ...[...shop.fmt].map(id => ["fmt", id, id]),
     ...[...shop.conc].map(id => ["conc", id, id]),
     ...[...shop.stock].map(id => ["stock", id, STOCK_NAME[id] || id]),
     ...(shop.pmin != null || shop.pmax != null ? [["price", "", `${shop.pmin != null ? `nuo ${eurShort(shop.pmin)}` : ""}${shop.pmin != null && shop.pmax != null ? " " : ""}${shop.pmax != null ? `iki ${eurShort(shop.pmax)}` : ""}`]] : [])
@@ -334,7 +357,7 @@ function bindShop() {
 }
 // Telefone – tie patys filtrai lange; keičiami iškart, mygtukas rodo, kiek kvapų liks
 function openFilters() {
-  const body = () => `<div class="sheetPad fSheet">${filtersHTML(false)}<div class="fActions"><button class="btn ghost" type="button" data-f-clear>Išvalyti</button><button class="btn primary" type="button" data-f-apply>Rodyti ${plural(shopList().length, "kvapą", "kvapus", "kvapų")}</button></div></div>`;
+  const body = () => `<div class="sheetPad fSheet">${filtersHTML(false)}<div class="fActions"><button class="btn ghost" type="button" data-f-clear>Išvalyti</button><button class="btn primary" type="button" data-f-apply>Rodyti ${!shop.type || shop.type === "kvepalai" ? plural(shopList().length, "kvapą", "kvapus", "kvapų") : `(${shopList().length})`}</button></div></div>`;
   // Kol langas atidarytas, adresas įrašomas į lango istorijos įrašą, kuris uždarant pašalinamas („Atgal“) –
   // todėl uždarius filtrus adresą su filtrais įrašome dar kartą (dalinimuisi ir puslapio atnaujinimui)
   openSheet({ title: "Filtruoti ir rūšiuoti", html: body(), onClose: () => ui.view === "shop" && shopToUrl() });

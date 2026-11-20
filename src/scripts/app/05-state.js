@@ -74,7 +74,7 @@ function addToCart(id, ml, qty = 1, picks = null) {
   if (line) line.qty = Math.min(line.qty + qty, SET.maxQty);
   else state.cart.unshift({ ...add, qty: Math.min(qty, SET.maxQty) });
   saveCart();
-  track("Į krepšelį", { kvapas: isDisc(id) ? DISC.name : BY_ID.get(id)?.name, turis: isDisc(id) ? "rinkinys" : sizeLabel(ml) });
+  track("Į krepšelį", { kvapas: isDisc(id) ? DISC.name : BY_ID.get(id)?.name, turis: isDisc(id) ? "rinkinys" : sizeLabel(ml, BY_ID.get(id)) });
 }
 function setQty(key, qty) {
   const i = state.cart.findIndex(l => lineKey(l) === key);
