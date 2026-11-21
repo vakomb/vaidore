@@ -195,7 +195,7 @@ function drawerHTML() {
 <a class="mAcct" href="paskyra" data-nav><span class="mAvatar"${initials ? "" : ' aria-hidden="true"'}>${initials ? esc(initials) : glyph("user")}</span><span class="mAcctTxt"><b>${esc(who)}</b><small>${
     auth.user ? "Užsakymai, adresai, nustatymai" : "Užsakymų istorija ir greitesnis pirkimas"
   }</small></span>${glyph("chev-right")}</a>
-<ul class="mGroup">${typesInUse()
+<ul class="mGroup">${row("visos-prekes", "Visos prekės", "grid")}${typesInUse()
     .map(t => row(t.id, t.name, TYPE_ICO[t.id] || "tag"))
     .join("")}${row("megstami", "Mėgstami", "heart", favN ? `<b class="mCount">${favN}</b>` : "")}</ul>
 <p class="mHead">Kvepalai</p>
@@ -356,6 +356,7 @@ function renderFooter() {
   $("#ftrIn").innerHTML = `<div class="ftrMain">
 <div class="ftrNews">${newsletterFormHTML("footer")}</div>
 ${grp("Parduotuvė", [
+  a("visos-prekes", "Visos prekės"),
   ...typesInUse().map(t => a(t.id, t.name)),
   a("kvepalai?rikiuoti=new", "Naujienos"),
   a("bestselleriai", "Bestselleriai"),

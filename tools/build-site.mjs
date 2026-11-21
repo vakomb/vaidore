@@ -255,6 +255,7 @@ page("pagalba.html", {
 });
 page("apie-mus.html", { route: "apie-mus", title: `Apie mus | ${S.shop}`, desc: S.story?.text || S.tagline });
 const ranked = [...products].sort((a, b) => a.rank - b.rank);
+page("visos-prekes.html", { route: "visos-prekes", title: `Visos prekės – kvepalai ir namų kvapai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
 page("bestselleriai.html", { route: "bestselleriai", title: `Bestselleriai – populiariausi kvepalai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
 const onSaleList = products.filter(p => p.sizes.some(s => s.was > s.price));
 page("nuolaidos.html", {

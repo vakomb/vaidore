@@ -1,5 +1,5 @@
 // 14 – maršrutai (tikri adresai, History API): „“ (Pradžia), kvepalai, moterims, vyrams, unisex, meginukai,
-// kategorija/<id>, kvepalai/<id>, bestselleriai, nuolaidos, krepselis, megstami, paskyra, admin, pagalba, apie-mus,
+// kategorija/<id>, kvepalai/<id>, visos-prekes, bestselleriai, nuolaidos, krepselis, megstami, paskyra, admin, pagalba, apie-mus,
 // atsiliepimai, verslui, naujienlaiskis (atsisakymas), testas, rinkinys.
 // Kiekvienam adresui build-site.mjs sukuria statinį HTML (paieškos sistemoms); nežinomus adresus aptarnauja 404.html –
 // ta pati programėlė, kuri pati nusprendžia, ką rodyti (pvz. naujas kvapas, pridėtas administravimo skydelyje).
@@ -15,7 +15,7 @@ function currentPath() {
 }
 function matchRoute(path) {
   if (path === "") return { view: "home" };
-  if (TYPE.has(path) || ["moterims", "vyrams", "unisex", "meginukai", "bestselleriai", "nuolaidos"].includes(path)) return { view: "shop", base: path };
+  if (TYPE.has(path) || ["visos-prekes", "moterims", "vyrams", "unisex", "meginukai", "bestselleriai", "nuolaidos"].includes(path)) return { view: "shop", base: path };
   let m = path.match(/^kategorija\/([a-z0-9-]+)$/);
   if (m) return CATEGORY.get(m[1]) ? { view: "shop", base: path } : { view: "404" };
   // Prekė: <tipas>/<id> (kvepalai/rasa, difuzoriai/…); senas adresas su kitu tipu – pataisomas (renderProduct)

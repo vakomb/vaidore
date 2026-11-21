@@ -1,4 +1,4 @@
-// 08 – Katalogas: /kvepalai, /moterims, /vyrams, /unisex, /meginukai, /kategorija/<id>, /bestselleriai, /nuolaidos.
+// 08 – Katalogas: /kvepalai, /moterims, /vyrams, /unisex, /meginukai, /kategorija/<id>, /visos-prekes (?tipas=), /bestselleriai, /nuolaidos.
 // Filtrai ir paieška – adreso parametruose (?q=&seima=&natos=&originalas=&konc=&formatas=&kaina=nuo-iki&likutis=&rikiuoti=),
 // todėl nuorodą galima nukopijuoti ir pasidalinti. Kaip parfumada.lt: Pagal lytį · Kategorija · Kvapo pobūdis · Natos ·
 // Originalo kvapas · Kaina (nuo–iki) · Likutis (+ koncentracija, formatas).
@@ -21,6 +21,7 @@ const SET_FILTERS = {
   families: { param: "seima", test: (p, set) => set.has(p.family) },
   notes: { param: "natos", test: (p, set) => noteList(p).some(n => set.has(n)) },
   inspired: { param: "originalas", test: (p, set) => set.has(inspiredOf(p)) },
+  types: { param: "tipas", test: (p, set) => set.has(typeOf(p)) },
   conc: { param: "konc", test: (p, set) => set.has(p.conc) },
   fmt: { param: "formatas", test: (p, set) => p.sizes.some(s => set.has(fmtKey(p, s.ml))) },
   stock: { param: "likutis", test: (p, set) => (set.has("yra") && inStock(p)) || (set.has("nera") && !inStock(p)) }
@@ -34,6 +35,8 @@ const priceBounds = () => {
 };
 // Ypatingi sąrašai: bestselleriai (populiariausi) ir nuolaidos (tik kvapai su tikra sena kaina)
 const SPECIAL = {
+  // v27: visos prekės – visi tipai viename sąraše (telefone – ☰ meniu viršuje), filtras „Kategorija“
+  "visos-prekes": { title: "Visos prekės", sub: "", test: () => true },
   bestselleriai: { title: "Bestselleriai", sub: "Populiariausi Vaidore kvapai – juos dažniausiai renkasi pirkėjai.", test: p => bestList().includes(p) },
   nuolaidos: { title: "Didžiausios nuolaidos", sub: "Kvapai su nuolaida. Perbraukta – mažiausia kaina per 30 dienų iki nuolaidos.", test: p => onSale(p) }
 };
@@ -148,7 +151,12 @@ function filtersHTML(live = true) {
   const inType = PRODUCTS.filter(ofShopType);
   const insp = [...new Set(inType.map(inspiredOf).filter(Boolean))].sort((a, b) => a.localeCompare(b, "lt")).filter(x => n(p => inspiredOf(p) === x, "inspired") || shop.inspired.has(x));
   const fmts = perf || !shop.type ? [] : [...new Map(inType.flatMap(p => p.sizes.map(s => [fmtKey(p, s.ml), s.ml]))).entries()].sort((a, b) => a[1] - b[1]).map(([k]) => k);
-  return `${sortGroup}${
+  // Visų prekių puslapyje (v27) – pirmas filtras „Kategorija“ (prekių tipai)
+  const typeGroup =
+    shop.special === "visos-prekes" && typesInUse().length > 1
+      ? group("Kategorija", typesInUse().map(t => check("types", t.id, t.name, n(p => typeOf(p) === t.id, "types"))).join(""), !!shop.types.size)
+      : "";
+  return `${sortGroup}${typeGroup}${
     !perf
       ? ""
       : `<details class="fGroup" open><summary>Pagal lytį${glyph("chev-down")}</summary><div class="fChecks">${genders
@@ -238,7 +246,7 @@ function renderShop() {
     list.length > shop.limit
       ? `<span>Rodoma ${shown.length} iš ${list.length}</span><button class="btn ghost" type="button" data-shop-more>Rodyti daugiau</button>`
       : "";
-  const nouns = TYPE.get(shop.type)?.n || TYPES[0].n;
+  const nouns = shop.special === "visos-prekes" ? ["prekė", "prekės", "prekių"] : TYPE.get(shop.type)?.n || TYPES[0].n;
   $("#shopCount").textContent = plural(list.length, ...nouns);
   $("#shopSort").value = shop.sort;
   const n = filterCount();
@@ -248,6 +256,7 @@ function renderShop() {
   const chips = [
     ...[...shop.families].map(id => ["families", id, familyName(id)]),
     ...[...shop.notes].map(id => ["notes", id, id]),
+    ...[...shop.types].map(id => ["types", id, TYPE.get(id)?.name || id]),
     ...[...shop.inspired].map(id => ["inspired", id, `Įkvėpti ${id}`]),
     ...[...shop.fmt].map(id => ["fmt", id, id]),
     ...[...shop.conc].map(id => ["conc", id, id]),
@@ -344,7 +353,7 @@ function bindShop() {
 }
 // Telefone – tie patys filtrai lange; keičiami iškart, mygtukas rodo, kiek kvapų liks
 function openFilters() {
-  const body = () => `<div class="sheetPad fSheet">${filtersHTML(false)}<div class="fActions"><button class="btn ghost" type="button" data-f-clear>Išvalyti</button><button class="btn primary" type="button" data-f-apply>Rodyti ${!shop.type || shop.type === "kvepalai" ? plural(shopList().length, "kvapą", "kvapus", "kvapų") : `(${shopList().length})`}</button></div></div>`;
+  const body = () => `<div class="sheetPad fSheet">${filtersHTML(false)}<div class="fActions"><button class="btn ghost" type="button" data-f-clear>Išvalyti</button><button class="btn primary" type="button" data-f-apply>Rodyti ${shop.special === "visos-prekes" ? plural(shopList().length, "prekę", "prekes", "prekių") : !shop.type || shop.type === "kvepalai" ? plural(shopList().length, "kvapą", "kvapus", "kvapų") : `(${shopList().length})`}</button></div></div>`;
   // Kol langas atidarytas, adresas įrašomas į lango istorijos įrašą, kuris uždarant pašalinamas („Atgal“) –
   // todėl uždarius filtrus adresą su filtrais įrašome dar kartą (dalinimuisi ir puslapio atnaujinimui)
   openSheet({ title: "Filtruoti ir rūšiuoti", html: body(), onClose: () => ui.view === "shop" && shopToUrl() });

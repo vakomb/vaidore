@@ -321,6 +321,7 @@ async function run(viewport) {
       (await page.locator("#drawer .mAcct").isVisible()) && (await page.locator("#drawer .mGroup").count()) >= 3 && (await page.locator("#drawer .mHead").allTextContents()).join("|").includes("Pagalba"),
       "☰ meniu – kaip iOS: paskyros kortelė, sugrupuoti sąrašai, „Pagalba“"
     );
+    check((await page.locator("#drawer a.mRow[href='visos-prekes']").count()) === 1, "☰ meniu: „Visos prekės“ – pirmoje grupėje");
     await page.click("#drawer a[href='moterims']");
   } else {
     await page.click("#megaBtn");
@@ -380,6 +381,17 @@ async function run(viewport) {
     "difuzoriaus puslapis: tik 100 ml (be mėginuko), be „Kam skirti“, be „Eau de Parfum“"
   );
   // v15: žvakė – svoris g ir savybės; elektrinis difuzorius – be talpos ir kvapo, savybės atskleistos
+  // v27: „Visos prekės“ – visi tipai viename sąraše, filtras „Kategorija“ (?tipas=)
+  await open(page, `${A}visos-prekes`);
+  await page.waitForSelector("#shopGrid .card");
+  const allN = shopCat.products.filter(p => p.visible !== false).length;
+  check(
+    (await page.locator("#shopTitle").textContent()) === "Visos prekės" && (await page.locator("#shopGrid .card").count()) === Math.min(allN, 24) && /prek/.test(await page.locator("#shopCount").textContent()),
+    `„Visos prekės“: ${allN} prekės (kvepalai, difuzoriai, žvakės…)`
+  );
+  await open(page, `${A}visos-prekes?tipas=zvakes`);
+  await page.waitForSelector("#shopGrid .card");
+  check((await page.locator("#shopGrid .card").count()) === shopCat.products.filter(p => p.type === "zvakes").length, "„Visos prekės“: filtras „Kategorija“ – tik žvakės");
   await open(page, `${A}zvakes`);
   await page.waitForSelector("#shopGrid .card");
   check((await page.locator("#shopGrid .card .inspPh img").count()) >= 1, "originalo nuotrauka – ir žvakei be savos nuotraukos (iš to paties originalo kvepalų)");
