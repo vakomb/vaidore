@@ -74,6 +74,8 @@ const VDEVICE = {
   notes: { top: [], heart: [], base: [] },
   sizes: [{ ml: 1, price: 39.9, unit: "vnt" }],
   attrs: { tank: 300, runtime: 10, light: "LED, 7 spalvos" },
+  tagline: "Tylus difuzorius su LED apšvietimu",
+  desc: "Elektrinis difuzorius AURA – tylus ir elegantiškas. Vanduo ir keli lašai aliejaus virsta švelnia migla visam kambariui.",
   sample: 0,
   rank: 190,
   badge: null,
@@ -851,6 +853,12 @@ async function run(viewport) {
       (await oilSec.locator(".formRow:visible").count()) === 5 &&
       (await oilSec.locator("[data-more-forms]").textContent()).includes("Rodyti dar 2"),
     "elektrinis difuzorius: savybės kortelėmis; „Aliejai šiam difuzoriui“ – 5 ir „Rodyti dar 2“"
+  );
+  // v29: aprašymas prasideda pavadinimu – pavadinimas paryškinamas aprašyme ir nekartojamas
+  const devTxt = (await v.page.locator("#productRoot .pdText").textContent()).replace(/\u00a0|\u2060/g, " ");
+  check(
+    (await v.page.locator("#productRoot .pdTag b").first().textContent()) === "Elektrinis difuzorius AURA" && devTxt.split("Elektrinis difuzorius AURA").length === 2,
+    "aprašymas, prasidedantis pavadinimu: pavadinimas paryškintas ir nekartojamas"
   );
   await oilSec.locator("[data-more-forms]").click();
   check((await oilSec.locator(".formRow:visible").count()) === 7 && (await oilSec.locator("[data-more-forms]").count()) === 0, "„Rodyti dar“ – išskleidžia visus 7 aliejus");

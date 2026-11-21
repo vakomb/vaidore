@@ -144,12 +144,15 @@ function boldify(segs, regs) {
 function descHTML(p) {
   const notes = [...new Set([...p.notes.top, ...p.notes.heart, ...p.notes.base].filter(Boolean))].sort((a, b) => b.length - a.length);
   const regs = [...notes.map(termRe), VOLUME_RE].filter(Boolean);
-  // Pirma pastraipa: „PAVADINIMAS – šūkis.“ (be šūkio – pavadinimas prieš pirmą aprašymo pastraipą)
+  // Pirma pastraipa: „PAVADINIMAS – šūkis.“ (be šūkio – pavadinimas prieš pirmą aprašymo pastraipą). Jei aprašymas pats
+  // prasideda pavadinimu („Difuzorius CREEDORE – lengvas…“) – jis neištęsiamas: pavadinimas paryškinamas aprašyme, be šūkio
   const body = descParas(p.desc);
   const tag = String(p.tagline || "").replace(/[.\s]+$/, "");
-  const paras = tag ? [` – ${tag}.`, ...body] : [` – ${body[0] || ""}`, ...body.slice(1)];
+  const own = body[0] && fold(body[0]).startsWith(fold(p.name));
+  const head = own ? body[0].slice(0, p.name.length) : p.name;
+  const paras = own ? [body[0].slice(p.name.length), ...body.slice(1)] : tag ? [` – ${tag}.`, ...body] : [` – ${body[0] || ""}`, ...body.slice(1)];
   // Visas tekstas – viena segmentų eilė (pastraipos atskirtos \n), kad terminas būtų paryškintas tik pirmą kartą
-  const segs = boldify([{ t: p.name, b: true }, { t: paras.join("\n"), b: false }], regs);
+  const segs = boldify([{ t: head, b: true }, { t: paras.join("\n"), b: false }], regs);
   const html = segs
     .map(s => (s.b ? `<b>${esc(nb(s.t))}</b>` : esc(nb(s.t))))
     .join("")
