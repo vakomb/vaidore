@@ -12,6 +12,10 @@ export function dbFromCatalog(cat) {
     name: p.name,
     inspired: p.inspired || "",
     inspired_image: p.inspiredImage || "",
+    subtitle: p.subtitle || "",
+    mood_image: p.moodImage || "",
+    mood_title: p.moodTitle || "",
+    mood_line: p.moodLine || "",
     type: p.type || "kvepalai",
     conc: p.conc,
     gender: p.gender,
@@ -46,7 +50,12 @@ export function dbFromCatalog(cat) {
     reviews: cat.products.flatMap(p =>
       (p.reviews || []).map((r, i) => ({ id: `rv-${p.id}-${i}`, product_id: p.id, user_id: null, name: r.name, text: r.text, rating: r.rating ?? null, status: "approved", verified: r.verified !== false, created_at: `${r.date || "2026-11-01"}T12:00:00Z` }))
     ),
-    scents: structuredClone(cat.scents || []),
+    // Katalogo formatas (moodImage…) → duomenų bazės stulpeliai (mood_image…)
+    scents: (cat.scents || []).map(({ moodImage, moodTitle, moodLine, ...s }) => ({
+      ...structuredClone(s),
+      ...(moodImage != null ? { mood_image: moodImage, mood_title: moodTitle || "", mood_line: moodLine || "" } : {})
+    })),
+    note_media: (cat.noteMedia || []).map(n => ({ name: n.name, image: n.image, updated_at: "2026-11-01T10:00:00Z" })),
     restock_requests: [],
     newsletter: [],
     orders: [],
@@ -58,7 +67,7 @@ export function dbFromCatalog(cat) {
   };
 }
 
-const ADMIN_ONLY_WRITE = new Set(["products", "families", "categories", "product_categories", "settings", "orders", "audit_log", "scents"]);
+const ADMIN_ONLY_WRITE = new Set(["products", "families", "categories", "product_categories", "settings", "orders", "audit_log", "scents", "note_media"]);
 const ADMIN_ONLY_READ = new Set(["restock_requests", "audit_log", "newsletter"]);
 
 export function mockSupabase({ url, catalog, fail = {} }) {

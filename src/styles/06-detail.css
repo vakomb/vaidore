@@ -214,22 +214,6 @@
   max-width: 100%;
   margin-top: 6px;
 }
-/* v15: kitų kategorijų prekės – kategorijos nuoroda virš pavadinimo; „Šis kvapas taip pat“ – to paties kvapo produktai */
-.pdCat {
-  margin-bottom: 12px;
-  font-size: 13px;
-  letter-spacing: var(--caps);
-  text-transform: uppercase;
-}
-.pdCat a {
-  color: var(--ink3);
-  text-decoration: none;
-}
-.pdCat a:hover {
-  color: #000;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 /* „Šis kvapas jūsų namams“ / „Tas pats kvapas kitomis formomis“ (v25): prekės viena po kitos – nuotrauka, pavadinimas,
    forma ir talpa, kaina; dešinėje „+“ – iškart į krepšelį */
 .pdForms {
@@ -482,7 +466,8 @@
   color: var(--ink3);
 }
 /* Tvarka (v23 – ir telefone, kaip programėlėje): kaina → talpa → kiekis → „Į krepšelį“ → pristatymas → kitos formos →
-   mėgstami / dalintis; po linija – aprašymas, išskleidžiamos dalys, teisinė pastaba */
+   mėgstami / dalintis; po linija – aprašymas, teisinė pastaba. Turinio blokai ir išskleidžiamos dalys – po straipsniu
+   (.pdStory, 13-story.css) */
 .pdInfo {
   display: flex;
   flex-direction: column;
@@ -512,32 +497,13 @@
 .pdActs {
   order: 9;
 }
-.pdTag {
+.pdText {
   order: 10;
-  margin-top: 26px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
-}
-.pdDesc {
-  order: 11;
-}
-.pdInfo .accs {
-  order: 12;
 }
 .pdLegal {
   order: 13;
 }
-.pdTag {
-  font-size: var(--fs);
-  line-height: 1.6;
-  color: var(--text);
-}
-.pdTag b {
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--text);
-}
+
 .pdPrice {
   display: flex;
   flex-wrap: wrap;
@@ -576,12 +542,6 @@
   margin: 22px 0 10px;
   font-size: 16.9px;
   letter-spacing: 0.04em;
-  color: var(--text);
-}
-.pdDesc {
-  margin-top: 18px;
-  font-size: var(--fs);
-  line-height: 1.6;
   color: var(--text);
 }
 .pdBuy {

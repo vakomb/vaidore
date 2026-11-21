@@ -182,7 +182,7 @@ onChange(what => {
 
 // ── Katalogas iš duomenų bazės ─────────────────────────
 function catalogFromDb(rows) {
-  const { products, families, categories, links, settings, reviews } = rows;
+  const { products, families, categories, links, settings, reviews, scents = [], notes = [] } = rows;
   const catsOf = new Map();
   for (const l of links) catsOf.set(l.product_id, [...(catsOf.get(l.product_id) || []), l.category_id]);
   const revOf = new Map();
@@ -192,11 +192,15 @@ function catalogFromDb(rows) {
     settings: { ...CAT.settings, ...(settings?.[0]?.data || {}) },
     families: families.map(f => ({ id: f.id, name: f.name, hint: f.hint, sort: f.sort, visible: f.visible })),
     categories: categories.map(c => ({ id: c.id, name: c.name, description: c.description, image: c.image, sort: c.sort, visible: c.visible })),
+    // v29: nuotaikos juosta – bendro kvapo lygiu; natų biblioteka (natos vardas → nuotrauka)
+    scents: scents.filter(s => s.mood_image).map(s => ({ id: s.id, moodImage: s.mood_image, moodTitle: s.mood_title || "", moodLine: s.mood_line || "" })),
+    noteMedia: notes.filter(n => n.name && n.image).map(n => ({ name: n.name, image: n.image })),
     products: products.map(p => ({
       id: p.id,
       name: p.name,
       inspired: p.inspired || "",
       inspiredImage: p.inspired_image || "",
+      ...pageFields(p),
       type: p.type || "kvepalai",
       conc: p.conc,
       gender: p.gender,
@@ -225,16 +229,29 @@ function catalogFromDb(rows) {
     }))
   };
 }
+// Prekės puslapio laukai (v29, migracija 20261122090000): įrašomi tik užpildyti – katalogas nedidėja
+function pageFields(p) {
+  const o = {};
+  if (p.subtitle) o.subtitle = p.subtitle;
+  if (p.mood_image) o.moodImage = p.mood_image;
+  if (p.mood_title) o.moodTitle = p.mood_title;
+  if (p.mood_line) o.moodLine = p.mood_line;
+  return o;
+}
 async function fetchCatalog() {
-  const [products, families, categories, links, settings, reviews] = await Promise.all([
+  // Natų biblioteka ir kvapų nuotaikos juosta – nebūtinos (be migracijos lentelės / stulpelių nėra – katalogas vis tiek veikia)
+  const optional = path => sbRest(path).then(r => (Array.isArray(r) ? r : []), () => []);
+  const [products, families, categories, links, settings, reviews, scents, notes] = await Promise.all([
     sbRest("products?select=*&order=rank.asc"),
     sbRest("families?select=*&order=sort.asc"),
     sbRest("categories?select=*&order=sort.asc"),
     sbRest("product_categories?select=product_id,category_id"),
     sbRest("settings?select=data&id=eq.1"),
-    sbRest("reviews?select=product_id,name,text,rating,created_at,verified&status=eq.approved&order=created_at.desc")
+    sbRest("reviews?select=product_id,name,text,rating,created_at,verified&status=eq.approved&order=created_at.desc"),
+    optional("scents?select=*"),
+    optional("note_media?select=name,image")
   ]);
-  return catalogFromDb({ products, families, categories, links, settings, reviews });
+  return catalogFromDb({ products, families, categories, links, settings, reviews, scents, notes });
 }
 let lastCatalogJson = "";
 async function refreshCatalog({ rerender = true } = {}) {

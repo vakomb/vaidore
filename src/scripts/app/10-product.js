@@ -1,7 +1,7 @@
-// 10 – kvapo puslapis /kvepalai/<id> (kaip parfumada.lt): PAVADINIMAS tarp linijų ir natos, švari galerija
-// (nuotraukos braukiant arba buteliukas), aprašymas, išskleidžiamos dalys (Kam skirti, Natos, Ingredientai, Pristatymas),
-// kaina, talpa (33 ml / 100 ml / 2 ml mėginukas), kiekis, „Įdėti į krepšelį“, pristatymo eilutė, „Į mėgstamus“ / „Dalintis“,
-// atsiliepimai (tik tikri), „Jums gali patikti“. Prilipusi pirkimo juosta: telefone – praslinkus mygtuką, kompiuteryje –
+// 10 – prekės puslapis /<tipas>/<id> (kaip parfumada.lt): PAVADINIMAS tarp linijų ir paantraštė, švari galerija
+// (nuotraukos braukiant arba buteliukas), kaina, talpa (33 ml / 100 ml / 2 ml mėginukas), kiekis, „Įdėti į krepšelį“,
+// susietos prekės, „Į mėgstamus“ / „Dalintis“, aprašymas; po straipsniu – turinio blokai pagal kategoriją ir išskleidžiamos
+// dalys (28-story.js, v29), atsiliepimai (tik tikri), „Jums gali patikti“. Prilipusi pirkimo juosta: telefone – praslinkus mygtuką, kompiuteryje –
 // kai mygtuko nesimato (nuotrauka, pavadinimas, kaina, kiekis, mygtukas – kaip parfumada.lt). Išparduotam – „Pranešti, kai bus“.
 function galleryHTML(p) {
   const imgs = (p.images || []).filter(Boolean);
@@ -141,9 +141,19 @@ function productPageHTML(p, ml) {
     .filter(Boolean)
     .map(t => `<li>${esc(t)}</li>`)
     .join("")}</ul>`;
+  // Išskleidžiamos dalys – turinio blokų pabaigoje (28-story.js). Natos – tik jei natų blokas išjungtas administravime.
+  const cfg = pdpOf(typeOf(p));
+  const notesInStory = blockOn(cfg.notes) && T.scented;
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
+  const details = [
+    isPerfume(p) ? accHTML("user", "Kam skirti", who) : "",
+    !notesInStory && keyNotes(p).length ? accHTML("drop", isPerfume(p) ? "Natos" : "Kvapo natos", notes, { id: "pdNotesH" }) : "",
+    attrs.length && !specsHTML(p) ? accHTML("info", "Savybės", `<dl class="pdNotes">${attrs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`, { open: device }) : "",
+    p.ingredients ? accHTML("doc", "Ingredientai", `<p>${esc(p.ingredients)}</p>`) : "",
+    accHTML("truck", "Pristatymas ir grąžinimas", ship)
+  ].join("");
   return `<article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
-<header class="pdHead">${isPerfume(p) ? "" : `<p class="pdCat"><a href="${typeOf(p)}" data-nav>${esc(T.title)}</a></p>`}<h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
+<header class="pdHead"><h1 class="pdH1"><span>${esc(p.name)}</span></h1><p class="pdSub">${esc(subtitleOf(p))}</p>${
     rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
   }</header>
 <div class="pdGal${p.images?.length ? " hasPhoto" : ""}">
@@ -151,15 +161,7 @@ ${galleryHTML(p)}
 </div>
 <div class="pdInfo">
 ${inspiredOf(p) ? `<p class="pdInsp">${inspiredHTML(p, "pd")}</p>` : ""}
-<p class="pdTag"><b>${esc(p.name)}</b> – ${esc(p.tagline)}.</p>
-<p class="pdDesc">${esc(p.desc)}</p>
-<div class="accs">
-${isPerfume(p) ? accHTML("user", "Kam skirti", who) : ""}
-${keyNotes(p).length ? accHTML("drop", isPerfume(p) ? "Natos" : "Kvapo natos", notes, { id: "pdNotesH" }) : ""}
-${attrs.length && !specsHTML(p) ? accHTML("info", "Savybės", `<dl class="pdNotes">${attrs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`, { open: device }) : ""}
-${p.ingredients ? accHTML("doc", "Ingredientai", `<p>${esc(p.ingredients)}</p>`) : ""}
-${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
-</div>
+${descHTML(p)}
 <div class="pdPrice">${sold ? `<b>Laikinai išparduota</b>` : priceBlockHTML(p, ml)}</div>
 ${specsHTML(p)}
 ${
@@ -177,6 +179,7 @@ ${inspiredOf(p) && SET.inspired?.note ? `<p class="pdLegal">${esc(SET.inspired.n
 <div data-note-slot>${ml === SAMPLE_ML && !sold ? sampleNoteHTML() : ""}</div>
 </div>
 </article>
+${storyHTML(p, details)}
 <div class="pdBelow">
 <section class="sec" id="pdReviews" data-pd-reviews hidden></section>
 ${
@@ -222,6 +225,7 @@ function renderProduct(id, params) {
   renderReviews($("[data-pd-reviews]", root), [p], { title: "Atsiliepimai", showProduct: false });
   bindGallery(root);
   bindRails(root);
+  bindStory(root);
   track("Peržiūrėjo kvapą", { kvapas: p.name });
   // Prilipusi pirkimo juosta (telefone ir kompiuteryje): kai pagrindinis mygtukas išslenka viršun
   buyObs?.disconnect();

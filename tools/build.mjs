@@ -2,7 +2,8 @@
 //   <!-- @inline <style id="x"> styles/01-tokens.css -->   – CSS įdedamas į <style>
 //   <!-- @partial partials/view-home.html -->               – HTML įdedamas kaip yra
 //   <!-- @app scripts/app -->                               – visi scripts/app/*.js eilės tvarka viename IIFE (bendras scope)
-//   <!-- @catalog -->                                       – katalogas kaip window.VAIDORE_CATALOG (+ Supabase adresas, surinkimo laikas)
+//   <!-- @catalog -->                                       – katalogas kaip window.VAIDORE_CATALOG (+ prekių puslapių tekstai
+//                                                             window.VAIDORE_PDP iš data/pdp.json, Supabase adresas, surinkimo laikas)
 //   <!-- @base -->                                          – <base href> (svetainės šaknis: „/“ arba GitHub Pages „/vaidore/“)
 // Naudojimas: node tools/build.mjs [--out kelias] [--pretty]
 import fs from "node:fs";
@@ -44,7 +45,11 @@ export function buildApp(opts = {}) {
   html = html.replace(/<!-- @catalog -->/, () => {
     const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));
     const sb = opts.supabase === undefined ? JSON.parse(read("data/supabase.json")) : opts.supabase;
-    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};</script>`;
+    // Prekių puslapių turinio blokų numatytieji tekstai pagal tipą (v29; administravime keičiami – settings.pdp)
+    const pdp = JSON.stringify(JSON.parse(read("data/pdp.json")));
+    // Numatytoji natų biblioteka – ingredientai, iškirpti iš tikrų Vaidore produktų nuotraukų (img/natos/; bazėje – note_media)
+    const notes = JSON.stringify(JSON.parse(read("data/notes.json")));
+    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_PDP=${pdp.replace(/</g, "\\u003c")};window.VAIDORE_NOTES=${notes.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};</script>`;
   });
   html = html.replace(/<!-- @lockers -->/, () => `<script>window.VAIDORE_LOCKERS=${Number(opts.lockers) || 0};</script>`);
   html = html.replace(/<!-- @app ([\w./-]+) -->/, (_, dir) => {

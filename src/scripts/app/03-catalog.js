@@ -1,7 +1,7 @@
 // 03 – katalogas: kvapai, šeimos, kategorijos, nustatymai. Pradžioje – surinkimo metu įdėtas window.VAIDORE_CATALOG
 // (iš duomenų bazės arba src/data/catalog.json), vėliau setCatalog() pakeičia jį šviežiais duomenimis iš Supabase (20-supabase.js).
 // Visi kintamieji – let: po atnaujinimo perskaičiuojami (BY_ID, paieškos indeksas…).
-let CAT, SET, PRODUCTS, ALL_PRODUCTS, BY_ID, FAMILY, CATEGORY, SEARCH_IX, DISC;
+let CAT, SET, PRODUCTS, ALL_PRODUCTS, BY_ID, FAMILY, CATEGORY, SEARCH_IX, DISC, NOTE_IMG, SCENT_INFO;
 const SAMPLE_ML = 2;
 // Buteliukų talpos – tik 33 ml ir 100 ml (+ 2 ml mėginukas). Kitos (seni 30 / 50 ml įrašai) parduotuvėje nerodomos.
 const BOTTLE_ML = [33, 100];
@@ -77,6 +77,11 @@ function setCatalog(c) {
     }
   for (const p of c.products) if (!p.inspiredImage && p.inspired) p.inspiredImage = (p.scent && byScent.get(p.scent)) || byInsp.get(inspKey(p.inspired)) || "";
   SET = window.__vdPreviewSet ? { ...c.settings, ...window.__vdPreviewSet } : c.settings; // administravimo peržiūra (25)
+  // v29: natų biblioteka (natos vardas → nuotrauka) ir bendrų kvapų nuotaikos juosta (28-story.js – moodOf).
+  // Produktų objektai nekeičiami – kitaip kiekvienas katalogo atnaujinimas perpieštų puslapį.
+  // Numatytoji biblioteka (data/notes.json – ingredientai iš tikrų produktų nuotraukų), bazės įrašai ją papildo ir perrašo
+  NOTE_IMG = new Map([...(window.VAIDORE_NOTES || []), ...(c.noteMedia || [])].filter(n => n?.name && n.image).map(n => [noteKey(n.name), { name: n.name, image: n.image }]));
+  SCENT_INFO = new Map((c.scents || []).filter(s => s?.id).map(s => [s.id, s]));
   ALL_PRODUCTS = c.products;
   PRODUCTS = c.products.filter(p => p.visible !== false);
   BY_ID = new Map(c.products.map(p => [p.id, p]));
@@ -104,6 +109,10 @@ function setCatalog(c) {
       )
     ])
   );
+}
+// Natos raktas natų bibliotekai: be diakritikų, mažosiomis, vienas tarpas („Tabako  Lapai“ = „tabako lapai“)
+function noteKey(s) {
+  return fold(s).replace(/\s+/g, " ").trim();
 }
 const visibleFamilies = () => CAT.families.filter(f => f.visible !== false);
 const visibleCategories = () => (CAT.categories || []).filter(c => c.visible !== false).sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));

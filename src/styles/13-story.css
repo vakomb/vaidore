@@ -1,0 +1,698 @@
+/* Prekės puslapio turinys pagal kategoriją (v29, 28-story.js): paantraštė, aprašymas su paryškinimais ir „Skaityti daugiau“,
+   blokai po pirkimu – natos (segmentai), kvapo charakteris, nuotaikos juosta, žingsniai, „Kur …“ piktogramos, mėginukas,
+   pastaba, išskleidžiamos dalys. Telefone – vienas po kito; kompiuteryje – antraštė kairėje, turinys dešinėje (iki 1100 px). */
+
+/* Paantraštė po pavadinimu (kaip parfumada.lt „Namų ir tekstilės kvapas“) */
+.pdSub {
+  margin-top: 12px;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  color: var(--text);
+}
+.pdHead .pdRate {
+  margin-top: 10px;
+}
+
+/* Aprašymas – trumpos pastraipos, svarbiausi žodžiai paryškinti */
+.pdText {
+  order: 10;
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.pdText p {
+  font-size: var(--fs);
+  line-height: 1.6;
+  color: var(--text);
+}
+.pdText p + p {
+  margin-top: 14px;
+}
+.pdText b {
+  font-weight: 600;
+  color: #000;
+}
+.pdTag > b:first-child {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.pdText.clamp .pdTextIn {
+  max-height: calc(var(--fs) * 1.6 * 8);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent);
+  mask-image: linear-gradient(180deg, #000 62%, transparent);
+}
+.pdMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 6px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #000;
+}
+.pdMore svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Turinio blokai */
+.pdStory {
+  padding: 4px 0 8px;
+}
+.pdBlock {
+  margin-top: 46px;
+}
+.pbT {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: #000;
+}
+.pbLead {
+  margin-top: 8px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink2);
+}
+.pbBody {
+  margin-top: 18px;
+}
+.sIco {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: #000;
+}
+
+/* Natos: apskritimas su natos nuotrauka (natų biblioteka) arba monograma, po juo – pavadinimas */
+.ntGrid {
+  --cols: 3;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ntGrid[data-n="1"] {
+  --cols: 3;
+}
+.ntGrid[data-n="2"] {
+  --cols: 2;
+}
+.ntGrid[data-n="4"] {
+  --cols: 4;
+}
+.nt {
+  flex: 0 0 calc((100% - (var(--cols) - 1) * 10px) / var(--cols));
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+  text-align: center;
+}
+.ntArt {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 104px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+.ntGrid[data-n="4"] .ntArt {
+  max-width: 84px;
+}
+.ntArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply; /* baltas nuotraukos fonas susilieja su apskritimu */
+}
+.ntArt i {
+  font-size: 34px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--ink2);
+}
+.nt b {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: #000;
+  overflow-wrap: anywhere;
+}
+/* Segmentai (kaip iOS): slenkantis baltas pasirinkimas */
+.ntSeg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--field);
+}
+.ntSeg::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--n));
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: var(--elev-1);
+  transform: translateX(calc(var(--i) * 100%));
+  transition: transform 0.4s var(--spring);
+}
+.ntSegBtn {
+  position: relative;
+  z-index: 1;
+  min-height: 40px;
+  padding: 0 6px;
+  border-radius: 9px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink2);
+  transition: color var(--ease);
+}
+.ntSegBtn[aria-selected="true"] {
+  color: #000;
+}
+.ntSegBtn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+/* Visi lygiai – tame pačiame langelyje: aukštis nesikeičia, perjungiant niekas nešokinėja */
+.ntPanels {
+  display: grid;
+  margin-top: 20px;
+}
+.ntPanel {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.22s ease, transform 0.35s var(--spring), visibility 0s linear 0.22s;
+}
+.ntPanel.on {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.32s ease 0.06s, transform 0.5s var(--spring) 0.06s, visibility 0s;
+}
+.ntCap {
+  margin-bottom: 16px;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--ink3);
+  text-align: center;
+}
+
+/* Kvapo charakteris: penkios atkarpos */
+.traits {
+  display: grid;
+  gap: 16px;
+  max-width: 560px;
+  margin: 0;
+}
+.tr {
+  display: grid;
+  grid-template-columns: 9.2em minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.tr dt {
+  font-size: 17px;
+  color: #000;
+}
+.tr dd {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+}
+.trBar {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  max-width: 220px;
+}
+.trBar i {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--line2);
+  overflow: hidden;
+}
+.trBar i.on {
+  background: var(--brand);
+  transform-origin: left center;
+}
+.rv .trBar i.on {
+  transform: scaleX(0);
+}
+.rv.in .trBar i.on {
+  transform: none;
+  transition: transform 0.5s var(--spring) calc(0.25s + var(--k) * 0.07s);
+}
+.trVal {
+  min-width: 5.6em;
+  font-size: 16px;
+  color: var(--ink2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Nuotaikos juosta: nuotrauka ir tamsus blokas su šūkiu */
+.pdMood {
+  margin: 46px 0 0;
+  border-radius: var(--r-card);
+  background: var(--brand);
+  overflow: hidden;
+}
+.moodPh {
+  display: block;
+  aspect-ratio: 3 / 2;
+  background: var(--bg-soft);
+}
+.moodPh {
+  position: relative;
+}
+.moodPh > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Kvapo linija: tikros to paties kvapo produktų nuotraukos (baltas fonas susilieja su šviesiai pilku – multiply) */
+.mlStrip {
+  display: flex;
+  justify-content: center;
+  background: var(--bg-soft);
+}
+.mlItem {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 220px;
+  aspect-ratio: 1;
+}
+.mlItem img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  transition: transform 0.6s var(--spring);
+}
+a.mlItem:hover img {
+  transform: scale(1.03);
+}
+.pdMood figcaption {
+  display: grid;
+  gap: 10px;
+  padding: 24px 20px 26px;
+  text-align: center;
+  color: #fff;
+}
+.pdMood figcaption b {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.pdMood figcaption span {
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--band-sub);
+}
+
+/* Žingsniai: telefone – slenkama eilė (kitos kortelės kraštas matosi), nuo planšetės – stulpeliai */
+.useSteps {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 78%;
+  gap: 12px;
+  margin: 0 calc(var(--pad) * -1);
+  padding: 0 var(--pad) 4px;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--pad);
+  scrollbar-width: none;
+}
+.useSteps::-webkit-scrollbar {
+  display: none;
+}
+.useStep {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 20px 20px 22px;
+  border-radius: var(--r-card);
+  background: var(--bg-soft);
+  scroll-snap-align: start;
+}
+.useIco {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: #fff;
+}
+.useIco .sIco {
+  width: 30px;
+  height: 30px;
+}
+.useT {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 17.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #000;
+}
+.useT i {
+  display: grid;
+  flex: 0 0 24px;
+  place-items: center;
+  height: 24px;
+  margin-top: -1px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 13.5px;
+  font-style: normal;
+  font-weight: 600;
+}
+.useStep p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+
+/* „Kur …“ – piktogramos šviesiuose apskritimuose */
+.icoGrid {
+  --cols: 3;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.icoGrid[data-n="2"] {
+  --cols: 2;
+}
+.icoGrid[data-n="4"] {
+  --cols: 4;
+}
+.icoGrid li {
+  flex: 0 0 calc((100% - (var(--cols) - 1) * 10px) / var(--cols));
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+  text-align: center;
+}
+.icoC {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+}
+.icoGrid[data-n="4"] .icoC {
+  width: 76px;
+  height: 76px;
+}
+.icoC .sIco {
+  width: 40px;
+  height: 40px;
+}
+.icoL {
+  font-size: 15px;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+/* Mėginuko kortelė (kvepalams) */
+.tryCard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--r-card);
+  background: var(--bg-soft);
+}
+.tryIco {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+}
+.tryIco .sIco {
+  width: 30px;
+  height: 30px;
+}
+.tryTxt b {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #000;
+}
+.tryTxt p {
+  margin-top: 4px;
+  font-size: 15.5px;
+  line-height: 1.45;
+  color: var(--ink2);
+}
+.tryBtn {
+  grid-column: 1 / -1;
+  min-height: 52px;
+  border-radius: 16px;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+}
+
+/* Pastaba (informacinis langelis) */
+.pdNotice {
+  display: flex;
+  gap: 12px;
+  margin-top: 34px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--bg-soft);
+}
+.pdNotice .gl {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  stroke-width: 1.6;
+  color: var(--ink2);
+}
+.pdNotice p {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink2);
+}
+.pdNotice b {
+  font-weight: 600;
+  color: #000;
+}
+.pdAccs {
+  margin-top: 44px;
+}
+
+/* Įsiliejimas slenkant (tik kai judesys neišjungtas – 28-story.js bindStory) */
+.rv {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s ease, transform 0.75s var(--spring);
+}
+.rv.in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv,
+  .rv .trBar i.on {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .ntSeg::before,
+  .ntPanel,
+  .ntPanel.on {
+    transition: none;
+  }
+}
+
+/* Planšetė: žingsniai – stulpeliais, piktogramos ir natos – iki 6 eilėje */
+@media (min-width: 700px) {
+  .pdSub {
+    font-size: 20px;
+  }
+  .useSteps {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .useSteps[data-n="1"] {
+    --n: 1;
+  }
+  .useSteps[data-n="2"] {
+    --n: 2;
+  }
+  .useSteps[data-n="4"] {
+    --n: 4;
+  }
+  /* Vienodo dydžio langeliai (6 eilėje), lygiuojami kairėn – kaip antraštė */
+  .icoGrid,
+  .ntGrid,
+  .icoGrid[data-n],
+  .ntGrid[data-n] {
+    --cols: 6;
+    justify-content: flex-start;
+  }
+  .ntGrid[data-n="4"] .ntArt {
+    max-width: 104px;
+  }
+  .ntSeg {
+    max-width: 520px;
+  }
+  .icoGrid[data-n="4"] .icoC {
+    width: 84px;
+    height: 84px;
+  }
+  .ntCap {
+    text-align: left;
+  }
+  .moodPh {
+    aspect-ratio: 2 / 1;
+  }
+  .mlItem {
+    max-width: 260px;
+  }
+  .pdMood figcaption {
+    padding: 30px 28px 32px;
+  }
+  .tryCard {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 22px 24px;
+  }
+  .tryBtn {
+    grid-column: auto;
+    padding: 0 26px;
+  }
+}
+
+/* Kompiuteris: turinys centre (iki 1100 px), bloko antraštė kairėje, turinys dešinėje */
+@media (min-width: 1024px) {
+  .pdSub {
+    font-size: 21px;
+  }
+  .pdStory {
+    max-width: 1100px;
+    margin: 40px auto 0;
+  }
+  .pdBlock {
+    display: grid;
+    grid-template-columns: 290px minmax(0, 1fr);
+    gap: 0 64px;
+    align-items: start;
+    margin-top: 76px;
+  }
+  .pdBlock:first-child {
+    margin-top: 32px;
+  }
+  .pbT {
+    font-size: 26px;
+  }
+  .pbLead {
+    font-size: 17.5px;
+  }
+  .pbBody {
+    margin-top: 4px;
+  }
+  .pdTry {
+    display: block;
+  }
+  .ntArt,
+  .ntGrid[data-n="4"] .ntArt {
+    max-width: 116px;
+  }
+  .icoC,
+  .icoGrid[data-n="4"] .icoC {
+    width: 96px;
+    height: 96px;
+  }
+  .icoC .sIco {
+    width: 44px;
+    height: 44px;
+  }
+  .icoL {
+    font-size: 16px;
+  }
+  .pdMood {
+    margin-top: 76px;
+  }
+  .moodPh {
+    aspect-ratio: 21 / 9;
+  }
+  .mlItem {
+    max-width: 320px;
+  }
+  .pdMood figcaption {
+    padding: 38px 40px 42px;
+  }
+  .pdMood figcaption b {
+    font-size: 30px;
+  }
+  .pdMood figcaption span {
+    font-size: 17px;
+  }
+  .pdNotice {
+    margin-top: 64px;
+    padding: 20px 24px;
+  }
+  .pdNotice p {
+    font-size: 17px;
+  }
+  .pdAccs {
+    margin-top: 64px;
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "kvepalai": {
+    "sub": "",
+    "notes": {
+      "on": true,
+      "title": "Kvapo natos"
+    },
+    "traits": {
+      "on": true,
+      "title": "Kvapo charakteris"
+    },
+    "mood": {
+      "on": true
+    },
+    "steps": {
+      "on": false,
+      "title": "",
+      "items": []
+    },
+    "where": {
+      "on": true,
+      "title": "Kur purkšti",
+      "text": "Purkškite iš 15–20 cm atstumo ir netrinkite – natos atsiskleis tolygiai.",
+      "items": [
+        {
+          "ico": "wrist",
+          "label": "Riešai"
+        },
+        {
+          "ico": "neck",
+          "label": "Kaklas"
+        },
+        {
+          "ico": "ear",
+          "label": "Už ausų"
+        },
+        {
+          "ico": "clothes",
+          "label": "Drabužiai"
+        }
+      ]
+    },
+    "sample": {
+      "on": true
+    },
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Laikykite vėsioje ir tamsioje vietoje – kvapas ilgai išliks toks pat."
+    }
+  },
+  "difuzoriai": {
+    "sub": "Namų kvapas su lazdelėmis",
+    "notes": {
+      "on": true,
+      "title": "Pagrindinės natos"
+    },
+    "mood": {
+      "on": true
+    },
+    "steps": {
+      "on": true,
+      "title": "Kaip naudoti",
+      "items": [
+        {
+          "ico": "cap",
+          "title": "Atidarykite",
+          "text": "Atsukite dangtelį ir nuimkite kamštelį."
+        },
+        {
+          "ico": "reeds",
+          "title": "Įmerkite lazdeles",
+          "text": "Sudėkite lazdeles į buteliuką ir išskleiskite vėduokle."
+        },
+        {
+          "ico": "flip",
+          "title": "Apverskite kas savaitę",
+          "text": "Apverstos lazdelės vėl įsigeria aliejaus – kvapas sustiprėja."
+        }
+      ]
+    },
+    "where": {
+      "on": true,
+      "title": "Kur pastatyti",
+      "text": "Geriausiai kvepia nedidelėje patalpoje, atokiau nuo skersvėjo ir tiesioginių saulės spindulių.",
+      "items": [
+        {
+          "ico": "sofa",
+          "label": "Svetainė"
+        },
+        {
+          "ico": "bed",
+          "label": "Miegamasis"
+        },
+        {
+          "ico": "bath",
+          "label": "Vonia"
+        },
+        {
+          "ico": "door",
+          "label": "Prieškambaris"
+        },
+        {
+          "ico": "laptop",
+          "label": "Darbo kambarys"
+        },
+        {
+          "ico": "office",
+          "label": "Biuras"
+        }
+      ]
+    },
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Laikykite vaikams ir gyvūnams nepasiekiamoje vietoje. Aliejus gali pažeisti lakuotus paviršius – statykite ant padėkliuko."
+    }
+  },
+  "zvakes": {
+    "sub": "Kvapni žvakė namams",
+    "notes": {
+      "on": true,
+      "title": "Pagrindinės natos"
+    },
+    "mood": {
+      "on": true
+    }
+  },
+  "aliejai": {
+    "sub": "Aromatinis aliejus difuzoriui",
+    "notes": {
+      "on": true,
+      "title": "Pagrindinės natos"
+    },
+    "mood": {
+      "on": true
+    }
+  },
+  "elektriniai-difuzoriai": {
+    "sub": "Aromato difuzorius namams",
+    "notes": {
+      "on": false,
+      "title": ""
+    },
+    "mood": {
+      "on": false
+    }
+  }
+}

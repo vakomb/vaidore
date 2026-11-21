@@ -8,14 +8,24 @@ export async function dbCatalog(sb, fallback) {
     if (!r.ok) throw new Error(`${path.split("?")[0]}: HTTP ${r.status}`);
     return r.json();
   };
+  // Natų biblioteka ir kvapų nuotaikos juosta (v29) – nebūtinos: be migracijos grąžinamas tuščias sąrašas
+  const optional = path => get(path).then(r => (Array.isArray(r) ? r : []), () => []);
+  const pageFields = p => ({
+    ...(p.subtitle ? { subtitle: p.subtitle } : {}),
+    ...(p.mood_image ? { moodImage: p.mood_image } : {}),
+    ...(p.mood_title ? { moodTitle: p.mood_title } : {}),
+    ...(p.mood_line ? { moodLine: p.mood_line } : {})
+  });
   try {
-    const [products, families, categories, links, settings, reviews] = await Promise.all([
+    const [products, families, categories, links, settings, reviews, scents, notes] = await Promise.all([
       get("products?select=*&order=rank.asc"),
       get("families?select=*&order=sort.asc"),
       get("categories?select=*&order=sort.asc"),
       get("product_categories?select=product_id,category_id"),
       get("settings?select=data&id=eq.1"),
-      get("reviews?select=product_id,name,text,rating,created_at,verified&status=eq.approved&order=created_at.desc")
+      get("reviews?select=product_id,name,text,rating,created_at,verified&status=eq.approved&order=created_at.desc"),
+      optional("scents?select=*"),
+      optional("note_media?select=name,image")
     ]);
     if (!products.length) return null;
     const catsOf = new Map();
@@ -27,11 +37,14 @@ export async function dbCatalog(sb, fallback) {
       settings: { ...fallback.settings, ...(settings?.[0]?.data || {}) },
       families: families.map(f => ({ id: f.id, name: f.name, hint: f.hint, sort: f.sort, visible: f.visible })),
       categories: categories.map(c => ({ id: c.id, name: c.name, description: c.description, image: c.image, sort: c.sort, visible: c.visible })),
+      scents: scents.filter(s => s.mood_image).map(s => ({ id: s.id, moodImage: s.mood_image, moodTitle: s.mood_title || "", moodLine: s.mood_line || "" })),
+      noteMedia: notes.filter(n => n.name && n.image).map(n => ({ name: n.name, image: n.image })),
       products: products.map(p => ({
         id: p.id,
         name: p.name,
         inspired: p.inspired || "",
         inspiredImage: p.inspired_image || "",
+        ...pageFields(p),
         type: p.type || "kvepalai",
         conc: p.conc,
         gender: p.gender,
@@ -42,8 +55,8 @@ export async function dbCatalog(sb, fallback) {
         notes: { top: p.notes?.top || [], heart: p.notes?.heart || [], base: p.notes?.base || [] },
         longevity: p.longevity,
         sillage: p.sillage,
-      attrs: p.attrs || {},
-      scent: p.scent_id || null,
+        attrs: p.attrs || {},
+        scent: p.scent_id || null,
         sizes: (p.sizes || [])
         .map(s => ({ ml: Number(s.ml), price: Number(s.price), ...(Number(s.was) > Number(s.price) ? { was: Number(s.was) } : {}), ...(s.unit && s.unit !== "ml" ? { unit: s.unit } : {}) }))
         .sort((a, b) => a.ml - b.ml),

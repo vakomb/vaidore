@@ -80,6 +80,19 @@ const VDEVICE = {
   reviews: []
 };
 variant.products.push(...OILS, VDEVICE);
+// v29: natų biblioteka (Vanilė, Šafranas), nuotaikos nuotrauka bendram kvapui VANOR, ilgas SAFRANE aprašymas („Skaityti daugiau“)
+vp("vanor").scent = "vanor";
+variant.scents = [{ id: "vanor", name: "Vanor", moodImage: "og/home.jpg", moodTitle: "Šiltas vakaras namuose", moodLine: "Kvapas, kuris lieka" }];
+variant.noteMedia = [
+  { name: "Vanilė", image: "img/kvapai/vanor-1.webp" },
+  { name: "Šafranas", image: "img/kvapai/safrane-1.webp" }
+];
+vp("safrane").desc = [
+  "Prabangus ir šiltas kvapas tiems, kurie mėgsta išsiskirti. Šafranas ir jazminas atsiveria švytinčiu blizgesiu, o ambra ir kedras suteikia kompozicijai gylio.",
+  "Kvapas keičiasi visą dieną: ryte jis gaivus ir skaidrus, vakare – sodrus ir gaubiantis. Jis palieka švelnų pėdsaką ir ilgai išlieka ant drabužių.",
+  "Puikiai tinka ypatingoms progoms, vakarienėms ir šventėms, kai norisi jaustis išskirtinai.",
+  "Rekomenduojame pirmiausia išbandyti 2 ml mėginuką – taip suprasite, kaip kvapas atsiskleidžia būtent ant jūsų odos."
+].join("\n");
 fs.mkdirSync(verify, { recursive: true });
 const variantFile = path.join(verify, "catalog-variant.json");
 fs.writeFileSync(variantFile, JSON.stringify(variant));
@@ -408,6 +421,28 @@ async function run(viewport) {
       (await page.title()).includes("Namų kvapų difuzorius"),
     "difuzoriaus puslapis: tik 100 ml (be mėginuko), be „Kam skirti“, be „Eau de Parfum“"
   );
+  // v29: difuzoriaus su lazdelėmis turinys – paantraštė, 3 pagrindinės natos, žingsniai, „Kur pastatyti“, pastaba
+  check(
+    (await page.locator("#productRoot .pdSub").textContent()) === "Namų kvapas su lazdelėmis" &&
+      (await page.locator("#productRoot .pbNotes .pbT").textContent()) === "Pagrindinės natos" &&
+      (await page.locator("#productRoot .pbNotes .nt").count()) === 3 &&
+      (await page.locator("#productRoot .ntSeg").count()) === 0 &&
+      (await page.locator("#productRoot .pbSteps .useStep").count()) === 3 &&
+      (await page.locator("#productRoot .pbSteps .pbT").textContent()) === "Kaip naudoti" &&
+      (await page.locator("#productRoot .pbWhere .pbT").textContent()) === "Kur pastatyti" &&
+      (await page.locator("#productRoot .pbWhere .icoGrid li").count()) === 6 &&
+      (await page.locator("#productRoot .pdNotice").count()) === 1 &&
+      (await page.locator("#productRoot .pbTraits, #productRoot .pdTry").count()) === 0,
+    "difuzoriaus puslapis: natos, „Kaip naudoti“ (3), „Kur pastatyti“ (6), pastaba; be kvepalų blokų (v29)"
+  );
+  check(
+    await page.evaluate(() => {
+      const st = document.querySelector("#productRoot .useSteps");
+      const wide = innerWidth >= 700;
+      return wide ? st.scrollWidth <= st.clientWidth + 1 : getComputedStyle(st).overflowX === "auto" && st.scrollWidth > st.clientWidth && document.documentElement.scrollWidth <= innerWidth;
+    }),
+    "žingsniai: telefone – slenkama eilė (be puslapio horizontalaus slinkimo), plačiau – stulpeliais"
+  );
   // v15: žvakė – svoris g ir savybės; elektrinis difuzorius – be talpos ir kvapo, savybės atskleistos
   // v27: „Visos prekės“ – visi tipai viename sąraše, filtras „Kategorija“ (?tipas=)
   await open(page, `${A}visos-prekes`);
@@ -435,12 +470,12 @@ async function run(viewport) {
     "žvakės puslapis: svoris 180 g, savybės kortelėmis (degimo trukmė, vaškas)"
   );
   check(
-    (await page.locator('#productRoot .pdCat a[href="zvakes"]').textContent()) === "Kvapnios žvakės" &&
+    (await page.locator("#productRoot .pdSub").textContent()) === "Kvapni žvakė namams" &&
       (await page.locator("#productRoot .pdForms .pdLabel").textContent()) === "Tas pats kvapas kitomis formomis" &&
       (await page.locator("#productRoot .formRow").count()) === 2 &&
       (await page.locator('#productRoot .formRow a.formLink[href="kvepalai/vanor"]').count()) === 1 &&
       (await page.locator("#productRoot .formRow .formLink .art img, #productRoot .formRow .formLink .art svg").count()) === 2,
-    "žvakės puslapis: kategorijos nuoroda; „Tas pats kvapas kitomis formomis“ – 2 prekės su nuotraukomis (v25)"
+    "žvakės puslapis: paantraštė (v29); „Tas pats kvapas kitomis formomis“ – 2 prekės su nuotraukomis (v25)"
   );
   // „+“ prie kitos formos – iškart į krepšelį (numatyta talpa)
   const cartBefore = await page.evaluate(() => JSON.parse(localStorage.getItem("vaidore_cart_v1") || "[]").length);
@@ -556,13 +591,60 @@ async function run(viewport) {
     (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "33 ml,100 ml,2 ml mėginukas",
     "kvapo puslapis: talpos – tik 33 ml, 100 ml ir 2 ml mėginukas"
   );
-  const accs = await page.locator("#productRoot .acc summary").allTextContents();
+  const accs = (await page.locator("#productRoot .acc summary").allTextContents()).map(t => t.trim());
   check(
-    !accs.some(t => /Savybės|Panaudojimo/.test(t)) && accs[0] === "Kam skirti" && accs.includes("Natos"),
-    `kvapo puslapis: be „Savybės“ ir „Panaudojimo būdas“ (${accs.join(", ")})`
+    !accs.some(t => /Savybės|Panaudojimo/.test(t)) && accs[0] === "Kam skirti" && !accs.includes("Natos") && (await page.locator("#productRoot .pdStory .pdAccs .acc").count()) === accs.length,
+    `kvapo puslapis: išskleidžiamos dalys – turinio pabaigoje, natos – bloke, ne dalyje (${accs.join(", ")})`
   );
   const who = await page.locator("#productRoot .acc").first().locator("li").allTextContents();
   check(who.length === 2 && !/Tiks|tinka|dienai|vakarui|kasdien|darbui|pavasar|vasar|rudeni|žiem|metų laik|Proga/i.test(who.join()), `„Kam skirti“ – tik lytis ir šeima, be „kada tinka“ (${who.join(" · ")})`);
+  // v29: paantraštė, aprašymas su paryškinimais, turinio blokai pagal kategoriją
+  check((await page.locator("#productRoot .pdSub").textContent()) === "Eau de Parfum · Unisex", "kvapo puslapis: paantraštė „Eau de Parfum · Unisex“ (v29)");
+  const bolds = await page.locator("#productRoot .pdText b").allTextContents();
+  check(
+    bolds[0] === vanor.name && bolds.some(b => /^tabako lapai$/i.test(b)) && bolds.some(b => /^vanil/i.test(b)) && new Set(bolds.map(b => b.toLowerCase())).size === bolds.length,
+    `aprašymas: pavadinimas ir natos paryškinti, kiekviena – vieną kartą (${bolds.join(", ")})`
+  );
+  check(
+    (await page.locator("#productRoot .pbNotes .pbT").textContent()) === "Kvapo natos" &&
+      (await page.locator("#productRoot .pbTraits .trBar").first().locator("i.on").count()) === vanor.longevity &&
+      (await page.locator("#productRoot .pbWhere .pbT").textContent()) === "Kur purkšti" &&
+      (await page.locator("#productRoot .pbWhere .icoL").allTextContents()).join() === "Riešai,Kaklas,Už ausų,Drabužiai" &&
+      (await page.locator("#productRoot .pbSteps").count()) === 0 &&
+      (await page.locator("#productRoot .pdNotice").count()) === 1 &&
+      (await page.evaluate(() => document.querySelector("#productRoot .pdStory").getBoundingClientRect().top > document.querySelector("#productRoot .pdBuy").getBoundingClientRect().bottom)),
+    "kvapo puslapis: natos, charakteris, „Kur purkšti“, pastaba – po pirkimu; be „Kaip naudoti“ (v29)"
+  );
+  const seg = page.locator("#productRoot .ntSeg");
+  const onNotes = () => page.locator("#productRoot .ntPanel.on .nt b").allTextContents();
+  check((await seg.locator("[role=tab]").allTextContents()).join() === "Viršutinės,Širdies,Bazinės" && (await onNotes()).join() === vanor.notes.top.join(), "natos: segmentai Viršutinės · Širdies · Bazinės, pradžioje – viršutinės");
+  const panelsH = () => page.locator("#productRoot .ntPanels").evaluate(el => el.getBoundingClientRect().height);
+  const h0 = await panelsH();
+  await seg.locator("[role=tab]").nth(1).click();
+  check(
+    (await until(async () => (await onNotes()).join() === vanor.notes.heart.join())) && (await seg.locator('[aria-selected="true"]').textContent()) === "Širdies" && Math.abs((await panelsH()) - h0) < 1,
+    "natos: „Širdies“ – širdies natos, bloko aukštis nesikeičia (niekas nešokinėja)"
+  );
+  await page.keyboard.press("ArrowRight");
+  check((await seg.locator('[aria-selected="true"]').textContent()) === "Bazinės" && (await onNotes()).join() === vanor.notes.base.join(), "natos: klaviatūra (→) – „Bazinės“");
+  check(
+    (await page.locator("#productRoot .ntPanel.on .nt:has-text('Mediena') .ntArt img").getAttribute("src")) === "img/natos/kedras.webp" &&
+      (await page.locator("#productRoot .ntPanel.on .nt:has-text('Džiovinti vaisiai') .ntArt i").count()) === 1,
+    "natos: ingredientas iš tikrų produktų nuotraukų (numatytoji biblioteka), be nuotraukos – tvarkinga monograma"
+  );
+  // Kvapo linija – tikros to paties kvapo produktų nuotraukos (be įkeltos nuotaikos nuotraukos)
+  check(
+    (await page.locator("#productRoot .pdMood.isLine .mlItem img").count()) === 3 &&
+      (await page.locator('#productRoot .pdMood.isLine a.mlItem[href="difuzoriai/difuzorius-test"]').count()) === 1 &&
+      (await page.locator("#productRoot .pdMood.isLine figcaption span").textContent()) === "Kvepalai · Difuzorius · Žvakė",
+    "kvapo linija: tikros kvepalų, difuzoriaus ir žvakės nuotraukos, nuorodos į prekes (v29)"
+  );
+  await page.locator("#productRoot [data-try-sample]").click();
+  check(
+    (await until(async () => (await page.locator(`#productRoot .sizeOpt[data-ml="2"]`).getAttribute("aria-checked")) === "true")) &&
+      money(await page.locator("#productRoot .pdPrice [data-buy-price]").textContent()) === eur(vanor.sample),
+    "mėginuko kortelė → pasirinktas 2 ml mėginukas, kaina atnaujinta (v29)"
+  );
   if (viewport.width >= 1024) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(300);
@@ -604,8 +686,8 @@ async function run(viewport) {
   check((await cartBadge(page)) === "3", "2 mėginukai pridėti (3)");
   check((await page.locator("#productRoot .pdBuy [data-qty]").textContent()) === "1", "kiekis po įdėjimo – vėl 1");
   check(
-    (await page.locator("#productRoot .acc").count()) === (vanor.ingredients ? 4 : 3) && (await page.locator("#productRoot .acc[open]").count()) === 0,
-    "kvapo puslapis: išskleidžiamos dalys – Kam skirti, Natos, (Ingredientai), Pristatymas"
+    (await page.locator("#productRoot .acc").count()) === (vanor.ingredients ? 3 : 2) && (await page.locator("#productRoot .acc[open]").count()) === 0,
+    "kvapo puslapis: išskleidžiamos dalys – Kam skirti, (Ingredientai), Pristatymas"
   );
 
   // Atradimų rinkinys
@@ -780,6 +862,17 @@ async function run(viewport) {
   await open(v.page, `${B}kvepalai/vanor`);
   await v.page.waitForSelector("#productRoot .gal img");
   check((await v.page.locator("#productRoot .gal img").count()) === 3, "galerija: 3 nuotraukos");
+  // v29: įkelta nuotaikos nuotrauka (bendram kvapui) ir natos nuotrauka iš natų bibliotekos
+  check(
+    (await v.page.locator("#productRoot .pdMood:not(.isLine) .moodPh > img").getAttribute("src")) === "og/home.jpg" &&
+      (await v.page.locator("#productRoot .pdMood figcaption b").textContent()) === "Šiltas vakaras namuose",
+    "nuotaikos juosta: bendro kvapo nuotrauka ir šūkis (v29)"
+  );
+  await v.page.locator("#productRoot .ntSeg [role=tab]").nth(1).click();
+  check(
+    await until(async () => (await v.page.locator("#productRoot .ntPanel.on .nt:has-text('Vanilė') .ntArt img").getAttribute("src").catch(() => "")) === "img/kvapai/vanor-1.webp"),
+    "natos: nuotrauka iš natų bibliotekos (Vanilė)"
+  );
   check(await until(async () => (await v.page.locator("[data-pd-reviews]").isVisible()) && (await v.page.locator("[data-pd-reviews]").textContent()).includes("Ona K.")), "kvapo atsiliepimai");
   await open(v.page, `${B}kvepalai`);
   const g = v.page.locator('#shopGrid .card:has(a[href="kvepalai/safrane"])');
@@ -787,6 +880,14 @@ async function run(viewport) {
   check((await v.page.locator('#shopGrid .card:has(a[href="kvepalai/vanor"]) .cardRate .stars').count()) === 1, "kortelė: žvaigždutės iš tikrų atsiliepimų");
   await open(v.page, `${B}kvepalai/safrane`);
   check((await v.page.locator("#productRoot .pdPrice s").count()) === 1, "akcija kvapo puslapyje: sena kaina");
+  // v29: be nuotaikos nuotraukos ir be kitų to paties kvapo formų – juostos nėra (jokių savų kompozicijų)
+  check((await v.page.locator("#productRoot .pdMood").count()) === 0, "be nuotaikos nuotraukos ir kitų formų – juostos nėra (v29)");
+  const txt = v.page.locator("#productRoot [data-pd-text]");
+  const txtH = () => txt.evaluate(el => el.getBoundingClientRect().height);
+  const t0 = await txtH();
+  check((await txt.evaluate(el => el.classList.contains("clamp"))) && (await v.page.locator("#productRoot [data-pd-more]").textContent()).trim() === "Skaityti daugiau", "ilgas aprašymas suskleistas – „Skaityti daugiau“");
+  await v.page.locator("#productRoot [data-pd-more]").click();
+  check(await until(async () => !(await txt.evaluate(el => el.classList.contains("clamp"))) && (await txtH()) > t0 + 40 && (await v.page.locator("#productRoot [data-pd-more]").count()) === 0), "„Skaityti daugiau“ – išskleidžia visą aprašymą");
   await open(v.page, B);
   check(await until(() => v.page.locator("#homeReviews").isVisible()), "pradžia: atsiliepimai (kai yra tikrų)");
   const vs = await v.page.evaluate(() =>
