@@ -182,12 +182,20 @@ const noteTileHTML = n => {
   }</span><b>${esc(n)}</b></li>`;
 };
 const noteGridHTML = list => `<ul class="ntGrid" data-n="${Math.min(list.length, 6)}">${list.map(noteTileHTML).join("")}</ul>`;
-// Pagrindinės natos (ne kvepalams): po vieną iš viršutinių, širdies ir bazinių, kol bus 3
+// Pagrindinės natos (ne kvepalams): po vieną iš viršutinių, širdies ir bazinių; pirmiausia – natos su skirtingomis tikromis
+// nuotraukomis (natų biblioteka), tada – kitos eilės tvarka
 function mainNotes(p, n = 3) {
   const tiers = [p.notes.top, p.notes.heart, p.notes.base].map(t => (t || []).filter(Boolean));
-  const out = [];
-  for (let i = 0; out.length < n && tiers.some(t => t[i]); i++) for (const t of tiers) if (t[i] && !out.includes(t[i]) && out.length < n) out.push(t[i]);
-  return out;
+  const order = [];
+  for (let i = 0; tiers.some(t => t[i]); i++) for (const t of tiers) if (t[i] && !order.includes(t[i])) order.push(t[i]);
+  const seen = new Set();
+  const withImg = order.filter(x => {
+    const img = noteImg(x);
+    if (!img || seen.has(img)) return false;
+    seen.add(img);
+    return true;
+  });
+  return [...withImg, ...order.filter(x => !withImg.includes(x))].slice(0, n);
 }
 const TIERS = [
   ["top", "Viršutinės", "Pirmasis įspūdis"],

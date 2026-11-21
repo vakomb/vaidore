@@ -477,6 +477,18 @@ async function run(viewport) {
       (await page.locator("#productRoot .formRow .formLink .art img, #productRoot .formRow .formLink .art svg").count()) === 2,
     "žvakės puslapis: paantraštė (v29); „Tas pats kvapas kitomis formomis“ – 2 prekės su nuotraukomis (v25)"
   );
+  // v29b: žvakės turinys – pagrindinės natos (pirmiausia su tikromis nuotraukomis), priežiūros žingsniai, saugos pastaba, kvapo linija
+  check(
+    (await page.locator("#productRoot .pbNotes .nt b").allTextContents()).join() === "Vanilė,Mediena,Tabako lapai" &&
+      (await page.locator("#productRoot .pbNotes .nt .ntArt img").count()) === 2 &&
+      (await page.locator("#productRoot .pbSteps .pbT").textContent()) === "Pirmasis uždegimas ir priežiūra" &&
+      (await page.locator("#productRoot .pbSteps .useStep").count()) === 3 &&
+      (await page.locator("#productRoot .pbWhere").count()) === 0 &&
+      /be priežiūros/.test(await page.locator("#productRoot .pdNotice").textContent()) &&
+      (await page.locator("#productRoot .pdMood.isLine .mlItem").count()) === 3 &&
+      (await page.locator('#productRoot .pdMood.isLine .mlItem[aria-current="page"]').count()) === 1,
+    "žvakės puslapis: natos su tikromis nuotraukomis, „Pirmasis uždegimas ir priežiūra“, saugos pastaba, kvapo linija (v29b)"
+  );
   // „+“ prie kitos formos – iškart į krepšelį (numatyta talpa)
   const cartBefore = await page.evaluate(() => JSON.parse(localStorage.getItem("vaidore_cart_v1") || "[]").length);
   await page.locator('#productRoot [data-form-add="vanor"]').click();
@@ -495,6 +507,14 @@ async function run(viewport) {
       !/Maitinimas|Plotas/.test(await page.locator("#productRoot .pdSpecs").textContent()) &&
       (await page.locator("#productRoot .pdTag").textContent()).includes("Tylus") && (await page.locator("#productRoot .pdKey").count()) === 0,
     "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės kortelėmis po kaina (be maitinimo ir ploto)"
+  );
+  check(
+    (await page.locator("#productRoot .pdSub").textContent()) === "Aromato difuzorius namams" &&
+      (await page.locator("#productRoot .pbNotes, #productRoot .pdMood").count()) === 0 &&
+      (await page.locator("#productRoot .pbSteps .pbT").textContent()) === "Kaip veikia" &&
+      (await page.locator("#productRoot .pbWhere .icoL").allTextContents()).join() === "Svetainė,Miegamasis,Darbo kambarys,Biuras" &&
+      (await page.locator("#productRoot .pdNotice b").textContent()) === "Priežiūra.",
+    "elektrinio difuzoriaus puslapis: „Kaip veikia“, „Kur naudoti“, priežiūra; be natų ir kvapo linijos (v29b)"
   );
   // Nuotrauka su fonu (JPEG) – be šešėlio (kitaip šonuose pilkos juostos), permatoma (WebP) – su šešėliu
   check((await page.locator("#productRoot .gal img").evaluate(el => el.classList.contains("flat") && getComputedStyle(el).filter)) === "none", "JPEG nuotrauka prekės puslapyje – be šešėlio (be juostų šonuose)");
@@ -850,6 +870,13 @@ async function run(viewport) {
       (await fit.evaluate(el => el.getBoundingClientRect().height)) < 40 &&
       !(await v.page.locator("#productRoot .pdSpecs").textContent()).includes("Tinka"),
     "aliejus: „Tinka elektriniams difuzoriams“ – vienoje eilutėje"
+  );
+  check(
+    (await v.page.locator("#productRoot .pdSub").textContent()) === "Aromatinis aliejus difuzoriui" &&
+      (await v.page.locator("#productRoot .pbSteps .useT").first().textContent()).includes("Įpilkite vandens") &&
+      (await v.page.locator("#productRoot .pbNotes .pbT").textContent()) === "Pagrindinės natos" &&
+      /nevartokite viduje/.test(await v.page.locator("#productRoot .pdNotice").textContent()),
+    "aliejaus puslapis: natos, „Kaip naudoti“ su difuzoriumi, saugos pastaba (v29b)"
   );
   await open(v.page, `${B}kvepalai/arven`);
   await v.page.waitForSelector("#productRoot [data-notify]");
