@@ -52,6 +52,34 @@ vp("vanor").reviews = [
   { name: "Ona K.", text: "Gaivus ir švelnus, puikiai tinka darbui.", rating: 5, date: "2026-11-01", verified: true },
   { name: "Rūta P.", text: "Išsilaiko visą dieną.", rating: 4, date: "2026-10-20", verified: true }
 ];
+// v28: aliejai (7) ir elektrinis difuzorius – susietos prekės („Aliejai šiam difuzoriui“, „Tinkamas elektrinis difuzorius“)
+const OILS = variant.products.slice(0, 7).map((p, i) => ({
+  ...structuredClone(p),
+  id: `aliejus-${p.id}`,
+  name: `Aromatinis aliejus ${p.name.toUpperCase()}`,
+  type: "aliejai",
+  sizes: [{ ml: 10, price: 4.99 }],
+  attrs: { weeks: 4 },
+  sample: 0,
+  rank: 200 + i,
+  badge: null,
+  reviews: []
+}));
+const VDEVICE = {
+  ...structuredClone(variant.products[0]),
+  id: "el-difuzorius",
+  name: "Elektrinis difuzorius AURA",
+  type: "elektriniai-difuzoriai",
+  inspired: "",
+  notes: { top: [], heart: [], base: [] },
+  sizes: [{ ml: 1, price: 39.9, unit: "vnt" }],
+  attrs: { tank: 300, runtime: 10, light: "LED, 7 spalvos" },
+  sample: 0,
+  rank: 190,
+  badge: null,
+  reviews: []
+};
+variant.products.push(...OILS, VDEVICE);
 fs.mkdirSync(verify, { recursive: true });
 const variantFile = path.join(verify, "catalog-variant.json");
 fs.writeFileSync(variantFile, JSON.stringify(variant));
@@ -401,9 +429,10 @@ async function run(viewport) {
   check(
     (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "180 g" &&
       (await page.locator("#productRoot .pdLabel").first().textContent()) === "Svoris" &&
-      (await accTitles()).includes("Savybės") &&
-      (await page.locator("#productRoot .acc").filter({ hasText: "Savybės" }).textContent()).includes("Sojų vaškas"),
-    "žvakės puslapis: svoris 180 g, savybės (vaškas, degimo trukmė)"
+      (await page.locator("#productRoot .pdSpecs").textContent()).includes("Sojų vaškas") &&
+      /40\s*val\./.test(await page.locator("#productRoot .pdSpecs").textContent()) &&
+      !(await accTitles()).includes("Savybės"),
+    "žvakės puslapis: svoris 180 g, savybės kortelėmis (degimo trukmė, vaškas)"
   );
   check(
     (await page.locator('#productRoot .pdCat a[href="zvakes"]').textContent()) === "Kvapnios žvakės" &&
@@ -427,10 +456,10 @@ async function run(viewport) {
   check(
     (await page.locator("#productRoot .sizes").count()) === 0 &&
       !(await accTitles()).includes("Natos") &&
-      (await page.locator("#productRoot .acc[open]").filter({ hasText: "Savybės" }).textContent()).includes("300") &&
-      !/Maitinimas|Plotas/.test(await page.locator("#productRoot .acc[open]").filter({ hasText: "Savybės" }).textContent()) &&
+      (await page.locator("#productRoot .pdSpecs").textContent()).includes("300") &&
+      !/Maitinimas|Plotas/.test(await page.locator("#productRoot .pdSpecs").textContent()) &&
       (await page.locator("#productRoot .pdTag").textContent()).includes("Tylus") && (await page.locator("#productRoot .pdKey").count()) === 0,
-    "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės atskleistos (be maitinimo ir ploto)"
+    "elektrinio difuzoriaus puslapis: be talpos ir natų, savybės kortelėmis po kaina (be maitinimo ir ploto)"
   );
   // Nuotrauka su fonu (JPEG) – be šešėlio (kitaip šonuose pilkos juostos), permatoma (WebP) – su šešėliu
   check((await page.locator("#productRoot .gal img").evaluate(el => el.classList.contains("flat") && getComputedStyle(el).filter)) === "none", "JPEG nuotrauka prekės puslapyje – be šešėlio (be juostų šonuose)");
@@ -711,6 +740,27 @@ async function run(viewport) {
 
   // Variantas: išparduota, nuotraukos, atsiliepimai
   const v = await newPage(siteB, viewport, variant);
+  // v28: elektrinio difuzoriaus puslapyje – savybės kortelėmis ir „Aliejai šiam difuzoriui“ (5 + „Rodyti dar 2“)
+  await open(v.page, `${B}elektriniai-difuzoriai/el-difuzorius`);
+  await v.page.waitForSelector("#productRoot .pdForms");
+  const oilSec = v.page.locator("#productRoot .pdForms").filter({ hasText: "Aliejai šiam difuzoriui" });
+  check(
+    (await v.page.locator("#productRoot .pdSpecs li").allTextContents()).join("|").replace(/\u00a0/g, " ").startsWith("300 ml") &&
+      (await oilSec.locator(".formRow:visible").count()) === 5 &&
+      (await oilSec.locator("[data-more-forms]").textContent()).includes("Rodyti dar 2"),
+    "elektrinis difuzorius: savybės kortelėmis; „Aliejai šiam difuzoriui“ – 5 ir „Rodyti dar 2“"
+  );
+  await oilSec.locator("[data-more-forms]").click();
+  check((await oilSec.locator(".formRow:visible").count()) === 7 && (await oilSec.locator("[data-more-forms]").count()) === 0, "„Rodyti dar“ – išskleidžia visus 7 aliejus");
+  check(/·\s*10\s*ml/.test(await oilSec.locator(".formRow small").first().textContent()), "aliejaus eilutėje – originalas ir talpa");
+  // Aliejaus puslapyje – „Tinkamas elektrinis difuzorius“
+  await open(v.page, `${B}aliejai/${OILS[0].id}`);
+  await v.page.waitForSelector("#productRoot .pdForms");
+  check(
+    (await v.page.locator("#productRoot .pdForms .pdLabel").first().textContent()) === "Tinkamas elektrinis difuzorius" &&
+      (await v.page.locator('#productRoot .formRow a[href="elektriniai-difuzoriai/el-difuzorius"]').count()) === 1,
+    "aliejaus puslapyje – „Tinkamas elektrinis difuzorius“"
+  );
   await open(v.page, `${B}kvepalai/arven`);
   await v.page.waitForSelector("#productRoot [data-notify]");
   check(true, "išparduota – „Pranešti, kai bus“ vietoje „Į krepšelį“");

@@ -29,15 +29,58 @@ function deliveryEta() {
 }
 // „Įdėti į krepšelį“ – dvi eilutės: veiksmas ir pristatymo laikas su žaliu „gyvu“ tašku
 const addBtnHTML = () => `<span class="addMain">Įdėti į krepšelį</span><span class="addEta"><i class="liveDot" aria-hidden="true"></i>${esc(nb(deliveryEta()))}</span>`;
-// „Tas pats kvapas“ – kitos to paties kvapo prekės: nuotrauka, pavadinimas, talpa ir kaina, mygtukas „+“ (į krepšelį iškart)
-function formRowHTML(x) {
+// Susietų prekių eilutė (v25, v28): nuotrauka, pavadinimas, antraeilė (forma · talpa / originalas / savybės), kaina,
+// „+“ – iškart į krepšelį. hidden – „Rodyti dar …“ sąrašuose
+function formRowHTML(x, { sub = "", hidden = false } = {}) {
   const ml = defaultMl(x);
   const sold = !inStock(x);
-  return `<div class="formRow"><a class="formLink" href="${productUrl(x)}" data-nav><span class="art${x.images?.length ? " hasPhoto" : ""}" style="--tint:${x.look.tint}">${artImg(x)}</span><span class="formTxt"><b>${esc(
-    x.name
-  )}</b><small>${esc(TYPE.get(typeOf(x)).one)} · ${esc(sizeLabel(ml, x))}</small><span class="formPrice money">${sold ? "Išparduota" : eur(priceOf(x, ml))}</span></span></a>${
+  const line = sub || `${TYPE.get(typeOf(x)).one} · ${sizeLabel(ml, x)}`;
+  return `<div class="formRow"${hidden ? " hidden data-more-row" : ""}><a class="formLink" href="${productUrl(x)}" data-nav><span class="art${x.images?.length ? " hasPhoto" : ""}" style="--tint:${x.look.tint}">${artImg(
+    x
+  )}</span><span class="formTxt"><b>${esc(x.name)}</b><small>${esc(line)}</small><span class="formPrice money">${sold ? "Išparduota" : eur(priceOf(x, ml))}</span></span></a>${
     sold ? "" : `<button class="formAdd" type="button" data-form-add="${esc(x.id)}" aria-label="Įdėti į krepšelį: ${esc(x.name)}">${glyph("plus")}</button>`
   }</div>`;
+}
+// Susietų prekių blokas: antraštė ir sąrašas; daugiau nei „limit“ – „Rodyti dar N“ (išskleidžia likusias)
+function pickListHTML(title, items, { sub = () => "", limit = 0 } = {}) {
+  if (!items.length) return "";
+  const more = limit && items.length > limit ? items.length - limit : 0;
+  return `<section class="pdForms"><h2 class="pdLabel">${esc(title)}</h2><div class="formList">${items
+    .map((x, i) => formRowHTML(x, { sub: sub(x), hidden: more && i >= limit }))
+    .join("")}</div>${more ? `<button class="formMore" type="button" data-more-forms>${esc(`Rodyti dar ${more}`)}${glyph("chev-down")}</button>` : ""}</section>`;
+}
+// Originalas eilutėje („Paco Rabanne One Million · 10 ml“) – renkantis aliejų pagal kvapą
+const inspLine = x => {
+  const insp = inspiredOf(x);
+  if (!insp) return "";
+  const { brand, name } = splitInspired(insp);
+  return `${[brand, name].filter(Boolean).join(" ")} · ${sizeLabel(defaultMl(x), x)}`;
+};
+// Elektrinio difuzoriaus savybės eilutėje („300 ml · iki 10 val.“)
+const deviceLine = x => [x.attrs?.tank && `${x.attrs.tank} ml`, x.attrs?.runtime && `${x.attrs.runtime} val.`].filter(Boolean).join(" · ") || TYPE.get(typeOf(x)).one;
+// Pagrindinės savybės kortelėmis po kaina (v28, ne kvepalams): reikšmė stambiai, pavadinimas – po ja
+const SPEC_FMT = {
+  tank: v => [`${v} ml`, "vandens talpa"],
+  runtime: v => [`${v} val.`, "veikimo laikas"],
+  // „LED, 7 spalvos“ → LED / 7 spalvos
+  light: v => {
+    const [main, ...rest] = String(v).split(/,\s*/);
+    return [main, rest.join(", ") || "apšvietimas"];
+  },
+  weeks: v => [`${v} sav.`, "kvapo užtenka"],
+  forDiffuser: () => ["Tinka", "elektriniams difuzoriams"],
+  sticks: v => [`${v} vnt.`, "lazdelės"],
+  burn: v => [`${v} val.`, "degimo trukmė"],
+  wax: v => [String(v), "vaškas"],
+  wick: v => [String(v), "dagtis"]
+};
+function specsHTML(p) {
+  const specs = (ATTR_DEFS[typeOf(p)] || [])
+    .map(([k]) => k)
+    .filter(k => SPEC_FMT[k] && p.attrs?.[k] != null && p.attrs[k] !== "" && p.attrs[k] !== false)
+    .slice(0, 3)
+    .map(k => SPEC_FMT[k](p.attrs[k]));
+  return specs.length ? `<ul class="pdSpecs">${specs.map(([v, l]) => `<li><b>${esc(nb(v))}</b><span>${esc(l)}</span></li>`).join("")}</ul>` : "";
 }
 function sampleNoteHTML() {
   return `<p class="pdNote" data-sample-note>${glyph("return")}<span>${esc(creditText())}${
@@ -68,6 +111,15 @@ function productPageHTML(p, ml) {
   const similar = PRODUCTS.filter(x => x.id !== p.id && inStock(x) && typeOf(x) === typeOf(p) && (x.family === p.family || x.gender === p.gender || !isPerfume(p)))
     .sort((a, b) => (b.family === p.family) - (a.family === p.family) || a.rank - b.rank)
     .slice(0, 8);
+  // Kartu reikalingos prekės (v28): aliejui – elektriniai difuzoriai, elektriniam difuzoriui – aliejai (pirmi 5, kiti – „Rodyti dar“)
+  const byNeed = list => list.sort((a, b) => inStock(b) - inStock(a) || a.rank - b.rank);
+  const devices = typeOf(p) === "aliejai" ? byNeed(PRODUCTS.filter(x => typeOf(x) === "elektriniai-difuzoriai")) : [];
+  const oils = device ? byNeed(PRODUCTS.filter(x => typeOf(x) === "aliejai")) : [];
+  const pairsHTML = devices.length
+    ? pickListHTML(devices.length > 1 ? "Tinkami elektriniai difuzoriai" : "Tinkamas elektrinis difuzorius", devices, { sub: deviceLine, limit: 5 })
+    : oils.length
+      ? pickListHTML("Aliejai šiam difuzoriui", oils, { sub: inspLine, limit: 5 })
+      : "";
   const sold = !inStock(p);
   const rate = ratingOf(p);
   const buyBtn = sold
@@ -99,11 +151,12 @@ ${inspiredOf(p) ? `<p class="pdInsp">${inspiredHTML(p, "pd")}</p>` : ""}
 <div class="accs">
 ${isPerfume(p) ? accHTML("user", "Kam skirti", who) : ""}
 ${keyNotes(p).length ? accHTML("drop", isPerfume(p) ? "Natos" : "Kvapo natos", notes, { id: "pdNotesH" }) : ""}
-${attrs.length ? accHTML("info", "Savybės", `<dl class="pdNotes">${attrs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`, { open: device }) : ""}
+${attrs.length && !specsHTML(p) ? accHTML("info", "Savybės", `<dl class="pdNotes">${attrs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`, { open: device }) : ""}
 ${p.ingredients ? accHTML("doc", "Ingredientai", `<p>${esc(p.ingredients)}</p>`) : ""}
 ${accHTML("truck", "Pristatymas ir grąžinimas", ship)}
 </div>
 <div class="pdPrice">${sold ? `<b>Laikinai išparduota</b>` : priceBlockHTML(p, ml)}</div>
+${specsHTML(p)}
 ${
   device
     ? ""
@@ -112,13 +165,8 @@ ${
 }
 ${sold ? "" : `<p class="pdLabel pdLabQty">Kiekis</p>`}
 <div class="pdBuy" data-buy-anchor>${sold ? "" : qtyHTML()}${buyBtn}</div>
-${
-  forms.length
-    ? `<section class="pdForms"><h2 class="pdLabel">${isPerfume(p) && forms.every(x => !isPerfume(x)) ? "Šis kvapas jūsų namams" : "Tas pats kvapas kitomis formomis"}</h2><div class="formList">${forms
-        .map(formRowHTML)
-        .join("")}</div></section>`
-    : ""
-}
+${pairsHTML}
+${pickListHTML(isPerfume(p) && forms.every(x => !isPerfume(x)) ? "Šis kvapas jūsų namams" : "Tas pats kvapas kitomis formomis", forms)}
 <div class="pdActs">${heartBtn(p, "pdAct")}<button class="pdAct" type="button" data-share="${p.id}">${glyph("share")}<span>Dalintis</span></button></div>
 ${inspiredOf(p) && SET.inspired?.note ? `<p class="pdLegal">${esc(SET.inspired.note)}</p>` : ""}
 <div data-note-slot>${ml === SAMPLE_ML && !sold ? sampleNoteHTML() : ""}</div>
@@ -219,6 +267,18 @@ function bindProduct() {
       });
       setTimeout(() => $$("[data-add]", root).forEach(b => ((b.innerHTML = b.dataset.html || addBtnHTML()), b.classList.remove("added"))), 1400);
       openMiniCart({ added: `${p.name} · ${sizeLabel(pdState.ml, p)}` });
+      return;
+    }
+    // „Rodyti dar N“ – išskleidžia likusias susietas prekes (švelniai), mygtukas dingsta
+    const more = t?.closest("[data-more-forms]");
+    if (more) {
+      const sec = more.closest(".pdForms");
+      $$("[data-more-row]", sec).forEach(r => {
+        r.hidden = false;
+        r.classList.add("formIn");
+      });
+      more.remove();
+      $("[data-more-row] .formLink", sec)?.focus({ preventScroll: true });
       return;
     }
     // „Tas pats kvapas“: „+“ – kita forma (difuzorius, žvakė…) iškart į krepšelį, numatyta talpa
