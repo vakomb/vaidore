@@ -49,7 +49,8 @@ const catalogSeg = cur =>
   `<div class="axSeg axCatSeg" role="tablist" aria-label="Katalogas">${[
     ["kvapai", "Produktai"],
     ["kvapu-sarasas", "Kvapai"],
-    ["kategorijos", "Kategorijos"]
+    ["kategorijos", "Kategorijos"],
+    ["natos", "Natos"]
   ]
     .map(([id, n]) => `<a role="tab" href="admin/${id}" data-nav aria-selected="${cur === id}">${n}</a>`)
     .join("")}</div>`;
@@ -329,7 +330,12 @@ const blankProduct = () => ({
   added: new Date().toISOString().slice(0, 10),
   stock: null,
   images: [],
-  visible: true
+  visible: true,
+  // v29: prekės puslapio turinys (migracija 20261122090000)
+  subtitle: "",
+  mood_image: "",
+  mood_title: "",
+  mood_line: ""
 });
 // Laukas eilutėje: pavadinimas kairėje, reikšmė dešinėje; stack – pavadinimas virš (ilgam tekstui)
 const fieldHTML = (label, input, { cls = "", stack = false, attrs = "" } = {}) => `<label class="field axField${stack ? " stack" : ""}${cls ? ` ${cls}` : ""}" ${attrs}><span>${label}</span>${input}</label>`;
@@ -350,7 +356,7 @@ async function renderProductEdit(main, id, seq) {
           if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
           if (r?.[0] && !("type" in r[0])) delete b.type;
           // v15: attrs, scent_id – tik po migracijos 20261120120000
-          for (const k of ["attrs", "scent_id"]) if (r?.[0] && !(k in r[0])) delete b[k];
+          for (const k of ["attrs", "scent_id", "subtitle", "mood_image", "mood_title", "mood_line"]) if (r?.[0] && !(k in r[0])) delete b[k];
           if (r?.[0] && "inspired_image" in r[0]) b.inspired_image = "";
           return [b];
         })
@@ -370,6 +376,8 @@ async function renderProductEdit(main, id, seq) {
   const ed = { p: structuredClone(p), isNew, cats: new Set(links.map(l => l.category_id)), images: [...(p.images || [])], scents, scentId: null, af: null, pending: null, fams };
   // Originalo nuotrauka (v18): produktui su kvapu – iš kvapo (keičiama kvape), be kvapo – įkeliama čia
   ed.inspImg = p.inspired_image || "";
+  // Nuotaikos juosta (v29) – tik jei duomenų bazėje jau yra stulpeliai (migracija 20261122090000)
+  ed.mood = { image: p.mood_image || "", title: p.mood_title || "", line: p.mood_line || "" };
   const n = p.notes || {};
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
   const tf = TYPE_FORM[p.type || "kvepalai"] || TYPE_FORM.kvepalai;
@@ -414,7 +422,7 @@ ${groupHTML(
 )}
 <div class="ig">${sumRow("aprasymas", "Aprašymas")}${sumRow("natos", esc(tf.notes), "scentOnly")}${"attrs" in p ? sumRow("savybes", "Savybės", "", 'id="attrsRow"') : ""}${sumRow("spalvos", "Spalvos")}${
     cats.length ? sumRow("kolekcijos", "Kolekcijos", "scentOnly") : ""
-  }${sumRow("isamiau", "Išsamiau")}</div>
+  }${"subtitle" in p ? sumRow("puslapis", "Puslapio turinys") : ""}${sumRow("isamiau", "Išsamiau")}</div>
 ${
   isNew
     ? ""
@@ -467,6 +475,14 @@ ${
         .join("")}</div></div>`
     : ""
 }
+${
+  "subtitle" in p
+    ? `<div data-pane="puslapis" data-title="Puslapio turinys" data-focus="no" hidden>
+${groupHTML(fieldHTML("Paantraštė", `<input name="subtitle" maxlength="80" value="${esc(p.subtitle || "")}" data-sub-ph />`), { head: "Po pavadinimu", foot: "Tuščia – pagal kategoriją." })}
+${"mood_image" in p ? moodGroupHTML(ed, { cls: "scentOnly" }) : ""}
+</div>`
+    : ""
+}
 <div data-pane="isamiau" data-title="Išsamiau" data-focus="no" hidden>
 ${groupHTML(
   `${fieldHTML("Eilė", `<input name="rank" type="number" inputmode="numeric" value="${esc(p.rank)}" />`)}${fieldHTML("Pridėta", `<input name="added" type="date" value="${esc(p.added || "")}" />`)}${fieldHTML(
@@ -506,6 +522,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
   paintBottle(form);
   paintSums(form);
   paintProdInsp(ed, form);
+  if ("mood_image" in p) bindMood(form, ed, () => form.elements.id.value.trim());
   sortable($("#imgsBox", form), {
     item: ".admImg",
     handle: ".admImg img",
@@ -538,6 +555,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
       paintSums(form);
     }
     if (e.target.id === "afScent") return afScentChanged(ed, form, e.target.value, true);
+    if (["conc", "gender"].includes(e.target.name)) paintSums(form);
     afTouched(form, e.target);
       if (e.target.matches("[data-img-input]")) addImages(ed, form, e.target);
     else if (e.target.id !== "afText") A.dirty = true;
@@ -600,6 +618,12 @@ function paintSums(form) {
   const cats = $$('input[name="cats"]:checked', form).map(c => c.closest("label").textContent.trim());
   set("kolekcijos", cats.length ? esc(short(cats.join(", "))) : `<span class="axMuted2">Nėra</span>`);
   set("isamiau", `Eilė ${esc(f.rank.value || "100")}`);
+  // Paantraštė (v29): numatyta – pagal kategoriją (kvepalams – koncentracija ir lytis)
+  if (f.subtitle) {
+    const def = VD.subtitleOf({ type: formType(form), conc: f.conc.value, gender: f.gender.value });
+    f.subtitle.placeholder = def;
+    set("puslapis", esc(short(f.subtitle.value.trim() || def)));
+  }
 }
 // Talpos: kvepalams – fiksuotos (VD.BOTTLE_ML: 33 ir 100 ml); difuzoriams ir aliejams – dvi eilutės su laisvu tūriu (ml),
 // žvakėms – svoris (g, sizes[].unit = "g"), elektriniam difuzoriui – viena eilutė „1 vnt.“ (unit = "vnt").
@@ -729,6 +753,8 @@ function readProduct(ed, form) {
     sillage: ed.p.sillage || 3,
     sizes: sizes.sort((a, b) => a.ml - b.ml),
     ...("attrs" in ed.p ? { attrs: readAttrs(form) } : {}),
+    ...("subtitle" in ed.p ? { subtitle: f.subtitle.value.trim() } : {}),
+    ...("mood_image" in ed.p ? readMood(form, ed) : {}),
     ...("scent_id" in ed.p ? { scent_id: AF_SCENTED.has(f.type?.value || "kvepalai") ? (ed.isNew ? ed.scentId : ed.p.scent_id) || null : null } : {}),
     sample: Math.round(num(f.sample.value) * 100) / 100,
     stock: stockRaw === "" ? null : Math.round(Number(stockRaw)),

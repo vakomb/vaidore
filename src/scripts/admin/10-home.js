@@ -38,6 +38,7 @@ const HE_PARTS = { skaidres: "Skaidrės", skyriai: "Skyriai su produktais", plyt
 async function renderVitrina(main, param, seq) {
   const back = isSplit() ? null : { href: "admin/vitrina", label: "Vitrina" };
   if (param === "korteles" || param === "istorija") return renderSettingsPage(main, param, seq, back);
+  if (param === "puslapiai") return renderPdpEditor(main, seq, back);
   if (HE_PARTS[param]) return renderHomeEditor(main, param, seq, back);
   if (param) return navigate("admin/vitrina", { replace: true });
   // Vitrinos ekranas: visos dalys su santrauka
@@ -65,6 +66,7 @@ async function renderVitrina(main, param, seq) {
 ${groupHTML(
   [
     navRow({ href: "admin/vitrina/korteles", ico: "heart", icoBg: "var(--ink2)", title: "Prekių kortelės", sub: "Širdelė, ženkliukai, originalas" }),
+    navRow({ href: "admin/vitrina/puslapiai", ico: "drop", icoBg: "var(--ink2)", title: "Prekių puslapiai", sub: "Natos, naudojimas, pastabos" }),
     navRow({ href: "admin/vitrina/istorija", ico: "doc", icoBg: "var(--ink2)", title: "Mūsų istorija", value: v(S?.story?.text ? "Rodoma" : "Nerodoma") })
   ].join(""),
   { head: "Visi puslapiai" }

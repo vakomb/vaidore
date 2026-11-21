@@ -31,6 +31,28 @@ const useDb = !process.env.CATALOG && process.env.NO_DB !== "1";
 const catalog = (useDb && (await dbCatalog(sb, fileCatalog))) || fileCatalog;
 const fromDb = catalog !== fileCatalog;
 const S = catalog.settings;
+// Prekių puslapių tekstai pagal tipą (v29): numatytieji + administravimo pakeitimai – SEO puslapiuose natos ir naudojimas tekstu
+const PDP_DEF = JSON.parse(fs.readFileSync(path.join(src, "data", "pdp.json"), "utf8"));
+const pdpOf = t => {
+  const d = PDP_DEF[t] || {};
+  const o = S.pdp?.[t] || {};
+  const out = { ...d, ...o };
+  for (const k of Object.keys(d)) if (d[k] && typeof d[k] === "object") out[k] = { ...d[k], ...(o[k] || {}) };
+  return out;
+};
+function storyText(p, ty) {
+  const c = pdpOf(ty);
+  const out = [];
+  const all = [...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])];
+  if (c.notes?.on !== false && all.length) out.push(`<p><b>${esc(c.notes?.title || "Natos")}:</b> ${esc(all.join(", "))}.</p>`);
+  const steps = (c.steps?.items || []).filter(x => x?.title || x?.text);
+  if (c.steps?.on !== false && steps.length)
+    out.push(`<h2>${esc(c.steps.title || "Kaip naudoti")}</h2><ol>${steps.map(x => `<li>${x.title ? `<b>${esc(x.title)}.</b> ` : ""}${esc(x.text || "")}</li>`).join("")}</ol>`);
+  const where = (c.where?.items || []).filter(x => x?.label);
+  if (c.where?.on !== false && where.length) out.push(`<p><b>${esc(c.where.title || "Kur naudoti")}:</b> ${esc(where.map(x => x.label).join(", "))}.${c.where.text ? ` ${esc(c.where.text)}` : ""}</p>`);
+  if (c.note?.on !== false && c.note?.text) out.push(`<p>${esc(c.note.text)}</p>`);
+  return out.join("");
+}
 const SITE = (process.env.SITE_URL || `https://${S.domain}`).replace(/\/$/, "");
 const NOINDEX = process.env.NOINDEX === "1";
 const BASE = ("/" + (process.env.BASE_PATH || "/").replace(/^\/+|\/+$/g, "") + "/").replace("//", "/");
@@ -245,7 +267,7 @@ for (const p of products) {
     image: fs.existsSync(path.join(src, "public", "og", `${p.id}.jpg`)) ? `${SITE}/og/${p.id}.jpg` : image[0],
     type: "product",
     extra: [ld(product), ld(crumbs)],
-    noscript: `<h1>${esc(p.name)} – ${esc(kind)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>`
+    noscript: `<h1>${esc(p.name)} – ${esc(kind)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>${storyText(p, ty)}`
   });
 }
 page("pagalba.html", {

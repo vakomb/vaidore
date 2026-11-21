@@ -117,7 +117,7 @@ export function mockSupabase({ url, catalog, fail = {} }) {
     return true;
   };
   const audit = (u, action, entity, row, changes) =>
-    db.audit_log.unshift({ id: seq++, at: new Date().toISOString(), actor: u?.id || null, actor_email: u?.email || null, action, entity, entity_id: String(row.id ?? row.product_id ?? ""), changes });
+    db.audit_log.unshift({ id: seq++, at: new Date().toISOString(), actor: u?.id || null, actor_email: u?.email || null, action, entity, entity_id: String(row.id ?? row.product_id ?? row.name ?? ""), changes });
 
   async function handle(route) {
     const req = route.request();
@@ -247,15 +247,38 @@ export function mockSupabase({ url, catalog, fail = {} }) {
         ...(table === "restock_requests" ? { notified: false } : {}),
         ...(table === "newsletter" ? { token: `00000000-0000-4000-9000-${String(seq).padStart(12, "0")}`, welcomed_at: null, unsubscribed_at: null } : {}),
         ...(["reviews", "restock_requests", "orders", "newsletter"].includes(table) ? { id: `00000000-0000-4000-8000-${String(seq++).padStart(12, "0")}`, created_at: new Date().toISOString() } : {}),
-        ...(table === "products" ? { inspired_image: "", created_at: new Date().toISOString(), updated_at: new Date().toISOString() } : {}),
-        ...(table === "scents" ? { inspired_image: "" } : {}),
+        ...(table === "products" ? { inspired_image: "", subtitle: "", mood_image: "", mood_title: "", mood_line: "", created_at: new Date().toISOString(), updated_at: new Date().toISOString() } : {}),
+        ...(table === "scents" ? { inspired_image: "", mood_image: "", mood_title: "", mood_line: "" } : {}),
+        ...(table === "note_media" ? { updated_at: new Date().toISOString() } : {}),
         ...r
       }));
-      const key = table === "product_categories" ? r => `${r.product_id}|${r.category_id}` : table === "restock_requests" ? r => `${r.product_id}|${r.email}` : table === "newsletter" ? r => String(r.email).toLowerCase() : r => r.id;
-      for (const r of rows) if (db[table].some(x => key(x) === key(r))) return route.fulfill(json(409, { code: "23505", message: `duplicate key value violates unique constraint "${table}_pkey"` }));
-      db[table].push(...rows);
-      rows.forEach(r => audit(user, "insert", table, r, r));
-      return route.fulfill(ret(rows));
+      const key =
+        table === "product_categories"
+          ? r => `${r.product_id}|${r.category_id}`
+          : table === "restock_requests"
+            ? r => `${r.product_id}|${r.email}`
+            : table === "newsletter"
+              ? r => String(r.email).toLowerCase()
+              : table === "note_media"
+                ? r => r.name
+                : r => r.id;
+      // Upsert (Prefer: resolution=merge-duplicates) – esamas įrašas atnaujinamas
+      const merge = prefer.includes("resolution=merge-duplicates");
+      const out = [];
+      for (const r of rows) {
+        const old = db[table].find(x => key(x) === key(r));
+        if (old && !merge) return route.fulfill(json(409, { code: "23505", message: `duplicate key value violates unique constraint "${table}_pkey"` }));
+        if (old) {
+          Object.assign(old, r);
+          audit(user, "update", table, old, r);
+          out.push(old);
+        } else {
+          db[table].push(r);
+          audit(user, "insert", table, r, r);
+          out.push(r);
+        }
+      }
+      return route.fulfill(ret(structuredClone(out)));
     }
     if (method === "PATCH") {
       const b = body();

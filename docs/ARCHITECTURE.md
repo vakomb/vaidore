@@ -50,6 +50,8 @@ nukreipiami. Vercel: `admin/*` ir `paskyra/*` perrašomi į `admin` / `paskyra` 
 | `restock_requests` | „Pranešti, kai bus“ | admin | bet kas (tik naujas, nepažymėtas) |
 | `audit_log` | žurnalas (trigeriai `vd_audit`: kas, kada, kas pasikeitė „buvo → dabar“) | admin | tik trigeriai |
 | `admin_emails` | administratorių el. paštai | niekas (tik `is_admin()`) | tik SQL |
+| `scents` | bendri kvapai (natos, originalas, nuotaikos juosta `mood_*`) | visi | admin |
+| `note_media` | natų biblioteka: natos pavadinimas → ingrediento nuotrauka (v29) | visi | admin |
 
 - `is_admin()` – prisijungęs, el. paštas `admin_emails` ir **patvirtintas**. Naudojama visose politikose ir Storage.
 - `vd_record_order(o)` – užsakymas įrašomas vieną kartą (`on conflict (stripe_session)`) ir toje pačioje transakcijoje sumažinami
@@ -266,6 +268,44 @@ Karuselės po plytelėmis („Kvapnios naujienos“, „Populiariausi moterims�
 - Po laukais paaiškinimų nėra – tik pavyzdžiai laukuose (`TYPE_FORM`). Viena trumpa pastaba – „Sena kaina – tik akcijai (mažiausia per 30 d.)“.
 - Blokai: Užpildyti iš aprašymo → Prekė → Natos (kvapo prekėms) → Savybės → Kaina → Nuotraukos; šone – Rodymas (su adresu), Kolekcijos (ne elektriniams difuzoriams), Spalvos.
 - Ilgaamžiškumas ir sklaida (`longevity`, `sillage`) formose (produkto ir kvapo) nerodomi: laukai duomenų bazėje lieka, reikšmė imama iš automatinio užpildymo arba lieka esama (naujam – 3). Juos naudoja kvapo testas.
+
+## Prekės puslapis pagal kategoriją (v29)
+
+Sandara (`10-product.js` + `28-story.js`, stiliai `13-story.css`): viršuje – pirkimas kaip anksčiau (galerija, pavadinimas,
+**paantraštė**, originalas, kaina, savybės, talpa, kiekis, „Į krepšelį“, susietos prekės), po juo – aprašymas, tada
+**turinio blokai** ir pabaigoje išskleidžiamos dalys (Kam skirti, Ingredientai, Pristatymas). Kompiuteryje blokai – po
+dviem stulpeliais, centre iki 1100 px: antraštė kairėje, turinys dešinėje.
+
+- **Paantraštė** (`subtitleOf`): `products.subtitle` → tipo tekstas (`pdp[tipas].sub`) → kvepalams „Eau de Parfum · Unisex“.
+- **Aprašymas** (`descHTML`): pirma pastraipa „PAVADINIMAS – šūkis.“, toliau aprašymas pastraipomis (ilgas vientisas
+  tekstas skaidomas sakinių riba). Natų vardai (LT galūnės – „Vanilė“ randa „vanilę“), talpa („100 ml“) paryškinami po
+  vieną kartą. Daugiau nei ~560 simbolių ar 3 pastraipos – suskleista su „Skaityti daugiau“ (išskleidžiama sklandžiai).
+- **Blokai** (`storyHTML`, kiekvienas – tik su duomenimis): natos (kvepalams – segmentai Viršutinės · Širdies · Bazinės,
+  visi lygiai tame pačiame langelyje, todėl aukštis nesikeičia; kitiems – 3 pagrindinės, pirmiausia su nuotraukomis),
+  kvapo charakteris (ilgaamžiškumas / sklaida, tik ne numatytos 3), nuotaikos juosta, žingsniai („Kaip naudoti“ –
+  telefone slenkama eilė su snap), piktogramos („Kur purkšti / pastatyti / naudoti“ – savos linijinės `STORY_ICO`),
+  mėginuko kortelė (kvepalams: „Rinktis mėginuką“ pasirenka 2 ml), pastaba (informacinis langelis).
+- **Nuotaikos juosta** (`moodOf`): įkelta nuotrauka ir dvi eilutės – produkto (`products.mood_*`), tušti laukai – iš bendro
+  kvapo (`scents.mood_*`, katalogas – `c.scents`). Be nuotraukos – „kvapo linija“: tikros to paties kvapo formų nuotraukos
+  vienoje eilėje (dabartinė – pažymėta, kitos – nuorodos). Jokių savų kompozicijų ar piešinių.
+- **Natos** – tik tikri ingredientai: numatytoji biblioteka `src/data/notes.json` + `src/public/img/natos/` (iškirpta iš
+  Vaidore produktų nuotraukų; `window.VAIDORE_NOTES`), bazėje – `note_media` (papildo ir perrašo). Paieška (`noteMedia`):
+  tikslus pavadinimas, kitaip – pagrindinis žodis („Madagaskaro vanilė“ → „Vanilė“, „Jazminas sambac“ → „Jazminas“).
+  Be nuotraukos – monograma. Apskritime nuotrauka užpildo visą plotą, baltas fonas susilieja (`mix-blend-mode: multiply`).
+- **Tekstai pagal tipą** – `src/data/pdp.json` (`window.VAIDORE_PDP`, `pdpOf`) + `settings.pdp[tipas]` (tik skirtumai).
+- Įsiliejimas slenkant – `bindStory` (IntersectionObserver, tik `opacity` ir `transform`, vieną kartą; be judesio – jei
+  „Reduce motion“). Katalogo objektai nekeičiami (natų žemėlapis `NOTE_IMG`, `SCENT_INFO` – atskirai), kad atnaujinus
+  katalogą puslapis nebūtų perpieštas be reikalo.
+- **Administravimas** (`src/scripts/admin/15-pdp.js`): Katalogas → **Natos** (`admin/natos`) – visos naudojamos natos,
+  šaltinis (Iškirpta / Vaidore nuotrauka / Kaip „…“ / Be nuotraukos), „Iškirpti iš produkto nuotraukos“ (pirmiausia –
+  prekių su šia nata nuotraukos; tempiama, slankiklis, du pirštai, pelės ratukas, rodyklės; išsaugoma 480 × 480 WebP
+  `products/natos/…`, `note_media` upsert), „Įkelti nuotrauką“ (taip pat iškerpama), „Pašalinti“. Produktas → „Puslapio
+  turinys“ (paantraštė, nuotaikos juosta); Kvapas → „Nuotaikos juosta“ (visoms formoms). Vitrina → **Prekių puslapiai**
+  (`admin/vitrina/puslapiai`) – kiekvienam tipui paantraštė, blokų jungikliai, antraštės, žingsniai (iki 4) ir piktogramos
+  (iki 6) su piktogramos pasirinkimu ir peržiūra, pastaba; „Atkurti numatytuosius“. Be migracijos stulpelių laukai nerodomi,
+  natų bibliotekoje – įspėjimas.
+- Migracija `20261122090000_product_page.sql`: `products.subtitle`, `products.mood_*`, `scents.mood_*`, `note_media` (RLS:
+  skaito visi, keičia `is_admin()`), žurnalas – ir natų bibliotekai (`vd_audit`: `name`).
 
 ## Be „Kada tinka“ (v19)
 

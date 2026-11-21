@@ -18,7 +18,7 @@ const routes = sep < 0 ? [] : args.slice(sep + 1);
 const SIZES = (sizes.length ? sizes : ["390x844", "430x932", "844x390", "768x1024", "1440x900"]).map(s => s.split(/[x×]/).map(Number));
 const ROUTES = routes.length
   ? routes
-  : ["admin", "admin/uzsakymai", "admin/uzsakymai/AB12CD01", "admin/kvapai", "admin/kvapai/vanor", "admin/kvapai/naujas", "admin/kvapu-sarasas", "admin/kategorijos", "admin/vitrina", "admin/vitrina/skaidres", "admin/vitrina/skyriai", "admin/vitrina/plyteles", "admin/vitrina/juosta", "admin/vitrina/korteles", "admin/daugiau", "admin/atsiliepimai", "admin/nustatymai/pristatymas", "admin/zurnalas"];
+  : ["admin", "admin/uzsakymai", "admin/uzsakymai/AB12CD01", "admin/kvapai", "admin/kvapai/vanor", "admin/kvapai/naujas", "admin/kvapu-sarasas", "admin/kategorijos", "admin/natos", "admin/vitrina", "admin/vitrina/skaidres", "admin/vitrina/skyriai", "admin/vitrina/plyteles", "admin/vitrina/juosta", "admin/vitrina/korteles", "admin/vitrina/puslapiai", "admin/daugiau", "admin/atsiliepimai", "admin/nustatymai/pristatymas", "admin/zurnalas"];
 const out = path.join(root, ".verify", "site-admin");
 if (process.env.NO_BUILD !== "1") {
   const r = spawnSync(process.execPath, [path.join(root, "tools/build-site.mjs")], { env: { ...process.env, OUT: out, NO_DB: "1", OMNIVA_FILE: path.join(root, "tools/fixtures/omniva-sample.json") }, encoding: "utf8" });

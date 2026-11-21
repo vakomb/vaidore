@@ -59,6 +59,18 @@ window.VD = {
   // Pradžios puslapio redaktorius (admin/pradzia): šablonai, numatytieji, scenos, nuotraukos
   stageHTML, photoHTML, slideDefaults, resolveSlide, tilePreset, productUrl, autoNoteItems, fmtNote,
   railProducts, railMatches, railLimit, railHref, railLine,
+  // Prekių puslapių turinys (v29, 28-story.js): tekstai pagal tipą, piktogramos, natų biblioteka
+  pdpOf, subtitleOf, noteKey, noteMedia, mainNotes,
+  storyIco: k => storyIco(k),
+  get PDP_DEF() {
+    return PDP_DEF;
+  },
+  get STORY_ICO_NAMES() {
+    return STORY_ICO_NAMES;
+  },
+  get NOTE_DEFAULTS() {
+    return window.VAIDORE_NOTES || [];
+  },
   get RAIL_MAX() {
     return RAIL_MAX;
   },

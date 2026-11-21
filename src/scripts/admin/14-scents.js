@@ -104,11 +104,13 @@ async function renderScentEdit(main, id, seq) {
   const isNew = id === "naujas";
   const back = isSplit() ? null : { href: "admin/kvapu-sarasas", label: "Kvapai" };
   main.innerHTML = pageHTML({ title: isNew ? "Naujas kvapas" : "Kvapas", back, body: loading(6) });
-  const [rows, fams, linked, all] = await Promise.all([
+  const [rows, fams, linked, all, one] = await Promise.all([
     isNew ? Promise.resolve([null]) : sbRest(`scents?select=*&id=eq.${encodeURIComponent(id)}`),
     sbRest("families?select=*&order=sort.asc"),
     isNew ? Promise.resolve([]) : sbRest(`products?select=*&scent_id=eq.${encodeURIComponent(id)}&order=rank.asc`),
-    sbRest("scents?select=id")
+    sbRest("scents?select=id"),
+    // Naujam kvapui – ar jau yra nuotaikos juostos stulpeliai (migracija 20261122090000)
+    isNew ? sbRest("scents?select=*&limit=1").catch(() => []) : Promise.resolve([])
   ]);
   if (stale(seq)) return;
   const x = isNew
@@ -126,6 +128,10 @@ async function renderScentEdit(main, id, seq) {
   ed.prodCol = ed.linked.length ? "inspired_image" in ed.linked[0] : true;
   ed.img0 = x.inspired_image || (ed.prodCol && ed.linked.find(p => p.inspired_image)?.inspired_image) || "";
   ed.img = ed.img0;
+  // Nuotaikos juosta (v29): kvapo lygiu – visiems šio kvapo produktams
+  ed.moodCol = isNew ? !!one?.[0] && "mood_image" in one[0] : "mood_image" in x;
+  ed.mood = { image: x.mood_image || "", title: x.mood_title || "", line: x.mood_line || "" };
+  ed.mood0 = JSON.stringify(ed.mood);
   const n = x.notes || {};
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
   const typeOne = t => VD.TYPES.find(y => y.id === (t || "kvepalai"))?.one || "";
@@ -150,6 +156,7 @@ ${groupHTML(
   { head: "Kvapas" }
 )}
 <h2 class="igHead">Originalo nuotrauka</h2><div id="scInsp">${inspImgHTML(ed.img, scentInspFoot(ed))}</div>
+${ed.moodCol ? moodGroupHTML(ed, { scent: true }) : ""}
 ${groupHTML(
   `${fieldHTML("Viršutinės", `<input name="top" value="${esc((n.top || []).join(", "))}" placeholder="Bergamotė, Kriaušė" />`, { stack: true })}${fieldHTML(
     "Širdies",
@@ -191,6 +198,7 @@ ${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span cla
     box.innerHTML = bottleSVG({ name: form.elements.name.value || "Kvapas", look: { liquid: form.elements.liquid.value, tint: form.elements.tint.value, cap: "gold", shape: "rect" } });
   };
   paintPrev();
+  if (ed.moodCol) bindMood(form, ed, () => ed.x.id || form.elements.id?.value.trim());
   form.addEventListener("input", e => {
     A.dirty = true;
     afTouched(form, e.target);
@@ -294,7 +302,8 @@ function readScent(ed, form) {
     longevity: ed.x.longevity || 3,
     sillage: ed.x.sillage || 3,
     look: { liquid: f.liquid.value, tint: f.tint.value },
-    ...(ed.imgCol ? { inspired_image: ed.img } : {})
+    ...(ed.imgCol ? { inspired_image: ed.img } : {}),
+    ...(ed.moodCol ? readMood(form, ed) : {})
   };
   const errors = [];
   if (!row.name) errors.push("Įrašykite pavadinimą");
@@ -307,6 +316,7 @@ function readScent(ed, form) {
   return { row, errors };
 }
 async function saveScent(ed, form) {
+  const seq0 = A.seq;
   const { row, errors } = readScent(ed, form);
   showFormErr(form, errors);
   if (errors.length) return;
@@ -334,9 +344,13 @@ async function saveScent(ed, form) {
   if ((apply || imgChanged) && ed.prodCol) (scentState.thumbs ||= new Map()).set(ed.x.id, ed.img);
   paintScents();
   A.dirty = false;
+  // Nuotaikos juosta – parduotuvėje matoma visuose šio kvapo produktuose (katalogas atnaujinamas)
+  const moodChanged = ed.moodCol && JSON.stringify({ image: row.mood_image, title: row.mood_title, line: row.mood_line }) !== ed.mood0;
   if (apply || imgChanged) await catalogChanged(`Išsaugota – ${apply ? "pritaikyta" : "nuotrauka atnaujinta"} ${plural(ed.linked.length, "produktui", "produktams", "produktų")}`);
+  else if (moodChanged) await catalogChanged("Išsaugota – nuotaikos juosta atnaujinta");
   else toast("Išsaugota", { icon: "check" });
-  render(`kvapu-sarasas/${ed.x.id}`);
+  // Kol buvo saugoma, vartotojas galėjo pereiti kitur – tada ekranas neperpiešiamas
+  if (!stale(seq0)) render(`kvapu-sarasas/${ed.x.id}`);
 }
 async function deleteScent(ed) {
   const n = ed.linked.length;

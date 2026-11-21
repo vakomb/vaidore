@@ -2610,3 +2610,220 @@ button.axRow:active {
 .axRow:has(> .scOrig) {
   --sepL: 60px;
 }
+
+/* ── Natų biblioteka (v29, 15-pdp.js): ingredientų nuotraukos apskritimuose, iškirpimas iš produkto nuotraukos ── */
+.axPage:has([data-pane="main"][hidden]) .axTools,
+.axPage:has([data-pane="main"][hidden]) .axSub {
+  display: none;
+}
+.axNotes .axWarn p {
+  padding: 13px 16px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.ntThumb,
+.ntBigArt {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--bg-soft);
+}
+.ntThumb img,
+.ntBigArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+.ntThumb i,
+.ntBigArt i {
+  font-size: 19px;
+  font-style: normal;
+  font-weight: 300;
+  color: var(--ink2);
+}
+.axRow:has(> .ntThumb) {
+  --sepL: 72px;
+}
+.ntBig {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 8px 0 22px;
+  text-align: center;
+}
+.ntBigArt {
+  width: 148px;
+  height: 148px;
+  margin-bottom: 8px;
+  box-shadow: var(--ax-shadow);
+}
+.ntBigArt i {
+  font-size: 56px;
+}
+.ntBig b {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.ntBig small {
+  font-size: 15px;
+  color: var(--ax-gray);
+}
+.ntPicks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.ntPick {
+  aspect-ratio: 1;
+  overflow: hidden;
+  padding: 0;
+  border-radius: var(--ax-r);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--ax-sep);
+  transition: transform 0.3s var(--spring), box-shadow var(--ease);
+}
+.ntPick:hover {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+.ntPick img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+/* Iškirpimas: kvadratas, apskritimo kaukė, nuotrauka tempiama (kaip iOS „Perkelti ir keisti mastelį“) */
+.ntCrop {
+  position: relative;
+  width: min(100%, 420px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fff;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ntCrop:active {
+  cursor: grabbing;
+}
+.ntCrop:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.ntCrop img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: none;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.ntMask {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.42), inset 0 0 0 2px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+}
+.ntZoom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 420px);
+  margin: 16px auto 0;
+}
+.ntZoom input {
+  flex: 1;
+  accent-color: var(--ink);
+}
+#noteCrop .igFoot {
+  max-width: 420px;
+  margin: 10px auto 16px;
+  text-align: center;
+}
+#noteCrop .btn {
+  display: flex;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Nuotaikos juosta produkto ir kvapo formose – plati peržiūra */
+.axMoodPrev {
+  display: grid;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.axMoodPrev img {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.axMoodPrev .axInspRm {
+  justify-self: end;
+  min-height: 36px;
+}
+
+/* Vitrina → Prekių puslapiai: žingsnio / piktogramos eilutė su peržiūra */
+.pdpSlot {
+  --sepL: 72px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 16px;
+}
+.pdpIco {
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+}
+.pdpIco .sIco {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pdpSlotIn {
+  flex: 1;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.pdpSlotIn.row {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+}
+.pdpSlotIn select,
+.pdpSlotIn input,
+.pdpSlotIn textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ax-fill);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15.5px;
+  resize: vertical;
+}
+.pdpSlotIn *:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 0;
+}

@@ -9,7 +9,9 @@
 //   Katalogas   admin/kvapai[/<id>]           Produktai (admin/kvapai/naujas – naujas)
 //               admin/kvapu-sarasas[/<id>]    Kvapai (bendri kvapai, scents)
 //               admin/kategorijos             Kolekcijos ir kvapo šeimos
-//   Vitrina     admin/vitrina[/<dalis>]       skaidres, skyriai, plyteles, juosta (su peržiūra), korteles, istorija
+//               admin/natos                   Natų biblioteka – ingredientų nuotraukos (15-pdp.js, v29)
+//   Vitrina     admin/vitrina[/<dalis>]       skaidres, skyriai, plyteles, juosta (su peržiūra), korteles, istorija,
+//                                             puslapiai (prekių puslapių tekstai pagal tipą, v29)
 //   Daugiau     admin/daugiau                 Klientai, Nustatymai, Žurnalas, Atnaujinti svetainę, Atsijungti
 //               admin/atsiliepimai, admin/laukia, admin/naujienlaiskis, admin/nustatymai/<grupė>, admin/zurnalas
 // Seni adresai: admin/pradzia → admin/vitrina, admin/nustatymai(#…) → admin/daugiau / admin/nustatymai/<grupė>.
@@ -39,6 +41,7 @@ const SECTIONS = {
   kvapai: { tab: "katalogas", name: "Produktai", split: true, render: (m, p, s) => renderProducts(m, p, s) },
   "kvapu-sarasas": { tab: "katalogas", name: "Kvapai", split: true, render: (m, p, s) => renderScents(m, p, s) },
   kategorijos: { tab: "katalogas", name: "Kategorijos", render: (m, p, s) => renderCategories(m, p, s) },
+  natos: { tab: "katalogas", name: "Natos", render: (m, p, s) => renderNotes(m, p, s) },
   vitrina: { tab: "vitrina", name: "Vitrina", render: (m, p, s) => renderVitrina(m, p, s) },
   daugiau: { tab: "daugiau", name: "Daugiau", render: (m, p, s) => renderMore(m, p, s) },
   atsiliepimai: { tab: "daugiau", name: "Atsiliepimai", render: (m, p, s) => renderReviews(m, p, s) },
@@ -54,6 +57,7 @@ const VITRINA = [
   ["plyteles", "Plytelės"],
   ["juosta", "Juosta virš header'io"],
   ["korteles", "Prekių kortelės"],
+  ["puslapiai", "Prekių puslapiai"],
   ["istorija", "Mūsų istorija"]
 ];
 const SET_GROUPS = [
@@ -72,7 +76,8 @@ const SIDE = [
     items: [
       ["admin/kvapai", "Produktai"],
       ["admin/kvapu-sarasas", "Kvapai"],
-      ["admin/kategorijos", "Kategorijos"]
+      ["admin/kategorijos", "Kategorijos"],
+      ["admin/natos", "Natos"]
     ]
   },
   { name: "Vitrina", ico: "store", items: VITRINA.map(([id, n]) => [`admin/vitrina/${id}`, n]), hub: "admin/vitrina" },

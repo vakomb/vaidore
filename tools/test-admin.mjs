@@ -479,6 +479,72 @@ await page.click("[data-confirm-ok]");
 await page.waitForURL(/\/admin\/kvapai$/);
 check(!sb.db.products.some(p => p.id === "silko-rytas") && (await page.locator('#prodList .axCell[data-pid="silko-rytas"]').count()) === 0, "produktas ištrintas (patvirtinus), dingo iš sąrašo");
 
+// v29: Natų biblioteka – ingredientų nuotraukos iš tikrų produktų nuotraukų (Katalogas → Natos)
+await go(page, "admin/natos");
+await page.waitForSelector("[data-note-open]");
+check((await page.locator('.axNav a[href="admin/natos"]').count()) === 1, "meniu: Katalogas → Natos");
+const vanRow = page.locator('[data-note-open="Vanilė"]');
+check(
+  (await vanRow.locator(".ntThumb img").getAttribute("src")) === "img/natos/vanile.webp" && (await vanRow.textContent()).includes("Vaidore nuotrauka"),
+  "natos: Vanilė – numatyta tikra ingrediento nuotrauka (iš Vaidore produktų nuotraukų)"
+);
+await page.click('[data-note-f="be"]');
+check(await until(async () => (await page.locator("[data-note-open]").count()) > 0 && (await page.locator("[data-note-open] .ntThumb img").count()) === 0), "natos: filtras „Be nuotraukos“");
+await page.click('[data-note-open="Tabako lapai"]');
+await page.waitForSelector('[data-pane="note"]:not([hidden]) [data-note-pick]');
+await page.click("[data-note-pick]");
+await page.waitForSelector('[data-pane="pick"]:not([hidden]) .ntPick');
+check((await page.locator('[data-pane="pick"] .igHead').first().textContent()) === "Prekės su šia nata", "natos: pirmiausia siūlomos prekių su šia nata nuotraukos");
+await page.locator('[data-pane="pick"] .ntPick').first().click();
+await page.waitForSelector("[data-crop-save]:not([disabled])");
+// Nuotrauka tempiama pele ir didinama slankikliu – apskritimas lieka vietoje
+const cropBox = await page.locator("[data-crop]").boundingBox();
+const tf0 = await page.locator("[data-crop] img").evaluate(el => el.style.transform);
+await page.mouse.move(cropBox.x + cropBox.width / 2, cropBox.y + cropBox.height / 2);
+await page.mouse.down();
+await page.mouse.move(cropBox.x + cropBox.width / 2 - 40, cropBox.y + cropBox.height / 2 - 30, { steps: 5 });
+await page.mouse.up();
+await page.locator("[data-zoom-in]").evaluate(el => {
+  el.value = "3";
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+});
+check((await page.locator("[data-crop] img").evaluate(el => el.style.transform)) !== tf0, "natos: iškirpimas – tempiama ir didinama");
+await page.click("[data-crop-save]");
+check(
+  await until(() => sb.db.note_media.some(n => n.name === "Tabako lapai" && /natos\/tabako-lapai/.test(n.image)) && sb.uploads.some(u => u.path.includes("natos/tabako-lapai"))),
+  "natos: iškirpta iš produkto nuotraukos, įkelta ir išsaugota bibliotekoje"
+);
+check(
+  await until(async () => (await page.locator('[data-pane="note"]:not([hidden]) .ntBigArt img').count()) === 1 && (await page.locator('[data-note-open="Tabako lapai"]').count()) === 0),
+  "natos: nauja nuotrauka iškart matoma, nata dingo iš „Be nuotraukos“"
+);
+await page.click("[data-note-rm]");
+await page.click("[data-confirm-ok]");
+check(await until(() => !sb.db.note_media.some(n => n.name === "Tabako lapai")), "natos: nuotrauka pašalinta");
+// Produktas → „Puslapio turinys“: paantraštė ir nuotaikos juosta; kvapas – nuotaikos juosta visoms formoms
+await page.goto(`${BASE}admin/kvapai/vanor`);
+await page.waitForSelector("#prodForm");
+check((await page.locator('[data-sum="puslapis"]').textContent()) === "Eau de Parfum · Unisex", "produktas: „Puslapio turinys“ – numatyta paantraštė");
+await push(page, "puslapis");
+await page.fill('#prodForm input[name="subtitle"]', "Kvapas vakarams");
+await page.setInputFiles("#prodForm [data-mood-img]", path.join(root, "src/public/og/home.jpg"));
+await page.waitForSelector("#prodForm .axMoodPrev img");
+await page.fill('#prodForm input[name="mood_title"]', "Šiltas vakaras");
+await page.click('.axSave[form="prodForm"]');
+check(
+  await until(() => {
+    const p = sb.db.products.find(x => x.id === "vanor");
+    return p.subtitle === "Kvapas vakarams" && p.mood_title === "Šiltas vakaras" && /nuotaika\/vanor/.test(p.mood_image);
+  }),
+  "produktas: paantraštė ir nuotaikos juosta išsaugotos"
+);
+await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
+await page.waitForSelector("#scentForm [data-mood-group]");
+await page.fill('#scentForm input[name="mood_title"]', "Rožių sodas");
+await page.click('.axSave[form="scentForm"]');
+check(await until(() => sb.db.scents.find(x => x.id === "my-pink")?.mood_title === "Rožių sodas"), "kvapas: nuotaikos juostos šūkis išsaugotas");
+await page.waitForFunction(() => !document.querySelector('.axSave[form="scentForm"].loading'));
+
 // Kategorijos
 await go(page, "admin/kategorijos");
 await page.click('[data-taxo-new="categories"]');
@@ -525,7 +591,7 @@ check(await until(() => sb.calls.some(c => c.name === "newsletter-sent" && !c.bo
 
 // Vitrina: skaidrės, juosta, plytelės, skyriai – kiekvienas savo ekrane su gyva peržiūra
 await go(page, "admin/vitrina");
-check((await page.locator('#admMain a.axRow[href^="admin/vitrina/"]').count()) === 6, "Vitrina: 6 dalys (skaidrės, skyriai, plytelės, juosta, kortelės, istorija)");
+check((await page.locator('#admMain a.axRow[href^="admin/vitrina/"]').count()) === 7, "Vitrina: 7 dalys (skaidrės, skyriai, plytelės, juosta, kortelės, prekių puslapiai, istorija)");
 await go(page, "admin/vitrina/skaidres");
 check((await page.locator("#heSlides .heItem").count()) === 4, "skaidrės: 4 numatytosios");
 const pv = page.frameLocator("#heFrame");
@@ -668,6 +734,31 @@ await go(page, "admin/vitrina/korteles");
 await page.locator('#setForm input[name="cardBadges"]').uncheck();
 await page.click('.axSave[form="setForm"]');
 check(await until(() => sb.db.settings[0].data.cards?.badges === false && sb.db.settings[0].data.slides.length === 6), "Vitrina → Prekių kortelės: ženkliukai išjungti, kiti nustatymai nepakeisti");
+// v29: Vitrina → Prekių puslapiai – tekstai ir blokai pagal tipą; išsaugomi tik skirtumai, parduotuvėje – iškart
+await go(page, "admin/vitrina/puslapiai");
+await page.click('[data-push="t-zvakes"]');
+await page.fill('#pdpForm [name="p.zvakes.steps.title"]', "Kaip prižiūrėti");
+await page.locator('#pdpForm [name="p.zvakes.note.on"]').uncheck();
+await page.selectOption('#pdpForm [name="p.zvakes.steps.0.ico"]', "flip");
+check((await page.locator('#pdpForm [name="p.zvakes.steps.0.ico"]').locator("xpath=ancestor::div[contains(@class,'pdpSlot')]").locator("[data-ico-prev] path").count()) > 0, "Prekių puslapiai: piktogramos peržiūra");
+await page.click('.axSave[form="pdpForm"]');
+check(
+  await until(() => {
+    const d = sb.db.settings[0].data.pdp;
+    return d?.zvakes?.steps?.title === "Kaip prižiūrėti" && d.zvakes.steps.items[0].ico === "flip" && d.zvakes.note?.on === false && !("notes" in d.zvakes) && !("kvepalai" in d);
+  }),
+  "Vitrina → Prekių puslapiai: išsaugoti tik pakeitimai (žvakės: žingsnių antraštė, piktograma, pastaba išjungta)"
+);
+const candle = sb.db.products.find(p => p.type === "zvakes" && p.visible !== false);
+if (candle) {
+  const fr = await newPage({ width: 430, height: 932 });
+  await fr.goto(`${BASE}zvakes/${candle.id}`);
+  check(
+    await until(async () => (await fr.locator("#productRoot .pbSteps .pbT").textContent().catch(() => "")) === "Kaip prižiūrėti" && (await fr.locator("#productRoot .pdNotice").count()) === 0, 6000),
+    "parduotuvėje: žvakės puslapyje – nauja žingsnių antraštė, pastaba nerodoma"
+  );
+  await fr.context().close();
+}
 
 // Nustatymai – grupėmis (kaip iOS)
 await go(page, "admin/daugiau");
