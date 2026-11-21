@@ -207,11 +207,12 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* Originalas (v24) – pirmas po nuotrauka (telefone) / po pavadinimu (kompiuteryje), viena eilutė */
 .pdInsp {
+  order: 0;
   display: flex;
-  justify-content: center;
   max-width: 100%;
-  margin-top: 14px;
+  margin-top: 6px;
 }
 /* v15: kitų kategorijų prekės – kategorijos nuoroda virš pavadinimo; „Šis kvapas taip pat“ – to paties kvapo produktai */
 .pdCat {

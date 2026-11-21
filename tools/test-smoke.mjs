@@ -479,8 +479,22 @@ async function run(viewport) {
   await page.locator("#productRoot .pdActs [data-fav]").click();
   check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė kvapo puslapyje → mėgstami (1)");
   check(
-    (await page.locator("#productRoot .pdInsp .insp-lg .inspPh img").count()) === 1 && (await page.locator("#productRoot .pdInsp .inspBrand").textContent()) === "Įkvėpti · Tom Ford" && (await page.locator("#productRoot .pdInsp .inspPh").evaluate(e => e.getBoundingClientRect().width)) === 56,
-    "kvapo puslapis: didesnis originalo blokelis (56 px nuotrauka, „Įkvėpti · Tom Ford“)"
+    await page.evaluate(() => {
+      const ins = document.querySelector("#productRoot .pdInsp");
+      const t = ins.querySelector(".inspTxt"), r = ins.getBoundingClientRect(), g = document.querySelector("#productRoot .pdGal").getBoundingClientRect();
+      const one = innerWidth >= 1024 || r.top >= g.bottom - 1;
+      return (
+        !!ins.querySelector(".insp-pd .inspPh img") &&
+        ins.querySelector(".inspBrand").textContent === "Tom Ford" &&
+        getComputedStyle(ins.querySelector(".inspBrand")).display === "inline" &&
+        parseFloat(getComputedStyle(t).fontSize) >= 18 &&
+        ins.querySelector(".inspPh").getBoundingClientRect().width === 52 &&
+        r.height <= 60 &&
+        one &&
+        r.top < document.querySelector("#productRoot .pdPrice").getBoundingClientRect().top
+      );
+    }),
+    "kvapo puslapis: originalas vienoje eilutėje, stambiau, po nuotrauka, prieš kainą (v24)"
   );
   check(
     (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "33 ml,100 ml,2 ml mėginukas",

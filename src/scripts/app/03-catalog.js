@@ -142,7 +142,7 @@ const sizeLabel = (ml, p) => {
 // „Įkvėpti Tom Ford – Tobacco Vanille“ – rodoma, jei kvapas turi lauką inspired ir nustatymuose neišjungta
 const inspiredOf = p => (SET.inspired?.show !== false && p.inspired) || "";
 // Originalo blokelis (v18): kairėje – kvadratinė originalo nuotrauka (nėra – prekės ženklo raidė), dešinėje – prekės ženklas
-// ir kvapo pavadinimas. Kortelėje – vietoj natų (size "card"), produkto puslapyje – didesnis (size "lg"), paieškoje – "sm".
+// ir kvapo pavadinimas. Kortelėje – vietoj natų (size "card"), produkto puslapyje – didesnis, vienoje eilutėje (size "pd"), paieškoje – "sm".
 // „Tom Ford – Tobacco Vanille“ skaidoma per pirmą brūkšnį; be brūkšnio – tik pavadinimas.
 function splitInspired(s) {
   const m = String(s || "").match(/^(.+?)\s+[–—-]\s+(.+)$/) || String(s || "").match(/^(.+?)\s*[–—]\s*(.+)$/);
@@ -152,12 +152,12 @@ function inspiredHTML(p, size = "card") {
   const insp = inspiredOf(p);
   if (!insp) return "";
   const { brand, name } = splitInspired(insp);
-  const px = { card: 40, lg: 56, sm: 30 }[size] || 40;
+  const px = { card: 40, pd: 52, sm: 30 }[size] || 40;
   const photo = SET.inspired?.photo !== false;
   const img = p.inspiredImage
     ? `<img src="${esc(p.inspiredImage)}" alt="" width="${px}" height="${px}" loading="lazy" decoding="async" />`
     : `<span class="inspL" aria-hidden="true">${esc((brand || name).charAt(0).toUpperCase())}</span>`;
-  const label = size === "lg" ? `Įkvėpti${brand ? ` · ${esc(brand)}` : ""}` : esc(brand);
+  const label = esc(brand);
   return `<span class="insp insp-${size}" title="Įkvėpti ${esc(insp)}">${photo ? `<span class="inspPh">${img}</span>` : ""}<span class="inspTxt">${
     label ? `<span class="inspBrand">${label}</span>` : ""
   }<span class="inspName">${esc(name)}</span></span></span>`;

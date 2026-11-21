@@ -280,8 +280,9 @@ originalo nuotrauka (40 px, telefone 36 px; baltas fonas, plonas kontūras, `obj
 prekės ženklas (mažos didžiosios raidės, pilka) ir kvapo pavadinimas – abu po vieną eilutę su „…“. Laukas `inspired`
 („Tom Ford – Tobacco Vanille“) skaidomas per pirmą brūkšnį (`splitInspired`). Nėra nuotraukos – prekės ženklo raidė pilkame
 kvadrate; nėra originalo arba išjungta – šūkis (`.cardTag`); `.cardInsp` aukštis rezervuotas, todėl kortelės lieka lygios.
-Produkto puslapyje – tas pats komponentas, didesnis (`insp-lg`: 56 px nuotrauka, rėmelis, „Įkvėpti · Tom Ford“), po pavadinimu
-(telefone – centre, kompiuteryje – kairėje); natų eilutė ir teisinė pastaba lieka. Paieškos pasiūlymuose – `insp-sm`.
+Produkto puslapyje (v24) – kaip pradžios karuselėse: vienoje eilutėje prekės ženklas (pusjuodis) ir kvapas, tik stambiau
+(`insp-pd`: 52 px nuotrauka, 18–19 px tekstas, be rėmelio); pirmas `.pdInfo` elementas – telefone iškart po nuotrauka,
+kompiuteryje po pavadinimu, prieš kainą. Teisinė pastaba lieka. Paieškos pasiūlymuose – `insp-sm`.
 
 Duomenys: `scents.inspired_image` ir `products.inspired_image` (migracijos 20261118010000, 20261121090000 – perkelia jau
 įkeltas nuotraukas į kvapus). Administravime – Kvapai → kvapas → „Originalo nuotrauka“ (įkelti / pakeisti / pašalinti;

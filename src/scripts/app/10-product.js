@@ -63,14 +63,13 @@ function productPageHTML(p, ml) {
   const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
   return `<article class="pd${sold ? " sold" : ""}" style="--tint:${p.look.tint};--liquid:${p.look.liquid}">
 <header class="pdHead">${isPerfume(p) ? "" : `<p class="pdCat"><a href="${typeOf(p)}" data-nav>${esc(T.title)}</a></p>`}<h1 class="pdH1"><span>${esc(p.name)}</span></h1>${
-    inspiredOf(p) ? `<p class="pdInsp">${inspiredHTML(p, "lg")}</p>` : ""
-  }${
     rate ? `<p class="pdRate">${starsHTML(rate.avg)}<button class="linkBtn" type="button" data-scroll-to="pdReviews">${plural(rate.n, "atsiliepimas", "atsiliepimai", "atsiliepimų")}</button></p>` : ""
   }</header>
 <div class="pdGal${p.images?.length ? " hasPhoto" : ""}">
 ${galleryHTML(p)}
 </div>
 <div class="pdInfo">
+${inspiredOf(p) ? `<p class="pdInsp">${inspiredHTML(p, "pd")}</p>` : ""}
 <p class="pdTag"><b>${esc(p.name)}</b> – ${esc(p.tagline)}.</p>
 <p class="pdDesc">${esc(p.desc)}</p>
 <div class="accs">

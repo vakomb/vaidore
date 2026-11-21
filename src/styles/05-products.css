@@ -445,7 +445,7 @@
   color: #000;
 }
 /* Originalo blokelis (v18) – vietoj natų: kvadratinė originalo nuotrauka kairėje, prekės ženklas ir pavadinimas dešinėje.
-   Rezervuotas vienodas aukštis – kortelės lieka lygios ir be originalo. Tas pats komponentas – produkto puslapyje (.insp-lg). */
+   Rezervuotas vienodas aukštis – kortelės lieka lygios ir be originalo. Tas pats komponentas – produkto puslapyje (.insp-pd, vienoje eilutėje kaip karuselėse). */
 .cardInsp {
   display: flex;
   align-items: center;
@@ -517,28 +517,6 @@
   line-height: 1.4;
   letter-spacing: 0.04em;
   color: var(--ink2);
-}
-/* Produkto puslapyje – didesnis, siauras, su plonu rėmeliu */
-.insp-lg {
-  gap: 12px;
-  padding: 6px 16px 6px 6px;
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-.insp-lg .inspPh {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-}
-.insp-lg .inspL {
-  font-size: 22px;
-}
-.insp-lg .inspBrand {
-  font-size: 11.5px;
-}
-.insp-lg .inspName {
-  font-size: 16px;
-  font-weight: 500;
 }
 /* Paieškos pasiūlymuose – mažas */
 .insp-sm {
@@ -691,7 +669,8 @@
 .rail .art {
   border-radius: var(--r-photo);
 }
-/* Karuselėse (v23) – originalas vienoje eilutėje: prekės ženklas (pusjuodis) ir kvapas, stambiau; ilgas – iki 2 eil. */
+/* Karuselėse (v23) ir produkto puslapyje (v24, .insp-pd) – originalas vienoje eilutėje: prekės ženklas (pusjuodis) ir
+   kvapas, stambiau; ilgas – iki 2 eilučių */
 .rail .cardInsp {
   min-height: 48px;
   margin-top: 2px;
@@ -704,7 +683,8 @@
   height: 44px;
   border-radius: 9px;
 }
-.rail .inspTxt {
+.rail .inspTxt,
+.insp-pd .inspTxt {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -715,7 +695,9 @@
   color: #000;
 }
 .rail .inspBrand,
-.rail .inspName {
+.rail .inspName,
+.insp-pd .inspBrand,
+.insp-pd .inspName {
   display: inline;
   overflow: visible;
   white-space: normal;
@@ -724,12 +706,29 @@
   text-transform: none;
   color: inherit;
 }
-.rail .inspBrand {
+.rail .inspBrand,
+.insp-pd .inspBrand {
   margin-right: 0.3em;
   font-weight: 600;
 }
-.rail .inspName {
+.rail .inspName,
+.insp-pd .inspName {
   font-weight: 400;
+}
+/* Produkto puslapyje – tas pats, tik didesnis (po nuotrauka, viena eilutė – mažai vietos vertikaliai) */
+.insp-pd {
+  gap: 12px;
+}
+.insp-pd .inspPh {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+}
+.insp-pd .inspL {
+  font-size: 21px;
+}
+.insp-pd .inspTxt {
+  font-size: 18px;
 }
 .rail .cardTag {
   font-size: 15px;
