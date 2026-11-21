@@ -687,6 +687,9 @@ async function run(viewport) {
       (await page.locator("#hdrSearch input").isVisible()) && !(await page.locator("#menuBtn").isVisible()) && !(await page.locator("#searchBtn").isVisible()) && (await page.locator(".hdrTools .iconLbl:visible").count()) === 3,
       "kompiuteryje: paieškos laukas visada matomas, be ☰; Paskyra · Mėgstami · Krepšelis su užrašais"
     );
+    // v26: ≥ 1024 px header'is ir meniu juosta neprilipę, balta eilutė – 68 px; mažiau – prilipę
+    const hd = await page.evaluate(() => ({ pos: getComputedStyle(document.querySelector("#hdr")).position, h: document.querySelector(".hdrIn").getBoundingClientRect().height, w: innerWidth }));
+    check(hd.w >= 1024 ? hd.pos !== "sticky" && hd.h <= 70 : hd.pos === "sticky", `header'is: ${hd.w >= 1024 ? "kompiuteryje neprilipęs, žemesnis" : "planšetėje prilipęs"} (${hd.pos}, ${Math.round(hd.h)} px)`);
     await page.click("#hdrQ");
     await page.fill("#hdrQ", "vanor");
     await page.waitForSelector("#searchPop:not([hidden])");
