@@ -1,5 +1,5 @@
-// 16 – „Rask savo kvapą“: 3 klausimai apatiniame lape → 3 tinkamiausi kvapai su „Kodėl tinka“.
-// Logika – tik iš catalog.json laukų (gender, family, sillage), be serverio. Įėjimai: [data-quiz] (Pradžia, tuščia paieška).
+// 16 - „Rask savo kvapą“: 3 klausimai apatiniame lape → 3 tinkamiausi kvapai su „Kodėl tinka“.
+// Logika - tik iš catalog.json laukų (gender, family, sillage), be serverio. Įėjimai: [data-quiz] (Pradžia, tuščia paieška).
 const QUIZ = [
   {
     id: "who",
@@ -15,7 +15,7 @@ const QUIZ = [
     q: "Kokie kvapai jums patinka?",
     hint: "Pasirinkite iki dviejų",
     multi: 2,
-    opts: () => [...CAT.families.map(f => ({ id: f.id, name: f.name, sub: f.hint })), { id: "none", name: "Nežinau – pasiūlykite" }]
+    opts: () => [...CAT.families.map(f => ({ id: f.id, name: f.name, sub: f.hint })), { id: "none", name: "Nežinau - pasiūlykite" }]
   },
   {
     id: "power",
@@ -28,7 +28,7 @@ const QUIZ = [
   }
 ];
 
-// Grąžina [{ p, score, why: [tekstas…] }] – geriausi pirmi
+// Grąžina [{ p, score, why: [tekstas…] }] - geriausi pirmi
 function quizRank(a) {
   const fams = new Set((a.fam || []).filter(f => f !== "none"));
   const target = Number(a.power) || 3;
@@ -41,14 +41,14 @@ function quizRank(a) {
         score += pts;
         if (text && pts > 0) why.push([pts, text]);
       };
-      if (a.who === "any") add(p.gender === "unisex" ? 2 : 0, "Unisex – tinka visiems");
+      if (a.who === "any") add(p.gender === "unisex" ? 2 : 0, "Unisex - tinka visiems");
       else if (p.gender === a.who) add(3, null);
       else if (p.gender === "unisex") add(1.5, "Unisex kvapas");
       else return null;
-      if (fams.has(p.family)) add(4, `${familyName(p.family)} kvapas – kaip mėgstate`);
+      if (fams.has(p.family)) add(4, `${familyName(p.family)} kvapas - kaip mėgstate`);
       const d = Math.abs(p.sillage - target);
       score -= d * 1.2;
-      if (d <= 0.5) why.push([2, `${LEVEL[p.sillage]} – kaip norite`]);
+      if (d <= 0.5) why.push([2, `${LEVEL[p.sillage]} - kaip norite`]);
       return { p, score, why: why.sort((x, y) => y[0] - x[0]).map(w => w[1]).slice(0, 3) };
     })
     .filter(Boolean)
@@ -92,7 +92,7 @@ function openQuiz() {
       .join("")}</div>
 <div class="qzNav col">${
       DISC
-        ? `<button class="btn primary block" data-qz-disc>${glyph("drop")}Išbandyti mėginukais · ${eur(DISC.price)}</button><p class="qzHint">${esc(DISC.name)}: šie 3 ir dar ${DISC.count - 3} pagal jūsų atsakymus – galėsite pakeisti.</p>`
+        ? `<button class="btn primary block" data-qz-disc>${glyph("drop")}Išbandyti mėginukais · ${eur(DISC.price)}</button><p class="qzHint">${esc(DISC.name)}: šie 3 ir dar ${DISC.count - 3} pagal jūsų atsakymus - galėsite pakeisti.</p>`
         : ""
     }<button class="btn ghost block" data-qz-again>Pradėti iš naujo</button></div>`;
     hydrateIcons(root);

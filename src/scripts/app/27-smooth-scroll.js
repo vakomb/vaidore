@@ -1,4 +1,4 @@
-// 27 – švelnus, prabangus slinkimas pelės ratuku kompiuteryje: vietoje šuolių po 100 px puslapis tolygiai „nuplaukia“
+// 27 - švelnus, prabangus slinkimas pelės ratuku kompiuteryje: vietoje šuolių po 100 px puslapis tolygiai „nuplaukia“
 // iki tikslo (kiekviename kadre priartėja ~10 % likusio kelio, nepriklausomai nuo ekrano dažnio). Liečiamas kilimėlis,
 // telefonas, klaviatūra, slinkties juosta ir vidiniai slenkami laukai (langai, filtrai, karuselės) lieka natūralūs.
 // Neveikia, jei vartotojas pasirinko „mažiau judesio“ arba atidarytas langas (puslapio slinkimas užrakintas).
@@ -15,7 +15,7 @@
     cancelAnimationFrame(raf);
     raf = 0;
   };
-  // Elementas po pele, kuris pats slenka ta kryptimi – jam paliekamas natūralus slinkimas
+  // Elementas po pele, kuris pats slenka ta kryptimi - jam paliekamas natūralus slinkimas
   const ownScroller = el => {
     for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
       if (el.scrollHeight <= el.clientHeight + 1) continue;
@@ -24,10 +24,10 @@
     }
     return false;
   };
-  // Liečiamas kilimėlis siunčia daug mažų, trupmeninių žingsnių ir turi savo inerciją – jo neliečiame
+  // Liečiamas kilimėlis siunčia daug mažų, trupmeninių žingsnių ir turi savo inerciją - jo neliečiame
   const isTouchpad = e => (e.wheelDeltaY && e.wheelDeltaY === -3 * e.deltaY) || (e.deltaMode === 0 && Math.abs(e.deltaY) < 25 && !raf);
   function frame(now) {
-    // Jei puslapį pastūmė kas kita (slinkties juosta, klaviatūra, perėjimas į kitą puslapį) – nusileidžiame
+    // Jei puslapį pastūmė kas kita (slinkties juosta, klaviatūra, perėjimas į kitą puslapį) - nusileidžiame
     if (locked() || Math.abs(window.scrollY - cur) > 2) return stop();
     const dt = Math.min(64, now - (last || now - 16.7));
     last = now;

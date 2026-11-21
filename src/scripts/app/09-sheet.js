@@ -1,4 +1,4 @@
-// 09 – langai: #sheet (telefone – apatinis lapas, kompiuteryje – centre), šoniniai langai (meniu iš kairės,
+// 09 - langai: #sheet (telefone - apatinis lapas, kompiuteryje - centre), šoniniai langai (meniu iš kairės,
 // mini krepšelis iš dešinės), patvirtinimo langas, pranešimai. Vienu metu atidarytas vienas langas.
 // Kiekvienas atidarymas įrašomas į istoriją (tas pats adresas), todėl „Atgal“ (ir iOS braukimas) jį uždaro.
 const overlay = { kind: null, pushed: false, onClose: null, closing: false, lastFocus: null };
@@ -12,7 +12,7 @@ function showOverlay(kind, { onClose = null } = {}) {
     overlay.onClose = onClose;
     return;
   }
-  const reuse = !!overlay.kind && overlay.pushed; // kitas langas vietoje ankstesnio – tas pats istorijos įrašas
+  const reuse = !!overlay.kind && overlay.pushed; // kitas langas vietoje ankstesnio - tas pats istorijos įrašas
   if (overlay.kind) hideOverlayNow();
   else overlay.lastFocus = document.activeElement;
   overlay.onClose = onClose;
@@ -74,10 +74,10 @@ function finishOverlay() {
 function sheetHeadHTML(title) {
   return `<header class="sheetHead"><span></span><h2 id="sheetTitle">${esc(title)}</h2><button class="roundBtn" type="button" data-sheet-close aria-label="Uždaryti">${glyph("x")}</button></header>`;
 }
-// openSheet({ title?, html, wide?, onClose? }) – html be antraštės, jei title nenurodytas
+// openSheet({ title?, html, wide?, onClose? }) - html be antraštės, jei title nenurodytas
 function openSheet({ title, html, wide = false, onClose = null }) {
   const old = $("#sheetBody");
-  const body = old.cloneNode(false); // naujas mazgas – seni klausytojai nelieka
+  const body = old.cloneNode(false); // naujas mazgas - seni klausytojai nelieka
   old.replaceWith(body);
   body.innerHTML = (title ? sheetHeadHTML(title) : "") + html;
   body.scrollTop = 0;
@@ -142,7 +142,7 @@ function bindOverlays() {
   bindSwipe($("#drawer"), "-x");
   bindSwipe($("#mini"), "x");
 }
-// Braukimas uždaryti: lapas – žemyn (kai turinys viršuje), meniu – į kairę, mini krepšelis – į dešinę
+// Braukimas uždaryti: lapas - žemyn (kai turinys viršuje), meniu - į kairę, mini krepšelis - į dešinę
 function bindSwipe(panel, dir, canStart = () => true) {
   let s0 = 0,
     d = 0,

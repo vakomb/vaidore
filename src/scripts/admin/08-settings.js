@@ -1,8 +1,8 @@
-// 08 – Nustatymai (lentelė settings, viena eilutė id=1, laukas data – tas pats formatas kaip catalog.json „settings“).
-// Grupės kaip iOS „Nustatymai“ – kiekviena savo ekrane admin/nustatymai/<grupė>: parduotuvė, pristatymas ir grąžinimas,
-// mėginukai ir pakavimas, įmonės rekvizitai, lankytojų matavimas. Vitrinos dalys „Prekių kortelės“ ir „Mūsų istorija“ –
+// 08 - Nustatymai (lentelė settings, viena eilutė id=1, laukas data - tas pats formatas kaip catalog.json „settings“).
+// Grupės kaip iOS „Nustatymai“ - kiekviena savo ekrane admin/nustatymai/<grupė>: parduotuvė, pristatymas ir grąžinimas,
+// mėginukai ir pakavimas, įmonės rekvizitai, lankytojų matavimas. Vitrinos dalys „Prekių kortelės“ ir „Mūsų istorija“ -
 // tas pats mechanizmas (admin/vitrina/korteles, admin/vitrina/istorija). Saugant sujungiama su naujausia versija
-// duomenų bazėje – kiti laukai neprarandami. Čia pat – „Daugiau“ ekranas (admin/daugiau).
+// duomenų bazėje - kiti laukai neprarandami. Čia pat - „Daugiau“ ekranas (admin/daugiau).
 const COUNTRY_NAME = { LT: "Lietuva", LV: "Latvija", EE: "Estija" };
 const unfilled = v => (/^\[.*\]$/.test(String(v || "")) ? "" : v);
 const sfld = (name, label, value, { type = "text", ph = "", mode = "", max = 200 } = {}) =>
@@ -16,11 +16,11 @@ const int = (f, n) => Math.round(num(f[n].value.trim()));
 const SET_PAGES = {
   parduotuve: {
     title: "Parduotuvė",
-    html: S => `${groupHTML(`${sfld("shop", "Pavadinimas", S.shop, { max: 40 })}${sfld("tagline", "Šūkis", S.tagline, { max: 160, ph: "Viena eilutė" })}`, { foot: "Šūkis – pradžios puslapyje ir paieškos sistemose." })}
+    html: S => `${groupHTML(`${sfld("shop", "Pavadinimas", S.shop, { max: 40 })}${sfld("tagline", "Šūkis", S.tagline, { max: 160, ph: "Viena eilutė" })}`, { foot: "Šūkis - pradžios puslapyje ir paieškos sistemose." })}
 ${groupHTML(`${sfld("freeShippingFrom", "Nemokamai nuo, €", dec(S.freeShippingFrom), { mode: "decimal" })}${sfld("maxQty", "Daugiausia vnt. eilutėje", S.maxQty, { mode: "numeric" })}`, { head: "Krepšelis" })}`,
     read: f => {
       const next = { shop: f.shop.value.trim() || "Vaidore", tagline: f.tagline.value.trim(), freeShippingFrom: money(f, "freeShippingFrom"), maxQty: int(f, "maxQty") };
-      return { next, errors: [!(next.freeShippingFrom >= 0) && "Nemokamo pristatymo riba – skaičius", !(next.maxQty >= 1) && "Daugiausia vienetų – bent 1"].filter(Boolean) };
+      return { next, errors: [!(next.freeShippingFrom >= 0) && "Nemokamo pristatymo riba - skaičius", !(next.maxQty >= 1) && "Daugiausia vienetų - bent 1"].filter(Boolean) };
     },
     sum: S => esc(S.shop || "")
   },
@@ -34,7 +34,7 @@ ${groupHTML(`${sfld("freeShippingFrom", "Nemokamai nuo, €", dec(S.freeShipping
         )
       )
       .join("")}
-${groupHTML(`${sfld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1–2 d. d.", max: 30 })}${sfld("returnDays", "Grąžinimas per, d.", S.returnDays, { mode: "numeric" })}`, { head: "Terminai" })}
+${groupHTML(`${sfld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1-2 d. d.", max: 30 })}${sfld("returnDays", "Grąžinimas per, d.", S.returnDays, { mode: "numeric" })}`, { head: "Terminai" })}
 <h2 class="igHead">Šalys</h2><div class="ig">${Object.entries(COUNTRY_NAME)
       .map(([cc, name]) => `<label class="admCheck axCheckRow"><span>${name}</span><input type="checkbox" name="countries" value="${cc}"${attr((S.countries || []).includes(cc), "checked")} /></label>`)
       .join("")}</div>`,
@@ -42,11 +42,11 @@ ${groupHTML(`${sfld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1–2 d.
       const shipping = (S.shipping || []).map((o, i) => ({ ...o, name: f[`ship_name_${i}`].value.trim() || o.name, price: money(f, `ship_price_${i}`), days: f[`ship_days_${i}`].value.trim() }));
       const countries = new FormData(form).getAll("countries");
       const next = { shipping, countries, dispatch: f.dispatch.value.trim(), returnDays: int(f, "returnDays") };
-      return { next, errors: [shipping.some(o => !(o.price >= 0)) && "Pristatymo kaina – skaičius", !countries.length && "Pasirinkite bent vieną šalį", !(next.returnDays >= 0) && "Grąžinimo terminas – skaičius"].filter(Boolean) };
+      return { next, errors: [shipping.some(o => !(o.price >= 0)) && "Pristatymo kaina - skaičius", !countries.length && "Pasirinkite bent vieną šalį", !(next.returnDays >= 0) && "Grąžinimo terminas - skaičius"].filter(Boolean) };
     },
     sum: S => {
       const p = (S.shipping || []).map(o => Number(o.price) || 0);
-      return p.length ? `${plural(p.length, "būdas", "būdai", "būdų")} · nuo ${eur(Math.min(...p))}` : "—";
+      return p.length ? `${plural(p.length, "būdas", "būdai", "būdų")} · nuo ${eur(Math.min(...p))}` : "-";
     }
   },
   meginukai: {
@@ -61,7 +61,7 @@ ${groupHTML(`${sfld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1–2 d.
         d.text,
         { max: 200 }
       )}`, { head: "Atradimų rinkinys" })}
-${groupHTML(`${sfld("scDays", "Kodas galioja, d.", sc.days, { mode: "numeric" })}${sfld("scMin", "Kodas – nuo, €", dec(sc.minOrder), { mode: "decimal" })}`, { head: "Mėginukų kodas", foot: "Mėginukų kaina grąžinama nuolaidos kodu kitam užsakymui." })}
+${groupHTML(`${sfld("scDays", "Kodas galioja, d.", sc.days, { mode: "numeric" })}${sfld("scMin", "Kodas - nuo, €", dec(sc.minOrder), { mode: "decimal" })}`, { head: "Mėginukų kodas", foot: "Mėginukų kaina grąžinama nuolaidos kodu kitam užsakymui." })}
 ${groupHTML(`${sfld("giftPrice", "Kaina, €", dec(g.price), { mode: "decimal" })}${sfld("giftMax", "Rašteliukas, simb.", g.noteMax, { mode: "numeric" })}`, { head: "Dovanų pakavimas" })}`;
     },
     read: (f, S) => {
@@ -73,8 +73,8 @@ ${groupHTML(`${sfld("giftPrice", "Kaina, €", dec(g.price), { mode: "decimal" }
       return {
         next,
         errors: [
-          !(next.discovery.count >= 2 && next.discovery.price > 0) && "Rinkinys – bent 2 mėginukai ir kaina",
-          !(next.sampleCredit.days >= 1) && "Kodo galiojimas – bent 1 diena",
+          !(next.discovery.count >= 2 && next.discovery.price > 0) && "Rinkinys - bent 2 mėginukai ir kaina",
+          !(next.sampleCredit.days >= 1) && "Kodo galiojimas - bent 1 diena",
           !(next.gift.price >= 0 && next.gift.noteMax >= 10) && "Pakavimo kaina ir rašteliuko ilgis"
         ].filter(Boolean)
       };
@@ -133,14 +133,14 @@ ${groupHTML(`${sfld("giftPrice", "Kaina, €", dec(g.price), { mode: "decimal" }
       })}
 ${groupHTML(`${sswitch("insShow", "Rodyti originalą", ins.show !== false)}${sswitch("insPhoto", "Rodyti originalo nuotrauką", ins.photo !== false)}${sarea("insNote", "Pastaba apie prekių ženklus", ins.note, { rows: 3 })}`, {
   head: "Originalas („Įkvėpti …“)",
-  foot: "Kortelėse – vietoj natų, produkto puslapyje – po pavadinimu. Nuotraukos įkeliamos kvape. Pastaba – produkto puslapyje."
+  foot: "Kortelėse - vietoj natų, produkto puslapyje - po pavadinimu. Nuotraukos įkeliamos kvape. Pastaba - produkto puslapyje."
 })}`;
     },
     read: (f, S) => ({
       next: { cards: { ...(S.cards || {}), heart: f.cardHeart.checked, badges: f.cardBadges.checked }, inspired: { ...(S.inspired || {}), show: f.insShow.checked, photo: f.insPhoto.checked, note: f.insNote.value.trim() } },
       errors: []
     }),
-    sum: S => [S.cards?.heart !== false && "širdelė", S.cards?.badges !== false && "ženkliukai", S.inspired?.show !== false && "originalas"].filter(Boolean).join(", ") || "—"
+    sum: S => [S.cards?.heart !== false && "širdelė", S.cards?.badges !== false && "ženkliukai", S.inspired?.show !== false && "originalas"].filter(Boolean).join(", ") || "-"
   },
   istorija: {
     title: "Mūsų istorija",
@@ -148,7 +148,7 @@ ${groupHTML(`${sswitch("insShow", "Rodyti originalą", ins.show !== false)}${ssw
     html: S => {
       const st = S.story || {};
       return `${groupHTML(`${sfld("storyTitle", "Antraštė", st.title, { ph: "Mūsų istorija", max: 60 })}${sarea("storyText", "Tekstas", st.text, { rows: 8 })}`, {
-        foot: "Pradžios puslapyje ir „Apie mus“. Tuščias tekstas – sekcija nerodoma."
+        foot: "Pradžios puslapyje ir „Apie mus“. Tuščias tekstas - sekcija nerodoma."
       })}
 <h2 class="igHead">Nuotrauka</h2><div class="ig axImgBox"><div class="admTaxoImg" id="storyImg"></div><label class="axRow admUpload">${glyph("upload")}<span class="axRowTxt"><b class="axLink">Įkelti nuotrauką</b></span><input type="file" accept="image/*" hidden data-story-img /></label></div>`;
     },
@@ -247,7 +247,7 @@ ${groupHTML(
 ${groupHTML(
   [
     navRow({ href: "admin/zurnalas", ico: "clock", icoBg: "var(--ink3)", title: "Žurnalas", sub: "Kas, kada ir ką pakeitė" }),
-    navRow({ button: true, attrs: "data-adm-rebuild", ico: "upload", icoBg: "var(--brand)", title: "Atnaujinti svetainę", sub: "Paieškos sistemų puslapiai – po 1–2 min." }),
+    navRow({ button: true, attrs: "data-adm-rebuild", ico: "upload", icoBg: "var(--brand)", title: "Atnaujinti svetainę", sub: "Paieškos sistemų puslapiai - po 1-2 min." }),
     navRow({ href: "./", ico: "eye", icoBg: "var(--brand)", title: "Peržiūrėti parduotuvę" })
   ].join(""),
   { head: "Svetainė" }

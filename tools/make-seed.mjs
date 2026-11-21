@@ -29,4 +29,4 @@ for (const p of d.products) {
 }
 out.push(`insert into public.settings (id, data) values (1, ${J(d.settings)}) on conflict (id) do nothing;`, "commit;");
 fs.writeFileSync(path.join(root, "supabase/seed.sql"), out.join("\n") + "\n");
-console.log(`supabase/seed.sql – ${d.products.length} kvapai, ${d.families.length} šeimos, ${(d.categories || []).length} kategorijos`);
+console.log(`supabase/seed.sql - ${d.products.length} kvapai, ${d.families.length} šeimos, ${(d.categories || []).length} kategorijos`);

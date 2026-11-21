@@ -1,7 +1,7 @@
-// 14 – maršrutai (tikri adresai, History API): „“ (Pradžia), kvepalai, moterims, vyrams, unisex, meginukai,
+// 14 - maršrutai (tikri adresai, History API): „“ (Pradžia), kvepalai, moterims, vyrams, unisex, meginukai,
 // kategorija/<id>, kvepalai/<id>, visos-prekes, bestselleriai, nuolaidos, krepselis, megstami, paskyra, admin, pagalba, apie-mus,
 // atsiliepimai, verslui, naujienlaiskis (atsisakymas), testas, rinkinys.
-// Kiekvienam adresui build-site.mjs sukuria statinį HTML (paieškos sistemoms); nežinomus adresus aptarnauja 404.html –
+// Kiekvienam adresui build-site.mjs sukuria statinį HTML (paieškos sistemoms); nežinomus adresus aptarnauja 404.html -
 // ta pati programėlė, kuri pati nusprendžia, ką rodyti (pvz. naujas kvapas, pridėtas administravimo skydelyje).
 // Seni adresai #/… (iki v3) nukreipiami į naujus.
 const ui = { view: null, path: null };
@@ -18,7 +18,7 @@ function matchRoute(path) {
   if (TYPE.has(path) || ["visos-prekes", "moterims", "vyrams", "unisex", "meginukai", "bestselleriai", "nuolaidos"].includes(path)) return { view: "shop", base: path };
   let m = path.match(/^kategorija\/([a-z0-9-]+)$/);
   if (m) return CATEGORY.get(m[1]) ? { view: "shop", base: path } : { view: "404" };
-  // Prekė: <tipas>/<id> (kvepalai/rasa, difuzoriai/…); senas adresas su kitu tipu – pataisomas (renderProduct)
+  // Prekė: <tipas>/<id> (kvepalai/rasa, difuzoriai/…); senas adresas su kitu tipu - pataisomas (renderProduct)
   m = path.match(/^([a-z-]+)\/([a-z0-9-]+)$/);
   if (m && TYPE.has(m[1])) return { view: "product", id: m[2] };
   if (path === "krepselis") return { view: "cart" };
@@ -53,13 +53,13 @@ function route({ restoreY = null } = {}) {
   if (r.view === "admin") openAdmin(r.sub);
   if (r.view !== "admin") document.documentElement.classList.remove("isAdmin");
   showView(r.view);
-  if (TITLES[r.view] !== undefined) document.title = TITLES[r.view] ? `${TITLES[r.view]} | ${SET.shop}` : `${SET.shop} – kvepalai`;
+  if (TITLES[r.view] !== undefined) document.title = TITLES[r.view] ? `${TITLES[r.view]} | ${SET.shop}` : `${SET.shop} - kvepalai`;
   updateNavCurrent(path);
   if (restoreY != null) requestAnimationFrame(() => window.scrollTo(0, restoreY));
   if (r.open === "testas") openQuiz();
   if (r.open === "rinkinys") openDiscovery();
 }
-// navigate("kvepalai/rasa") – be puslapio perkrovimo; replace – be naujo įrašo istorijoje
+// navigate("kvepalai/rasa") - be puslapio perkrovimo; replace - be naujo įrašo istorijoje
 function navigate(path, { replace = false, keepScroll = false } = {}) {
   const url = absUrl(path);
   history.replaceState({ ...(history.state || {}), y: window.scrollY }, "", location.href);
@@ -80,7 +80,7 @@ window.addEventListener("popstate", e => {
   if (e.state?.vdOverlay) return history.back(); // atgal per jau uždaryto lango įrašą
   route({ restoreY: e.state?.y ?? 0 });
 });
-// Vidinės nuorodos su data-nav – be perkrovimo (naujame skirtuke – įprastai)
+// Vidinės nuorodos su data-nav - be perkrovimo (naujame skirtuke - įprastai)
 document.addEventListener("click", e => {
   const a = e.target instanceof Element && e.target.closest("a[data-nav]");
   if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === "_blank") return;
@@ -96,7 +96,7 @@ function renderFav() {
   $("#favSub").textContent = list.length ? plural(list.length, "kvapas", "kvapai", "kvapų") : "";
   $("#favGrid").innerHTML = list.length
     ? list.map(p => cardHTML(p)).join("")
-    : `<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 84 84" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M42 68S16 53 16 34a13.5 13.5 0 0 1 26-5 13.5 13.5 0 0 1 26 5c0 19-26 34-26 34z"/></svg><h3>Dar nieko nepažymėjote</h3><p>Kvapo puslapyje paspauskite „Į\u00a0mėgstamus“ – jis atsiras čia${
+    : `<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 84 84" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M42 68S16 53 16 34a13.5 13.5 0 0 1 26-5 13.5 13.5 0 0 1 26 5c0 19-26 34-26 34z"/></svg><h3>Dar nieko nepažymėjote</h3><p>Kvapo puslapyje paspauskite „Į\u00a0mėgstamus“ - jis atsiras čia${
         auth.user ? "" : ". Prisijungę matysite mėgstamus visuose įrenginiuose"
       }.</p><a class="btn primary" href="kvepalai" data-nav>Į katalogą</a></div>`;
 }

@@ -1,9 +1,9 @@
 /* Pradžia ir prekės (kaip parfumada.lt, Vaidore programėlės pojūčiu): platus kolekcijos paveikslas, skyrių juostos, kategorijų plytelės, karuselės su puslapiais, prekės kortelė (centruota), tinklelis,
-   „Rask savo kvapą“ / rinkinys, nuotaikos, pasitikėjimas, „Mūsų istorija“, atsiliepimai. Kompiuteris – 09-desktop.css. */
+   „Rask savo kvapą“ / rinkinys, nuotaikos, pasitikėjimas, „Mūsų istorija“, atsiliepimai. Kompiuteris - 09-desktop.css. */
 
 /* ── Pradžios skaidrės (v7): trys vieno stiliaus scenos (12-stage.css) su Vaidore buteliukais be fono.
-   Telefone – tekstas viršuje centre, kompozicija apačioje; nuo 700 px (ir gulsčiame telefone) – tekstas kairėje,
-   kompozicija dešinėje (09-desktop.css). Aukštis fiksuotas – keičiantis skaidrėms ir kraunantis niekas nepasislenka. ── */
+   Telefone - tekstas viršuje centre, kompozicija apačioje; nuo 700 px (ir gulsčiame telefone) - tekstas kairėje,
+   kompozicija dešinėje (09-desktop.css). Aukštis fiksuotas - keičiantis skaidrėms ir kraunantis niekas nepasislenka. ── */
 #homeHero {
   min-height: calc(100vw / var(--heroAR));
 }
@@ -28,7 +28,7 @@
 .heroStage {
   position: absolute;
   inset: 0;
-  --uh: 0.52; /* stačioje (1000 × 1150) skaidrėje – kompozicija po tekstu ir mygtuku */
+  --uh: 0.52; /* stačioje (1000 × 1150) skaidrėje - kompozicija po tekstu ir mygtuku */
   --uw: 0.78;
   --fl: 6cqh;
 }
@@ -134,7 +134,7 @@
 .hsec {
   margin-top: 22px;
 }
-/* Iškart po pagrindine nuotrauka – be tarpo (pirmas skyrius: „Produktai“, o jei jo nėra – „Kvapnios naujienos“) */
+/* Iškart po pagrindine nuotrauka - be tarpo (pirmas skyrius: „Produktai“, o jei jo nėra - „Kvapnios naujienos“) */
 #homeHero + .hsec,
 #homeHero + .hsec[hidden] + #homeRails > .hsec:first-child {
   margin-top: 0;
@@ -158,7 +158,7 @@
   text-transform: uppercase;
   text-align: center;
 }
-/* Skyriaus antraštė (v22): pavadinimas ir paantraštė – viename juodame bloke, be linijų tarp jų */
+/* Skyriaus antraštė (v22): pavadinimas ir paantraštė - viename juodame bloke, be linijų tarp jų */
 .bandBox {
   padding: 11px var(--pad) 12px;
   background: var(--band);
@@ -203,7 +203,7 @@
 .hsec > .wrap > .catTiles:first-child {
   margin-top: 0;
 }
-/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) – mažas tarpas viršuje
+/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) - mažas tarpas viršuje
    (iki pavadinimo raidžių ~14 px: tik pavadinimo viršutinė paraštė) */
 #homeTilesSec {
   padding-top: 0;
@@ -217,7 +217,7 @@
 }
 
 /* ── Kategorijų plytelės (kaip parfumada.lt): pavadinimas virš paveikslo (22,75 px / 700, didžiosiomis, juodas),
-   po juo – paveikslas 4:5 su 16 px kampais; telefone – slenkama eilė, kompiuteryje – visos vienoje eilėje ── */
+   po juo - paveikslas 4:5 su 16 px kampais; telefone - slenkama eilė, kompiuteryje - visos vienoje eilėje ── */
 .catTiles {
   display: grid;
   grid-auto-flow: column;
@@ -233,7 +233,7 @@
 .catTiles::-webkit-scrollbar {
   display: none;
 }
-/* v15: ilgas pavadinimas („Elektriniai difuzoriai“) keliamas į antrą eilutę; pavadinimai ir paveikslai – bendrose
+/* v15: ilgas pavadinimas („Elektriniai difuzoriai“) keliamas į antrą eilutę; pavadinimai ir paveikslai - bendrose
    eilėse (subgrid), todėl visų plytelių paveikslai prasideda vienoje linijoje */
 .catTiles {
   grid-template-rows: auto auto;
@@ -286,7 +286,7 @@
 .tile:active {
   transform: scale(var(--press));
 }
-/* Telefone (v21): ~2,3 plytelės – trečios dalis matosi krašte, aišku, kad galima slinkti; paveikslas beveik
+/* Telefone (v21): ~2,3 plytelės - trečios dalis matosi krašte, aišku, kad galima slinkti; paveikslas beveik
    kvadratinis, pavadinimas mažesnis (telpa ir „Elektriniai difuzoriai“ dviem eilutėmis) */
 @media (max-width: 699.98px) {
   .catTiles {
@@ -320,7 +320,7 @@
   width: 64%;
   height: 89%;
 }
-/* Nuotrauka – buteliukas permatomame fone: švelnus vienodas fonas ir CSS šešėlis po buteliuku (v7) */
+/* Nuotrauka - buteliukas permatomame fone: švelnus vienodas fonas ir CSS šešėlis po buteliuku (v7) */
 .art:has(img.photo) {
   background: var(--photo-bg);
   border-radius: 0;
@@ -333,7 +333,7 @@
   object-fit: contain;
   filter: var(--bottle-shadow);
 }
-/* Nuotrauka su fonu (JPEG): be šešėlio – kitaip šešėlis apibrėžia stačiakampį ir šonuose matosi juostos (v15b) */
+/* Nuotrauka su fonu (JPEG): be šešėlio - kitaip šešėlis apibrėžia stačiakampį ir šonuose matosi juostos (v15b) */
 .art img.photo.flat {
   filter: none;
 }
@@ -400,7 +400,7 @@
   gap: 12px;
   color: var(--ink);
 }
-/* Paveikslas virš nuorodos (judant – transform), bet paspaudimai pereina į nuorodą; širdelė ir greitas veiksmas – paspaudžiami */
+/* Paveikslas virš nuorodos (judant - transform), bet paspaudimai pereina į nuorodą; širdelė ir greitas veiksmas - paspaudžiami */
 .card .art {
   z-index: 2;
   pointer-events: none;
@@ -444,8 +444,8 @@
   text-transform: uppercase;
   color: #000;
 }
-/* Originalo blokelis (v18) – vietoj natų: kvadratinė originalo nuotrauka kairėje, prekės ženklas ir pavadinimas dešinėje.
-   Rezervuotas vienodas aukštis – kortelės lieka lygios ir be originalo. Tas pats komponentas – produkto puslapyje (.insp-pd, vienoje eilutėje kaip karuselėse). */
+/* Originalo blokelis (v18) - vietoj natų: kvadratinė originalo nuotrauka kairėje, prekės ženklas ir pavadinimas dešinėje.
+   Rezervuotas vienodas aukštis - kortelės lieka lygios ir be originalo. Tas pats komponentas - produkto puslapyje (.insp-pd, vienoje eilutėje kaip karuselėse). */
 .cardInsp {
   display: flex;
   align-items: center;
@@ -518,7 +518,7 @@
   letter-spacing: 0.04em;
   color: var(--ink2);
 }
-/* Paieškos pasiūlymuose – mažas */
+/* Paieškos pasiūlymuose - mažas */
 .insp-sm {
   gap: 7px;
   margin-top: 2px;
@@ -591,7 +591,7 @@
   font-size: 12.5px;
   color: var(--ink3);
 }
-/* ── Atsiliepimai – tik tikri ── */
+/* ── Atsiliepimai - tik tikri ── */
 .revLine {
   margin: 22px 0 18px;
   font-size: 18px;
@@ -659,7 +659,7 @@
   color: var(--ink3);
 }
 
-/* Karuselėje – stambūs, stori pavadinimai (kaip parfumada.lt: 22,75 px / 700), paveikslas – kvadratas */
+/* Karuselėje - stambūs, stori pavadinimai (kaip parfumada.lt: 22,75 px / 700), paveikslas - kvadratas */
 .rail .cardName {
   font-size: 22.75px;
   font-weight: 700;
@@ -669,8 +669,8 @@
 .rail .art {
   border-radius: var(--r-photo);
 }
-/* Karuselėse (v23) ir produkto puslapyje (v24, .insp-pd) – originalas vienoje eilutėje: prekės ženklas (pusjuodis) ir
-   kvapas, stambiau; ilgas – iki 2 eilučių */
+/* Karuselėse (v23) ir produkto puslapyje (v24, .insp-pd) - originalas vienoje eilutėje: prekės ženklas (pusjuodis) ir
+   kvapas, stambiau; ilgas - iki 2 eilučių */
 .rail .cardInsp {
   min-height: 48px;
   margin-top: 2px;
@@ -715,7 +715,7 @@
 .insp-pd .inspName {
   font-weight: 400;
 }
-/* Produkto puslapyje – tas pats, tik didesnis (po nuotrauka, viena eilutė – mažai vietos vertikaliai) */
+/* Produkto puslapyje - tas pats, tik didesnis (po nuotrauka, viena eilutė - mažai vietos vertikaliai) */
 .insp-pd {
   gap: 12px;
 }
@@ -733,12 +733,12 @@
 .rail .cardTag {
   font-size: 15px;
 }
-/* Katalogo tinklelyje – paveikslas 4:5 (kaip parfumada.lt); buteliukas užima beveik visą aukštį (nuotrauka kvadratinė,
+/* Katalogo tinklelyje - paveikslas 4:5 (kaip parfumada.lt); buteliukas užima beveik visą aukštį (nuotrauka kvadratinė,
    buteliukas jos centre, todėl „cover“ nukerpa tik tuščius šonus) */
 .grid .art {
   aspect-ratio: 4 / 5;
 }
-/* Katalogo tinklelyje kaina – kortelės apačioje, kad gretimų kortelių kainos būtų vienoje linijoje */
+/* Katalogo tinklelyje kaina - kortelės apačioje, kad gretimų kortelių kainos būtų vienoje linijoje */
 .grid .cardPrice {
   margin-top: auto;
   padding-top: 4px;
@@ -748,7 +748,7 @@
   transform: scale(1.06);
   transform-origin: 50% 46%;
 }
-/* Kvepalai (v22b): tas pats dydis, bet padidinama žemyn – viršus (buteliuko kamštelis) nenukerpamas */
+/* Kvepalai (v22b): tas pats dydis, bet padidinama žemyn - viršus (buteliuko kamštelis) nenukerpamas */
 .grid .art.isPerf img.photo {
   transform-origin: 50% 0;
 }
@@ -765,8 +765,8 @@
 .rail {
   display: grid;
   grid-auto-flow: column;
-  /* v22: telefone – didelė kortelė centre (80 % ekrano, kaip parfumada.lt), abiejose pusėse matosi kaimynių
-     kraštai – aišku, kad galima slinkti; po karusele – rodyklės ir „1/N“ (planšetėje / kompiuteryje – 09-desktop.css) */
+  /* v22: telefone - didelė kortelė centre (80 % ekrano, kaip parfumada.lt), abiejose pusėse matosi kaimynių
+     kraštai - aišku, kad galima slinkti; po karusele - rodyklės ir „1/N“ (planšetėje / kompiuteryje - 09-desktop.css) */
   grid-auto-columns: 80%;
   --railGap: 12px;
   gap: var(--railGap);
@@ -781,7 +781,7 @@
 .rail::-webkit-scrollbar {
   display: none;
 }
-/* Kai visos kortelės telpa (v23) – jos centre, ne prie kairio krašto */
+/* Kai visos kortelės telpa (v23) - jos centre, ne prie kairio krašto */
 .railWrap[data-fit] .rail {
   justify-content: center;
 }
@@ -851,7 +851,7 @@
   display: none;
 }
 
-/* ── „Rask savo kvapą“ ir atradimų rinkinys – dvi didelės juostos ── */
+/* ── „Rask savo kvapą“ ir atradimų rinkinys - dvi didelės juostos ── */
 .promos {
   display: grid;
   gap: 12px;
@@ -1067,7 +1067,7 @@
   margin-top: 18px;
 }
 
-/* ── Atsiliepimai – tik tikri ── */
+/* ── Atsiliepimai - tik tikri ── */
 .reviews {
   display: grid;
   grid-auto-flow: column;
@@ -1127,7 +1127,7 @@
   }
 }
 
-/* Skaidrės teiginiai su auksinėmis linijomis (kaip parfumada.lt): didžiosiomis, po kiekvienu – plona auksinė linija
+/* Skaidrės teiginiai su auksinėmis linijomis (kaip parfumada.lt): didžiosiomis, po kiekvienu - plona auksinė linija
    su tašku pradžioje */
 .heroClaims {
   display: grid;
@@ -1158,7 +1158,7 @@
 .slide.onDark .heroClaims li {
   color: #fff;
 }
-/* Telefone teiginių skaidrėje mygtuko nėra (visa skaidrė – nuoroda), kad tekstas neuždengtų buteliukų */
+/* Telefone teiginių skaidrėje mygtuko nėra (visa skaidrė - nuoroda), kad tekstas neuždengtų buteliukų */
 @media (max-width: 699.98px) {
   .slide.claims .heroCta {
     display: none;

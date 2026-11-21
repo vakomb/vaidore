@@ -1,7 +1,7 @@
-// 20 – Supabase be bibliotekų: REST (PostgREST), Auth (GoTrue), Edge Functions per fetch.
-// window.VAIDORE_SB = { url, key } – iš src/data/supabase.json (publishable raktas viešas: duomenis saugo RLS).
-// Katalogas: surinkimo metu įdėtas + šviežias iš duomenų bazės (refreshCatalog) – pakeitimai administravimo skydelyje
-// matomi iškart, net neperrinkus svetainės. Paskutinė kopija saugoma telefone (vaidore_catalog_v1) – be mirgėjimo.
+// 20 - Supabase be bibliotekų: REST (PostgREST), Auth (GoTrue), Edge Functions per fetch.
+// window.VAIDORE_SB = { url, key } - iš src/data/supabase.json (publishable raktas viešas: duomenis saugo RLS).
+// Katalogas: surinkimo metu įdėtas + šviežias iš duomenų bazės (refreshCatalog) - pakeitimai administravimo skydelyje
+// matomi iškart, net neperrinkus svetainės. Paskutinė kopija saugoma telefone (vaidore_catalog_v1) - be mirgėjimo.
 const SB = window.VAIDORE_SB?.url ? window.VAIDORE_SB : null;
 const AUTH_KEY = "vaidore_auth_v1";
 const CATALOG_KEY = "vaidore_catalog_v1";
@@ -31,15 +31,17 @@ async function sbError(r) {
   const msg = d.msg || d.message || d.error_description || d.error || `HTTP ${r.status}`;
   return Object.assign(new Error(msg), { status: r.status, code: d.code || d.error_code });
 }
-// sbRest("products?select=*", { method, body, prefer }) – su prisijungusio vartotojo teisėmis (jei prisijungęs)
+// sbRest("products?select=*", { method, body, prefer }) - su prisijungusio vartotojo teisėmis (jei prisijungęs)
 async function sbRest(path, { method = "GET", body, prefer, anon = false } = {}) {
   if (!SB) throw new Error("Duomenų bazė neprijungta");
   const token = anon ? null : await getToken();
   const headers = sbHeaders(token, body !== undefined ? { "Content-Type": "application/json" } : {});
   if (prefer) headers.Prefer = prefer;
-  const r = await fetch(`${SB.url}/rest/v1/${path}`, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+  // v30: tekstai be ilgų brūkšnių - įrašant (naujai įklijuoti aprašymai) ir skaitant (bazėje likę seni tekstai)
+  const json = body !== undefined ? JSON.stringify(body, (k, v) => (typeof v === "string" ? plain(v) : v)) : undefined;
+  const r = await fetch(`${SB.url}/rest/v1/${path}`, { method, headers, body: json });
   if (!r.ok) throw await sbError(r);
-  return r.status === 204 ? null : r.json().catch(() => null);
+  return r.status === 204 ? null : r.json().then(plainDeep, () => null);
 }
 async function sbFn(name, init = {}) {
   if (!SB) throw new Error("Duomenų bazė neprijungta");
@@ -53,7 +55,7 @@ async function sbUpload(bucket, path, blob) {
   const token = await getToken();
   const r = await fetch(`${SB.url}/storage/v1/object/${bucket}/${path}`, {
     method: "POST",
-    // Be „x-upsert“: perrašymui Supabase reikalauja dar ir SELECT/UPDATE teisių – failų vardai vis tiek unikalūs
+    // Be „x-upsert“: perrašymui Supabase reikalauja dar ir SELECT/UPDATE teisių - failų vardai vis tiek unikalūs
     headers: sbHeaders(token, { "Content-Type": blob.type, "Cache-Control": "max-age=31536000" }),
     body: blob
   });
@@ -94,10 +96,10 @@ function setSession(d) {
 const redirectTo = () => encodeURIComponent(absUrl("paskyra"));
 const AUTH_ERRORS = {
   invalid_credentials: "Neteisingas el. paštas arba slaptažodis",
-  email_not_confirmed: "Patvirtinkite el. paštą – nuorodą išsiuntėme laišku",
-  user_already_exists: "Paskyra su šiuo el. paštu jau yra – prisijunkite",
-  weak_password: "Slaptažodis per silpnas – bent 8 simboliai",
-  over_email_send_rate_limit: "Per daug bandymų – pabandykite po kelių minučių",
+  email_not_confirmed: "Patvirtinkite el. paštą - nuorodą išsiuntėme laišku",
+  user_already_exists: "Paskyra su šiuo el. paštu jau yra - prisijunkite",
+  weak_password: "Slaptažodis per silpnas - bent 8 simboliai",
+  over_email_send_rate_limit: "Per daug bandymų - pabandykite po kelių minučių",
   same_password: "Naujas slaptažodis turi skirtis nuo seno"
 };
 const authMsg = err => AUTH_ERRORS[err?.code] || (/invalid login/i.test(err?.message) ? AUTH_ERRORS.invalid_credentials : err?.message || "Nepavyko");
@@ -132,7 +134,7 @@ function handleAuthRedirect() {
   const type = h.get("type");
   auth.recovery = type === "recovery";
   history.replaceState(null, "", location.pathname + location.search);
-  if (type === "signup" || type === "email_change") setTimeout(() => toast("El. paštas patvirtintas – sveiki!", { icon: "check" }), 400);
+  if (type === "signup" || type === "email_change") setTimeout(() => toast("El. paštas patvirtintas - sveiki!", { icon: "check" }), 400);
 }
 // Prisijungusio vartotojo duomenys: paskyra, profilis, administratoriaus teisė; mėgstami sujungiami
 async function loadMe() {
@@ -192,7 +194,7 @@ function catalogFromDb(rows) {
     settings: { ...CAT.settings, ...(settings?.[0]?.data || {}) },
     families: families.map(f => ({ id: f.id, name: f.name, hint: f.hint, sort: f.sort, visible: f.visible })),
     categories: categories.map(c => ({ id: c.id, name: c.name, description: c.description, image: c.image, sort: c.sort, visible: c.visible })),
-    // v29: nuotaikos juosta – bendro kvapo lygiu; natų biblioteka (natos vardas → nuotrauka)
+    // v29: nuotaikos juosta - bendro kvapo lygiu; natų biblioteka (natos vardas → nuotrauka)
     scents: scents.filter(s => s.mood_image).map(s => ({ id: s.id, moodImage: s.mood_image, moodTitle: s.mood_title || "", moodLine: s.mood_line || "" })),
     noteMedia: notes.filter(n => n.name && n.image).map(n => ({ name: n.name, image: n.image })),
     products: products.map(p => ({
@@ -229,7 +231,7 @@ function catalogFromDb(rows) {
     }))
   };
 }
-// Prekės puslapio laukai (v29, migracija 20261122090000): įrašomi tik užpildyti – katalogas nedidėja
+// Prekės puslapio laukai (v29, migracija 20261122090000): įrašomi tik užpildyti - katalogas nedidėja
 function pageFields(p) {
   const o = {};
   if (p.subtitle) o.subtitle = p.subtitle;
@@ -239,7 +241,7 @@ function pageFields(p) {
   return o;
 }
 async function fetchCatalog() {
-  // Natų biblioteka ir kvapų nuotaikos juosta – nebūtinos (be migracijos lentelės / stulpelių nėra – katalogas vis tiek veikia)
+  // Natų biblioteka ir kvapų nuotaikos juosta - nebūtinos (be migracijos lentelės / stulpelių nėra - katalogas vis tiek veikia)
   const optional = path => sbRest(path).then(r => (Array.isArray(r) ? r : []), () => []);
   const [products, families, categories, links, settings, reviews, scents, notes] = await Promise.all([
     sbRest("products?select=*&order=rank.asc"),
@@ -258,7 +260,7 @@ async function refreshCatalog({ rerender = true } = {}) {
   if (!SB) return false;
   try {
     const c = await fetchCatalog();
-    if (!c.products.length && !auth.isAdmin) return false; // tuščia bazė – liekame su įdėtu katalogu
+    if (!c.products.length && !auth.isAdmin) return false; // tuščia bazė - liekame su įdėtu katalogu
     const json = JSON.stringify(c);
     if (json === lastCatalogJson) return false;
     lastCatalogJson = json;
@@ -274,7 +276,7 @@ async function refreshCatalog({ rerender = true } = {}) {
     return false;
   }
 }
-// Paleidžiant: naujesnė telefone išsaugota kopija nei surinkimo metu įdėta – naudojame ją (be mirgėjimo)
+// Paleidžiant: naujesnė telefone išsaugota kopija nei surinkimo metu įdėta - naudojame ją (be mirgėjimo)
 function useCachedCatalog() {
   const cached = store.get(CATALOG_KEY, null);
   if (cached?.c?.products?.length && cached.at > (Number(window.VAIDORE_BUILT) || 0)) {

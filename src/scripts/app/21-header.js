@@ -1,26 +1,26 @@
-// 21 – header'is, šoninis meniu, „Kvepalai“ išskleidžiamas meniu, paieška (kompiuteryje – pasiūlymai po lauku,
-// telefone – langas), informacinė juosta ir poraštė. Kategorijos ir šeimos – iš katalogo (administravimo skydelio).
-// Informacinė juosta – kelios trumpos žinutės, keičiasi vietoje kas 5 s (rodyklės – rankiniu būdu; sustoja užvedus,
-// fokusuojant ir jei įjungtas „mažiau judesio“). Visos žinutės – tikri parduotuvės nustatymai.
-// Juostos aukštis fiksuotas (--noteH), tekstas – iki 2 eilučių (v10, kaip parfumada.lt): kiekviena žinutė turi ilgą
+// 21 - header'is, šoninis meniu, „Kvepalai“ išskleidžiamas meniu, paieška (kompiuteryje - pasiūlymai po lauku,
+// telefone - langas), informacinė juosta ir poraštė. Kategorijos ir šeimos - iš katalogo (administravimo skydelio).
+// Informacinė juosta - kelios trumpos žinutės, keičiasi vietoje kas 5 s (rodyklės - rankiniu būdu; sustoja užvedus,
+// fokusuojant ir jei įjungtas „mažiau judesio“). Visos žinutės - tikri parduotuvės nustatymai.
+// Juostos aukštis fiksuotas (--noteH), tekstas - iki 2 eilučių (v10, kaip parfumada.lt): kiekviena žinutė turi ilgą
 // ir trumpą variantą; jei ilgas netelpa (siauras telefonas, nuo 360 px), rodomas trumpesnis.
 // Visa juosta valdoma administravime (Pradžia → „Juosta virš header'io“), settings.topbar:
 //   { on, seconds, arrows, anim: "slide" | "fade" | "none",
-//     items: [{ id, on, text, short, href }]  – tekste *žodis* paryškinamas (akcento spalva); short – trumpesnis variantas,
-//                                              rodomas, jei ilgas netelpa; href – nuoroda (santykinė arba https://)
+//     items: [{ id, on, text, short, href }]  - tekste *žodis* paryškinamas (akcento spalva); short - trumpesnis variantas,
+//                                              rodomas, jei ilgas netelpa; href - nuoroda (santykinė arba https://)
 //     style: { bg, bg2, grad: "solid" | "lr" | "mid", color, accent, fs, fsD, weight, ls, upper, h, hD, line } }
-//   Nėra items – automatinės žinutės iš parduotuvės nustatymų (žemiau). Visos reikšmės – CSS kintamieji ant #topNote.
+//   Nėra items - automatinės žinutės iš parduotuvės nustatymų (žemiau). Visos reikšmės - CSS kintamieji ant #topNote.
 const note = { i: 0, t: 0, paused: false };
 const fmtNote = t => esc(t).replace(/\*([^*]+)\*/g, "<b>$1</b>");
-// Numatytosios žinutės (tikri nustatymai) – tokiu pat formatu kaip administravime
+// Numatytosios žinutės (tikri nustatymai) - tokiu pat formatu kaip administravime
 function autoNoteItems() {
   const free = eurShort(SET.freeShippingFrom);
   const sample = eur(Math.min(...PRODUCTS.filter(hasSample).map(p => p.sample)));
-  const days = nb(SET.dispatch || "1–2 d. d.");
+  const days = nb(SET.dispatch || "1-2 d. d.");
   const ret = `${SET.returnDays || 14} d.`;
   return [
     { id: "free", text: `Nemokamas pristatymas nuo *${free}*`, short: `Nemokamai nuo *${free}*` },
-    { id: "samples", text: `Kiekvieną kvapą – ir *2 ml mėginuku* nuo ${sample}`, short: `*2 ml mėginukai* nuo ${sample}` },
+    { id: "samples", text: `Kiekvieną kvapą - ir *2 ml mėginuku* nuo ${sample}`, short: `*2 ml mėginukai* nuo ${sample}` },
     { id: "dispatch", text: `Išsiunčiame per *${days}* · Omniva ir DPD`, short: `Išsiunčiame per *${days}*` },
     SET.sampleCredit ? { id: "credit", text: `Mėginukų kainą *grąžiname* perkant buteliuką`, short: `Mėginuko kainą *grąžiname*` } : null,
     { id: "returns", text: `Grąžinimas per *${ret}* · Saugus apmokėjimas`, short: `Grąžinimas per *${ret}*` }
@@ -32,7 +32,7 @@ const noteItems = () => {
   const list = Array.isArray(c.items) ? c.items : autoNoteItems();
   return list.filter(x => x && x.on !== false && String(x.text || "").trim());
 };
-// Žinutė → HTML variantai (ilgas, trumpas); su nuoroda – visa žinutė paspaudžiama
+// Žinutė → HTML variantai (ilgas, trumpas); su nuoroda - visa žinutė paspaudžiama
 function noteMessages() {
   return noteItems().map(x => {
     const wrap = h => {
@@ -43,7 +43,7 @@ function noteMessages() {
     return [x.text, x.short].filter(t => String(t || "").trim()).map(t => wrap(fmtNote(t)));
   });
 }
-// Stilius → CSS kintamieji (tušti – numatytieji iš 01-tokens.css)
+// Stilius → CSS kintamieji (tušti - numatytieji iš 01-tokens.css)
 function applyTopbarStyle() {
   const bar = $("#topNote");
   if (!bar) return;
@@ -113,14 +113,14 @@ function renderTopNote() {
   const secs = Number(topbarCfg().seconds ?? 5);
   if (!reduceMotion() && secs > 0 && noteMessages().length > 1) note.t = setInterval(() => !note.paused && !document.hidden && showNote(1), secs * 1000);
 }
-// Kompiuteryje – antra header'io eilutė (tamsi juosta su kategorijomis). v10 (kaip parfumada.lt): 16 px / 700,
-// „Moterims / Vyrams / Unisex“ – išskleidžiamame „Pagal lytį“, kad visos nuorodos tilptų vienoje eilutėje.
+// Kompiuteryje - antra header'io eilutė (tamsi juosta su kategorijomis). v10 (kaip parfumada.lt): 16 px / 700,
+// „Moterims / Vyrams / Unisex“ - išskleidžiamame „Pagal lytį“, kad visos nuorodos tilptų vienoje eilutėje.
 // Visos nuorodos vienoje eilutėje: jei netelpa (siauresnis kompiuteris, yra „Nuolaidos“), slepiamos mažiausiai svarbios
-// (data-fit – kuo didesnis, tuo anksčiau slepiama); jos lieka šoniniame meniu ir poraštėje
+// (data-fit - kuo didesnis, tuo anksčiau slepiama); jos lieka šoniniame meniu ir poraštėje
 function renderHeaderNav() {
   const fit = { verslui: 3, "apie-mus": 4, atsiliepimai: 5, naujienos: 2, bestselleriai: 1 };
   const link = (href, name, path = href) => `<a href="${href}" data-nav data-path="${path}"${fit[path] ? ` data-fit="${fit[path]}"` : ""}>${name}</a>`;
-  // Kvepalai ▾ (lytis, kolekcijos, kvapo šeima – išskleidžiamame meniu) · kiti prekių tipai (tik jei yra prekių)
+  // Kvepalai ▾ (lytis, kolekcijos, kvapo šeima - išskleidžiamame meniu) · kiti prekių tipai (tik jei yra prekių)
   $("#hdrNav").innerHTML = `<div class="hdrNavIn"><button type="button" id="megaBtn" aria-expanded="false" aria-controls="mega">Kvepalai${glyph("chev-down")}</button>${typesInUse()
     .filter(t => t.id !== "kvepalai")
     .map(t => link(t.id, t.name))
@@ -173,9 +173,9 @@ function setMega(open) {
   mega.hidden = !open;
   btn.setAttribute("aria-expanded", String(open));
 }
-// Šoninis meniu (telefone ir planšetėje, v17 – kaip iOS programėlė): paieška → paskyros kortelė → sugrupuoti sąrašai
-// (Parduotuvė – prekių tipai; Kvepalai – lytis, naujienos, bestselleriai, nuolaidos; Kolekcijos) → trys greiti pasirinkimai
-// (mėginukai, rinkinys, testas) → Pagalba; apačioje – kiek liko iki nemokamo pristatymo (su juostele)
+// Šoninis meniu (telefone ir planšetėje, v17 - kaip iOS programėlė): paieška → paskyros kortelė → sugrupuoti sąrašai
+// (Parduotuvė - prekių tipai; Kvepalai - lytis, naujienos, bestselleriai, nuolaidos; Kolekcijos) → trys greiti pasirinkimai
+// (mėginukai, rinkinys, testas) → Pagalba; apačioje - kiek liko iki nemokamo pristatymo (su juostele)
 const TYPE_ICO = { kvepalai: "drop", difuzoriai: "spark", zvakes: "sun", aliejai: "drop", "elektriniai-difuzoriai": "home" };
 function drawerHTML() {
   const cats = visibleCategories();
@@ -189,7 +189,7 @@ function drawerHTML() {
   const left = shipLeft();
   const free = Number(SET.freeShippingFrom) || 0;
   const pct = state.cart.length && free ? Math.min(100, Math.round(((free - Math.max(0, left)) / free) * 100)) : 0;
-  return `<header class="drawerHead"><a class="logo" href="./" data-nav aria-label="Vaidore – pradžia"><span>${logoHTML()}</span></a><button class="iconBtn" type="button" data-sheet-close aria-label="Uždaryti meniu">${glyph("x")}</button></header>
+  return `<header class="drawerHead"><a class="logo" href="./" data-nav aria-label="Vaidore - pradžia"><span>${logoHTML()}</span></a><button class="iconBtn" type="button" data-sheet-close aria-label="Uždaryti meniu">${glyph("x")}</button></header>
 <div class="drawerBody">
 <button class="navSearch" type="button" data-drawer-search>${glyph("search")}<span>Ieškoti kvapo ar natos</span></button>
 <a class="mAcct" href="paskyra" data-nav><span class="mAvatar"${initials ? "" : ' aria-hidden="true"'}>${initials ? esc(initials) : glyph("user")}</span><span class="mAcctTxt"><b>${esc(who)}</b><small>${
@@ -252,9 +252,9 @@ function bindHeader() {
   renderTopNote();
   renderHeaderNav();
   $("#menuBtn").addEventListener("click", openDrawer);
-  // Paieška: kompiuteryje (v17) – laukas visada matomas header'io kairėje (piktograma paslėpta); telefone ir planšetėje – langas
+  // Paieška: kompiuteryje (v17) - laukas visada matomas header'io kairėje (piktograma paslėpta); telefone ir planšetėje - langas
   $("#searchBtn").addEventListener("click", () => (matchMedia("(min-width: 1024px)").matches ? setHdrSearch(true) : openSearchSheet()));
-  // Meniu paieškos laukas – paieškos langas atsidaro meniu vietoje
+  // Meniu paieškos laukas - paieškos langas atsidaro meniu vietoje
   $("#drawer").addEventListener("click", e => {
     if (e.target instanceof Element && e.target.closest("[data-drawer-search]")) openSearchSheet();
   });
@@ -325,7 +325,7 @@ function bindHeader() {
       setHdrSearch(false);
     }
   });
-  // Užslinkus – švelnus šešėlis (klasė keičiama tik pasikeitus būsenai – slenkant nieko neperskaičiuojama)
+  // Užslinkus - švelnus šešėlis (klasė keičiama tik pasikeitus būsenai - slenkant nieko neperskaičiuojama)
   let on = null;
   const onScroll = () => {
     const v = window.scrollY > 4;
@@ -344,8 +344,8 @@ function updateNavCurrent(path) {
   $("#megaBtn")?.toggleAttribute("data-current", ["kvepalai", "moterims", "vyrams", "unisex", "meginukai"].includes(path) || path.startsWith("kategorija/"));
   setMega(false);
 }
-// Poraštė – šviesi ir kompaktiška: telefone naujienlaiškis → trys išskleidžiamos grupės (Parduotuvė, Pagalba, Vaidore)
-// → kontaktai → mokėjimo būdai → © ir teisinės nuorodos; kompiuteryje – viena eilė: prekės ženklas ir kontaktai, trys
+// Poraštė - šviesi ir kompaktiška: telefone naujienlaiškis → trys išskleidžiamos grupės (Parduotuvė, Pagalba, Vaidore)
+// → kontaktai → mokėjimo būdai → © ir teisinės nuorodos; kompiuteryje - viena eilė: prekės ženklas ir kontaktai, trys
 // nuorodų stulpeliai (visada atskleisti), naujienlaiškis dešinėje
 const ftrDesk = matchMedia("(min-width: 1024px)");
 function renderFooter() {
@@ -370,16 +370,16 @@ ${grp("Pagalba", [
   a("paskyra", "Mano paskyra")
 ])}
 ${grp("Vaidore", [a("apie-mus", "Mūsų istorija"), a("atsiliepimai", "Atsiliepimai"), a("verslui", "Verslui")])}
-<div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="${esc(SET.shop)} – pradžia"><span>${logoHTML()}</span></a>
+<div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="${esc(SET.shop)} - pradžia"><span>${logoHTML()}</span></a>
 <ul class="ftrContact"><li>${glyph("mail")}<a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></li>${
     ph ? `<li>${glyph("phone")}<a href="tel:${esc(ph.replace(/\s+/g, ""))}">${esc(ph)}</a></li>` : ""
-  }<li>${glyph("truck")}<span>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))} · nemokamai nuo ${eurShort(SET.freeShippingFrom)}</span></li></ul></div>
+  }<li>${glyph("truck")}<span>Išsiunčiame per ${esc(nb(SET.dispatch || "1-2 d. d."))} · nemokamai nuo ${eurShort(SET.freeShippingFrom)}</span></li></ul></div>
 </div>
 <div class="ftrPay" aria-label="Mokėjimo būdai">${PAY_MARKS}</div>
 <div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", "Pirkimo sąlygos", false)}${a("privatumas", "Privatumo politika", false)}</small></div>`;
   syncFooterGroups();
 }
-// Kompiuteryje grupės visada atskleistos (stulpeliai), telefone – suskleistos, atsidaro paspaudus
+// Kompiuteryje grupės visada atskleistos (stulpeliai), telefone - suskleistos, atsidaro paspaudus
 function syncFooterGroups() {
   $$("#ftrIn .ftrGrp").forEach(d => (d.open = ftrDesk.matches));
 }
@@ -387,6 +387,6 @@ ftrDesk.addEventListener?.("change", syncFooterGroups);
 document.addEventListener("click", e => {
   if (ftrDesk.matches && e.target instanceof Element && e.target.closest("#ftrIn .ftrGrp > summary")) e.preventDefault();
 });
-// Mokėjimo būdų ženkliukai (tekstiniai – be svetimų logotipų failų)
+// Mokėjimo būdų ženkliukai (tekstiniai - be svetimų logotipų failų)
 const PAY_MARKS = ["VISA", "Mastercard", "Apple Pay", "Google Pay"].map(t => `<span>${t}</span>`).join("");
 

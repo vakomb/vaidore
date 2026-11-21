@@ -1,37 +1,39 @@
-// Svetainės surinkimas: node tools/build-site.mjs → aplankas site/ (Vercel: outputDirectory "site", cleanUrls; GitHub Pages – tas pats).
-// Kiekvienam adresui – statinis HTML su savo title, description, kanoniniu adresu ir Open Graph (paieškos sistemoms
-// ir dalinimuisi); viduje – ta pati programėlė, kuri pagal adresą parodo puslapį:
+// Svetainės surinkimas: node tools/build-site.mjs → aplankas site/ (Vercel: outputDirectory "site", cleanUrls; GitHub Pages - tas pats).
+// Kiekvienam adresui - statinis HTML su savo title, description, kanoniniu adresu ir Open Graph (paieškos sistemoms
+// ir dalinimuisi); viduje - ta pati programėlė, kuri pagal adresą parodo puslapį:
 //   index.html, kvepalai/index.html, moterims.html, vyrams.html, unisex.html, meginukai.html,
 //   kategorija/<id>.html, kvepalai/<id>.html (+ Product JSON-LD), pagalba.html, apie-mus.html,
-//   krepselis.html, megstami.html, paskyra.html, admin.html (noindex), 404.html (nežinomi adresai – programėlė nusprendžia)
-//   aciu.html, salygos.html, privatumas.html – statiniai puslapiai (src/pages/)
-//   assets/admin.js, assets/admin.css – administravimo skydelis (įkeliamas tik /admin)
-//   data/omniva.json – Omniva paštomatai; sitemap.xml, robots.txt, catalog.json + src/public/*
-// Katalogas: iš Supabase (tools/db-catalog.mjs), nepavykus – src/data/catalog.json.
+//   krepselis.html, megstami.html, paskyra.html, admin.html (noindex), 404.html (nežinomi adresai - programėlė nusprendžia)
+//   aciu.html, salygos.html, privatumas.html - statiniai puslapiai (src/pages/)
+//   assets/admin.js, assets/admin.css - administravimo skydelis (įkeliamas tik /admin)
+//   data/omniva.json - Omniva paštomatai; sitemap.xml, robots.txt, catalog.json + src/public/*
+// Katalogas: iš Supabase (tools/db-catalog.mjs), nepavykus - src/data/catalog.json.
 // Aplinkos kintamieji (nebūtini):
-//   BASE_PATH=/vaidore/ – svetainė poaplankyje (GitHub Pages); numatyta „/“
-//   SITE_URL     – kanoninių adresų pradžia (numatyta https://<settings.domain>)
-//   NOINDEX=1    – peržiūros kopija: paieškos sistemoms neindeksuoti
-//   NO_DB=1      – nesikreipti į duomenų bazę; CATALOG=kelias – kitas katalogas (testams); OUT=kelias – kitas aplankas
-//   OMNIVA=0     – neparsiųsti paštomatų; OMNIVA_FILE=kelias – vietinis locations.json (testams)
+//   BASE_PATH=/vaidore/ - svetainė poaplankyje (GitHub Pages); numatyta „/“
+//   SITE_URL     - kanoninių adresų pradžia (numatyta https://<settings.domain>)
+//   NOINDEX=1    - peržiūros kopija: paieškos sistemoms neindeksuoti
+//   NO_DB=1      - nesikreipti į duomenų bazę; CATALOG=kelias - kitas katalogas (testams); OUT=kelias - kitas aplankas
+//   OMNIVA=0     - neparsiųsti paštomatų; OMNIVA_FILE=kelias - vietinis locations.json (testams)
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildApp, buildAdmin } from "./build.mjs";
-import { dbCatalog } from "./db-catalog.mjs";
+import { dbCatalog, plain, plainDeep } from "./db-catalog.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "src");
 const site = process.env.OUT ? path.resolve(process.env.OUT) : path.join(root, "site");
-// Nelaužomi tarpai (kaip programėlėje – 01-util.js)
-const nb = t => String(t ?? "").replace(/(\d) (?=d\.|ml\b|val\.|vnt\.)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)–(\d)/g, "$1\u2060–\u2060$2");
+// Nelaužomi tarpai (kaip programėlėje - 01-util.js)
+const nb = t => plain(t).replace(/(\d) (?=d\.|ml\b|val\.|vnt\.)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)-(\d)/g, "$1\u2060-\u2060$2");
 const fileCatalog = JSON.parse(fs.readFileSync(process.env.CATALOG ? path.resolve(process.env.CATALOG) : path.join(src, "data", "catalog.json"), "utf8"));
 const sb = JSON.parse(fs.readFileSync(path.join(src, "data", "supabase.json"), "utf8"));
 const useDb = !process.env.CATALOG && process.env.NO_DB !== "1";
-const catalog = (useDb && (await dbCatalog(sb, fileCatalog))) || fileCatalog;
-const fromDb = catalog !== fileCatalog;
+const dbCat = useDb && (await dbCatalog(sb, fileCatalog));
+const fromDb = !!dbCat;
+// v30: tekstai be ilgų brūkšnių (kaip programėlėje - plainDeep, 01-util.js)
+const catalog = plainDeep(dbCat || fileCatalog);
 const S = catalog.settings;
-// Prekių puslapių tekstai pagal tipą (v29): numatytieji + administravimo pakeitimai – SEO puslapiuose natos ir naudojimas tekstu
+// Prekių puslapių tekstai pagal tipą (v29): numatytieji + administravimo pakeitimai - SEO puslapiuose natos ir naudojimas tekstu
 const PDP_DEF = JSON.parse(fs.readFileSync(path.join(src, "data", "pdp.json"), "utf8"));
 const pdpOf = t => {
   const d = PDP_DEF[t] || {};
@@ -58,7 +60,7 @@ const NOINDEX = process.env.NOINDEX === "1";
 const BASE = ("/" + (process.env.BASE_PATH || "/").replace(/^\/+|\/+$/g, "") + "/").replace("//", "/");
 const BUILT = Date.now();
 
-const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const esc = v => plain(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const ld = obj => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, "\\u003c")}</script>`;
 const money = n => n.toFixed(2).replace(".", ",") + " €";
 const inStock = p => p.stock == null || p.stock > 0;
@@ -79,12 +81,12 @@ async function omniva() {
       raw = await r.json();
     }
   } catch (err) {
-    console.warn(`! Omniva paštomatų parsiųsti nepavyko (${err.message}) – adresą pirkėjas nurodys Stripe lange`);
+    console.warn(`! Omniva paštomatų parsiųsti nepavyko (${err.message}) - adresą pirkėjas nurodys Stripe lange`);
     return 0;
   }
   const cc = new Set(S.countries);
   const list = raw
-    // TYPE 0 – paštomatas (1 – paštas); „1. eelistus“ – Estijos virtualus „pirmasis pasirinkimas“, ne vieta
+    // TYPE 0 - paštomatas (1 - paštas); „1. eelistus“ - Estijos virtualus „pirmasis pasirinkimas“, ne vieta
     .filter(l => String(l.TYPE) === "0" && cc.has(l.A0_NAME) && /^\d{4,6}$/.test(String(l.ZIP)) && !/eelistus/i.test(l.NAME))
     .map(l => [
       String(l.ZIP),
@@ -96,7 +98,7 @@ async function omniva() {
       Math.round(Number(l.X_COORDINATE) * 1e5) / 1e5
     ])
     .sort((a, b) => a[4].localeCompare(b[4]) || a[3].localeCompare(b[3], "lt") || a[1].localeCompare(b[1], "lt"));
-  fs.writeFileSync(path.join(site, "data", "omniva.json"), JSON.stringify({ updated: new Date().toISOString().slice(0, 10), list }));
+  fs.writeFileSync(path.join(site, "data", "omniva.json"), JSON.stringify({ updated: new Date().toISOString().slice(0, 10), list: plainDeep(list) }));
   return list.length;
 }
 const lockers = await omniva();
@@ -156,7 +158,7 @@ function page(file, { route, title, desc, image = `${SITE}/og/home.jpg`, type = 
 }
 const app = page("index.html", {
   route: "",
-  title: `${S.shop} – kvepalai`,
+  title: `${S.shop} - kvepalai`,
   desc: S.tagline,
   extra: [ld({ "@context": "https://schema.org", "@type": "OnlineStore", name: S.shop, url: `${SITE}/`, description: S.tagline, email: S.company.email })]
 });
@@ -165,7 +167,7 @@ const listDesc = list =>
     .slice(0, 5)
     .map(p => p.name)
     .join(", ")}${list.length > 5 ? " ir kiti" : ""}. Mėginukai 2 ml, nemokamas pristatymas nuo ${S.freeShippingFrom} €.`;
-// Prekių tipai (v13, v15 – 5 tipai; tie patys kaip TYPES, 03-catalog.js) – sąrašo puslapis tik tipui, kuriame yra prekių
+// Prekių tipai (v13, v15 - 5 tipai; tie patys kaip TYPES, 03-catalog.js) - sąrašo puslapis tik tipui, kuriame yra prekių
 const TYPE_PAGE = {
   kvepalai: { name: "Kvepalai", one: "Kvepalai", what: "kvapai" },
   difuzoriai: { name: "Namų kvapų difuzoriai", one: "Namų kvapų difuzorius", what: "difuzoriai" },
@@ -213,7 +215,7 @@ for (const p of products) {
   const sizeTxt = s => (s.unit === "vnt" ? "" : `${s.ml} ${s.unit || "ml"}`);
   const scentTxt = notes ? `${FAM[p.family]} kvapas: ${notes}. ` : "";
   const desc = `${insp}${p.tagline ? `${p.tagline}. ` : ""}${scentTxt}${p.sizes.map(sizeTxt).filter(Boolean).join(" / ")}${p.sizes.some(sizeTxt) ? " " : ""}nuo ${money(Math.min(...prices))}${
-    perf && Number(p.sample) > 0 ? `, mėginukas 2 ml – ${money(p.sample)}` : ""
+    perf && Number(p.sample) > 0 ? `, mėginukas 2 ml - ${money(p.sample)}` : ""
   }.`.slice(0, 300);
   const image = p.images?.length ? p.images.map(i => new URL(i, `${SITE}/`).href) : [`${SITE}/${ogFile(p.id)}`];
   const reviews = (p.reviews || []).filter(r => r?.name && r?.text);
@@ -262,23 +264,23 @@ for (const p of products) {
   };
   page(`${ty}/${p.id}.html`, {
     route: `${ty}/${p.id}`,
-    title: `${p.name} – ${kind} | ${S.shop}`,
+    title: `${p.name} - ${kind} | ${S.shop}`,
     desc,
     image: fs.existsSync(path.join(src, "public", "og", `${p.id}.jpg`)) ? `${SITE}/og/${p.id}.jpg` : image[0],
     type: "product",
     extra: [ld(product), ld(crumbs)],
-    noscript: `<h1>${esc(p.name)} – ${esc(kind)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>${storyText(p, ty)}`
+    noscript: `<h1>${esc(p.name)} - ${esc(kind)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>${storyText(p, ty)}`
   });
 }
 page("pagalba.html", {
   route: "pagalba",
   title: `Pagalba: pristatymas, grąžinimas, DUK | ${S.shop}`,
-  desc: `Pristatymas per ${S.dispatch || "1–2 d. d."}, nemokamai nuo ${S.freeShippingFrom} €, grąžinimas per ${S.returnDays || 14} d.`
+  desc: `Pristatymas per ${S.dispatch || "1-2 d. d."}, nemokamai nuo ${S.freeShippingFrom} €, grąžinimas per ${S.returnDays || 14} d.`
 });
 page("apie-mus.html", { route: "apie-mus", title: `Apie mus | ${S.shop}`, desc: S.story?.text || S.tagline });
 const ranked = [...products].sort((a, b) => a.rank - b.rank);
-page("visos-prekes.html", { route: "visos-prekes", title: `Visos prekės – kvepalai ir namų kvapai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
-page("bestselleriai.html", { route: "bestselleriai", title: `Bestselleriai – populiariausi kvepalai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
+page("visos-prekes.html", { route: "visos-prekes", title: `Visos prekės - kvepalai ir namų kvapai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
+page("bestselleriai.html", { route: "bestselleriai", title: `Bestselleriai - populiariausi kvepalai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
 const onSaleList = products.filter(p => p.sizes.some(s => s.was > s.price));
 page("nuolaidos.html", {
   route: "nuolaidos",
@@ -286,8 +288,8 @@ page("nuolaidos.html", {
   desc: onSaleList.length ? listDesc(onSaleList) : `Kvepalų nuolaidos ${S.shop}. Nuolaidas skelbiame naujienlaiškyje.`,
   noindex: !onSaleList.length
 });
-page("atsiliepimai.html", { route: "atsiliepimai", title: `Atsiliepimai | ${S.shop}`, desc: `Tikri ${S.shop} pirkėjų atsiliepimai – rašo tik pirkę.` });
-page("verslui.html", { route: "verslui", title: `Verslui – kvepalai įmonių dovanoms | ${S.shop}`, desc: S.business?.text || `Kvepalai ir mėginukų rinkiniai įmonių dovanoms, renginiams ir partneriams. Pasiūlymas per 1 d. d.` });
+page("atsiliepimai.html", { route: "atsiliepimai", title: `Atsiliepimai | ${S.shop}`, desc: `Tikri ${S.shop} pirkėjų atsiliepimai - rašo tik pirkę.` });
+page("verslui.html", { route: "verslui", title: `Verslui - kvepalai įmonių dovanoms | ${S.shop}`, desc: S.business?.text || `Kvepalai ir mėginukų rinkiniai įmonių dovanoms, renginiams ir partneriams. Pasiūlymas per 1 d. d.` });
 page("naujienlaiskis.html", { route: "naujienlaiskis", title: `Naujienlaiškis | ${S.shop}`, noindex: true });
 for (const [f, t] of [
   ["krepselis", "Krepšelis"],
@@ -308,7 +310,7 @@ fs.writeFileSync(path.join(site, "assets", "admin.css"), admin.css);
 fs.cpSync(path.join(src, "public"), site, { recursive: true });
 fs.writeFileSync(path.join(site, "catalog.json"), JSON.stringify(catalog));
 
-// 5. Statiniai puslapiai – tas pats dizainas (src/pages/_layout.html + src/styles/01, 02, 08)
+// 5. Statiniai puslapiai - tas pats dizainas (src/pages/_layout.html + src/styles/01, 02, 08)
 const css = ["styles/01-tokens.css", "styles/02-base.css", "styles/08-pages.css"]
   .map(f => fs.readFileSync(path.join(src, f), "utf8"))
   .join("\n")
@@ -333,8 +335,8 @@ const fill = s =>
     .replace(/\{\{companyLine\}\}/g, () => companyLine)
     .replace(/\{\{freeShippingFrom\}\}/g, String(S.freeShippingFrom))
     .replace(/\{\{returnDays\}\}/g, String(S.returnDays || 14))
-    .replace(/\{\{dispatch\}\}/g, esc(nb(S.dispatch || "1–2 d. d.")))
-    .replace(/\{\{shipping\}\}/g, () => S.shipping.map(o => `<li>${esc(o.name)} – ${money(o.price)} (${esc(nb(o.days))})</li>`).join(""))
+    .replace(/\{\{dispatch\}\}/g, esc(nb(S.dispatch || "1-2 d. d.")))
+    .replace(/\{\{shipping\}\}/g, () => S.shipping.map(o => `<li>${esc(o.name)} - ${money(o.price)} (${esc(nb(o.days))})</li>`).join(""))
     .replace(/\{\{supabase\}\}/g, () => JSON.stringify(sb))
     .replace(/\{\{year\}\}/g, String(new Date().getFullYear()))
     .replace(/\{\{logo\}\}/g, () => fs.readFileSync(path.join(src, "partials", "logo.svg"), "utf8").trim());
@@ -364,5 +366,5 @@ fs.writeFileSync(
 
 const files = fs.readdirSync(site, { recursive: true }).filter(f => fs.statSync(path.join(site, f)).isFile());
 console.log(
-  `${path.relative(root, site) || "."}/ – ${files.length} failai, programėlė ${Math.round(app.length / 1024)} KB, administravimas ${Math.round((admin.js.length + admin.css.length) / 1024)} KB, ${products.length} kvapų ir ${categories.length} kategorijų puslapiai, katalogas – ${fromDb ? "duomenų bazė" : "catalog.json"}, paštomatų: ${lockers}, šaknis ${BASE}${NOINDEX ? " · noindex" : ""}`
+  `${path.relative(root, site) || "."}/ - ${files.length} failai, programėlė ${Math.round(app.length / 1024)} KB, administravimas ${Math.round((admin.js.length + admin.css.length) / 1024)} KB, ${products.length} kvapų ir ${categories.length} kategorijų puslapiai, katalogas - ${fromDb ? "duomenų bazė" : "catalog.json"}, paštomatų: ${lockers}, šaknis ${BASE}${NOINDEX ? " · noindex" : ""}`
 );

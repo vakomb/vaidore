@@ -1,14 +1,22 @@
-// Katalogas iš Supabase surinkimo metu (viešas publishable raktas, tik matomi įrašai – RLS).
+// Katalogas iš Supabase surinkimo metu (viešas publishable raktas, tik matomi įrašai - RLS).
 // Tas pats formatas kaip src/data/catalog.json (ir kaip programėlės catalogFromDb, 20-supabase.js).
-// Nepavykus (nėra interneto, tuščia bazė) – grąžina null, ir naudojamas src/data/catalog.json.
+// Nepavykus (nėra interneto, tuščia bazė) - grąžina null, ir naudojamas src/data/catalog.json.
+// v30: ilgi brūkšniai (U+2012-2015) ir minuso ženklas (U+2212) - visur paprastas „-“ (kaip programėlėje, 01-util.js)
+export const plain = v => String(v ?? "").replace(/[\u2012-\u2015\u2212]/g, "-");
+export const plainDeep = v => {
+  if (typeof v === "string") return plain(v);
+  if (Array.isArray(v)) for (let i = 0; i < v.length; i++) v[i] = plainDeep(v[i]);
+  else if (v && typeof v === "object") for (const k of Object.keys(v)) v[k] = plainDeep(v[k]);
+  return v;
+};
 export async function dbCatalog(sb, fallback) {
   if (!sb?.url || !sb?.key) return null;
   const get = async path => {
     const r = await fetch(`${sb.url}/rest/v1/${path}`, { headers: { apikey: sb.key }, signal: AbortSignal.timeout(15000) });
     if (!r.ok) throw new Error(`${path.split("?")[0]}: HTTP ${r.status}`);
-    return r.json();
+    return plainDeep(await r.json());
   };
-  // Natų biblioteka ir kvapų nuotaikos juosta (v29) – nebūtinos: be migracijos grąžinamas tuščias sąrašas
+  // Natų biblioteka ir kvapų nuotaikos juosta (v29) - nebūtinos: be migracijos grąžinamas tuščias sąrašas
   const optional = path => get(path).then(r => (Array.isArray(r) ? r : []), () => []);
   const pageFields = p => ({
     ...(p.subtitle ? { subtitle: p.subtitle } : {}),
@@ -73,7 +81,7 @@ export async function dbCatalog(sb, fallback) {
       }))
     };
   } catch (err) {
-    console.warn(`! Katalogo iš duomenų bazės gauti nepavyko (${err.message}) – naudojamas src/data/catalog.json`);
+    console.warn(`! Katalogo iš duomenų bazės gauti nepavyko (${err.message}) - naudojamas src/data/catalog.json`);
     return null;
   }
 }

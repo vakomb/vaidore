@@ -1,10 +1,10 @@
 // Vaidore surinkimas (kaip AutoEasier): src/index.html su <!-- @inline … --> žymomis → dist/index.html (vienas failas).
-//   <!-- @inline <style id="x"> styles/01-tokens.css -->   – CSS įdedamas į <style>
-//   <!-- @partial partials/view-home.html -->               – HTML įdedamas kaip yra
-//   <!-- @app scripts/app -->                               – visi scripts/app/*.js eilės tvarka viename IIFE (bendras scope)
-//   <!-- @catalog -->                                       – katalogas kaip window.VAIDORE_CATALOG (+ prekių puslapių tekstai
+//   <!-- @inline <style id="x"> styles/01-tokens.css -->   - CSS įdedamas į <style>
+//   <!-- @partial partials/view-home.html -->               - HTML įdedamas kaip yra
+//   <!-- @app scripts/app -->                               - visi scripts/app/*.js eilės tvarka viename IIFE (bendras scope)
+//   <!-- @catalog -->                                       - katalogas kaip window.VAIDORE_CATALOG (+ prekių puslapių tekstai
 //                                                             window.VAIDORE_PDP iš data/pdp.json, Supabase adresas, surinkimo laikas)
-//   <!-- @base -->                                          – <base href> (svetainės šaknis: „/“ arba GitHub Pages „/vaidore/“)
+//   <!-- @base -->                                          - <base href> (svetainės šaknis: „/“ arba GitHub Pages „/vaidore/“)
 // Naudojimas: node tools/build.mjs [--out kelias] [--pretty]
 import fs from "node:fs";
 import path from "node:path";
@@ -31,8 +31,8 @@ const minCss = css =>
         .replace(/;}/g, "}")
         .trim();
 
-// opts.lockers – kiek Omniva paštomatų parsiųsta (tools/build-site.mjs); opts.head – papildomos <head> eilutės;
-// opts.catalog – katalogo objektas (testams; numatyta – src/data/catalog.json)
+// opts.lockers - kiek Omniva paštomatų parsiųsta (tools/build-site.mjs); opts.head - papildomos <head> eilutės;
+// opts.catalog - katalogo objektas (testams; numatyta - src/data/catalog.json)
 export function buildApp(opts = {}) {
   let html = read("index.html");
   html = html.replace(/<!-- @inline <style id="([\w-]+)"> ([\w./-]+) -->/g, (_, id, rel) => {
@@ -45,9 +45,9 @@ export function buildApp(opts = {}) {
   html = html.replace(/<!-- @catalog -->/, () => {
     const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));
     const sb = opts.supabase === undefined ? JSON.parse(read("data/supabase.json")) : opts.supabase;
-    // Prekių puslapių turinio blokų numatytieji tekstai pagal tipą (v29; administravime keičiami – settings.pdp)
+    // Prekių puslapių turinio blokų numatytieji tekstai pagal tipą (v29; administravime keičiami - settings.pdp)
     const pdp = JSON.stringify(JSON.parse(read("data/pdp.json")));
-    // Numatytoji natų biblioteka – ingredientai, iškirpti iš tikrų Vaidore produktų nuotraukų (img/natos/; bazėje – note_media)
+    // Numatytoji natų biblioteka - ingredientai, iškirpti iš tikrų Vaidore produktų nuotraukų (img/natos/; bazėje - note_media)
     const notes = JSON.stringify(JSON.parse(read("data/notes.json")));
     return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_PDP=${pdp.replace(/</g, "\\u003c")};window.VAIDORE_NOTES=${notes.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};</script>`;
   });
@@ -66,7 +66,7 @@ export function buildApp(opts = {}) {
   return html;
 }
 
-// Administravimo skydelis – atskiras failas (įkeliamas tik /admin): src/scripts/admin/*.js + src/styles/admin.css
+// Administravimo skydelis - atskiras failas (įkeliamas tik /admin): src/scripts/admin/*.js + src/styles/admin.css
 export function buildAdmin() {
   const dir = "scripts/admin";
   const files = fs
@@ -82,5 +82,5 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const out = outArg ? path.resolve(outArg) : path.join(root, "dist", "index.html");
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, html);
-  console.log(`Built ${path.relative(root, out)} — ${Math.round(html.length / 1024)} KB`);
+  console.log(`Built ${path.relative(root, out)} - ${Math.round(html.length / 1024)} KB`);
 }

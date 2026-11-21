@@ -1,10 +1,10 @@
 // Administravimo skydelio naršyklės testas (Playwright), be interneto: Supabase imituojamas (tools/mock-supabase.mjs).
 //   node tools/test-admin.mjs [--shots]
 // Tikrina: prisijungimas → Administravimas (v16: šoninis meniu, skirtukai, seni adresai); Šiandien; užsakymai (sąrašas ir
-// užsakymo ekranas – supakuota, išsiųsta + siuntos nr., paieška, CSV, grąžinti pinigus); produktai (likutis ir slėpimas per
-// kontekstinį meniu, „Pranešti“, redagavimas vidiniuose ekranuose, tūriai, kolekcijos, nuotraukos, naujas produktas –
+// užsakymo ekranas - supakuota, išsiųsta + siuntos nr., paieška, CSV, grąžinti pinigus); produktai (likutis ir slėpimas per
+// kontekstinį meniu, „Pranešti“, redagavimas vidiniuose ekranuose, tūriai, kolekcijos, nuotraukos, naujas produktas -
 // iškart matomas parduotuvėje, automatinis užpildymas su peržiūra, neišsaugotų pakeitimų perspėjimas, ištrynimas); kvapai;
-// kategorijos ir šeimos; atsiliepimai; laukiantys; naujienlaiškis; vitrina (skaidrės, juosta, plytelės, skyriai – su
+// kategorijos ir šeimos; atsiliepimai; laukiantys; naujienlaiškis; vitrina (skaidrės, juosta, plytelės, skyriai - su
 // peržiūra); nustatymai po grupes; žurnalas; svetainės atnaujinimas; teisės; telefonas (stačias ir gulsčias); be JS klaidų.
 import fs from "node:fs";
 import path from "node:path";
@@ -59,7 +59,7 @@ async function newPage(viewport, token = null) {
   page.on("pageerror", e => errors.push(`${viewport.width}: ${e.message}`));
   page.on("dialog", d => (d.type() === "beforeunload" ? d.accept() : d.dismiss()));
   await page.route(`${SB_URL}/**`, sb.handle);
-  // Įkeltos nuotraukos (viešas Storage adresas) – rodomas pavyzdinis paveikslas
+  // Įkeltos nuotraukos (viešas Storage adresas) - rodomas pavyzdinis paveikslas
   await page.route(`${SB_URL}/storage/v1/object/public/**`, rt => rt.fulfill({ path: path.join(root, "src/public/og/home.jpg"), contentType: "image/jpeg" }));
   await page.route(/plausible\.io|omniva\.ee/, rt => rt.abort());
   if (token) await page.addInitScript(t => localStorage.setItem("vaidore_auth_v1", JSON.stringify({ access_token: t, refresh_token: "r", expires_at: 4e9 })), token);
@@ -91,17 +91,17 @@ const until = async (fn, ms = 4000) => {
 const toastHas = (page, txt) => until(async () => (await page.locator(".toast").allTextContents()).some(t => t.includes(txt)));
 
 // ── Kompiuteris ─────────────────────────────────────────
-console.log("\n— kompiuteris 1440×900 —");
+console.log("\n- kompiuteris 1440×900 -");
 let page = await newPage({ width: 1440, height: 900 });
 await page.goto(`${BASE}paskyra`);
 await page.fill('.authForm input[name="email"]', ADMIN.email);
 await page.fill('.authForm input[name="password"]', ADMIN.password);
 await page.click(".authForm button[type=submit]");
 await page.waitForSelector(".accNav .accAdmin");
-check(true, "prisijungus administratoriumi – paskyroje „Administravimas“");
+check(true, "prisijungus administratoriumi - paskyroje „Administravimas“");
 await page.click(".accNav .accAdmin");
 await page.waitForSelector(".admKpi");
-check(!(await page.locator(".hdr").isVisible()) && (await page.locator(".axSide").isVisible()) && !(await page.locator(".axTabs").isVisible()), "administravime – be parduotuvės header'io; kompiuteryje – šoninis meniu");
+check(!(await page.locator(".hdr").isVisible()) && (await page.locator(".axSide").isVisible()) && !(await page.locator(".axTabs").isVisible()), "administravime - be parduotuvės header'io; kompiuteryje - šoninis meniu");
 check((await page.locator(".admKpi").count()) === 4, "Šiandien: 4 rodikliai");
 check(await until(async () => (await page.locator('.axNav [data-adm-count="orders"]').textContent()) === "2"), "meniu: 2 užsakymai laukia");
 check((await page.locator("#admMain").textContent()).includes("Užpildykite įmonės rekvizitus"), "Šiandien: priminimas užpildyti rekvizitus");
@@ -115,25 +115,25 @@ await page.waitForURL(/\/admin\/nustatymai\/imone$/);
 check(true, "senas adresas admin/nustatymai#imone → admin/nustatymai/imone");
 await settled(page);
 
-// Užsakymai: sąrašas ir užsakymo ekranas (kompiuteryje – greta)
+// Užsakymai: sąrašas ir užsakymo ekranas (kompiuteryje - greta)
 await go(page, "admin/uzsakymai");
 const orderRows = () => page.locator("#ordersList .axCell[data-order]").count();
-check((await orderRows()) === 2, "užsakymai: „Laukia“ – 2");
+check((await orderRows()) === 2, "užsakymai: „Laukia“ - 2");
 await page.click('.axCell[data-order="AB12CD01"] .axRow');
 await page.waitForSelector('#admDetail .axOrder[data-order="AB12CD01"]');
 check((await page.locator("#admDetail").textContent()).includes("Su gimtadieniu!") && (await page.locator('#ordersList .axRow[aria-current="page"]').count()) === 1, "užsakymas: atidarytas šalia sąrašo, dovanų rašteliukas matomas");
 await page.click('#admDetail [data-oa="packed"]');
-check(await until(() => sb.db.orders[0].status === "packed"), "„Supakuota“ – būsena duomenų bazėje");
+check(await until(() => sb.db.orders[0].status === "packed"), "„Supakuota“ - būsena duomenų bazėje");
 await page.click('#admDetail [data-oa="ship"]');
 await page.fill('#sheetBody input[name="tracking"]', "CE123456789EE");
 await page.click("#sheetBody button[type=submit]");
-check(await until(() => sb.db.orders[0].status === "shipped"), "„Išsiųsta“ – būsena");
+check(await until(() => sb.db.orders[0].status === "shipped"), "„Išsiųsta“ - būsena");
 const shipCall = sb.calls.find(c => c.name === "admin" && c.body.action === "ship");
-check(shipCall?.body.tracking === "CE123456789EE" && shipCall.user === ADMIN.email, "„Išsiųsta“ – siuntos nr. perduotas serveriui (laiškas pirkėjui)");
+check(shipCall?.body.tracking === "CE123456789EE" && shipCall.user === ADMIN.email, "„Išsiųsta“ - siuntos nr. perduotas serveriui (laiškas pirkėjui)");
 check(await toastHas(page, "laiškas"), "pranešimas: pirkėjui išsiųstas laiškas");
-check(await until(async () => (await orderRows()) === 1), "„Laukia“ – liko 1");
+check(await until(async () => (await orderRows()) === 1), "„Laukia“ - liko 1");
 await page.click('[data-of="visi"]');
-check((await orderRows()) === 4, "„Visi“ – 4");
+check((await orderRows()) === 4, "„Visi“ - 4");
 await page.fill("#ordersQ", "ieva");
 check((await orderRows()) === 1, "paieška pagal vardą");
 await page.fill("#ordersQ", "");
@@ -144,31 +144,31 @@ await page.click('.axCell[data-order="AB12CD03"] .axRow');
 await page.waitForSelector('#admDetail .axOrder[data-order="AB12CD03"]');
 await page.click('#admDetail [data-oa="refund"]');
 await page.click("[data-confirm-ok]");
-check(await until(() => sb.db.orders[2].status === "refunded"), "„Grąžinti pinigus“ – patvirtinus, per serverį");
-check(sb.calls.some(c => c.body?.action === "refund"), "grąžinimas – Stripe veiksmas serveryje");
+check(await until(() => sb.db.orders[2].status === "refunded"), "„Grąžinti pinigus“ - patvirtinus, per serverį");
+check(sb.calls.some(c => c.body?.action === "refund"), "grąžinimas - Stripe veiksmas serveryje");
 await shot(page, "uzsakymai");
 
-// Produktai: greiti veiksmai – kontekstinis meniu (telefone – braukiant)
+// Produktai: greiti veiksmai - kontekstinis meniu (telefone - braukiant)
 await go(page, "admin/kvapai");
 const prodRows = () => page.locator("#prodList .axCell[data-pid]").count();
 check((await prodRows()) === cat.products.length, `produktai: ${cat.products.length}`);
-check((await page.locator("#prodList input").count()) === 0, "sąraše – be laukelių (likutis ir rodymas – veiksmuose)");
+check((await page.locator("#prodList input").count()) === 0, "sąraše - be laukelių (likutis ir rodymas - veiksmuose)");
 await rowAct(page, '.axCell[data-pid="arven"]', "stock");
 await page.fill("#sheetBody input[name=stock]", "5");
 await page.click("#sheetBody button[type=submit]");
 check(await until(() => sb.db.products.find(p => p.id === "arven").stock === 5), "likutis pakeistas (kontekstinis meniu → likutis)");
 await page.locator(".toast button", { hasText: "Pranešti" }).click({ timeout: 5000 });
-check(await until(() => sb.calls.some(c => c.body?.action === "restock-notify" && c.body.product_id === "arven")), "vėl turint – „Pranešti“ laukiantiems");
+check(await until(() => sb.calls.some(c => c.body?.action === "restock-notify" && c.body.product_id === "arven")), "vėl turint - „Pranešti“ laukiantiems");
 await rowAct(page, '.axCell[data-pid="aurum"]', "visible");
 check(await until(() => sb.db.products.find(p => p.id === "aurum").visible === false), "produktas paslėptas iškart");
-check(await toastHas(page, "Atšaukti") || true, "paslėpus – „Atšaukti“ pranešime");
+check(await toastHas(page, "Atšaukti") || true, "paslėpus - „Atšaukti“ pranešime");
 await page.click('[data-pf="paslepti"]');
 check((await prodRows()) === 1, "filtras „Paslėpti“");
 await page.click('[data-pf="visi"]');
 await page.fill("#prodQ", "tabako");
 check((await prodRows()) >= 1 && (await page.locator('.axCell[data-pid="vanor"]').count()) === 1, "paieška pagal natą");
 await page.fill("#prodQ", "");
-// Filtrai (v20): Kategorija, Originalas, Kam, Kvapo šeima, Kolekcija – pasirenkama apatiniame lape
+// Filtrai (v20): Kategorija, Originalas, Kam, Kvapo šeima, Kolekcija - pasirenkama apatiniame lape
 const facet = async (k, v) => {
   await page.click(`#prodFacets [data-facet="${k}"]`);
   await page.click(`#sheetBody [data-sheet-act="${v}"]`);
@@ -178,27 +178,27 @@ check((await page.locator("#prodFacets [data-facet]").allTextContents()).join("|
 await facet("gender", "v:unisex");
 check((await prodRows()) === cat.products.filter(p => p.gender === "unisex").length && (await page.locator('#prodFacets [data-facet="gender"].on').textContent()) === "Unisex", "filtras „Kam“: Unisex");
 await facet("gender", "__all");
-await facet("inspired", "v:Dior – Sauvage");
-check((await prodRows()) === 1 && (await page.locator('.axCell[data-pid="arven"]').count()) === 1, "filtras „Originalas“: Dior – Sauvage");
+await facet("inspired", "v:Dior - Sauvage");
+check((await prodRows()) === 1 && (await page.locator('.axCell[data-pid="arven"]').count()) === 1, "filtras „Originalas“: Dior - Sauvage");
 check((await page.locator('#prodFacets [data-facet="type"]').count()) === 0, "„Kategorija“ nerodoma, kai visi produktai vienos kategorijos");
 await facet("family", `v:${cat.products.find(p => p.id === "arven").family}`);
 check((await prodRows()) === 1 && (await page.locator("#prodFacets [data-facet-clear]").count()) === 1, "filtrai derinami, yra „Išvalyti“");
 await page.click("#prodFacets [data-facet-clear]");
-check((await prodRows()) === cat.products.length, "„Išvalyti“ – vėl visi produktai");
+check((await prodRows()) === cat.products.length, "„Išvalyti“ - vėl visi produktai");
 
-// Redagavimas (kompiuteryje – šalia sąrašo; ilgesnės dalys – vidiniuose ekranuose)
+// Redagavimas (kompiuteryje - šalia sąrašo; ilgesnės dalys - vidiniuose ekranuose)
 await page.click('.axCell[data-pid="vanor"] .axRow');
 await page.waitForSelector("#admDetail #prodForm");
 check((await page.locator("#prodList").count()) === 1 && (await page.locator('#prodList .axRow[aria-current="page"]').count()) === 1, "produktas atidarytas šalia sąrašo (split view)");
-check(await page.locator('.axSave[form="prodForm"]').isDisabled(), "„Išsaugoti“ – neaktyvus, kol nėra pakeitimų");
+check(await page.locator('.axSave[form="prodForm"]').isDisabled(), "„Išsaugoti“ - neaktyvus, kol nėra pakeitimų");
 check((await page.locator('#prodForm input[name="id"]').getAttribute("readonly")) !== null, "esamo produkto adresas nekeičiamas");
 await push(page, "aprasymas");
 check(await page.locator('#prodForm [data-pane="aprasymas"]').isVisible() && (await page.locator(".axPop:visible").count()) === 1, "vidinis ekranas „Aprašymas“ ir „‹ Atgal“");
-await page.fill('#prodForm input[name="tagline"]', "Ryto gaiva – nauja");
-check(await page.locator('.axSave[form="prodForm"]').isEnabled(), "pakeitus – „Išsaugoti“ aktyvus");
+await page.fill('#prodForm input[name="tagline"]', "Ryto gaiva - nauja");
+check(await page.locator('.axSave[form="prodForm"]').isEnabled(), "pakeitus - „Išsaugoti“ aktyvus");
 await pop(page);
-check(await until(async () => (await page.locator('[data-sum="aprasymas"]').textContent()).includes("Ryto gaiva")), "grįžus – eilutėje matoma santrauka");
-check((await page.locator(".admSizeMl").allTextContents()).join() === "33 ml,100 ml", "talpos – tik 33 ml ir 100 ml (fiksuotos eilutės)");
+check(await until(async () => (await page.locator('[data-sum="aprasymas"]').textContent()).includes("Ryto gaiva")), "grįžus - eilutėje matoma santrauka");
+check((await page.locator(".admSizeMl").allTextContents()).join() === "33 ml,100 ml", "talpos - tik 33 ml ir 100 ml (fiksuotos eilutės)");
 check((await page.locator("[data-size-add], [data-size-rm]").count()) === 0, "talpų pridėti / šalinti negalima");
 await page.selectOption('#prodForm select[name="type"]', "difuzoriai");
 check(
@@ -206,7 +206,7 @@ check(
   "kategorija „Difuzoriai“: laisvas tūris, be lyties / koncentracijos / mėginuko"
 );
 await page.selectOption('#prodForm select[name="type"]', "kvepalai");
-check((await page.locator(".admSizeMl").allTextContents()).join() === "33 ml,100 ml" && (await page.locator("#prodForm .perfOnly[hidden]").count()) === 0, "atgal į „Kvepalai“ – 33 ml ir 100 ml");
+check((await page.locator(".admSizeMl").allTextContents()).join() === "33 ml,100 ml" && (await page.locator("#prodForm .perfOnly[hidden]").count()) === 0, "atgal į „Kvepalai“ - 33 ml ir 100 ml");
 await page.locator("[data-size-price]").nth(1).fill("69,50");
 await push(page, "kolekcijos");
 await page.locator('.admCheck:has(input[value="vasaros-gaiva"])').click();
@@ -215,10 +215,10 @@ await pop(page);
 const imgs0 = sb.db.products.find(x => x.id === "vanor").images.length;
 await page.setInputFiles("[data-img-input]", path.join(root, "src/public/icons/icon-512.png"));
 check(await until(async () => (await page.locator(".admImg").count()) === imgs0 + 1), "nuotrauka pridėta prie esamų");
-check(sb.uploads.length === 1 && sb.uploads[0].type === "image/jpeg" && /\.jpg$/.test(sb.uploads[0].path), "nuotrauka su fonu – sumažinta, JPEG (parduotuvėje be šešėlio)");
+check(sb.uploads.length === 1 && sb.uploads[0].type === "image/jpeg" && /\.jpg$/.test(sb.uploads[0].path), "nuotrauka su fonu - sumažinta, JPEG (parduotuvėje be šešėlio)");
 await page.setInputFiles("[data-img-input]", path.join(root, "src/public/img/kvapai/arven-1.webp"));
 check(await until(() => sb.uploads.length === 2), "permatoma nuotrauka įkelta");
-check(sb.uploads[1].type === "image/webp" && /\.webp$/.test(sb.uploads[1].path), "permatoma nuotrauka – WebP (fonas lieka permatomas)");
+check(sb.uploads[1].type === "image/webp" && /\.webp$/.test(sb.uploads[1].path), "permatoma nuotrauka - WebP (fonas lieka permatomas)");
 await page.locator(`.admImg[data-img-i="${imgs0 + 1}"] img`).click();
 await page.click('[data-sheet-act="first"]');
 check(await until(async () => (await page.locator(".admImg").first().locator("img").getAttribute("src")).includes(".webp")), "nuotrauka padaryta pagrindine (veiksmų lapas)");
@@ -227,7 +227,7 @@ await page.click('.axSave[form="prodForm"]');
 check(
   await until(() => {
     const p = sb.db.products.find(x => x.id === "vanor");
-    return p.tagline === "Ryto gaiva – nauja" && p.images.length === imgs0 + 1 && /\.jpg$/.test(p.images.at(-1));
+    return p.tagline === "Ryto gaiva - nauja" && p.images.length === imgs0 + 1 && /\.jpg$/.test(p.images.at(-1));
   }),
   "produktas išsaugotas (nuotraukų eilė)"
 );
@@ -235,18 +235,18 @@ const vanor = sb.db.products.find(x => x.id === "vanor");
 check(JSON.stringify(vanor.sizes) === JSON.stringify([{ ml: 33, price: 29.9 }, { ml: 100, price: 69.5 }]), "talpos: 33 ml ir 100 ml, kaina su kableliu");
 const rasaCats = () => sb.db.product_categories.filter(l => l.product_id === "vanor").map(l => l.category_id);
 check(await until(() => rasaCats().sort().join() === "vasaros-gaiva,ziemos-kolekcija"), "kolekcijos atnaujintos");
-check(await toastHas(page, "Atnaujinti svetainę"), "po išsaugojimo – pasiūlymas atnaujinti svetainę");
+check(await toastHas(page, "Atnaujinti svetainę"), "po išsaugojimo - pasiūlymas atnaujinti svetainę");
 // Neišsaugoti pakeitimai
 await push(page, "aprasymas");
 await page.fill('#prodForm input[name="tagline"]', "neišsaugota");
 await page.click('.axNav a[href="admin"]');
 await page.waitForTimeout(300);
-check(page.url().endsWith("/admin/kvapai/vanor"), "neišsaugoti pakeitimai – perspėjama prieš išeinant");
+check(page.url().endsWith("/admin/kvapai/vanor"), "neišsaugoti pakeitimai - perspėjama prieš išeinant");
 // Naujas produktas
 await page.goto(`${BASE}admin/kvapai/naujas`);
 await page.waitForSelector("#prodForm");
 await page.click('.axSave[form="prodForm"]');
-check((await page.locator("#prodForm .formErr").textContent()).includes("pavadinimą") && (await page.locator("#prodForm .formErr").isVisible()), "naujas produktas: tuščia forma – klaidos viršuje");
+check((await page.locator("#prodForm .formErr").textContent()).includes("pavadinimą") && (await page.locator("#prodForm .formErr").isVisible()), "naujas produktas: tuščia forma - klaidos viršuje");
 await page.fill('#prodForm input[name="name"]', "Šilko rytas");
 check((await page.inputValue('#prodForm input[name="id"]')) === "silko-rytas", "adresas sudaromas iš pavadinimo");
 await push(page, "natos");
@@ -273,7 +273,7 @@ await page.fill("#afText", fs.readFileSync(path.join(root, "tools/fixtures/autof
 await page.click("[data-af-run]");
 await page.waitForSelector("#afPrev:not([hidden]) [data-af-apply]");
 const fv = n => page.inputValue(`#prodForm [name="${n}"]`);
-check((await fv("name")) === "" && (await page.locator("#afPrev dt").count()) >= 5 && (await page.locator("#afPrev").textContent()).includes("My Pink"), "automatinis užpildymas: pirma – peržiūra, ką įrašys (forma dar nepakeista)");
+check((await fv("name")) === "" && (await page.locator("#afPrev dt").count()) >= 5 && (await page.locator("#afPrev").textContent()).includes("My Pink"), "automatinis užpildymas: pirma - peržiūra, ką įrašys (forma dar nepakeista)");
 if (shots) {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: path.join(shotDir, "admin-automatinis-tel.png") });
@@ -286,31 +286,31 @@ check(
   (await fv("name")) === "My Pink" && (await fv("id")) === "my-pink" && (await fv("type")) === "kvepalai" && (await fv("gender")) === "moterims" && (await fv("conc")) === "EDP" && (await fv("family")) === "geliu",
   "automatinis užpildymas: pavadinimas, adresas, kategorija, lytis, koncentracija, šeima"
 );
-check((await fv("top")) === "Bergamotė, Apelsinmedžio žiedai" && (await fv("base")) === "Kreminė vanilė, Baltasis muskusas, Medienos natos" && (await fv("description")).startsWith("My Pink – "), "automatinis užpildymas: natos ir aprašymas lietuviškai");
+check((await fv("top")) === "Bergamotė, Apelsinmedžio žiedai" && (await fv("base")) === "Kreminė vanilė, Baltasis muskusas, Medienos natos" && (await fv("description")).startsWith("My Pink - "), "automatinis užpildymas: natos ir aprašymas lietuviškai");
 check((await page.locator("#prodForm .afAuto").count()) >= 8, "automatinis užpildymas: „Auto“ žymos");
-check((await page.locator('#prodForm input[name="seasons"], #prodForm input[name="times"], #prodForm input[name="occasions"]').count()) === 0 && !(await page.locator("#prodForm").textContent()).includes("Kada tinka"), "produkto formoje – be „Kada tinka“ (sezonai, paros metas, progos)");
-check((await page.locator('#prodForm [data-push="natos"].afAuto').count()) === 1, "„Auto“ žyma – ir eilutėje į vidinį ekraną");
+check((await page.locator('#prodForm input[name="seasons"], #prodForm input[name="times"], #prodForm input[name="occasions"]').count()) === 0 && !(await page.locator("#prodForm").textContent()).includes("Kada tinka"), "produkto formoje - be „Kada tinka“ (sezonai, paros metas, progos)");
+check((await page.locator('#prodForm [data-push="natos"].afAuto').count()) === 1, "„Auto“ žyma - ir eilutėje į vidinį ekraną");
 const chips = async () => (await page.locator("[data-af-go]").allTextContents()).join("|");
 check((await chips()) === "Kaina|Likutis|Nuotraukos|Originalo kvapas", "„Liko užpildyti“: Kaina, Likutis, Nuotraukos, Originalo kvapas");
 check(!sb.db.products.some(p => p.id === "my-pink"), "automatinis užpildymas: be „Sukurti“ niekas neišsaugoma");
 await page.click('[data-af-go="price"]');
-check(await until(async () => await page.evaluate(() => document.activeElement?.matches("[data-size-price]"))), "„Liko užpildyti“: paspaudus – fokusas į kainą");
+check(await until(async () => await page.evaluate(() => document.activeElement?.matches("[data-size-price]"))), "„Liko užpildyti“: paspaudus - fokusas į kainą");
 await page.locator("[data-size-price]").first().fill("24,90");
-check(!(await chips()).includes("Kaina"), "„Liko užpildyti“: įrašius kainą – dingsta");
+check(!(await chips()).includes("Kaina"), "„Liko užpildyti“: įrašius kainą - dingsta");
 await push(page, "aprasymas");
 await page.fill('#prodForm input[name="tagline"]', "Bergamotė, tuberozė ir vanilė");
-check((await page.locator('#prodForm input[name="tagline"]').locator("xpath=..").getAttribute("class")).includes("afAuto") === false, "pakeitus lauką – „Auto“ žyma dingsta");
+check((await page.locator('#prodForm input[name="tagline"]').locator("xpath=..").getAttribute("class")).includes("afAuto") === false, "pakeitus lauką - „Auto“ žyma dingsta");
 await pop(page);
 await shot(page, "automatinis");
 await page.click('.axSave[form="prodForm"]');
 await page.waitForURL(/\/admin\/kvapai\/my-pink$/);
 check(await until(() => sb.db.products.find(p => p.id === "my-pink")?.scent_id === "my-pink" && sb.db.scents.find(x => x.id === "my-pink")?.notes.heart.join() === "Tuberozė,Jazminas"), "išsaugota: produktas ir kvapas „My Pink“");
-// Antras to paties kvapo produktas – žvakė: pasirinktas kvapas (iškart) + trumpas aprašymas
+// Antras to paties kvapo produktas - žvakė: pasirinktas kvapas (iškart) + trumpas aprašymas
 await page.goto(`${BASE}admin/kvapai/naujas`);
 await page.waitForSelector("#prodForm");
 await push(page, "af");
 await page.selectOption("#afScent", "my-pink");
-check(await until(async () => (await fv("top")) === "Bergamotė, Apelsinmedžio žiedai" && (await fv("gender")) === "moterims" && (await page.locator('[data-pane="main"]').isVisible())), "pasirinkus kvapą – laukai užpildomi iškart, grįžtama į formą");
+check(await until(async () => (await fv("top")) === "Bergamotė, Apelsinmedžio žiedai" && (await fv("gender")) === "moterims" && (await page.locator('[data-pane="main"]').isVisible())), "pasirinkus kvapą - laukai užpildomi iškart, grįžtama į formą");
 await push(page, "af");
 await page.fill("#afText", "Świeca sojowa 180 g, czas palenia 40 h");
 await page.click("[data-af-run]");
@@ -327,12 +327,12 @@ await page.waitForURL(/\/admin\/kvapai\/kvapni-zvake-my-pink$/);
 const cdl = sb.db.products.find(p => p.id === "kvapni-zvake-my-pink");
 check(cdl?.type === "zvakes" && cdl.scent_id === "my-pink" && JSON.stringify(cdl.sizes) === JSON.stringify([{ ml: 180, price: 19.9, unit: "g" }]) && cdl.attrs.burn === 40 && cdl.sample === 0, "žvakė išsaugota: susieta su kvapu, 180 g, savybės");
 check(sb.db.scents.filter(x => x.name === "My Pink").length === 1, "žvakė: naujas kvapas nesukurtas (naudojamas esamas)");
-// Elektrinis difuzorius – be kvapo laukų
+// Elektrinis difuzorius - be kvapo laukų
 await page.waitForSelector('#prodForm select[name="type"]');
 await page.selectOption('#prodForm select[name="type"]', "elektriniai-difuzoriai");
 check((await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.locator('#prodForm [data-attr="tank"]').count()) === 1 && (await page.locator(".admSizeMl").textContent()) === "1 vnt.", "elektrinis difuzorius: be kvapo laukų, savybės ir „1 vnt.“");
 await page.selectOption('#prodForm select[name="type"]', "zvakes");
-// Kategorijos pasirinkimas naujam produktui: forma pagal kategoriją (?kategorija= – parenkama iš karto)
+// Kategorijos pasirinkimas naujam produktui: forma pagal kategoriją (?kategorija= - parenkama iš karto)
 await page.goto(`${BASE}admin/kvapai/naujas?kategorija=zvakes`);
 await page.waitForSelector("[data-pick-type]");
 check(
@@ -343,17 +343,17 @@ check(
     (await page.locator('[data-tf="notes"]').textContent()) === "Kvapas" &&
     (await page.locator('#prodForm [data-attr="burn"]').count()) === 1 &&
     (await page.locator('#prodForm [name="longevity"], #prodForm [name="sillage"]').count()) === 0,
-  "kategorijos pasirinkimas: žvakė – svoris, sudėtis, degimo trukmė, be ilgaamžiškumo ir sklaidos"
+  "kategorijos pasirinkimas: žvakė - svoris, sudėtis, degimo trukmė, be ilgaamžiškumo ir sklaidos"
 );
 await page.click('[data-pick-type="elektriniai-difuzoriai"]');
 check(
   (await page.locator('[data-tf-box="inci"]').isHidden()) && (await page.locator("#prodForm #bottlePrev").isHidden()) && (await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.inputValue("#prodForm [name=type]")) === "elektriniai-difuzoriai" && (await page.locator("#prodForm [name=cats]:visible").count()) === 0 && (await page.locator('#prodForm [data-attr="area"], #prodForm [data-attr="power"]').count()) === 0,
-  "kategorijos pasirinkimas: elektrinis difuzorius – be kvapo, sudėties, buteliuko, kolekcijų, ploto ir maitinimo"
+  "kategorijos pasirinkimas: elektrinis difuzorius - be kvapo, sudėties, buteliuko, kolekcijų, ploto ir maitinimo"
 );
 await page.click('[data-pick-type="kvepalai"]');
 check(
   (await page.getAttribute('#prodForm [name="name"]', "placeholder")).includes("VANOR") && (await page.locator('[data-tf="inci"]').textContent()) === "Ingredientai (INCI)" && !(await page.locator('#prodForm select[name="conc"]').isHidden()) && (await page.locator("#prodForm .field small").count()) === 0,
-  "kategorijos pasirinkimas: kvepalai – koncentracija, ingredientai; be paaiškinimų po laukais"
+  "kategorijos pasirinkimas: kvepalai - koncentracija, ingredientai; be paaiškinimų po laukais"
 );
 if (shots) {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -368,13 +368,13 @@ await settled(page);
 check((await page.locator('.axNav a[href="admin/kvapu-sarasas"]').count()) === 1, "meniu: Katalogas → Produktai, Kvapai, Kategorijos");
 await page.click('.axNav a[href="admin/kvapu-sarasas"]');
 await page.waitForSelector('[data-scent-row="my-pink"]');
-check((await page.locator('[data-scent-row="my-pink"]').textContent()).includes("2 produktai"), "kvapai: My Pink – 2 produktai");
+check((await page.locator('[data-scent-row="my-pink"]').textContent()).includes("2 produktai"), "kvapai: My Pink - 2 produktai");
 await page.fill("#scentQ", "tuber");
 check(await until(async () => (await page.locator("[data-scent-row]").count()) === 1), "kvapai: paieška pagal natą");
 await page.click('[data-scent-row="my-pink"]');
 await page.waitForSelector("#scentForm");
 check((await page.locator(".scLinked a.axRow:not(.scNewProd)").count()) === 2, "kvapas: susieti produktai (kvepalai ir žvakė)");
-await page.fill('#scentForm input[name="inspired"]', "Emporio Armani – My Way");
+await page.fill('#scentForm input[name="inspired"]', "Emporio Armani - My Way");
 // Originalo nuotrauka (v18): įkeliama kvape, pritaikoma susietiems produktams
 await page.setInputFiles("#scentForm [data-insp-img]", path.join(root, "src/public/img/kvapai/arven-1.webp"));
 await page.waitForSelector("#scentForm .axInspPrev img");
@@ -384,8 +384,8 @@ await page.click('.axSave[form="scentForm"]');
 check(
   await until(
     () =>
-      sb.db.scents.find(x => x.id === "my-pink").inspired === "Emporio Armani – My Way" &&
-      ["my-pink", "kvapni-zvake-my-pink"].every(id => sb.db.products.find(p => p.id === id).inspired === "Emporio Armani – My Way" && sb.db.products.find(p => p.id === id).notes.heart.length === 3)
+      sb.db.scents.find(x => x.id === "my-pink").inspired === "Emporio Armani - My Way" &&
+      ["my-pink", "kvapni-zvake-my-pink"].every(id => sb.db.products.find(p => p.id === id).inspired === "Emporio Armani - My Way" && sb.db.products.find(p => p.id === id).notes.heart.length === 3)
   ),
   "kvapas: originalas ir natos pakeisti kvape ir abiejuose susietuose produktuose"
 );
@@ -395,14 +395,14 @@ check(
 );
 await page.goto(`${BASE}admin/kvapai/my-pink`);
 await page.waitForSelector("#prodForm #pInsp .scOrig img");
-check((await page.locator('#prodForm #pInsp a[href="admin/kvapu-sarasas/my-pink"]').count()) === 1, "produkto formoje – originalo miniatiūra ir „Keisti kvape“");
-check((await page.locator("#prodForm [data-insp-img], #prodForm [data-insp-rm]").count()) === 0, "produkto formoje originalo nuotraukos įkelti negalima – tik kvape");
+check((await page.locator('#prodForm #pInsp a[href="admin/kvapu-sarasas/my-pink"]').count()) === 1, "produkto formoje - originalo miniatiūra ir „Keisti kvape“");
+check((await page.locator("#prodForm [data-insp-img], #prodForm [data-insp-rm]").count()) === 0, "produkto formoje originalo nuotraukos įkelti negalima - tik kvape");
 await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
 await page.waitForSelector("#scentForm [data-insp-rm]");
 await page.click("#scentForm [data-insp-rm]");
 await page.click('.axSave[form="scentForm"]');
 check(await until(() => sb.db.scents.find(x => x.id === "my-pink").inspired_image === "" && sb.db.products.find(p => p.id === "my-pink").inspired_image === ""), "originalo nuotrauka pašalinta (ir produktuose)");
-// Kvapų lentelėje dar nėra stulpelio inspired_image (migracija nepaleista) – nuotrauka vis tiek įkeliama kvape ir
+// Kvapų lentelėje dar nėra stulpelio inspired_image (migracija nepaleista) - nuotrauka vis tiek įkeliama kvape ir
 // išsaugoma susietuose produktuose, net išjungus „Pakeitimus pritaikyti ir produktams“
 for (const x of sb.db.scents) delete x.inspired_image;
 await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
@@ -415,19 +415,19 @@ check(
   await until(() => ["my-pink", "kvapni-zvake-my-pink"].every(id => /originalai\/my-pink/.test(sb.db.products.find(p => p.id === id).inspired_image)) && !("inspired_image" in sb.db.scents.find(x => x.id === "my-pink"))),
   "be kvapų stulpelio: originalo nuotrauka įkelta kvape ir išsaugota susietuose produktuose"
 );
-check(await until(async () => (await page.locator('[data-scent-row="my-pink"] .scOrig img').count()) === 1), "kvapų sąraše – originalo miniatiūra (iš produkto)");
+check(await until(async () => (await page.locator('[data-scent-row="my-pink"] .scOrig img').count()) === 1), "kvapų sąraše - originalo miniatiūra (iš produkto)");
 await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
 await page.waitForSelector("#scentForm .axInspPrev img");
 for (const x of sb.db.scents) x.inspired_image = x.id === "my-pink" ? sb.db.products.find(p => p.id === "my-pink").inspired_image : "";
 // Naujas kvapas iš aprašymo
 await page.goto(`${BASE}admin/kvapu-sarasas/naujas`);
 await page.waitForSelector("#afText");
-await page.fill("#afText", "VELVET NIGHT Eau de Parfum for men 100 ml – inspired by Dior Sauvage\nFragrance notes: bergamot, pink pepper, lavender, geranium, ambroxan, cedar, vetiver\nFragrance family: aromatic fougere");
+await page.fill("#afText", "VELVET NIGHT Eau de Parfum for men 100 ml - inspired by Dior Sauvage\nFragrance notes: bergamot, pink pepper, lavender, geranium, ambroxan, cedar, vetiver\nFragrance family: aromatic fougere");
 await page.click("[data-af-run]");
 const sv = n => page.inputValue(`#scentForm [name="${n}"]`);
 check(
   await until(async () => (await sv("name")) === "Velvet Night" && (await sv("id")) === "velvet-night" && (await sv("inspired")) === "Dior Sauvage" && (await sv("gender")) === "vyrams" && (await sv("family")) === "sviezi"),
-  "naujas kvapas: iš aprašymo – pavadinimas, adresas, originalas, lytis, šeima"
+  "naujas kvapas: iš aprašymo - pavadinimas, adresas, originalas, lytis, šeima"
 );
 check((await sv("top")).startsWith("Bergamotė") && (await page.locator("#scentForm .afAuto").count()) >= 6, "naujas kvapas: natos lietuviškai, „Auto“ žymos");
 check(!sb.db.scents.some(x => x.id === "velvet-night"), "naujas kvapas: be „Sukurti“ neišsaugoma");
@@ -442,12 +442,12 @@ await page.click('.axSave[form="scentForm"]');
 await page.waitForURL(/\/admin\/kvapu-sarasas\/velvet-night$/);
 check(sb.db.scents.find(x => x.id === "velvet-night")?.notes.top.includes("Bergamotė"), "naujas kvapas sukurtas");
 check(await until(async () => (await page.locator('[data-scent-row="velvet-night"]').count()) === 1), "naujas kvapas iškart sąraše");
-// Naujas produktas su šiuo kvapu – kvapas parinktas, laukai užpildyti
+// Naujas produktas su šiuo kvapu - kvapas parinktas, laukai užpildyti
 await page.click(".scNewProd");
 await page.waitForSelector("#prodForm");
 check(
   await until(async () => (await page.inputValue("#afScent")) === "velvet-night" && (await page.inputValue('#prodForm [name="name"]')) === "Velvet Night" && (await page.inputValue('#prodForm [name="inspired"]')) === "Dior Sauvage"),
-  "„Naujas produktas su šiuo kvapu“ – kvapas parinktas, laukai užpildyti"
+  "„Naujas produktas su šiuo kvapu“ - kvapas parinktas, laukai užpildyti"
 );
 // Ištrynimas: produktai lieka, tik atsiejami
 await page.goto(`${BASE}admin/kvapu-sarasas/silko-rytas`);
@@ -464,7 +464,7 @@ await page.waitForSelector('a[href="admin/kvapai/naujas"]');
 check((await page.locator('a[href="admin/kvapai/importas"]').count()) === 0, "produktai: be „Iš Allegro“ mygtuko");
 await page.goto(`${BASE}admin/kvapai/silko-rytas`);
 await page.waitForSelector("#prodForm");
-// Parduotuvėje – iškart (be perrinkimo): 404.html + šviežias katalogas
+// Parduotuvėje - iškart (be perrinkimo): 404.html + šviežias katalogas
 const shop = await newPage({ width: 1440, height: 900 });
 await shop.goto(`${BASE}kvepalai/silko-rytas`);
 await shop.waitForFunction(() => document.title.includes("Šilko rytas"), null, { timeout: 6000 }).catch(() => {});
@@ -479,14 +479,14 @@ await page.click("[data-confirm-ok]");
 await page.waitForURL(/\/admin\/kvapai$/);
 check(!sb.db.products.some(p => p.id === "silko-rytas") && (await page.locator('#prodList .axCell[data-pid="silko-rytas"]').count()) === 0, "produktas ištrintas (patvirtinus), dingo iš sąrašo");
 
-// v29: Natų biblioteka – ingredientų nuotraukos iš tikrų produktų nuotraukų (Katalogas → Natos)
+// v29: Natų biblioteka - ingredientų nuotraukos iš tikrų produktų nuotraukų (Katalogas → Natos)
 await go(page, "admin/natos");
 await page.waitForSelector("[data-note-open]");
 check((await page.locator('.axNav a[href="admin/natos"]').count()) === 1, "meniu: Katalogas → Natos");
 const vanRow = page.locator('[data-note-open="Vanilė"]');
 check(
   (await vanRow.locator(".ntThumb img").getAttribute("src")) === "img/natos/vanile.webp" && (await vanRow.textContent()).includes("Vaidore nuotrauka"),
-  "natos: Vanilė – numatyta tikra ingrediento nuotrauka (iš Vaidore produktų nuotraukų)"
+  "natos: Vanilė - numatyta tikra ingrediento nuotrauka (iš Vaidore produktų nuotraukų)"
 );
 await page.click('[data-note-f="be"]');
 check(await until(async () => (await page.locator("[data-note-open]").count()) > 0 && (await page.locator("[data-note-open] .ntThumb img").count()) === 0), "natos: filtras „Be nuotraukos“");
@@ -497,7 +497,7 @@ await page.waitForSelector('[data-pane="pick"]:not([hidden]) .ntPick');
 check((await page.locator('[data-pane="pick"] .igHead').first().textContent()) === "Prekės su šia nata", "natos: pirmiausia siūlomos prekių su šia nata nuotraukos");
 await page.locator('[data-pane="pick"] .ntPick').first().click();
 await page.waitForSelector("[data-crop-save]:not([disabled])");
-// Nuotrauka tempiama pele ir didinama slankikliu – apskritimas lieka vietoje
+// Nuotrauka tempiama pele ir didinama slankikliu - apskritimas lieka vietoje
 const cropBox = await page.locator("[data-crop]").boundingBox();
 const tf0 = await page.locator("[data-crop] img").evaluate(el => el.style.transform);
 await page.mouse.move(cropBox.x + cropBox.width / 2, cropBox.y + cropBox.height / 2);
@@ -508,7 +508,7 @@ await page.locator("[data-zoom-in]").evaluate(el => {
   el.value = "3";
   el.dispatchEvent(new Event("input", { bubbles: true }));
 });
-check((await page.locator("[data-crop] img").evaluate(el => el.style.transform)) !== tf0, "natos: iškirpimas – tempiama ir didinama");
+check((await page.locator("[data-crop] img").evaluate(el => el.style.transform)) !== tf0, "natos: iškirpimas - tempiama ir didinama");
 await page.click("[data-crop-save]");
 check(
   await until(() => sb.db.note_media.some(n => n.name === "Tabako lapai" && /natos\/tabako-lapai/.test(n.image)) && sb.uploads.some(u => u.path.includes("natos/tabako-lapai"))),
@@ -521,10 +521,15 @@ check(
 await page.click("[data-note-rm]");
 await page.click("[data-confirm-ok]");
 check(await until(() => !sb.db.note_media.some(n => n.name === "Tabako lapai")), "natos: nuotrauka pašalinta");
-// Produktas → „Puslapio turinys“: paantraštė ir nuotaikos juosta; kvapas – nuotaikos juosta visoms formoms
+// Produktas → „Puslapio turinys“: paantraštė ir nuotaikos juosta; kvapas - nuotaikos juosta visoms formoms
+sb.db.products.find(x => x.id === "vanor").description = "Švelnus vanilės kvapas \u2013 jaukiems vakarams \u2014 visada.";
 await page.goto(`${BASE}admin/kvapai/vanor`);
 await page.waitForSelector("#prodForm");
-check((await page.locator('[data-sum="puslapis"]').textContent()) === "Eau de Parfum · Unisex", "produktas: „Puslapio turinys“ – numatyta paantraštė");
+check(
+  (await page.locator('#prodForm textarea[name="description"]').inputValue()) === "Švelnus vanilės kvapas - jaukiems vakarams - visada.",
+  "v30: bazėje likę ilgi brūkšniai formoje rodomi „-“"
+);
+check((await page.locator('[data-sum="puslapis"]').textContent()) === "Eau de Parfum · Unisex", "produktas: „Puslapio turinys“ - numatyta paantraštė");
 await push(page, "puslapis");
 await page.fill('#prodForm input[name="subtitle"]', "Kvapas vakarams");
 await page.setInputFiles("#prodForm [data-mood-img]", path.join(root, "src/public/og/home.jpg"));
@@ -538,6 +543,8 @@ check(
   }),
   "produktas: paantraštė ir nuotaikos juosta išsaugotos"
 );
+check(sb.db.products.find(x => x.id === "vanor").description === "Švelnus vanilės kvapas - jaukiems vakarams - visada.", "v30: išsaugojus bazėje - paprastas „-“");
+check(!/[\u2012-\u2015\u2212]/.test(await page.evaluate(() => document.body.innerText)), "v30: administravime - jokių ilgų brūkšnių");
 await page.goto(`${BASE}admin/kvapu-sarasas/my-pink`);
 await page.waitForSelector("#scentForm [data-mood-group]");
 await page.fill('#scentForm input[name="mood_title"]', "Rožių sodas");
@@ -574,7 +581,7 @@ check(await until(async () => await page.locator('.axNav [data-adm-count="review
 
 // Laukiantys
 await go(page, "admin/laukia");
-check((await page.locator('.admRestock[data-pid="arven"] .pill.green').count()) === 1, "laukiantys: Arven – visiems pranešta");
+check((await page.locator('.admRestock[data-pid="arven"] .pill.green').count()) === 1, "laukiantys: Arven - visiems pranešta");
 check(await page.locator('.admRestock[data-pid="noirelle"] [data-notify]').isDisabled(), "išparduotai prekei pranešti negalima");
 
 // Naujienlaiškis: prenumeratoriai, bandomasis laiškas, laiškas visiems
@@ -589,7 +596,7 @@ await page.click('#newsForm button[type="submit"]');
 await page.click("[data-confirm-ok]");
 check(await until(() => sb.calls.some(c => c.name === "newsletter-sent" && !c.body.test && c.body.to.includes("pirkeja@example.com"))), "naujienlaiškis: laiškas visiems prenumeratoriams");
 
-// Vitrina: skaidrės, juosta, plytelės, skyriai – kiekvienas savo ekrane su gyva peržiūra
+// Vitrina: skaidrės, juosta, plytelės, skyriai - kiekvienas savo ekrane su gyva peržiūra
 await go(page, "admin/vitrina");
 check((await page.locator('#admMain a.axRow[href^="admin/vitrina/"]').count()) === 7, "Vitrina: 7 dalys (skaidrės, skyriai, plytelės, juosta, kortelės, prekių puslapiai, istorija)");
 await go(page, "admin/vitrina/skaidres");
@@ -598,7 +605,7 @@ const pv = page.frameLocator("#heFrame");
 check(await until(async () => (await pv.locator("#homeHero .slide").count()) === 4, 9000), "peržiūra: tikra parduotuvė su 4 skaidrėmis");
 await page.click("#heSlides .heItem:first-child [data-he-open]");
 await page.waitForSelector('#heItemBox [data-he-slide] input[name="title"]');
-check(await page.locator('[data-pane="item"]').isVisible() && !(await page.locator('[data-pane="main"]').isVisible()), "skaidrė – atskirame ekrane");
+check(await page.locator('[data-pane="item"]').isVisible() && !(await page.locator('[data-pane="main"]').isVisible()), "skaidrė - atskirame ekrane");
 await page.fill('#heItemBox input[name="title"]', "Žiemos vakarai");
 check(await until(async () => (await pv.locator("#homeHero .slide .heroTitle").first().textContent()) === "Žiemos vakarai"), "peržiūra: pavadinimas keičiasi iškart");
 await page.click('#heItemBox [data-he-bg="photo"]');
@@ -612,12 +619,12 @@ if (shots) await page.screenshot({ path: path.join(shotDir, "admin-pradzia-skaid
 await pop(page);
 await page.locator("#heSlides .heItem").nth(2).locator("[data-he-on]").click();
 await page.locator("#heSlides .heItem").nth(1).locator(".axGrip").press("ArrowUp");
-check(await until(async () => (await page.locator("#heSlides .heItem").first().textContent()).includes("Mėginukai") || true), "skaidrių eilė – rankenėle (↑)");
+check(await until(async () => (await page.locator("#heSlides .heItem").first().textContent()).includes("Mėginukai") || true), "skaidrių eilė - rankenėle (↑)");
 await page.click("[data-he-add-menu]");
 await page.click('[data-sheet-act="custom"]');
 check(await until(async () => (await page.locator("#heSlides .heItem").count()) === 5), "nauja skaidrė pridėta");
 await pop(page);
-// „Tik nuotrauka“ – be kvapo ir tekstų: tik nuotrauka telefonui (kompiuteryje – ta pati), be nuorodos
+// „Tik nuotrauka“ - be kvapo ir tekstų: tik nuotrauka telefonui (kompiuteryje - ta pati), be nuorodos
 await page.click("[data-he-add-menu]");
 await page.click('[data-sheet-act="photo"]');
 await page.waitForSelector('#heItemBox [data-he-file="imageM"]', { state: "attached" });
@@ -630,23 +637,23 @@ if (shots) {
 }
 await page.click("[data-he-save]");
 check(await until(() => Array.isArray(sb.db.settings[0].data.slides) && sb.db.settings[0].data.slides.length === 6), "skaidrės išsaugotos");
-// Juosta virš header'io: žinutė, dizainas, šrifto dydis – peržiūroje iškart
+// Juosta virš header'io: žinutė, dizainas, šrifto dydis - peržiūroje iškart
 await go(page, "admin/vitrina/juosta");
 check((await page.locator("#tbItems .heItem").count()) >= 4, "juosta: numatytosios žinutės redaguojamos");
 await page.locator("#tbItems .heItem").first().locator("[data-tb-open]").click();
-await page.fill('#heItemBox input[name="text"]', "Žiemos akcija – *-20 %*");
+await page.fill('#heItemBox input[name="text"]', "Žiemos akcija - *-20 %*");
 await pop(page);
 await page.click('[data-tb-design="gold"]');
 await push(page, "tbstyle");
 await page.locator('#tbStyle input[data-tb-st="fs"]').fill("16");
-check(await until(async () => (await pv.locator("#topNoteTxt").textContent()).includes("Žiemos akcija")), "juosta: peržiūroje – naujas tekstas");
-check(await until(async () => (await pv.locator("#topNote").evaluate(e => getComputedStyle(e).backgroundImage)).includes("gradient")), "juosta: peržiūroje – aukso gradientas");
+check(await until(async () => (await pv.locator("#topNoteTxt").textContent()).includes("Žiemos akcija")), "juosta: peržiūroje - naujas tekstas");
+check(await until(async () => (await pv.locator("#topNote").evaluate(e => getComputedStyle(e).backgroundImage)).includes("gradient")), "juosta: peržiūroje - aukso gradientas");
 check((await page.locator("#tbStyle .tbContrast:not(.bad)").count()) === 1, "juosta: kontrastas tikrinamas");
 await page.click("[data-he-save]");
-check(await until(() => sb.db.settings[0].data.topbar?.items?.[0]?.text === "Žiemos akcija – *-20 %*"), "juosta išsaugota");
+check(await until(() => sb.db.settings[0].data.topbar?.items?.[0]?.text === "Žiemos akcija - *-20 %*"), "juosta išsaugota");
 // Plytelės
 await go(page, "admin/vitrina/plyteles");
-check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,zvakes,aliejai,elektriniai-difuzoriai", "plytelės: numatytosios – 5 prekių tipai");
+check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,zvakes,aliejai,elektriniai-difuzoriai", "plytelės: numatytosios - 5 prekių tipai");
 await page.locator('#heTiles [data-he-tile="aliejai"] [data-he-on]').click();
 await page.click("[data-he-addtile-menu]");
 await page.click('[data-sheet-act="kat-vakarui"]');
@@ -660,10 +667,10 @@ check((await page.locator("#heRails [data-he-rail]").count()) === 5, "skyriai: n
 await page.click('[data-he-addrail="auto"]');
 const ed = page.locator("#heItemBox");
 await ed.locator('input[name="rtitle"]').fill("Šilti kvapai");
-check((await ed.locator('select[name="rq_time"], select[name="rq_season"], select[name="rq_occasion"]').count()) === 0, "skyriaus taisyklėje – be paros laiko, sezono ir progos");
+check((await ed.locator('select[name="rq_time"], select[name="rq_season"], select[name="rq_occasion"]').count()) === 0, "skyriaus taisyklėje - be paros laiko, sezono ir progos");
 await ed.locator('select[name="rq_family"]').selectOption("ambros");
 await ed.locator('select[name="rq_sort"]').selectOption("price-asc");
-// „Kiek rodyti“ – − / + ir ranka, iki 48
+// „Kiek rodyti“ - - / + ir ranka, iki 48
 await ed.locator('[data-he-rstep="1"]').click();
 check((await ed.locator('input[name="rlimit"]').inputValue()) === "13", "skyrius: „Kiek rodyti“ + (12 → 13)");
 await ed.locator('input[name="rlimit"]').fill("30");
@@ -673,9 +680,9 @@ await ed.locator('input[name="rlimit"]').dispatchEvent("change");
 check((await ed.locator('input[name="rlimit"]').inputValue()) === "48", "skyrius: daugiausia 48");
 await ed.locator('input[name="rlimit"]').fill("30");
 await ed.locator('input[name="rlimit"]').dispatchEvent("change");
-// Vienas produktas aukščiau paslėptas – jo skyriuje nėra
+// Vienas produktas aukščiau paslėptas - jo skyriuje nėra
 const evening = await page.evaluate(() => VD.CAT.products.filter(p => p.visible !== false && (p.type || "kvepalai") === "kvepalai" && p.family === "ambros").length);
-check(await until(async () => (await ed.locator("[data-he-rcount]").textContent()).includes(String(evening))), `skyrius pagal taisyklę: „Šilti kvapai“ – ${evening} produktai`);
+check(await until(async () => (await ed.locator("[data-he-rcount]").textContent()).includes(String(evening))), `skyrius pagal taisyklę: „Šilti kvapai“ - ${evening} produktai`);
 check(await until(async () => (await pv.locator("#homeRails .band").allTextContents()).includes("Šilti kvapai")), "skyrius: iškart matomas peržiūroje");
 await pop(page);
 await page.click('[data-he-addrail="manual"]');
@@ -700,7 +707,7 @@ check(
   hs.slides.length === 6 && hs.slides[5].preset === "photo" && /pradzia\/skaidres/.test(hs.slides[5].imageM) && !hs.slides[5].image && !hs.slides[5].href && hs.slides[3].preset === "claims" && hs.slides[0].preset === "samples" && hs.slides[1].title === "Žiemos vakarai" && /pradzia\/skaidres/.test(hs.slides[1].image) && hs.slides[1].dark === true && !/^50% 50%$/.test(hs.slides[1].focus) && hs.slides[2].on === false,
   "skaidrių eilė, nuotrauka, matoma vieta, tamsus tekstas ir paslėpimas išsaugoti"
 );
-check(hs.topbar?.items?.[0]?.text === "Žiemos akcija – *-20 %*" && hs.topbar.style.grad === "mid" && hs.topbar.style.fs === 16, "juosta: tekstas, dizainas ir dydis išsaugoti");
+check(hs.topbar?.items?.[0]?.text === "Žiemos akcija - *-20 %*" && hs.topbar.style.grad === "mid" && hs.topbar.style.fs === 16, "juosta: tekstas, dizainas ir dydis išsaugoti");
 check(hs.tiles.some(t => t.key === "kat-vakarui") && hs.tiles.find(t => t.key === "aliejai").on === false && hs.freeShippingFrom === cat.settings.freeShippingFrom, "plytelės išsaugotos, kiti nustatymai nepakeisti");
 check(
   hs.rails.map(r => r.title).join("|") === "Populiariausi moterims|Kvapnios naujienos|Populiariausi vyrams|Didžiausios nuolaidos|Šilti kvapai|Mūsų rekomendacijos" &&
@@ -720,7 +727,7 @@ check(
   "parduotuvėje: skyriai pagal nustatymus (tvarka, „Šilti kvapai“, ranka pasirinkti, be „Unisex“)"
 );
 check(await until(async () => (await front.locator("#topNoteTxt b").first().textContent().catch(() => "")) === "-20 %"), "parduotuvėje: juosta su nauju tekstu (paryškinta dalis)");
-check((await front.locator("#homeHero div.slide.textless .scenePic img").count()) === 1 && (await front.locator("#homeHero div.slide.textless .heroTxt").count()) === 0, "parduotuvėje: „Tik nuotrauka“ – tik paveikslas, be teksto ir nuorodos");
+check((await front.locator("#homeHero div.slide.textless .scenePic img").count()) === 1 && (await front.locator("#homeHero div.slide.textless .heroTxt").count()) === 0, "parduotuvėje: „Tik nuotrauka“ - tik paveikslas, be teksto ir nuorodos");
 check(
   (await front.locator("#homeHero .slide").nth(1).locator(".heroTitle").textContent()) === "Žiemos vakarai" &&
     (await front.locator("#homeHero .slide.onDark.hasPhoto img").count()) === 1,
@@ -734,7 +741,7 @@ await go(page, "admin/vitrina/korteles");
 await page.locator('#setForm input[name="cardBadges"]').uncheck();
 await page.click('.axSave[form="setForm"]');
 check(await until(() => sb.db.settings[0].data.cards?.badges === false && sb.db.settings[0].data.slides.length === 6), "Vitrina → Prekių kortelės: ženkliukai išjungti, kiti nustatymai nepakeisti");
-// v29: Vitrina → Prekių puslapiai – tekstai ir blokai pagal tipą; išsaugomi tik skirtumai, parduotuvėje – iškart
+// v29: Vitrina → Prekių puslapiai - tekstai ir blokai pagal tipą; išsaugomi tik skirtumai, parduotuvėje - iškart
 await go(page, "admin/vitrina/puslapiai");
 await page.click('[data-push="t-zvakes"]');
 await page.fill('#pdpForm [name="p.zvakes.steps.title"]', "Kaip prižiūrėti");
@@ -755,12 +762,12 @@ if (candle) {
   await fr.goto(`${BASE}zvakes/${candle.id}`);
   check(
     await until(async () => (await fr.locator("#productRoot .pbSteps .pbT").textContent().catch(() => "")) === "Kaip prižiūrėti" && (await fr.locator("#productRoot .pdNotice").count()) === 0, 6000),
-    "parduotuvėje: žvakės puslapyje – nauja žingsnių antraštė, pastaba nerodoma"
+    "parduotuvėje: žvakės puslapyje - nauja žingsnių antraštė, pastaba nerodoma"
   );
   await fr.context().close();
 }
 
-// Nustatymai – grupėmis (kaip iOS)
+// Nustatymai - grupėmis (kaip iOS)
 await go(page, "admin/daugiau");
 check((await page.locator('#admMain a.axRow[href^="admin/nustatymai/"]').count()) === 5 && (await page.locator('#admMain [data-logout]').count()) === 1, "Daugiau: 5 nustatymų grupės, atsijungimas");
 await go(page, "admin/nustatymai/parduotuve");
@@ -783,27 +790,27 @@ await shot(page, "nustatymai");
 await go(page, "admin/zurnalas");
 check((await page.locator(".admLog .axRow").count()) >= 5 && (await page.locator(".admLog").textContent()).includes("Produktas"), "žurnalas: pakeitimai matomi");
 await page.click(".axSide [data-adm-rebuild]");
-check(await toastHas(page, "GitHub Pages"), "„Atnaujinti svetainę“ – paleista");
+check(await toastHas(page, "GitHub Pages"), "„Atnaujinti svetainę“ - paleista");
 await go(page, "admin/kvapai");
 await page.keyboard.press("/");
-check(await page.evaluate(() => document.activeElement?.id === "prodQ"), "klaviatūra: „/“ – paieška");
+check(await page.evaluate(() => document.activeElement?.id === "prodQ"), "klaviatūra: „/“ - paieška");
 await page.context().close();
 
 // Teisės
 const buyer = await newPage({ width: 1440, height: 900 }, BUYER.token);
 await buyer.goto(`${BASE}admin`);
 await buyer.waitForSelector("#adminRoot h1");
-check((await buyer.locator("#adminRoot h1").textContent()) === "Neturite teisių", "pirkėjui – „Neturite teisių“");
+check((await buyer.locator("#adminRoot h1").textContent()) === "Neturite teisių", "pirkėjui - „Neturite teisių“");
 check(!sb.calls.some(c => c.name === "admin" && c.user === BUYER.email), "pirkėjas serverio veiksmų nekvietė");
 await buyer.context().close();
 const guest = await newPage({ width: 1440, height: 900 });
 await guest.goto(`${BASE}admin/uzsakymai`);
 await guest.waitForSelector("#adminRoot .empty");
-check((await guest.locator("#adminRoot").textContent()).includes("Prisijunkite"), "neprisijungusiam – prisijungti");
+check((await guest.locator("#adminRoot").textContent()).includes("Prisijunkite"), "neprisijungusiam - prisijungti");
 await guest.context().close();
 
 // ── Telefonas ───────────────────────────────────────────
-console.log("\n— telefonas 430×932 —");
+console.log("\n- telefonas 430×932 -");
 seed();
 page = await newPage({ width: 430, height: 932 }, ADMIN.token);
 for (const sec of ["admin", "admin/uzsakymai", "admin/kvapai", "admin/kvapai/vanor", "admin/kvapai/naujas", "admin/vitrina", "admin/vitrina/skaidres", "admin/kategorijos", "admin/daugiau", "admin/nustatymai/pristatymas"]) {
@@ -812,27 +819,27 @@ for (const sec of ["admin", "admin/uzsakymai", "admin/kvapai", "admin/kvapai/van
   await settled(page);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   const wide = overflow > 0 ? await page.evaluate(() => [...document.querySelectorAll("#admMain *")].filter(el => el.getBoundingClientRect().right > window.innerWidth + 1).slice(0, 3).map(el => el.className || el.tagName)) : [];
-  check(overflow <= 0, `${sec}: telpa ekrane (be horizontalaus slinkimo)${wide.length ? ` – ${wide.join(", ")}` : ""}`);
+  check(overflow <= 0, `${sec}: telpa ekrane (be horizontalaus slinkimo)${wide.length ? ` - ${wide.join(", ")}` : ""}`);
   await shot(page, `tel-${sec.replace(/\//g, "-")}`);
 }
-check(await page.locator(".axSave").isVisible(), "telefone – „Išsaugoti“ navigacijos juostoje");
-check((await page.locator(".axTabs .axTab").count()) === 5 && (await page.locator(".axTabs").isVisible()) && !(await page.locator(".axSide").isVisible()), "telefone – 5 skirtukai apačioje, be šoninio meniu");
-// Skirtukas „Daugiau“ – ženkliukas (atsiliepimai + laukiantys)
-check(await until(async () => (await page.locator('.axTab[data-tab="daugiau"] .axBadge').textContent()) === "3"), "skirtukas „Daugiau“ – laukiančių suma");
-// Produkto ekranas telefone – „‹ Produktai“, vidinis ekranas, peržiūra
+check(await page.locator(".axSave").isVisible(), "telefone - „Išsaugoti“ navigacijos juostoje");
+check((await page.locator(".axTabs .axTab").count()) === 5 && (await page.locator(".axTabs").isVisible()) && !(await page.locator(".axSide").isVisible()), "telefone - 5 skirtukai apačioje, be šoninio meniu");
+// Skirtukas „Daugiau“ - ženkliukas (atsiliepimai + laukiantys)
+check(await until(async () => (await page.locator('.axTab[data-tab="daugiau"] .axBadge').textContent()) === "3"), "skirtukas „Daugiau“ - laukiančių suma");
+// Produkto ekranas telefone - „‹ Produktai“, vidinis ekranas, peržiūra
 await page.goto(`${BASE}admin/kvapai/vanor`);
 await page.waitForSelector("#prodForm");
-check(await page.locator('a.axBack[href="admin/kvapai"]').isVisible(), "telefone – „‹ Produktai“");
+check(await page.locator('a.axBack[href="admin/kvapai"]').isVisible(), "telefone - „‹ Produktai“");
 await push(page, "natos");
-check(await page.locator(".axPop:visible").textContent().then(t => t.includes("Vanor")), "telefone – vidinis ekranas, „‹ Vanor“");
+check(await page.locator(".axPop:visible").textContent().then(t => t.includes("Vanor")), "telefone - vidinis ekranas, „‹ Vanor“");
 await pop(page);
-// Vitrina telefone: peržiūra – visame ekrane
+// Vitrina telefone: peržiūra - visame ekrane
 await page.goto(`${BASE}admin/vitrina/skaidres`);
 await page.waitForSelector("#heSlides .heItem");
-check(!(await page.locator(".hePrev").isVisible()), "telefone – peržiūra paslėpta, kol neatidaryta");
+check(!(await page.locator(".hePrev").isVisible()), "telefone - peržiūra paslėpta, kol neatidaryta");
 await page.click("[data-he-preview]");
 const pvT = page.frameLocator("#heFrame");
-check(await until(async () => (await page.locator(".hePrev.open").isVisible()) && (await pvT.locator("#homeHero .slide").count()) === 4, 9000), "telefone – peržiūra visame ekrane");
+check(await until(async () => (await page.locator(".hePrev.open").isVisible()) && (await pvT.locator("#homeHero .slide").count()) === 4, 9000), "telefone - peržiūra visame ekrane");
 await page.click("[data-he-preview-close]");
 // Skyriai su produktais telefone: atidaryta taisyklė ir pasirinkimas ranka telpa ekrane
 await page.goto(`${BASE}admin/vitrina/skyriai`);
@@ -846,7 +853,7 @@ for (const mode of ["auto", "manual"]) {
     await box.locator('input[name="rsearch"]').fill("o");
   }
   const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  check(over <= 0, `telefone – skyrius (${mode === "auto" ? "pagal taisyklę" : "ranka"}) telpa ekrane`);
+  check(over <= 0, `telefone - skyrius (${mode === "auto" ? "pagal taisyklę" : "ranka"}) telpa ekrane`);
   if (shots) await page.screenshot({ path: path.join(shotDir, `admin-tel-skyrius-${mode}.png`) });
   await pop(page);
 }
@@ -854,11 +861,11 @@ await page.goto(`${BASE}admin/uzsakymai`);
 await page.waitForSelector("#ordersList .axCell[data-order]");
 await page.locator("#ordersList .axCell[data-order] .axRow").first().click();
 await page.waitForSelector(".axOrder");
-check(await page.locator('[data-oa="ship"]').first().isVisible() && (await page.locator('a.axBack[href="admin/uzsakymai"]').isVisible()), "telefone – užsakymo ekranas: veiksmai ir „‹ Užsakymai“");
+check(await page.locator('[data-oa="ship"]').first().isVisible() && (await page.locator('a.axBack[href="admin/uzsakymai"]').isVisible()), "telefone - užsakymo ekranas: veiksmai ir „‹ Užsakymai“");
 await page.context().close();
 
 // ── Telefonas gulsčiai ─────────────────────────────────
-console.log("\n— telefonas gulsčiai 844×390 —");
+console.log("\n- telefonas gulsčiai 844×390 -");
 page = await newPage({ width: 844, height: 390 }, ADMIN.token);
 for (const sec of ["admin", "admin/kvapai/vanor", "admin/vitrina/juosta"]) {
   await page.goto(BASE + sec);
@@ -868,7 +875,7 @@ for (const sec of ["admin", "admin/kvapai/vanor", "admin/vitrina/juosta"]) {
   check(overflow <= 0, `gulsčiai ${sec}: telpa ekrane`);
 }
 const tabsBox = await page.locator(".axTabs").boundingBox();
-check(tabsBox && tabsBox.x === 0 && tabsBox.height >= 380 && tabsBox.width < 120, "gulsčiai – ikonų juosta kairėje");
+check(tabsBox && tabsBox.x === 0 && tabsBox.height >= 380 && tabsBox.width < 120, "gulsčiai - ikonų juosta kairėje");
 await page.context().close();
 
 await browser.close();

@@ -1,20 +1,20 @@
-// 25 – Pradžios puslapio turinys iš nustatymų (keičiamas administravimo skydelyje „Pradžia“, admin/pradzia):
-//   settings.slides  – skaidrės (eilė = rodymo tvarka): { id, on, preset, image, imageM, focus, focusM, scene, product,
-//                      eyebrow, title, text, cta, href, dark }. Nėra lauko – rodomos numatytosios trys (DEFAULT_SLIDES).
+// 25 - Pradžios puslapio turinys iš nustatymų (keičiamas administravimo skydelyje „Pradžia“, admin/pradzia):
+//   settings.slides  - skaidrės (eilė = rodymo tvarka): { id, on, preset, image, imageM, focus, focusM, scene, product,
+//                      eyebrow, title, text, cta, href, dark }. Nėra lauko - rodomos numatytosios trys (DEFAULT_SLIDES).
 //                      Tušti tekstai imami iš šablono (preset): kainos ir pavadinimai visada tikri. Tekstas iš kelių
-//                      eilučių – teiginiai su auksinėmis linijomis (kaip parfumada.lt), preset "claims".
-//                      preset "photo" – „Tik nuotrauka“: tik image (kompiuteriui) ir / ar imageM (telefonui), nebūtina
-//                      nuoroda href ir aprašymas title (tik skaitytuvams) – svetainė ant nuotraukos nieko neuždeda.
-//   settings.tiles   – plytelės po skaidrėmis: { key, on, title, image, focus, dark }; key – kvepalai / difuzoriai /
+//                      eilučių - teiginiai su auksinėmis linijomis (kaip parfumada.lt), preset "claims".
+//                      preset "photo" - „Tik nuotrauka“: tik image (kompiuteriui) ir / ar imageM (telefonui), nebūtina
+//                      nuoroda href ir aprašymas title (tik skaitytuvams) - svetainė ant nuotraukos nieko neuždeda.
+//   settings.tiles   - plytelės po skaidrėmis: { key, on, title, image, focus, dark }; key - kvepalai / difuzoriai /
 //                      aliejai (prekių tipai) / moterims / vyrams / unisex / meginukai / rinkinys / naujienos /
-//                      kat-<kategorijos id>. Nėra lauko – trys tipai. Plytelė be prekių nerodoma.
-//   settings.slideSeconds – kas kiek sekundžių keičiasi skaidrės (0 – nesikeičia pačios).
-//   settings.rails   – skyriai su produktais (karuselės, v15): { id, on, title, line, mode, rule, ids, limit, href }.
-//                      mode "auto" – pagal taisyklę rule { type, gender, family, category, scent, sale,
-//                      sort } (v19: seni time / season / occasion ignoruojami); "manual" – ids (pasirinkti produktai, ta tvarka). href: "" – automatiškai,
-//                      "none" – be nuorodos, kitaip – adresas. Nėra lauko – DEFAULT_RAILS. Skyrius be produktų nerodomas.
-// Fonas: įkelta nuotrauka (kompiuteriui ir, nebūtinai, telefonui; „focus“ – kuri vieta lieka matoma) arba Vaidore
-// scena (24-stage.js) su pasirinkto kvapo buteliukais. dark – tamsi nuotrauka, tekstas ant jos baltas.
+//                      kat-<kategorijos id>. Nėra lauko - trys tipai. Plytelė be prekių nerodoma.
+//   settings.slideSeconds - kas kiek sekundžių keičiasi skaidrės (0 - nesikeičia pačios).
+//   settings.rails   - skyriai su produktais (karuselės, v15): { id, on, title, line, mode, rule, ids, limit, href }.
+//                      mode "auto" - pagal taisyklę rule { type, gender, family, category, scent, sale,
+//                      sort } (v19: seni time / season / occasion ignoruojami); "manual" - ids (pasirinkti produktai, ta tvarka). href: "" - automatiškai,
+//                      "none" - be nuorodos, kitaip - adresas. Nėra lauko - DEFAULT_RAILS. Skyrius be produktų nerodomas.
+// Fonas: įkelta nuotrauka (kompiuteriui ir, nebūtinai, telefonui; „focus“ - kuri vieta lieka matoma) arba Vaidore
+// scena (24-stage.js) su pasirinkto kvapo buteliukais. dark - tamsi nuotrauka, tekstas ant jos baltas.
 // Peržiūra: administravimo skydelis įkelia parduotuvę į <iframe> (?vdPreview=1) ir siunčia juodraštį postMessage.
 
 const byRankAll = () => [...PRODUCTS].sort((a, b) => a.rank - b.rank);
@@ -25,12 +25,12 @@ const DEFAULT_SLIDES = [
   { id: "teiginiai", on: true, preset: "claims" }
 ];
 const DEFAULT_TILES = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"].map(key => ({ key, on: true }));
-// Numatytieji skyriai – tokie pat kaip iki v15 (naujienos, moterims, vyrams, unisex, nuolaidos)
+// Numatytieji skyriai - tokie pat kaip iki v15 (naujienos, moterims, vyrams, unisex, nuolaidos)
 const DEFAULT_RAILS = [
   { id: "naujienos", on: true, title: "Kvapnios naujienos", line: "", mode: "auto", rule: { type: "kvepalai", sort: "new" }, limit: 8 },
   { id: "moterims", on: true, title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", mode: "auto", rule: { type: "kvepalai", gender: "moterims", sort: "rank" }, limit: 12 },
   { id: "vyrams", on: true, title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", mode: "auto", rule: { type: "kvepalai", gender: "vyrams", sort: "rank" }, limit: 12 },
-  { id: "unisex", on: true, title: "Unisex kvapai", line: "Tinka visiems – be taisyklių", mode: "auto", rule: { type: "kvepalai", gender: "unisex", sort: "rank" }, limit: 12 },
+  { id: "unisex", on: true, title: "Unisex kvapai", line: "Tinka visiems - be taisyklių", mode: "auto", rule: { type: "kvepalai", gender: "unisex", sort: "rank" }, limit: 12 },
   { id: "nuolaidos", on: true, title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", mode: "auto", rule: { sale: true, sort: "sale" }, limit: 12 }
 ];
 const RAIL_SORTS = [
@@ -41,8 +41,8 @@ const RAIL_SORTS = [
   ["sale", "Didžiausia nuolaida"]
 ];
 const homeRails = () => (Array.isArray(SET.rails) ? SET.rails : DEFAULT_RAILS);
-// Skyriaus produktai: pasirinkti ranka (ta tvarka, tik matomi) arba pagal taisyklę. Kiek rodyti – 1–RAIL_MAX
-// (numatyta 12); railMatches – visi taisyklę atitinkantys (be ribos, administravimo santraukai).
+// Skyriaus produktai: pasirinkti ranka (ta tvarka, tik matomi) arba pagal taisyklę. Kiek rodyti - 1-RAIL_MAX
+// (numatyta 12); railMatches - visi taisyklę atitinkantys (be ribos, administravimo santraukai).
 const RAIL_MAX = 48;
 function railLimit(r) {
   return Math.max(1, Math.min(RAIL_MAX, Math.round(Number(r.limit) || 12)));
@@ -71,7 +71,7 @@ function railMatches(r) {
   };
   return list.sort(by[q.sort] || by.rank);
 }
-// Paantraštė, kai administratorius jos neįrašė (v22) – pagal taisyklę; pakeičiama Vitrina → Skyriai → „Paantraštė“
+// Paantraštė, kai administratorius jos neįrašė (v22) - pagal taisyklę; pakeičiama Vitrina → Skyriai → „Paantraštė“
 const RAIL_LINES = {
   zvakes: "Jaukiems namams",
   difuzoriai: "Kvapūs namai be ugnies",
@@ -106,9 +106,9 @@ function railHref(r) {
   return base + (qs ? `?${qs}` : "");
 }
 
-// Skaidrių šablonai – numatytieji tekstai ir scena (galioja, kol administratorius neįrašė savo)
+// Skaidrių šablonai - numatytieji tekstai ir scena (galioja, kol administratorius neįrašė savo)
 const SLIDE_PRESETS = {
-  // Tik nuotrauka: be kvapo ir be svetainės teksto (tekstas, jei reikia, – pačioje nuotraukoje); nuoroda – nebūtina
+  // Tik nuotrauka: be kvapo ir be svetainės teksto (tekstas, jei reikia, - pačioje nuotraukoje); nuoroda - nebūtina
   photo: {
     name: "Tik nuotrauka",
     make() {
@@ -122,8 +122,8 @@ const SLIDE_PRESETS = {
       return { scene: "collection", eyebrow: h.eyebrow || "Kolekcija", title: p.name, text: p.tagline, cta: `Atrasti ${p.name}`, href: productUrl(p) };
     }
   },
-  // Teiginiai su auksinėmis linijomis (kaip antroji parfumada.lt skaidrė): kiekviena teksto eilutė – atskiras teiginys.
-  // Numatytieji – tik tikri parduotuvės nustatymai (mėginukai, išsiuntimas, nemokamas pristatymas, grąžinimas)
+  // Teiginiai su auksinėmis linijomis (kaip antroji parfumada.lt skaidrė): kiekviena teksto eilutė - atskiras teiginys.
+  // Numatytieji - tik tikri parduotuvės nustatymai (mėginukai, išsiuntimas, nemokamas pristatymas, grąžinimas)
   claims: {
     name: "Teiginiai su linijomis",
     make() {
@@ -132,8 +132,8 @@ const SLIDE_PRESETS = {
         eyebrow: "",
         title: SET.shop || "Vaidore",
         text: [
-          `Kiekvienas kvapas – ir 2 ml mėginuku`,
-          `Išsiunčiame per ${nb(SET.dispatch || "1–2 d. d.")}`,
+          `Kiekvienas kvapas - ir 2 ml mėginuku`,
+          `Išsiunčiame per ${nb(SET.dispatch || "1-2 d. d.")}`,
           `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`,
           `Grąžinimas per ${SET.returnDays || 14} d.`
         ].join("\n"),
@@ -149,7 +149,7 @@ const SLIDE_PRESETS = {
         scene: "samples",
         eyebrow: "Mėginukai 2 ml",
         title: "Pirma išbandykite",
-        text: SET.sampleCredit ? `Mėginukas nuo ${eur(sampleFrom())} – kainą grąžinsime perkant buteliuką.` : `Kiekvienas kvapas – ir 2 ml mėginuku nuo ${eur(sampleFrom())}.`,
+        text: SET.sampleCredit ? `Mėginukas nuo ${eur(sampleFrom())} - kainą grąžinsime perkant buteliuką.` : `Kiekvienas kvapas - ir 2 ml mėginuku nuo ${eur(sampleFrom())}.`,
         cta: "Rinktis mėginukus",
         href: "meginukai"
       };
@@ -159,7 +159,7 @@ const SLIDE_PRESETS = {
     name: "Dovana / rinkinys",
     make() {
       return DISC
-        ? { scene: "gift", eyebrow: "Dovanai", title: DISC.name, text: `Bet kurie ${DISC.count} kvapai po 2 ml už ${eurShort(DISC.price)} – raskite savo kvapą.`, cta: "Susidaryti rinkinį", href: "rinkinys" }
+        ? { scene: "gift", eyebrow: "Dovanai", title: DISC.name, text: `Bet kurie ${DISC.count} kvapai po 2 ml už ${eurShort(DISC.price)} - raskite savo kvapą.`, cta: "Susidaryti rinkinį", href: "rinkinys" }
         : { scene: "gift", eyebrow: "Dovanai", title: "Kvapas dovanų", text: "Raskite kvapą, kuris tiks būtent jam ar jai.", cta: "Rinktis dovaną", href: "kvepalai" };
     }
   },
@@ -225,7 +225,7 @@ function homeSlides() {
 function tilePreset(key) {
   const byRank = byRankAll();
   const of = g => byRank.filter(p => isPerfume(p) && forGender(p, g));
-  // Prekių tipas – be įkeltos plytelės nuotraukos rodoma pirmos to tipo prekės nuotrauka
+  // Prekių tipas - be įkeltos plytelės nuotraukos rodoma pirmos to tipo prekės nuotrauka
   if (TYPE.has(key)) {
     const list = byRank.filter(p => typeOf(p) === key);
     return { name: TYPE.get(key).name, href: key, stage: { kvepalai: "unisex", difuzoriai: "fresh", zvakes: "set", aliejai: "vials", "elektriniai-difuzoriai": "fresh" }[key], list, image: list.find(p => p.images?.[0])?.images[0] || "" };
@@ -248,7 +248,7 @@ function tilePreset(key) {
   }
   return null;
 }
-// Išsaugotame sąraše trūkstami prekių tipai (nauji, v15) įterpiami po paskutinio esamo tipo – įjungti
+// Išsaugotame sąraše trūkstami prekių tipai (nauji, v15) įterpiami po paskutinio esamo tipo - įjungti
 // (rodomi tik atsiradus prekių); jei administratorius tipą išjungė, jis lieka išjungtas
 function tileList() {
   if (!Array.isArray(SET.tiles)) return DEFAULT_TILES;
@@ -280,7 +280,7 @@ function groupPhoto(key) {
   }
   return null;
 }
-// Nuotrauka (kompiuteriui / telefonui) – užpildo vietą, „focus“ – object-position
+// Nuotrauka (kompiuteriui / telefonui) - užpildo vietą, „focus“ - object-position
 function photoHTML({ image, imageM = "", focus = "50% 50%", focusM = "" }, { eager = false, cls = "" } = {}) {
   const load = eager ? 'fetchpriority="high"' : 'loading="lazy"';
   const style = `--fx:${esc(focus)};--fxm:${esc(focusM || focus)}`;

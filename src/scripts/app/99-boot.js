@@ -1,4 +1,4 @@
-// 99 – paleidimas (visada paskutinis: visų 01–98 failų reikšmės jau paruoštos): prisijungimo grįžimas, katalogo kopija,
+// 99 - paleidimas (visada paskutinis: visų 01-98 failų reikšmės jau paruoštos): prisijungimo grįžimas, katalogo kopija,
 // header'is, poraštė, klausytojai, maršrutas, šviežias katalogas ir paskyra iš duomenų bazės, PWA (service worker).
 function boot() {
   history.scrollRestoration = "manual";
@@ -28,13 +28,13 @@ function boot() {
       renderHeaderNav();
       renderFooter();
       renderTopNote();
-      // Paskyra (įvedamos formos) ir administravimas katalogo nenaudoja – jų nepersipiešiame, kad nedingtų įvesti duomenys
+      // Paskyra (įvedamos formos) ir administravimas katalogo nenaudoja - jų nepersipiešiame, kad nedingtų įvesti duomenys
       if (ui.view !== "admin" && ui.view !== "account") route({ restoreY: window.scrollY });
     }
   });
   route();
   document.documentElement.classList.add("ready");
-  // Duomenų bazė – po pirmo vaizdo (nestabdo puslapio)
+  // Duomenų bazė - po pirmo vaizdo (nestabdo puslapio)
   if (SB) {
     const later = window.requestIdleCallback || (fn => setTimeout(fn, 200));
     later(() => {

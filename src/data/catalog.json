@@ -6,13 +6,13 @@
     "currency": "eur",
     "freeShippingFrom": 60,
     "maxQty": 10,
-    "dispatch": "1–2 d. d.",
+    "dispatch": "1-2 d. d.",
     "returnDays": 14,
     "hero": {
       "product": "vanor",
       "eyebrow": "Žiemos kolekcija",
       "title": "Vanor",
-      "text": "Tabakas, vanilė ir kakava – šilčiausias sezono kvapas."
+      "text": "Tabakas, vanilė ir kakava - šilčiausias sezono kvapas."
     },
     "countries": [
       "LT",
@@ -24,13 +24,13 @@
         "id": "omniva",
         "name": "Omniva paštomatas",
         "price": 2.99,
-        "days": "1–2 d. d."
+        "days": "1-2 d. d."
       },
       {
         "id": "dpd",
         "name": "DPD kurjeris iki durų",
         "price": 4.99,
-        "days": "1–2 d. d."
+        "days": "1-2 d. d."
       }
     ],
     "company": {
@@ -51,7 +51,7 @@
       "name": "Atradimų rinkinys",
       "count": 5,
       "price": 14.9,
-      "text": "Bet kurie 5 kvapai po 2 ml – išbandykite namuose, ramiai."
+      "text": "Bet kurie 5 kvapai po 2 ml - išbandykite namuose, ramiai."
     },
     "sampleCredit": {
       "days": 30,
@@ -68,7 +68,7 @@
     },
     "inspired": {
       "show": true,
-      "note": "Prekių ženklai priklauso jų savininkams. Vaidore su jais nesusijusi – pavadinimas nurodo tik kvapo kryptį."
+      "note": "Prekių ženklai priklauso jų savininkams. Vaidore su jais nesusijusi - pavadinimas nurodo tik kvapo kryptį."
     }
   },
   "families": [
@@ -125,7 +125,7 @@
     {
       "id": "vanor",
       "name": "Vanor",
-      "inspired": "Tom Ford – Tobacco Vanille",
+      "inspired": "Tom Ford - Tobacco Vanille",
       "conc": "EDP",
       "gender": "unisex",
       "family": "gurmaniski",
@@ -182,7 +182,7 @@
     {
       "id": "safrane",
       "name": "Safrane",
-      "inspired": "Maison Francis Kurkdjian – Baccarat Rouge 540",
+      "inspired": "Maison Francis Kurkdjian - Baccarat Rouge 540",
       "conc": "EDP",
       "gender": "unisex",
       "family": "ambros",
@@ -236,12 +236,12 @@
     {
       "id": "arven",
       "name": "Arven",
-      "inspired": "Dior – Sauvage",
+      "inspired": "Dior - Sauvage",
       "conc": "EDP",
       "gender": "vyrams",
       "family": "sviezi",
       "tagline": "Bergamotė, pipirai ir ambroksanas",
-      "desc": "Gaivus ir galingas vyriškas kvapas. Sultinga Kalabrijos bergamotė ir pipirai atsiveria į levandą ir Sičuano pipirus, o ambroksanas ir kedras palieka ryškų, ilgai išliekantį šleifą. Universalus – darbui, laisvalaikiui ir vakarui.",
+      "desc": "Gaivus ir galingas vyriškas kvapas. Sultinga Kalabrijos bergamotė ir pipirai atsiveria į levandą ir Sičuano pipirus, o ambroksanas ir kedras palieka ryškų, ilgai išliekantį šleifą. Universalus - darbui, laisvalaikiui ir vakarui.",
       "notes": {
         "top": [
           "Kalabrijos bergamotė",
@@ -292,12 +292,12 @@
     {
       "id": "noirelle",
       "name": "Noirelle",
-      "inspired": "Carolina Herrera – Good Girl",
+      "inspired": "Carolina Herrera - Good Girl",
       "conc": "EDP",
       "gender": "moterims",
       "family": "gurmaniski",
       "tagline": "Tuberozė, kava ir kakava",
-      "desc": "Drąsus kontrastų kvapas. Migdolai ir kava susitinka su baltaisiais žiedais – tuberoze ir jazminu sambac, o tonkos pupelės, kakava ir vanilė suteikia gilumo ir jausmingumo. Šviesi ir tamsi pusė viename buteliuke.",
+      "desc": "Drąsus kontrastų kvapas. Migdolai ir kava susitinka su baltaisiais žiedais - tuberoze ir jazminu sambac, o tonkos pupelės, kakava ir vanilė suteikia gilumo ir jausmingumo. Šviesi ir tamsi pusė viename buteliuke.",
       "notes": {
         "top": [
           "Migdolai",
@@ -351,7 +351,7 @@
     {
       "id": "bellara",
       "name": "Bellara",
-      "inspired": "Lancôme – La Vie Est Belle",
+      "inspired": "Lancôme - La Vie Est Belle",
       "conc": "EDP",
       "gender": "moterims",
       "family": "gurmaniski",
@@ -407,7 +407,7 @@
     {
       "id": "ventor",
       "name": "Ventor",
-      "inspired": "Creed – Aventus",
+      "inspired": "Creed - Aventus",
       "conc": "EDP",
       "gender": "vyrams",
       "family": "medienos",
@@ -466,7 +466,7 @@
     {
       "id": "lavelle",
       "name": "Lavelle",
-      "inspired": "Yves Saint Laurent – Libre",
+      "inspired": "Yves Saint Laurent - Libre",
       "conc": "EDP",
       "gender": "moterims",
       "family": "geliu",
@@ -520,12 +520,12 @@
     {
       "id": "aurum",
       "name": "Aurum",
-      "inspired": "Paco Rabanne – 1 Million",
+      "inspired": "Paco Rabanne - 1 Million",
       "conc": "EDP",
       "gender": "vyrams",
       "family": "ambros",
       "tagline": "Greipfrutas, cinamonas ir oda",
-      "desc": "Ryškus, saldžiai prieskoninis kvapas. Greipfrutas, mėta ir kraujo mandarinas suteikia energijos, rožė ir cinamonas – šilumos, o oda, ambra ir mediena palieka išraiškingą, įsimintiną šleifą. Vakarams, kai norisi būti pastebėtam.",
+      "desc": "Ryškus, saldžiai prieskoninis kvapas. Greipfrutas, mėta ir kraujo mandarinas suteikia energijos, rožė ir cinamonas - šilumos, o oda, ambra ir mediena palieka išraiškingą, įsimintiną šleifą. Vakarams, kai norisi būti pastebėtam.",
       "notes": {
         "top": [
           "Greipfrutas",
@@ -578,7 +578,7 @@
     {
       "id": "azurin",
       "name": "Azurin",
-      "inspired": "Chanel – Bleu de Chanel",
+      "inspired": "Chanel - Bleu de Chanel",
       "conc": "EDP",
       "gender": "vyrams",
       "family": "medienos",
@@ -636,12 +636,12 @@
     {
       "id": "vialune",
       "name": "Vialune",
-      "inspired": "Giorgio Armani – My Way",
+      "inspired": "Giorgio Armani - My Way",
       "conc": "EDP",
       "gender": "moterims",
       "family": "geliu",
       "tagline": "Apelsino žiedai ir baltoji tuberozė",
-      "desc": "Švytintis baltųjų gėlių kvapas. Bergamotė ir apelsino žiedai atveria puokštę iš tuberozės ir indiško jazmino, kurią apgaubia Madagaskaro vanilė, baltasis muskusas ir kedras. Elegantiškas, šviesus ir moteriškas – kasdienai ir išskirtinėms akimirkoms.",
+      "desc": "Švytintis baltųjų gėlių kvapas. Bergamotė ir apelsino žiedai atveria puokštę iš tuberozės ir indiško jazmino, kurią apgaubia Madagaskaro vanilė, baltasis muskusas ir kedras. Elegantiškas, šviesus ir moteriškas - kasdienai ir išskirtinėms akimirkoms.",
       "notes": {
         "top": [
           "Bergamotė",

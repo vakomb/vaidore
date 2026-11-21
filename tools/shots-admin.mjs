@@ -1,6 +1,6 @@
 // Administravimo skydelio ekrano nuotraukos keliais dydžiais (be interneto, Supabase imituojamas):
 //   node tools/shots-admin.mjs [plotis×aukštis …] [-- adresas …]
-// Numatyta: 390×844, 430×932, 844×390, 768×1024, 1440×900; adresai – visi skyriai. Rezultatas – .verify/shots/ax-*.png
+// Numatyta: 390×844, 430×932, 844×390, 768×1024, 1440×900; adresai - visi skyriai. Rezultatas - .verify/shots/ax-*.png
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";

@@ -1,16 +1,16 @@
-// 15 – Prekių puslapių turinys (v29): natų biblioteka, nuotaikos juosta, tekstai pagal prekės tipą.
+// 15 - Prekių puslapių turinys (v29): natų biblioteka, nuotaikos juosta, tekstai pagal prekės tipą.
 //   admin/natos               visos produktuose ir kvapuose naudojamos natos: nuotrauka (iškirpta / numatyta Vaidore /
 //                             paveldėta iš pagrindinės natos / nėra), kiek prekių. Nata → „Iškirpti iš produkto nuotraukos“
-//                             (bet kuri parduotuvės nuotrauka; kaip iOS „Perkelti ir keisti mastelį“ – tempiant, slankikliu,
+//                             (bet kuri parduotuvės nuotrauka; kaip iOS „Perkelti ir keisti mastelį“ - tempiant, slankikliu,
 //                             dviem pirštais ar pelės ratuku), „Įkelti nuotrauką“ (tada taip pat iškerpama), „Pašalinti“.
-//                             Lentelė note_media (migracija 20261122090000), failai – Storage products/natos/….
-//   Produkto ir kvapo formose – „Nuotaikos juosta“ (nuotrauka ir dvi eilutės; moodGroupHTML / bindMood),
-//   produkte – ir paantraštė (04-products.js, vidinis ekranas „Puslapio turinys“).
+//                             Lentelė note_media (migracija 20261122090000), failai - Storage products/natos/….
+//   Produkto ir kvapo formose - „Nuotaikos juosta“ (nuotrauka ir dvi eilutės; moodGroupHTML / bindMood),
+//   produkte - ir paantraštė (04-products.js, vidinis ekranas „Puslapio turinys“).
 //   admin/vitrina/puslapiai   tekstai ir blokai pagal tipą (settings.pdp; išsaugomi tik skirtumai nuo data/pdp.json).
 const noteState = { media: null, notes: [], products: [], q: "", f: "visos", cur: "", crop: null };
 const NOTE_CROP_PX = 480;
 
-// Nata → nuotrauka: tikslus pavadinimas, kitaip – pagrindinis žodis (kaip parduotuvėje, 28-story.js noteMedia)
+// Nata → nuotrauka: tikslus pavadinimas, kitaip - pagrindinis žodis (kaip parduotuvėje, 28-story.js noteMedia)
 function noteResolve(name, map) {
   const key = VD.noteKey(name);
   if (map.has(key)) return { ...map.get(key), exact: true };
@@ -30,7 +30,7 @@ async function loadNoteData() {
     sbRest("products?select=id,name,type,images,notes,rank&order=rank.asc"),
     sbRest("scents?select=id,name,notes").catch(() => [])
   ]);
-  noteState.media = Array.isArray(media) ? media : null; // null – lentelės dar nėra (migracija nepaleista)
+  noteState.media = Array.isArray(media) ? media : null; // null - lentelės dar nėra (migracija nepaleista)
   noteState.products = products || [];
   const all = new Map();
   const add = (raw, pid) => {
@@ -117,7 +117,7 @@ function paintNotes(page) {
   const rows = noteState.notes.map(n => ({ ...n, hit: noteResolve(n.name, map) })).filter(n => (!q || fold(n.name).includes(q)) && (noteState.f !== "be" || !n.hit));
   const warn =
     noteState.media === null
-      ? `<div class="ig axWarn"><p>Natų bibliotekos lentelės dar nėra – nuotraukų išsaugoti nepavyks. Supabase paleiskite migraciją 20261122090000_product_page.sql.</p></div>`
+      ? `<div class="ig axWarn"><p>Natų bibliotekos lentelės dar nėra - nuotraukų išsaugoti nepavyks. Supabase paleiskite migraciją 20261122090000_product_page.sql.</p></div>`
       : "";
   box.innerHTML = `${warn}${
     rows.length
@@ -149,7 +149,7 @@ ${groupHTML(
 )}`;
   hydrateIcons($("#noteOne", page));
 }
-// Nuotraukos pasirinkimas: pirmiausia – prekių su šia nata (jose ingredientas greičiausiai matomas), tada – kitos
+// Nuotraukos pasirinkimas: pirmiausia - prekių su šia nata (jose ingredientas greičiausiai matomas), tada - kitos
 function paintNotePick(page) {
   const k = VD.noteKey(noteState.cur);
   const has = p => ["top", "heart", "base"].some(t => (p.notes?.[t] || []).some(n => VD.noteKey(n) === k));
@@ -175,13 +175,13 @@ function openCrop(page, src, { local = false } = {}) {
 <div class="ntZoom"><button class="roundBtn" type="button" data-zoom="-1" aria-label="Mažinti">${glyph("minus")}</button><input type="range" min="1" max="6" step="0.01" value="2.4" aria-label="Mastelis" data-zoom-in /><button class="roundBtn" type="button" data-zoom="1" aria-label="Didinti">${glyph(
     "plus"
   )}</button></div>
-<p class="igFoot">Patraukite nuotrauką, kad ingredientas būtų apskritime. Mastelis – slankikliu, dviem pirštais arba pelės ratuku.</p>
+<p class="igFoot">Patraukite nuotrauką, kad ingredientas būtų apskritime. Mastelis - slankikliu, dviem pirštais arba pelės ratuku.</p>
 <button class="btn primary block" type="button" data-crop-save disabled>Išsaugoti</button>`;
   if ($("[data-pane='crop']", page).hidden) pushPane(page, "crop");
   const stage = $("[data-crop]", box);
   const img = $("img", stage);
   const range = $("[data-zoom-in]", box);
-  // Kito domeno nuotrauka (Storage) – su CORS, kad ją būtų galima iškirpti; atskiras adresas, kad nebūtų naudojama talpykla be CORS
+  // Kito domeno nuotrauka (Storage) - su CORS, kad ją būtų galima iškirpti; atskiras adresas, kad nebūtų naudojama talpykla be CORS
   const sameOrigin = local || new URL(src, location.href).origin === location.origin;
   if (!sameOrigin) img.crossOrigin = "anonymous";
   const c = { img, src, local, W: 0, H: 0, C: 0, z: 2.4, s: 1, tx: 0, ty: 0 };
@@ -197,7 +197,7 @@ function openCrop(page, src, { local = false } = {}) {
     img.style.transform = `translate(${c.tx}px, ${c.ty}px) scale(${c.s})`;
     range.value = String(c.z);
   };
-  // Mastelis aplink tašką (px, py) – tas nuotraukos taškas lieka po pirštu / pele
+  // Mastelis aplink tašką (px, py) - tas nuotraukos taškas lieka po pirštu / pele
   const zoomAt = (z, px = c.C / 2, py = c.C / 2) => {
     const ix = (px - c.tx) / c.s;
     const iy = (py - c.ty) / c.s;
@@ -224,7 +224,7 @@ function openCrop(page, src, { local = false } = {}) {
     img.style.height = `${c.H}px`;
     c.C = stage.clientWidth;
     c.s = base() * c.z;
-    // Pradžioje – apatinė vidurio dalis (ingredientai produktų nuotraukose dažniausiai apačioje)
+    // Pradžioje - apatinė vidurio dalis (ingredientai produktų nuotraukose dažniausiai apačioje)
     c.tx = c.C / 2 - c.W * c.s * 0.5;
     c.ty = c.C / 2 - c.H * c.s * 0.74;
     apply();
@@ -291,7 +291,7 @@ function openCrop(page, src, { local = false } = {}) {
     else if (e.key === "-") c.zoomBy(0.8);
   });
   stage.tabIndex = 0;
-  stage.setAttribute("aria-label", "Iškirpimo sritis: rodyklėmis – perkelti, + ir − – mastelis");
+  stage.setAttribute("aria-label", "Iškirpimo sritis: rodyklėmis perkelti, + ir - keisti mastelį");
   new ResizeObserver(layout).observe(stage);
 }
 async function saveNoteCrop(page) {
@@ -316,7 +316,7 @@ async function saveNoteCrop(page) {
     });
     if (!blob || blob.type !== "image/webp") blob = await new Promise(res => cv.toBlob(res, "image/jpeg", 0.88));
   } catch {
-    return toast("Šios nuotraukos iškirpti nepavyko – atsisiųskite ją ir pasirinkite „Įkelti nuotrauką“", { icon: "info", ms: 6000 });
+    return toast("Šios nuotraukos iškirpti nepavyko - atsisiųskite ją ir pasirinkite „Įkelti nuotrauką“", { icon: "info", ms: 6000 });
   }
   const url = await sbUpload("products", `natos/${slugify(name) || "nata"}-${Date.now().toString(36)}.${blob.type === "image/webp" ? "webp" : "jpg"}`, blob);
   const [row] = (await sbRest("note_media?on_conflict=name", { method: "POST", body: { name, image: url }, prefer: "resolution=merge-duplicates,return=representation" })) || [{ name, image: url }];
@@ -344,15 +344,15 @@ async function removeNoteImage(page) {
 }
 
 // ── Nuotaikos juosta (produkto ir kvapo formose) ──
-// ed.mood = { image, title, line }; nuotrauka – plati (interjeras, ingredientai), kelias products/nuotaika/<id>-…
+// ed.mood = { image, title, line }; nuotrauka - plati (interjeras, ingredientai), kelias products/nuotaika/<id>-…
 function moodGroupHTML(ed, { scent = false, cls = "" } = {}) {
   return `<div class="${cls}" data-mood-group><h2 class="igHead">Nuotaikos juosta</h2><div class="ig"><div data-mood-pic>${moodPicHTML(ed.mood.image)}</div>${fieldHTML(
     "Šūkis",
     `<input name="mood_title" maxlength="60" value="${esc(ed.mood.title)}" placeholder="Šiltas vakaras namuose" />`
   )}${fieldHTML("Antra eilutė", `<input name="mood_line" maxlength="90" value="${esc(ed.mood.line)}" placeholder="Kvapas, kuris sukuria jaukumą" />`)}</div><p class="igFoot">${
     scent
-      ? "Plati nuotrauka – interjeras ar produktai su ingredientais. Rodoma visų šio kvapo produktų puslapiuose; be jos – to paties kvapo produktų nuotraukos."
-      : "Tuščia – naudojama kvapo nuotaikos juosta (Katalogas → Kvapai)."
+      ? "Plati nuotrauka - interjeras ar produktai su ingredientais. Rodoma visų šio kvapo produktų puslapiuose; be jos - to paties kvapo produktų nuotraukos."
+      : "Tuščia - naudojama kvapo nuotaikos juosta (Katalogas → Kvapai)."
   }</p></div>`;
 }
 const moodPicHTML = src =>
@@ -434,8 +434,8 @@ ${groupHTML(fieldHTML("Paantraštė", `<input name="${n}.sub" maxlength="80" val
       foot: "Produkte galima įrašyti savą (Produktai → Puslapio turinys)."
     })}
 ${has("notes") && t.scented ? groupHTML(`${sw(`${n}.notes.on`, c.notes.on, "Rodyti natas")}${fieldHTML("Antraštė", `<input name="${n}.notes.title" maxlength="40" value="${esc(c.notes.title || "")}" />`)}`, { head: "Natos" }) : ""}
-${has("traits") ? groupHTML(`${sw(`${n}.traits.on`, c.traits.on, "Rodyti")}${fieldHTML("Antraštė", `<input name="${n}.traits.title" maxlength="40" value="${esc(c.traits.title || "")}" />`)}`, { head: "Kvapo charakteris", foot: "Ilgaamžiškumas ir sklaida – tik kai nustatyti kvape." }) : ""}
-${has("mood") && t.scented ? groupHTML(sw(`${n}.mood.on`, c.mood.on, "Rodyti"), { head: "Nuotaikos juosta", foot: "Nuotrauka – kvape arba produkte; be jos – to paties kvapo produktų nuotraukos." }) : ""}
+${has("traits") ? groupHTML(`${sw(`${n}.traits.on`, c.traits.on, "Rodyti")}${fieldHTML("Antraštė", `<input name="${n}.traits.title" maxlength="40" value="${esc(c.traits.title || "")}" />`)}`, { head: "Kvapo charakteris", foot: "Ilgaamžiškumas ir sklaida - tik kai nustatyti kvape." }) : ""}
+${has("mood") && t.scented ? groupHTML(sw(`${n}.mood.on`, c.mood.on, "Rodyti"), { head: "Nuotaikos juosta", foot: "Nuotrauka - kvape arba produkte; be jos - to paties kvapo produktų nuotraukos." }) : ""}
 ${groupHTML(
   `${sw(`${n}.steps.on`, c.steps?.on, "Rodyti")}${fieldHTML("Antraštė", `<input name="${n}.steps.title" maxlength="50" value="${esc(c.steps?.title || "")}" placeholder="Kaip naudoti" />`)}${Array.from({ length: PDP_STEP_SLOTS }, (_, i) => {
     const s = steps[i] || {};
@@ -452,9 +452,9 @@ ${groupHTML(
     const w = where[i] || {};
     return `<div class="pdpSlot"><span class="pdpIco" data-ico-prev>${VD.storyIco(w.ico || "sofa")}</span><div class="pdpSlotIn row"><select name="${n}.where.${i}.ico" aria-label="${i + 1} piktograma">${icoOpts(w.ico || "sofa")}</select><input name="${n}.where.${i}.label" maxlength="30" value="${esc(w.label || "")}" placeholder="Užrašas" aria-label="${i + 1} užrašas" /></div></div>`;
   }).join("")}`,
-  { head: "Piktogramos", foot: "Pvz. „Kur purkšti“, „Kur pastatyti“. Be užrašo – nerodoma." }
+  { head: "Piktogramos", foot: "Pvz. „Kur purkšti“, „Kur pastatyti“. Be užrašo - nerodoma." }
 )}
-${has("sample") ? groupHTML(sw(`${n}.sample.on`, c.sample.on, "Rodyti"), { head: "Mėginuko kortelė", foot: "„Išbandykite 2 ml mėginuką“ – kvepalams su mėginuku." }) : ""}
+${has("sample") ? groupHTML(sw(`${n}.sample.on`, c.sample.on, "Rodyti"), { head: "Mėginuko kortelė", foot: "„Išbandykite 2 ml mėginuką“ - kvepalams su mėginuku." }) : ""}
 ${groupHTML(
   `${sw(`${n}.note.on`, c.note?.on, "Rodyti")}${fieldHTML("Paryškinta pradžia", `<input name="${n}.note.title" maxlength="30" value="${esc(c.note?.title || "")}" placeholder="Priežiūra" />`)}${fieldHTML(
     "Tekstas",
@@ -481,7 +481,7 @@ ${groupHTML(
     cls: "axNarrow",
     body: `<form class="admForm" id="pdpForm" novalidate><div data-pane="main">${groupHTML(
       types.map(t => `<button class="axRow" type="button" data-push="t-${t.id}"><span class="axRowTxt"><b>${esc(t.name)}</b></span><span class="axVal" data-pdp-sum="${t.id}">${esc(sumOf(t))}</span><span class="axChev">${glyph("chev-right")}</span></button>`).join(""),
-      { head: "Kategorijos", foot: "Kiekviena kategorija – savo blokai: natos, žingsniai, piktogramos, pastaba. Rodomi tik turintys duomenų." }
+      { head: "Kategorijos", foot: "Kiekviena kategorija - savo blokai: natos, žingsniai, piktogramos, pastaba. Rodomi tik turintys duomenų." }
     )}</div>${types.map(paneHTML).join("")}</form>`
   });
   hydrateIcons(main);
@@ -507,7 +507,7 @@ ${groupHTML(
       pane.replaceWith(np);
       hydrateIcons(np);
       A.dirty = true;
-      toast("Atkurti numatytieji – neužmirškite išsaugoti", { icon: "check" });
+      toast("Atkurti numatytieji - neužmirškite išsaugoti", { icon: "check" });
     }
   });
   form.addEventListener("submit", e => {
@@ -526,7 +526,7 @@ ${groupHTML(
     });
   });
 }
-// Formos reikšmės → tipo nustatymai (raktų tvarka – kaip numatytuosiuose, kad palyginimas būtų tikslus)
+// Formos reikšmės → tipo nustatymai (raktų tvarka - kaip numatytuosiuose, kad palyginimas būtų tikslus)
 function readPdpType(form, type) {
   const d = VD.PDP_DEF[type] || {};
   const v = name => form.elements[`p.${type}.${name}`];
@@ -553,7 +553,7 @@ function readPdpType(form, type) {
   if ("note" in d) out.note = { ...d.note, on: on("note.on"), title: val("note.title"), text: val("note.text") };
   return out;
 }
-// Išsaugomi tik skirtumai nuo numatytųjų (data/pdp.json) – vėliau pakeisti numatytieji pasieks ir šią parduotuvę
+// Išsaugomi tik skirtumai nuo numatytųjų (data/pdp.json) - vėliau pakeisti numatytieji pasieks ir šią parduotuvę
 function pdpDiff(type, cfg) {
   const d = VD.PDP_DEF[type] || {};
   const out = {};

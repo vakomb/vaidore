@@ -1,15 +1,15 @@
-// Administravimo skydelis (/admin, v16 – iOS stilius) – atskiras failas assets/admin.js, įkeliamas tik administratoriui
+// Administravimo skydelis (/admin, v16 - iOS stilius) - atskiras failas assets/admin.js, įkeliamas tik administratoriui
 // (23-admin-loader.js). src/scripts/admin/*.js sujungiami eilės tvarka į vieną IIFE (bendras scope, be import/export).
-// Programėlės funkcijos – per window.VD. Duomenys – tiesiai iš Supabase (sbRest) su administratoriaus teisėmis (RLS: is_admin());
-// veiksmai, kuriems reikia paslapčių (laiškai, Stripe grąžinimai, perrinkimas) – per Edge Function shop/admin.
+// Programėlės funkcijos - per window.VD. Duomenys - tiesiai iš Supabase (sbRest) su administratoriaus teisėmis (RLS: is_admin());
+// veiksmai, kuriems reikia paslapčių (laiškai, Stripe grąžinimai, perrinkimas) - per Edge Function shop/admin.
 //
-// Struktūra (5 skirtukai; telefone – apačioje, planšetėje – ikonų juosta kairėje, kompiuteryje – šoninis meniu):
+// Struktūra (5 skirtukai; telefone - apačioje, planšetėje - ikonų juosta kairėje, kompiuteryje - šoninis meniu):
 //   Šiandien    admin                         apžvalga, „Reikia dėmesio“, maži likučiai, perkamiausi, naujausi užsakymai
-//   Užsakymai   admin/uzsakymai[/<nr.>]       sąrašas → užsakymas (kompiuteryje – dviem stulpeliais)
-//   Katalogas   admin/kvapai[/<id>]           Produktai (admin/kvapai/naujas – naujas)
+//   Užsakymai   admin/uzsakymai[/<nr.>]       sąrašas → užsakymas (kompiuteryje - dviem stulpeliais)
+//   Katalogas   admin/kvapai[/<id>]           Produktai (admin/kvapai/naujas - naujas)
 //               admin/kvapu-sarasas[/<id>]    Kvapai (bendri kvapai, scents)
 //               admin/kategorijos             Kolekcijos ir kvapo šeimos
-//               admin/natos                   Natų biblioteka – ingredientų nuotraukos (15-pdp.js, v29)
+//               admin/natos                   Natų biblioteka - ingredientų nuotraukos (15-pdp.js, v29)
 //   Vitrina     admin/vitrina[/<dalis>]       skaidres, skyriai, plyteles, juosta (su peržiūra), korteles, istorija,
 //                                             puslapiai (prekių puslapių tekstai pagal tipą, v29)
 //   Daugiau     admin/daugiau                 Klientai, Nustatymai, Žurnalas, Atnaujinti svetainę, Atsijungti
@@ -34,7 +34,7 @@ const TABS = [
   { id: "vitrina", name: "Vitrina", ico: "store", href: "admin/vitrina" },
   { id: "daugiau", name: "Daugiau", ico: "more", href: "admin/daugiau", counts: ["reviews", "restock"] }
 ];
-// split – kompiuteryje sąrašas ir detalės dviem stulpeliais
+// split - kompiuteryje sąrašas ir detalės dviem stulpeliais
 const SECTIONS = {
   "": { tab: "siandien", name: "Šiandien", render: (m, p, s) => renderOverview(m, p, s) },
   uzsakymai: { tab: "uzsakymai", name: "Užsakymai", split: true, render: (m, p, s) => renderOrders(m, p, s) },
@@ -119,7 +119,7 @@ const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)")
 // ── Pagalbinės ────────────────────────────────────────
 const num = v => (v === "" || v == null ? null : Number(String(v).replace(",", ".")));
 const centsEur = c => eur((Number(c) || 0) / 100);
-// Kainos laukuose – su kableliu (lietuviškai); num() supranta ir kablelį, ir tašką
+// Kainos laukuose - su kableliu (lietuviškai); num() supranta ir kablelį, ir tašką
 const dec = v => (v === "" || v == null ? "" : String(v).replace(".", ","));
 const list = s =>
   String(s || "")
@@ -133,8 +133,8 @@ const errText = err => {
   const m = String(err?.message || err || "Nepavyko");
   if (/row-level security|permission denied/i.test(m)) return "Neturite teisių šiam veiksmui";
   if (/duplicate key/i.test(m)) return "Toks įrašas (id) jau yra";
-  if (/foreign key/i.test(m)) return "Įrašas naudojamas kitur – pirma pakeiskite susijusius įrašus";
-  if (/Failed to fetch|NetworkError/i.test(m)) return "Nėra ryšio – bandykite dar kartą";
+  if (/foreign key/i.test(m)) return "Įrašas naudojamas kitur - pirma pakeiskite susijusius įrašus";
+  if (/Failed to fetch|NetworkError/i.test(m)) return "Nėra ryšio - bandykite dar kartą";
   return m;
 };
 // Mygtukas „dirba“: išjungiamas ir rodo suktuką, kol vyksta veiksmas
@@ -158,7 +158,7 @@ async function busy(btn, fn) {
     syncSave();
   }
 }
-// Edge Function shop/admin (laiškai, Stripe, perrinkimas). Klaidos tekstas – iš serverio.
+// Edge Function shop/admin (laiškai, Stripe, perrinkimas). Klaidos tekstas - iš serverio.
 async function shopAdmin(body) {
   const r = await sbFn("shop/admin", { method: "POST", body: JSON.stringify(body) });
   const d = await r.json().catch(() => ({}));
@@ -172,13 +172,13 @@ const thumb = p => `<span class="admThumb" style="--tint:${esc(p.look?.tint || "
 async function catalogChanged(msg = "Išsaugota") {
   A.dirty = false;
   await VD.refreshCatalog({ rerender: false }).catch(() => {});
-  toast(`${msg} – parduotuvėje matoma iškart`, { icon: "check", action: "Atnaujinti svetainę", onAction: rebuildSite, ms: 5200 });
+  toast(`${msg} - parduotuvėje matoma iškart`, { icon: "check", action: "Atnaujinti svetainę", onAction: rebuildSite, ms: 5200 });
 }
 async function rebuildSite() {
   try {
     const d = await shopAdmin({ action: "rebuild" });
-    if (d.done?.length) toast(`Svetainė atnaujinama (${d.done.join(", ")}) – po 1–2 min.`, { icon: "check", ms: 4200 });
-    else toast("Automatinis atnaujinimas nenustatytas – žr. SKAITYK.txt (GITHUB_TOKEN arba VERCEL_DEPLOY_HOOK)", { icon: "info", ms: 6000 });
+    if (d.done?.length) toast(`Svetainė atnaujinama (${d.done.join(", ")}) - po 1-2 min.`, { icon: "check", ms: 4200 });
+    else toast("Automatinis atnaujinimas nenustatytas - žr. SKAITYK.txt (GITHUB_TOKEN arba VERCEL_DEPLOY_HOOK)", { icon: "info", ms: 6000 });
   } catch (err) {
     toast(errText(err), { icon: "info", ms: 4200 });
   }
@@ -195,14 +195,14 @@ function downloadFile(name, text, type = "text/csv;charset=utf-8") {
 // CSV Excel'iui (LT): kabliataškis, BOM
 const csv = rows => "﻿" + rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
 const emptyBox = (title, text = "", extra = "") => `<div class="axEmpty"><h3>${esc(title)}</h3>${text ? `<p>${esc(text)}</p>` : ""}${extra}</div>`;
-// Kraunant – skeleton eilutės, ne tuščias ekranas
+// Kraunant - skeleton eilutės, ne tuščias ekranas
 const loading = (rows = 6) => `<div class="axSkel" aria-busy="true" aria-label="Įkeliama"><div class="ig">${'<div class="axSkelRow"><i></i><span><b></b><s></s></span></div>'.repeat(rows)}</div></div>`;
-// Paleidžia skyriaus įkėlimą; jei vartotojas jau perėjo kitur – rezultato nebepiešia
+// Paleidžia skyriaus įkėlimą; jei vartotojas jau perėjo kitur - rezultato nebepiešia
 const stale = seq => seq !== A.seq;
 
 // ── Puslapio dalys ────────────────────────────────────
 // Navigacijos juosta: atgal (kairėje) · pavadinimas (pasirodo nuslinkus) · veiksmai (dešinėje); didelė antraštė
-// back: { href, label } – nuoroda atgal; save: { form, label, always } – „Išsaugoti“ (aktyvus tik kai yra pakeitimų)
+// back: { href, label } - nuoroda atgal; save: { form, label, always } - „Išsaugoti“ (aktyvus tik kai yra pakeitimų)
 function barHTML({ title = "", back = null, actions = "" } = {}) {
   return `<header class="axBar"><div class="axBarL">${back ? `<a class="axBack" href="${esc(back.href)}" data-nav>${glyph("chev-left")}<span>${esc(back.label)}</span></a>` : ""}<button class="axBack axPop" type="button" data-pop hidden>${glyph(
     "chev-left"
@@ -254,7 +254,7 @@ function splitPanes(main, key) {
   old.replaceWith(detail);
   return { list: $("#admList", wrap), detail, fresh };
 }
-// Skyriams po „Daugiau“ – „‹ Daugiau“ (kompiuteryje – šoninis meniu)
+// Skyriams po „Daugiau“ - „‹ Daugiau“ (kompiuteryje - šoninis meniu)
 const hubBack = () => (isSplit() ? null : { href: "admin/daugiau", label: "Daugiau" });
 const detailEmpty = (ico, text) => `<div class="axDetailEmpty">${glyph(ico)}<p>${esc(text)}</p></div>`;
 // Pažymima pasirinkta eilutė sąraše (kompiuteryje)
@@ -322,7 +322,7 @@ function setPageTitle(page, title, backLabel) {
     if (link) link.hidden = false;
   }
 }
-// Laukas paslėptame ekrane – atidaromas jo ekranas, laukas parodomas ir sufokusuojamas
+// Laukas paslėptame ekrane - atidaromas jo ekranas, laukas parodomas ir sufokusuojamas
 function revealField(el) {
   if (!el) return;
   const pane = el.closest("[data-pane]");
@@ -336,7 +336,7 @@ function revealField(el) {
     if (el.focus) setTimeout(() => el.focus({ preventScroll: true }), 280);
   });
 }
-// Formos klaida – rodoma viršuje (pagrindiniame ekrane)
+// Formos klaida - rodoma viršuje (pagrindiniame ekrane)
 function showFormErr(form, errors) {
   const err = $(".formErr", form);
   if (!err) return;
@@ -364,7 +364,7 @@ function actionSheet({ title = "", text = "", actions = [] }) {
   return new Promise(resolve => {
     let pick = null;
     openSheet({
-      // Pasirinkimų sąrašas (a.checked apibrėžtas): tekstas kairėje, pasirinktas – su varnele dešinėje
+      // Pasirinkimų sąrašas (a.checked apibrėžtas): tekstas kairėje, pasirinktas - su varnele dešinėje
       html: `<div class="axSheet">${title || text ? `<div class="axSheetHead">${title ? `<b>${esc(title)}</b>` : ""}${text ? `<p>${esc(text)}</p>` : ""}</div>` : ""}<div class="axActs${actions.some(a => "checked" in a) ? " axPick" : ""}">${actions
         .map(
           a =>
@@ -493,7 +493,7 @@ function rowActions(box, getActs, onAct) {
   box.addEventListener("pointerup", end);
   box.addEventListener("pointercancel", end);
 }
-// Eilės keitimas tempiant rankenėlę (⋮⋮); klaviatūra – ↑ ↓ ant rankenėlės. onMove(from, to)
+// Eilės keitimas tempiant rankenėlę (⋮⋮); klaviatūra - ↑ ↓ ant rankenėlės. onMove(from, to)
 function sortable(box, { item, handle = ".axGrip", onMove, axis = "y", touch = true }) {
   if (box._sortable) return;
   box._sortable = true;
@@ -552,7 +552,7 @@ function sortable(box, { item, handle = ".axGrip", onMove, axis = "y", touch = t
       el.style.transform = "";
       const to = items().indexOf(el);
       if (moved) {
-        // Po tempimo – paspaudimas nebeskaičiuojamas
+        // Po tempimo - paspaudimas nebeskaičiuojamas
         const stop = ev => {
           ev.stopPropagation();
           ev.preventDefault();
@@ -570,8 +570,8 @@ function sortable(box, { item, handle = ".axGrip", onMove, axis = "y", touch = t
 const gripHTML = (label = "Perkelti") => `<button class="axGrip" type="button" aria-label="${esc(label)} (tempkite arba ↑ ↓)" title="Tempkite">${glyph("grip")}</button>`;
 const moveItem = (arr, from, to) => arr.splice(to, 0, ...arr.splice(from, 1));
 
-// Paveikslų įkėlimas: sumažinama iki 1600 px ir išsaugoma WebP (Safari – JPEG), kad puslapis liktų greitas.
-// Jei createImageBitmap formato neatpažįsta (pvz. iPhone HEIC kompiuteryje), bandoma per <img>; nepavykus – aiški klaida.
+// Paveikslų įkėlimas: sumažinama iki 1600 px ir išsaugoma WebP (Safari - JPEG), kad puslapis liktų greitas.
+// Jei createImageBitmap formato neatpažįsta (pvz. iPhone HEIC kompiuteryje), bandoma per <img>; nepavykus - aiški klaida.
 async function decodeImage(file) {
   try {
     return await createImageBitmap(file);
@@ -585,7 +585,7 @@ async function decodeImage(file) {
     } catch {
       throw new Error(
         /\.hei[cf]$/i.test(file.name) || /hei[cf]/i.test(file.type)
-          ? `${file.name}: HEIC formato ši naršyklė neatidaro – išsaugokite nuotrauką kaip JPG arba įkelkite iš telefono`
+          ? `${file.name}: HEIC formato ši naršyklė neatidaro - išsaugokite nuotrauką kaip JPG arba įkelkite iš telefono`
           : `${file.name}: nepavyko atidaryti nuotraukos (tinka JPG, PNG, WebP)`
       );
     } finally {
@@ -593,15 +593,15 @@ async function decodeImage(file) {
     }
   }
 }
-// Ar paveikslas turi permatomų vietų (tikrinama kas kelintas taškas – greitai ir dideliems paveikslams)
+// Ar paveikslas turi permatomų vietų (tikrinama kas kelintas taškas - greitai ir dideliems paveikslams)
 function hasAlpha(ctx, w, h) {
   const d = ctx.getImageData(0, 0, w, h).data;
   const step = Math.max(1, Math.floor((w * h) / 250000)) * 4;
   for (let i = 3; i < d.length; i += step) if (d[i] < 250) return true;
   return false;
 }
-// Prekės nuotrauka (v15b): permatomas fonas išlieka (WebP, o jei naršyklė WebP nekoduoja, pvz. senesnis iPhone – PNG,
-// ne JPEG, kuris fonas taptų baltas). Nepermatoma prekės nuotrauka – JPEG: parduotuvė pagal .jpg žino, kad tai
+// Prekės nuotrauka (v15b): permatomas fonas išlieka (WebP, o jei naršyklė WebP nekoduoja, pvz. senesnis iPhone - PNG,
+// ne JPEG, kuris fonas taptų baltas). Nepermatoma prekės nuotrauka - JPEG: parduotuvė pagal .jpg žino, kad tai
 // stačiakampė nuotrauka, ir nededa šešėlio (kitaip šonuose matomos pilkos juostos).
 async function prepareImage(file, max = 1600, { product = false } = {}) {
   if (!/^image\//.test(file.type) && !/\.(jpe?g|png|webp|gif|avif|hei[cf])$/i.test(file.name)) throw new Error(`${file.name}: ne paveikslas`);
@@ -657,7 +657,7 @@ async function saveSettingsPatch(next) {
   const [cur] = (await sbRest("settings?select=data&id=eq.1")) || [];
   const data = { ...(cur?.data || VD.SET), ...next };
   const saved = await sbRest("settings?id=eq.1", { method: "PATCH", body: { data }, prefer: "return=representation" });
-  if (!saved?.length) throw new Error("Nustatymų įrašo nėra – paleiskite supabase/seed.sql");
+  if (!saved?.length) throw new Error("Nustatymų įrašo nėra - paleiskite supabase/seed.sql");
   return data;
 }
 
@@ -727,7 +727,7 @@ function paintChrome() {
     const isCur = a.dataset.tab === tab;
     if (isCur) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
-    // Skirtukas veda į paskutinį jame atidarytą ekraną; jau atidarytas – į pradžią (kaip iOS)
+    // Skirtukas veda į paskutinį jame atidarytą ekraną; jau atidarytas - į pradžią (kaip iOS)
     const t = TABS.find(x => x.id === a.dataset.tab);
     a.setAttribute("href", !isCur && A.last[t.id] ? A.last[t.id] : t.href);
   });
@@ -786,7 +786,7 @@ function fail(main, err) {
     body: emptyBox("Nepavyko įkelti", errText(err), `<button class="btn primary" type="button" onclick="location.reload()">Perkrauti</button>`)
   });
 }
-// Pasikeitus pločiui (pvz. pasukus planšetę) – vienas ar du stulpeliai
+// Pasikeitus pločiui (pvz. pasukus planšetę) - vienas ar du stulpeliai
 splitMQ.addEventListener("change", () => {
   if (document.documentElement.classList.contains("isAdmin") && $("#admMain") && SECTIONS[A.sec]?.split && !A.dirty) {
     A.sec = "__";
@@ -794,7 +794,7 @@ splitMQ.addEventListener("change", () => {
   }
 });
 
-// Neišsaugoti pakeitimai – perspėjama prieš išeinant
+// Neišsaugoti pakeitimai - perspėjama prieš išeinant
 document.addEventListener(
   "click",
   e => {
@@ -826,7 +826,7 @@ document.addEventListener("click", e => {
     pushPane(push.closest(".axPage"), push.dataset.push);
   }
 });
-// Klaviatūra (kompiuteryje): „/“ – paieška, ⌘/Ctrl+S – išsaugoti, Esc – atgal, ↑ ↓ – sąraše
+// Klaviatūra (kompiuteryje): „/“ - paieška, ⌘/Ctrl+S - išsaugoti, Esc - atgal, ↑ ↓ - sąraše
 document.addEventListener("keydown", e => {
   if (!document.documentElement.classList.contains("isAdmin") || !$("#admMain")) return;
   const t = e.target instanceof Element ? e.target : null;
@@ -871,7 +871,7 @@ document.addEventListener("keydown", e => {
   }
 });
 
-// Iš anksto įkeliama užvedus pelę ar palietus meniu nuorodą (sąrašų duomenys – talpykloje 30 s)
+// Iš anksto įkeliama užvedus pelę ar palietus meniu nuorodą (sąrašų duomenys - talpykloje 30 s)
 const PREFETCH = { "admin/uzsakymai": () => loadOrders(), "admin/kvapai": () => loadProducts() };
 const prefetched = {};
 function prefetch(e) {

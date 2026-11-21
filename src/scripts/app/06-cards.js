@@ -1,5 +1,5 @@
-// 06 – prekės kortelė (katalogas, pradžia, mėgstami, krepšelis): tikra nuoroda į kvapo puslapį (kvepalai/<id>) ir
-// širdelė. v10 (kaip parfumada.lt): kortelėje tik PAVADINIMAS · natos · kaina („Įkvėpti …“ – kvapo puslapyje).
+// 06 - prekės kortelė (katalogas, pradžia, mėgstami, krepšelis): tikra nuoroda į kvapo puslapį (kvepalai/<id>) ir
+// širdelė. v10 (kaip parfumada.lt): kortelėje tik PAVADINIMAS · natos · kaina („Įkvėpti …“ - kvapo puslapyje).
 function heartBtn(p, cls = "heart") {
   const on = state.fav.has(p.id);
   return `<button class="${cls}" type="button" data-fav="${p.id}" aria-pressed="${on}" aria-label="${on ? "Pašalinti iš mėgstamų" : "Į mėgstamus"}"><svg viewBox="0 0 24 24">${GLYPH.heart}</svg></button>`;
@@ -10,9 +10,9 @@ function badgePill(p) {
   if (!p.badge) return "";
   return `<span class="pill glass">${esc(p.badge)}</span>`;
 }
-// Nuotrauka su fonu (JPEG – visada stačiakampė, be permatomumo): be šešėlio, kad šonuose nebūtų pilkų juostų (v15b)
+// Nuotrauka su fonu (JPEG - visada stačiakampė, be permatomumo): be šešėlio, kad šonuose nebūtų pilkų juostų (v15b)
 const flatImg = src => /\.jpe?g(?:[?#]|$)/i.test(src || "");
-// Paveikslas: tikra nuotrauka (images[0], WebP), jei yra; kitaip – buteliuko SVG
+// Paveikslas: tikra nuotrauka (images[0], WebP), jei yra; kitaip - buteliuko SVG
 function artImg(p, { eager = false } = {}) {
   const src = p.images?.[0];
   return src

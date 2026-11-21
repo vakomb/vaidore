@@ -1,13 +1,13 @@
-// 14 – Kvapai (v15, lentelė scents): atskira administravimo skiltis admin/kvapu-sarasas – visų kvapų valdymas.
+// 14 - Kvapai (v15, lentelė scents): atskira administravimo skiltis admin/kvapu-sarasas - visų kvapų valdymas.
 //   admin/kvapu-sarasas            sąrašas (paieška; spalva, pavadinimas, originalas, šeima, kiek produktų)
 //   admin/kvapu-sarasas/naujas     naujas kvapas: įklijuotas aprašymas → kvapo laukai (13-autofill.js), papildyti ranka
 //   admin/kvapu-sarasas/<id>       kvapas: pavadinimas, originalas, lytis, šeima, natos, spalvos;
-//                                  susieti produktai („Naujas produktas su šiuo kvapu“), pakeitimai – pasirinktinai ir
+//                                  susieti produktai („Naujas produktas su šiuo kvapu“), pakeitimai - pasirinktinai ir
 //                                  susietiems produktams; ištrynimas (produktai lieka, tik atsiejami).
-// Kvapas – šaltinis naujų produktų automatiniam užpildymui (04-products.js, laukas „Kvapas“).
+// Kvapas - šaltinis naujų produktų automatiniam užpildymui (04-products.js, laukas „Kvapas“).
 const scentState = { rows: [], counts: new Map(), q: "" };
 const SCENT_KEYS = ["name", "inspired", "gender", "family", "notes", "look"];
-// Laukai, kurie pritaikomi susietiems produktams (pavadinimas, aprašymas, spalvos – produkto)
+// Laukai, kurie pritaikomi susietiems produktams (pavadinimas, aprašymas, spalvos - produkto)
 const SCENT_TO_PRODUCT = ["inspired", "inspired_image", "gender", "family", "notes", "longevity", "sillage"];
 
 async function loadScents(force = false) {
@@ -16,7 +16,7 @@ async function loadScents(force = false) {
   if (rows) {
     scentState.rows = rows;
     scentState.counts = new Map();
-    // Originalo nuotrauka sąraše: iš kvapo, o jei jo stulpelio dar nėra – iš susieto produkto
+    // Originalo nuotrauka sąraše: iš kvapo, o jei jo stulpelio dar nėra - iš susieto produkto
     scentState.thumbs = new Map();
     for (const p of products || []) {
       if (!p.scent_id) continue;
@@ -65,7 +65,7 @@ function scentsListHTML(skeleton) {
     titleId: !isSplit() || !A.param,
     actions: barLink("plus", "Naujas kvapas", "admin/kvapu-sarasas/naujas"),
     tools: `${catalogSeg("kvapu-sarasas")}${searchHTML("scentQ", "Pavadinimas, originalas, nata", scentState.q, "Paieška kvapuose")}`,
-    body: `<div id="scentList">${skeleton ? loading(8) : ""}</div><p class="igFoot">Vienas kvapas – keli produktai (kvepalai, difuzorius, žvakė, aliejus).</p>`
+    body: `<div id="scentList">${skeleton ? loading(8) : ""}</div><p class="igFoot">Vienas kvapas - keli produktai (kvepalai, difuzorius, žvakė, aliejus).</p>`
   });
 }
 function mountScentsList(box) {
@@ -109,7 +109,7 @@ async function renderScentEdit(main, id, seq) {
     sbRest("families?select=*&order=sort.asc"),
     isNew ? Promise.resolve([]) : sbRest(`products?select=*&scent_id=eq.${encodeURIComponent(id)}&order=rank.asc`),
     sbRest("scents?select=id"),
-    // Naujam kvapui – ar jau yra nuotaikos juostos stulpeliai (migracija 20261122090000)
+    // Naujam kvapui - ar jau yra nuotaikos juostos stulpeliai (migracija 20261122090000)
     isNew ? sbRest("scents?select=*&limit=1").catch(() => []) : Promise.resolve([])
   ]);
   if (stale(seq)) return;
@@ -121,14 +121,14 @@ async function renderScentEdit(main, id, seq) {
     return;
   }
   const ed = { x, isNew, fams, linked: linked || [], ids: new Set((all || []).map(r => r.id)) };
-  // Originalo nuotrauka (v18) – įkeliama tik čia, kvape. Saugoma scents.inspired_image (migracija 20261121090000)
-  // ir visada pritaikoma susietiems produktams (products.inspired_image – ją rodo parduotuvė). Jei kvapų lentelėje
-  // stulpelio dar nėra – nuotrauka laikoma tik produktuose.
+  // Originalo nuotrauka (v18) - įkeliama tik čia, kvape. Saugoma scents.inspired_image (migracija 20261121090000)
+  // ir visada pritaikoma susietiems produktams (products.inspired_image - ją rodo parduotuvė). Jei kvapų lentelėje
+  // stulpelio dar nėra - nuotrauka laikoma tik produktuose.
   ed.imgCol = isNew ? (scentState.rows[0] ? "inspired_image" in scentState.rows[0] : true) : "inspired_image" in x;
   ed.prodCol = ed.linked.length ? "inspired_image" in ed.linked[0] : true;
   ed.img0 = x.inspired_image || (ed.prodCol && ed.linked.find(p => p.inspired_image)?.inspired_image) || "";
   ed.img = ed.img0;
-  // Nuotaikos juosta (v29): kvapo lygiu – visiems šio kvapo produktams
+  // Nuotaikos juosta (v29): kvapo lygiu - visiems šio kvapo produktams
   ed.moodCol = isNew ? !!one?.[0] && "mood_image" in one[0] : "mood_image" in x;
   ed.mood = { image: x.mood_image || "", title: x.mood_title || "", line: x.mood_line || "" };
   ed.mood0 = JSON.stringify(ed.mood);
@@ -149,7 +149,7 @@ ${
 ${groupHTML(
   `${fieldHTML("Pavadinimas", `<input name="name" required maxlength="60" value="${esc(x.name)}" />`)}${
     isNew ? fieldHTML("Adresas", `<input name="id" required maxlength="60" pattern="[a-z0-9-]+" value="" placeholder="mazosios-raides" />`) : ""
-  }${fieldHTML("Originalas", `<input name="inspired" maxlength="120" value="${esc(x.inspired || "")}" placeholder="Emporio Armani – My Way" />`)}${fieldHTML(
+  }${fieldHTML("Originalas", `<input name="inspired" maxlength="120" value="${esc(x.inspired || "")}" placeholder="Emporio Armani - My Way" />`)}${fieldHTML(
     "Kam",
     `<select name="gender">${Object.entries(VD.GENDER_NAME).map(([v, l]) => opt(v, l, x.gender)).join("")}</select>`
   )}${fieldHTML("Kvapo šeima", `<select name="family">${fams.map(f => opt(f.id, f.name, x.family)).join("")}</select>`)}`,
@@ -179,7 +179,7 @@ ${
           ? `<label class="axField axSwitchRow"><span>Pakeitimus pritaikyti ir produktams</span><input type="checkbox" name="apply" class="admSwitchInp" checked /></label>`
           : ""
       }<a class="axRow axAddRow scNewProd" href="admin/kvapai/naujas?kvapas=${esc(x.id)}" data-nav>${glyph("plus")}<span class="axRowTxt"><b>Naujas produktas su šiuo kvapu</b></span></a></div>
-${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span class="axRowTxt"><b>Ištrinti kvapą</b></span></button>`, { foot: "Produktai liks parduotuvėje – tik nebebus susieti su šiuo kvapu." })}`
+${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span class="axRowTxt"><b>Ištrinti kvapą</b></span></button>`, { foot: "Produktai liks parduotuvėje - tik nebebus susieti su šiuo kvapu." })}`
 }
 </form>`;
   main.innerHTML = pageHTML({
@@ -249,7 +249,7 @@ ${groupHTML(`<button class="axRow danger" type="button" data-scent-del><span cla
 function scentInspFoot(ed) {
   const n = ed.linked.length;
   if (!ed.imgCol && !n) return "Kad nuotrauka išliktų kvape be produktų, Supabase reikia paleisti migraciją 20261121090000_scent_inspired_image.sql.";
-  return n ? `Kvadratinė, šviesiame fone. Išsaugojus rodoma ${plural(n, "susietame produkte", "susietuose produktuose", "susietų produktų")} – kortelėse ir produkto puslapyje.` : "Kvadratinė, šviesiame fone. Rodoma visuose šio kvapo produktuose – kortelėse ir produkto puslapyje.";
+  return n ? `Kvadratinė, šviesiame fone. Išsaugojus rodoma ${plural(n, "susietame produkte", "susietuose produktuose", "susietų produktų")} - kortelėse ir produkto puslapyje.` : "Kvadratinė, šviesiame fone. Rodoma visuose šio kvapo produktuose - kortelėse ir produkto puslapyje.";
 }
 const scentUniqueId = (ed, base) => {
   let id = base || "kvapas";
@@ -274,7 +274,7 @@ function scentAutofill(ed, form, paintPrev) {
   set("top", x.notes.top.join(", "));
   set("heart", x.notes.heart.join(", "));
   set("base", x.notes.base.join(", "));
-  // Ilgaamžiškumas ir sklaida formoje nerodomi (v15) – saugomi tyliai (naudoja kvapo testas)
+  // Ilgaamžiškumas ir sklaida formoje nerodomi (v15) - saugomi tyliai (naudoja kvapo testas)
   if (x.longevity) ed.x.longevity = x.longevity;
   if (x.sillage) ed.x.sillage = x.sillage;
   if (x.look?.liquid) set("liquid", x.look.liquid);
@@ -287,7 +287,7 @@ function scentAutofill(ed, form, paintPrev) {
   if (!x.inspired) missing.push({ key: "inspired", label: "Originalo kvapas" });
   if (!x.notes.top.length && !x.notes.heart.length && !x.notes.base.length) missing.push({ key: "notes", label: "Natos" });
   if (!x.family) missing.push({ key: "family", label: "Kvapo šeima" });
-  missing.push(...res.missing.filter(m => m.key === "notes" && m.label.startsWith("Natos –")));
+  missing.push(...res.missing.filter(m => m.key === "notes" && m.label.startsWith("Natos -")));
   afReport(form, { ...res, missing });
   A.dirty = true;
 }
@@ -309,8 +309,8 @@ function readScent(ed, form) {
   if (!row.name) errors.push("Įrašykite pavadinimą");
   if (ed.isNew) {
     row.id = f.id.value.trim();
-    if (!/^[a-z0-9-]+$/.test(row.id)) errors.push("Adresas (id) – tik mažosios raidės, skaičiai ir „-“");
-    else if (ed.ids.has(row.id) || row.id === "naujas") errors.push("Toks adresas jau užimtas – pakeiskite");
+    if (!/^[a-z0-9-]+$/.test(row.id)) errors.push("Adresas (id) - tik mažosios raidės, skaičiai ir „-“");
+    else if (ed.ids.has(row.id) || row.id === "naujas") errors.push("Toks adresas jau užimtas - pakeiskite");
   }
   if (!row.notes.top.length && !row.notes.heart.length && !row.notes.base.length) errors.push("Įrašykite bent vieną natą");
   return { row, errors };
@@ -330,7 +330,7 @@ async function saveScent(ed, form) {
   }
   await sbRest(`scents?id=eq.${encodeURIComponent(ed.x.id)}`, { method: "PATCH", body: row });
   const apply = ed.linked.length && form.elements.apply?.checked;
-  // Originalo nuotrauka – kvapo savybė: pakeista visada atsiranda visuose susietuose produktuose
+  // Originalo nuotrauka - kvapo savybė: pakeista visada atsiranda visuose susietuose produktuose
   const imgChanged = ed.img !== ed.img0 && ed.linked.length && ed.prodCol;
   if (apply) {
     const patch = Object.fromEntries(SCENT_TO_PRODUCT.map(k => [k, row[k]]));
@@ -344,17 +344,17 @@ async function saveScent(ed, form) {
   if ((apply || imgChanged) && ed.prodCol) (scentState.thumbs ||= new Map()).set(ed.x.id, ed.img);
   paintScents();
   A.dirty = false;
-  // Nuotaikos juosta – parduotuvėje matoma visuose šio kvapo produktuose (katalogas atnaujinamas)
+  // Nuotaikos juosta - parduotuvėje matoma visuose šio kvapo produktuose (katalogas atnaujinamas)
   const moodChanged = ed.moodCol && JSON.stringify({ image: row.mood_image, title: row.mood_title, line: row.mood_line }) !== ed.mood0;
-  if (apply || imgChanged) await catalogChanged(`Išsaugota – ${apply ? "pritaikyta" : "nuotrauka atnaujinta"} ${plural(ed.linked.length, "produktui", "produktams", "produktų")}`);
-  else if (moodChanged) await catalogChanged("Išsaugota – nuotaikos juosta atnaujinta");
+  if (apply || imgChanged) await catalogChanged(`Išsaugota - ${apply ? "pritaikyta" : "nuotrauka atnaujinta"} ${plural(ed.linked.length, "produktui", "produktams", "produktų")}`);
+  else if (moodChanged) await catalogChanged("Išsaugota - nuotaikos juosta atnaujinta");
   else toast("Išsaugota", { icon: "check" });
-  // Kol buvo saugoma, vartotojas galėjo pereiti kitur – tada ekranas neperpiešiamas
+  // Kol buvo saugoma, vartotojas galėjo pereiti kitur - tada ekranas neperpiešiamas
   if (!stale(seq0)) render(`kvapu-sarasas/${ed.x.id}`);
 }
 async function deleteScent(ed) {
   const n = ed.linked.length;
-  const ok = await askConfirm(`„${ed.x.name}“ bus ištrintas iš kvapų sąrašo.${n ? ` ${plural(n, "produktas liks", "produktai liks", "produktų liks")} parduotuvėje – tik nebebus susieti su šiuo kvapu.` : ""}`, {
+  const ok = await askConfirm(`„${ed.x.name}“ bus ištrintas iš kvapų sąrašo.${n ? ` ${plural(n, "produktas liks", "produktai liks", "produktų liks")} parduotuvėje - tik nebebus susieti su šiuo kvapu.` : ""}`, {
     title: "Ištrinti kvapą?",
     ok: "Ištrinti",
     danger: true

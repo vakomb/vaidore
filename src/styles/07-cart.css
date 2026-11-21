@@ -48,7 +48,7 @@
   background: #000;
 }
 
-/* Eilutės – be dėžutės, atskirtos linijomis (v23: be „Prekė / Suma“ antraštės) */
+/* Eilutės - be dėžutės, atskirtos linijomis (v23: be „Prekė / Suma“ antraštės) */
 .lines {
   margin-top: 14px;
   border-top: 1px solid var(--line);
@@ -146,7 +146,7 @@
   font-size: 17px;
 }
 
-/* Suvestinė – objektas (kortelė su šešėliu) */
+/* Suvestinė - objektas (kortelė su šešėliu) */
 .sum {
   margin-top: 30px;
   padding: 6px 0 0;
@@ -243,7 +243,7 @@
   gap: 8px;
 }
 
-/* Krepšelio puslapio viršus – kaip parfumada */
+/* Krepšelio puslapio viršus - kaip parfumada */
 .contLink {
   display: inline-block;
   margin-top: 10px;

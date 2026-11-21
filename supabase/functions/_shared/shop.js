@@ -1,9 +1,9 @@
-// Vaidore serverio logika – bendra visoms Supabase Edge Functions (Deno) ir testams (Node: tools/test-api.mjs).
+// Vaidore serverio logika - bendra visoms Supabase Edge Functions (Deno) ir testams (Node: tools/test-api.mjs).
 // Grynas JS: tik fetch ir Web Crypto; aplinkos kintamieji perduodami (env), todėl veikia ir be Deno.
-// Paslaptys – tik Supabase → Edge Functions → Secrets (niekada repozitorijoje):
+// Paslaptys - tik Supabase → Edge Functions → Secrets (niekada repozitorijoje):
 //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, (nebūtina) RESEND_API_KEY, MAIL_FROM, ORDER_EMAIL_TO, SITE_URL,
 //   GITHUB_TOKEN + GITHUB_REPO (svetainės perrinkimui), VERCEL_DEPLOY_HOOK.
-// SUPABASE_URL ir raktai (SUPABASE_SECRET_KEYS / SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEYS / SUPABASE_ANON_KEY) – suteikia Supabase.
+// SUPABASE_URL ir raktai (SUPABASE_SECRET_KEYS / SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEYS / SUPABASE_ANON_KEY) - suteikia Supabase.
 
 export const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -12,10 +12,10 @@ export const CORS = {
 };
 export const json = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { ...CORS, "Content-Type": "application/json", "Cache-Control": "no-store" } });
 const SAMPLE_ML = 2;
-// Prekių tipai (v15) – tie patys kaip TYPES (src/scripts/app/03-catalog.js): Stripe aprašymui ir nuorodoms
+// Prekių tipai (v15) - tie patys kaip TYPES (src/scripts/app/03-catalog.js): Stripe aprašymui ir nuorodoms
 const TYPE_ONE = { difuzoriai: "Namų kvapų difuzorius", zvakes: "Kvapni žvakė", aliejai: "Aromatinis aliejus", "elektriniai-difuzoriai": "Elektrinis difuzorius" };
 const typePath = p => (TYPE_ONE[p.type] ? p.type : "kvepalai");
-// Talpos pavadinimas (v15): sizes[].unit – "g" (žvakės), "vnt" (elektrinis difuzorius), kitaip ml
+// Talpos pavadinimas (v15): sizes[].unit - "g" (žvakės), "vnt" (elektrinis difuzorius), kitaip ml
 const sizeName = (p, ml) => {
   if (ml === SAMPLE_ML && !TYPE_ONE[p.type]) return "mėginukas 2 ml";
   const unit = (p.sizes || []).find(s => Number(s.ml) === ml)?.unit || "ml";
@@ -25,7 +25,9 @@ const cents = v => Math.round(Number(v) * 100);
 const inStock = p => p.stock == null || p.stock > 0;
 export const eurTxt = c => `${(c / 100).toFixed(2).replace(".", ",")} €`;
 export const orderRef = id => String(id || "").slice(-8).toUpperCase();
-export const escHtml = v => String(v ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+// v30: ilgi brūkšniai (U+2012-2015) ir minuso ženklas (U+2212) - visur paprastas „-“ (ir bazės tekstuose)
+export const plain = v => String(v ?? "").replace(/[\u2012-\u2015\u2212]/g, "-");
+export const escHtml = v => plain(v).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 const clean = (v, n) =>
   String(v ?? "")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
@@ -49,7 +51,7 @@ export function createShop(env) {
   const PUBLIC = keyFrom(env, "SUPABASE_PUBLISHABLE_KEYS", "SUPABASE_ANON_KEY");
   const svcHeaders = extra => ({ apikey: SECRET, ...(SECRET.startsWith("eyJ") ? { Authorization: `Bearer ${SECRET}` } : {}), ...extra });
 
-  // ── Duomenų bazė (serverio teisės – RLS netaikoma) ───
+  // ── Duomenų bazė (serverio teisės - RLS netaikoma) ───
   async function db(path, { method = "GET", body, prefer } = {}) {
     const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
       method,
@@ -65,7 +67,7 @@ export function createShop(env) {
     const S = settings?.[0]?.data || {};
     return { S, BY_ID: new Map(products.filter(p => p.visible !== false).map(p => [p.id, p])) };
   }
-  // Prisijungęs vartotojas iš Authorization (jo paties JWT); svečias – null
+  // Prisijungęs vartotojas iš Authorization (jo paties JWT); svečias - null
   async function userFrom(req) {
     const h = req.headers.get("authorization") || "";
     const token = h.replace(/^Bearer\s+/i, "");
@@ -110,7 +112,7 @@ export function createShop(env) {
     return data;
   }
   const siteUrl = () => (env.SITE_URL || "https://vaidore.com").replace(/\/$/, "");
-  // Grįžimo adresas po apmokėjimo – ta pati svetainė, iš kurios pirkta (vaidore.com, GitHub Pages kopija, Vercel peržiūra),
+  // Grįžimo adresas po apmokėjimo - ta pati svetainė, iš kurios pirkta (vaidore.com, GitHub Pages kopija, Vercel peržiūra),
   // bet tik iš leidžiamų adresų (SITE_URLS, kableliais), kad nebūtų galima nukreipti į svetimą svetainę
   function pickSite(candidate) {
     const allowed = (env.SITE_URLS || `${siteUrl()},https://www.vaidore.com,https://vakomb.github.io/vaidore`).split(",").map(x => x.trim().replace(/\/$/, ""));
@@ -137,9 +139,9 @@ export function createShop(env) {
       if (DISC && it?.id === DISC.id) {
         const picks = Array.isArray(it.picks) ? it.picks.map(String) : [];
         if (!(picks.length === DISC.count && new Set(picks).size === picks.length && picks.every(id => BY_ID.has(id) && Number(BY_ID.get(id).sample) > 0)))
-          return json(400, { error: "Atradimų rinkinyje turi būti skirtingi kvapai – atnaujinkite puslapį" });
+          return json(400, { error: "Atradimų rinkinyje turi būti skirtingi kvapai - atnaujinkite puslapį" });
         const out = picks.map(id => BY_ID.get(id)).find(p => !inStock(p));
-        if (out) return json(409, { error: `${out.name} laikinai išparduotas – pakeiskite rinkinį` });
+        if (out) return json(409, { error: `${out.name} laikinai išparduotas - pakeiskite rinkinį` });
         subtotal += DISC.price * qty;
         sampleCredit += cents(DISC.price) * qty;
         lines.push({
@@ -148,8 +150,8 @@ export function createShop(env) {
             currency,
             unit_amount: cents(DISC.price),
             product_data: {
-              name: `${S.shop || "Vaidore"} ${DISC.name} · ${DISC.count} × 2 ml`,
-              description: picks.map(id => BY_ID.get(id).name).join(", "),
+              name: plain(`${S.shop || "Vaidore"} ${DISC.name} · ${DISC.count} × 2 ml`),
+              description: plain(picks.map(id => BY_ID.get(id).name).join(", ")),
               metadata: { product_id: DISC.id, picks: picks.join(",") }
             }
           }
@@ -159,8 +161,8 @@ export function createShop(env) {
       const p = BY_ID.get(String(it?.id || ""));
       const ml = Number(it?.ml);
       const price = p && (ml === SAMPLE_ML ? Number(p.sample) : Number((p.sizes || []).find(s => Number(s.ml) === ml)?.price));
-      if (!p || !price) return json(400, { error: "Krepšelyje yra nebegaliojanti prekė – atnaujinkite puslapį" });
-      if (!inStock(p)) return json(409, { error: `${p.name} laikinai išparduotas – pašalinkite jį iš krepšelio` });
+      if (!p || !price) return json(400, { error: "Krepšelyje yra nebegaliojanti prekė - atnaujinkite puslapį" });
+      if (!inStock(p)) return json(409, { error: `${p.name} laikinai išparduotas - pašalinkite jį iš krepšelio` });
       if (p.stock != null && ml !== SAMPLE_ML && qty > p.stock) return json(409, { error: `${p.name}: liko tik ${p.stock} vnt.` });
       subtotal += price * qty;
       if (ml === SAMPLE_ML) sampleCredit += cents(price) * qty;
@@ -170,8 +172,8 @@ export function createShop(env) {
           currency,
           unit_amount: cents(price),
           product_data: {
-            name: `${S.shop || "Vaidore"} ${p.name} · ${sizeName(p, ml)}`,
-            description: `${TYPE_ONE[p.type] || p.conc}${p.tagline ? ` · ${p.tagline}` : ""}`.slice(0, 250),
+            name: plain(`${S.shop || "Vaidore"} ${p.name} · ${sizeName(p, ml)}`),
+            description: plain(`${TYPE_ONE[p.type] || p.conc}${p.tagline ? ` · ${p.tagline}` : ""}`).slice(0, 250),
             metadata: { product_id: p.id, ml: String(ml) }
           }
         }
@@ -198,7 +200,7 @@ export function createShop(env) {
     const rate = o => ({
       shipping_rate_data: {
         type: "fixed_amount",
-        display_name: free ? `${o.name} – nemokamai` : o.name,
+        display_name: free ? `${o.name} - nemokamai` : o.name,
         fixed_amount: { amount: free ? 0 : cents(o.price), currency },
         delivery_estimate: { minimum: { unit: "business_day", value: 1 }, maximum: { unit: "business_day", value: 3 } },
         metadata: { method: o.id }
@@ -220,7 +222,7 @@ export function createShop(env) {
     if (method) metadata.ship_method = method.id;
     if (locker) {
       metadata.locker = `${locker.zip} · ${locker.name} · ${[locker.addr, locker.city].filter(Boolean).join(", ")}`.slice(0, 490);
-      params.custom_text = { submit: { message: `Siunta – į Omniva paštomatą: ${locker.name}, ${[locker.addr, locker.city].filter(Boolean).join(", ")}.` } };
+      params.custom_text = { submit: { message: `Siunta - į Omniva paštomatą: ${locker.name}, ${[locker.addr, locker.city].filter(Boolean).join(", ")}.` } };
     } else {
       params.shipping_address_collection = { allowed_countries: S.countries || ["LT"] };
     }
@@ -357,7 +359,7 @@ export function createShop(env) {
     }
   }
 
-  // ── Laiškai (Resend – nebūtina) ───────────────────────
+  // ── Laiškai (Resend - nebūtina) ───────────────────────
   async function sendMail({ to, subject, html, idem }) {
     if (!env.RESEND_API_KEY || !to) return false;
     const r = await fetch("https://api.resend.com/emails", {
@@ -371,10 +373,10 @@ export function createShop(env) {
   const wrapMail = inner => `<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.5;color:#0F172A">${inner}</div>`;
   function ownerMail(o, credit) {
     const rows = o.items.map(i => `<tr><td>${escHtml(i.name)}</td><td align="right">${i.qty}</td><td align="right">${eurTxt(i.total)}</td></tr>`).join("");
-    return wrapMail(`<h2 style="margin:0 0 8px">Naujas užsakymas ${o.ref} – ${eurTxt(o.amount_total)}</h2>
+    return wrapMail(`<h2 style="margin:0 0 8px">Naujas užsakymas ${o.ref} - ${eurTxt(o.amount_total)}</h2>
 <p><b>Pirkėjas:</b> ${escHtml(o.name)} · ${escHtml(o.email)} · ${escHtml(o.phone)}</p>
-<p><b>Pristatymas:</b> ${escHtml(o.shipping.method)} – ${escHtml(o.shipping.locker ? `Omniva paštomatas: ${o.shipping.locker}` : o.shipping.address || "—")} (${eurTxt(o.amount_shipping)})</p>
-${o.gift ? `<p><b>Dovanų pakavimas.</b> Rašteliukas: ${escHtml(o.gift.note || "—")}</p>` : ""}
+<p><b>Pristatymas:</b> ${escHtml(o.shipping.method)} - ${escHtml(o.shipping.locker ? `Omniva paštomatas: ${o.shipping.locker}` : o.shipping.address || "-")} (${eurTxt(o.amount_shipping)})</p>
+${o.gift ? `<p><b>Dovanų pakavimas.</b> Rašteliukas: ${escHtml(o.gift.note || "-")}</p>` : ""}
 <table cellpadding="6" style="border-collapse:collapse;min-width:360px">${rows}</table>
 ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurTxt(credit.amount)}).</p>` : ""}
 <p><a href="${siteUrl()}/admin/uzsakymai">Atidaryti administravimo skydelyje</a></p>`);
@@ -397,17 +399,17 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
       const { S } = await loadShop();
       const credit = await ensureCredit(s, S);
       const { inserted, order } = await recordOrder(s, credit);
-      // Laiškai – vieną kartą (užsakymą galėjo jau įrašyti padėkos puslapis; Stripe gali pakartoti webhook)
+      // Laiškai - vieną kartą (užsakymą galėjo jau įrašyti padėkos puslapis; Stripe gali pakartoti webhook)
       const [row] = (await db(`orders?stripe_session=eq.${encodeURIComponent(s.id)}&select=id,mailed`)) || [];
       if (row && !row.mailed) {
         await db(`orders?id=eq.${row.id}`, { method: "PATCH", body: { mailed: true } });
-        await sendMail({ to: env.ORDER_EMAIL_TO || S.company?.email, subject: `Užsakymas ${order.ref} – ${eurTxt(order.amount_total)}`, html: ownerMail(order, credit), idem: `vd-owner-${s.id}` });
+        await sendMail({ to: env.ORDER_EMAIL_TO || S.company?.email, subject: `Užsakymas ${order.ref} - ${eurTxt(order.amount_total)}`, html: ownerMail(order, credit), idem: `vd-owner-${s.id}` });
         if (credit && order.email) {
           const until = new Date(credit.expires * 1000).toLocaleDateString("lt-LT");
           await sendMail({
             to: order.email,
-            subject: `${S.shop || "Vaidore"}: mėginukų kaina grąžinta – kodas ${credit.code}`,
-            html: wrapMail(`<p>Ačiū, kad renkatės ${escHtml(S.shop || "Vaidore")}!</p><p>Mėginukų kainą grąžiname: įveskite kodą <b style="font-size:18px">${credit.code}</b> apmokėdami buteliuką – nuolaida ${eurTxt(credit.amount)}, galioja iki ${until}.</p><p><a href="${siteUrl()}/" style="color:#284CA2;font-weight:700">Į parduotuvę</a></p>`),
+            subject: `${S.shop || "Vaidore"}: mėginukų kaina grąžinta - kodas ${credit.code}`,
+            html: wrapMail(`<p>Ačiū, kad renkatės ${escHtml(S.shop || "Vaidore")}!</p><p>Mėginukų kainą grąžiname: įveskite kodą <b style="font-size:18px">${credit.code}</b> apmokėdami buteliuką - nuolaida ${eurTxt(credit.amount)}, galioja iki ${until}.</p><p><a href="${siteUrl()}/" style="color:#284CA2;font-weight:700">Į parduotuvę</a></p>`),
             idem: `vd-credit-${s.id}`
           });
         }
@@ -458,7 +460,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
       for (const r of list) {
         const ok = await sendMail({
           to: r.email,
-          subject: `${p.name} – vėl turime`,
+          subject: `${p.name} - vėl turime`,
           html: wrapMail(`<p>Sveiki!</p><p>Kvapas <b>${escHtml(p.name)}</b>, kurio laukėte, vėl prekyboje.</p><p><a href="${siteUrl()}/${typePath(p)}/${p.id}" style="color:#284CA2;font-weight:700">Peržiūrėti</a></p>`),
           idem: `vd-restock-${r.id}`
         });
@@ -505,7 +507,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
       const ok = await sendMail({
         to: row.email,
         subject: `Sveiki prisijungę prie ${S.shop || "Vaidore"}!`,
-        html: wrapMail(`<p>Sveiki!</p><p>Ačiū, kad užsiprenumeravote. Pirmi sužinosite apie naujus kvapus ir nuolaidas – laiškų siunčiame retai.</p><p><a href="${siteUrl()}/kvepalai" style="color:#000;font-weight:700">Peržiūrėti kvapus</a></p>${newsFooter(S, row.token)}`),
+        html: wrapMail(`<p>Sveiki!</p><p>Ačiū, kad užsiprenumeravote. Pirmi sužinosite apie naujus kvapus ir nuolaidas - laiškų siunčiame retai.</p><p><a href="${siteUrl()}/kvepalai" style="color:#000;font-weight:700">Peržiūrėti kvapus</a></p>${newsFooter(S, row.token)}`),
         idem: `vd-news-welcome-${row.id}`
       });
       if (ok) await db(`newsletter?id=eq.${row.id}`, { method: "PATCH", body: { welcomed_at: new Date().toISOString() } });
@@ -519,7 +521,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
     }
     return json(400, { error: "Nežinomas veiksmas" });
   }
-  // Laiškas visiems prenumeratoriams (administratorius): Resend „batch“ – po 100 laiškų viename užklausime
+  // Laiškas visiems prenumeratoriams (administratorius): Resend „batch“ - po 100 laiškų viename užklausime
   async function sendNewsletter(S, { subject, text, test, to }) {
     subject = clean(subject, 150);
     text = String(text || "").slice(0, 20000);
@@ -571,7 +573,7 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
   return { checkout, orderInfo, webhook, admin, account, newsletter, ensureCredit, recordOrder };
 }
 
-// Stripe-Signature „t=…,v1=…“: HMAC-SHA256(secret, `${t}.${neapdorotas tekstas}`), ±5 min. Web Crypto – veikia Deno ir Node.
+// Stripe-Signature „t=…,v1=…“: HMAC-SHA256(secret, `${t}.${neapdorotas tekstas}`), ±5 min. Web Crypto - veikia Deno ir Node.
 export async function verifySignature(raw, header, secret, now = Math.floor(Date.now() / 1000)) {
   if (!header || !secret) return false;
   let t = 0;

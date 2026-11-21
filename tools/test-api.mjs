@@ -149,7 +149,7 @@ check(r.status === 409 && /liko tik 2/.test(r.body.error), "checkout: daugiau ne
 db.products.find(p => p.id === "arven").stock = null;
 db.products.find(p => p.id === "bellara").visible = false;
 r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "bellara", ml: 33, qty: 1 }] } })));
-check(r.status === 400, "checkout: paslėptas kvapas – nepirktinas");
+check(r.status === 400, "checkout: paslėptas kvapas - nepirktinas");
 db.products.find(p => p.id === "bellara").visible = true;
 
 calls.length = 0;
@@ -173,26 +173,26 @@ const b = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(r.status === 200 && r.body.url, "checkout: sesija sukurta");
 const c100 = String(Math.round(cat.products.find(p => p.id === "safrane").sizes.find(s => s.ml === 100).price * 100));
 check(b.get("line_items[0][price_data][unit_amount]") === c100, `checkout: kaina iš duomenų bazės (${c100}), ne iš naršyklės`);
-check(b.get("line_items[2][price_data][unit_amount]") === String(Math.round(D.price * 100)) && /Vanor, Arven/.test(b.get("line_items[2][price_data][product_data][description]")), "checkout: rinkinys – fiksuota kaina ir kvapai");
+check(b.get("line_items[2][price_data][unit_amount]") === String(Math.round(D.price * 100)) && /Vanor, Arven/.test(b.get("line_items[2][price_data][product_data][description]")), "checkout: rinkinys - fiksuota kaina ir kvapai");
 check(b.get("line_items[3][price_data][product_data][name]") === "Dovanų pakavimas", "checkout: dovanų pakavimo eilutė");
 check(b.get("metadata[gift_note]") === "Su gimtadieniu! <b>", "checkout: rašteliukas metaduomenyse (be eilučių lūžių)");
 check(b.get("metadata[sample_credit_cents]") === String(Math.round(cat.products.find(p => p.id === "vanor").sample * 100) + Math.round(D.price * 100)), "checkout: mėginukų suma kodui");
-check(!b.has("shipping_address_collection[allowed_countries][0]") && /55512/.test(b.get("metadata[locker]")), "checkout: paštomatas – adreso neklausiama");
+check(!b.has("shipping_address_collection[allowed_countries][0]") && /55512/.test(b.get("metadata[locker]")), "checkout: paštomatas - adreso neklausiama");
 check(b.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "0" && !b.has("shipping_options[1][shipping_rate_data][type]"), "checkout: tik pasirinktas būdas, nemokamai nuo 60 €");
 check(b.get("success_url") === "https://vakomb.github.io/vaidore/aciu?s={CHECKOUT_SESSION_ID}", "checkout: grįžimas į tą pačią svetainę (GitHub Pages)");
-check(!b.has("customer") && !b.has("metadata[user_id]"), "checkout: svečias – be paskyros");
+check(!b.has("customer") && !b.has("metadata[user_id]"), "checkout: svečias - be paskyros");
 
 calls.length = 0;
 await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 33, qty: 1 }], shipping: { method: "dpd" }, site: "https://piktas.example" } }));
 let cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
-check(cb.get("shipping_address_collection[allowed_countries][0]") === "LT" && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "499", "checkout: kurjeris – adresas, 4,99 €");
-check(cb.get("success_url").startsWith("https://vaidore.com/aciu"), "checkout: svetimas grįžimo adresas – nenaudojamas");
-check(!cb.has("metadata[sample_credit_cents]"), "checkout: be mėginukų – kodo nėra");
+check(cb.get("shipping_address_collection[allowed_countries][0]") === "LT" && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "499", "checkout: kurjeris - adresas, 4,99 €");
+check(cb.get("success_url").startsWith("https://vaidore.com/aciu"), "checkout: svetimas grįžimo adresas - nenaudojamas");
+check(!cb.has("metadata[sample_credit_cents]"), "checkout: be mėginukų - kodo nėra");
 
 calls.length = 0;
 await shop.checkout(req(`${F}/checkout`, { token: "eyJ.user", body: { items: [{ id: "arven", ml: 33, qty: 1 }], shipping: { method: "dpd" } } }));
 cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
-check(cb.get("metadata[user_id]") === "u1" && cb.get("customer") === "cus_1" && db.profiles[0].stripe_customer === "cus_1", "checkout: prisijungęs – susieta su paskyra, Stripe klientas sukurtas ir išsaugotas");
+check(cb.get("metadata[user_id]") === "u1" && cb.get("customer") === "cus_1" && db.profiles[0].stripe_customer === "cus_1", "checkout: prisijungęs - susieta su paskyra, Stripe klientas sukurtas ir išsaugotas");
 check(calls.find(c => c.url === "https://api.stripe.com/v1/customers")?.body.get("shipping[address][line1]") === "Gedimino pr. 1", "checkout: išsaugotas adresas perduodamas Stripe");
 
 // ── order (padėkos puslapis) ──
@@ -208,7 +208,7 @@ check(it.length === 2 && it[0].ml === 100 && it[1].picks.length === 5 && db.orde
 check(!JSON.stringify(r.body).includes("ona@"), "order: asmens duomenų negrąžina");
 calls.length = 0;
 await shop.orderInfo(req(`${F}/order?s=${session.id}`, { method: "GET" }));
-check(!calls.some(c => c.url.endsWith("/coupons")) && db.orders.length === 1, "order: antrą kartą – nei naujo kodo, nei naujo užsakymo");
+check(!calls.some(c => c.url.endsWith("/coupons")) && db.orders.length === 1, "order: antrą kartą - nei naujo kodo, nei naujo užsakymo");
 r = await res(await shop.orderInfo(req(`${F}/order?s=../../x`, { method: "GET" })));
 check(r.status === 400, "order: neteisingas id → 400");
 
@@ -225,12 +225,12 @@ check(r.status === 400, "webhook: be teisingo parašo → 400");
 calls.length = 0;
 r = await res(await shop.webhook(req(`${F}/stripe-webhook`, { body: raw, headers: { "stripe-signature": `t=${t},v1=${sig}` } })));
 const mails = calls.filter(c => c.url.includes("resend"));
-check(r.status === 200 && r.body.inserted === false && mails.length === 2, "webhook: užsakymą jau įrašė padėkos puslapis – laiškai vis tiek išsiunčiami (2)");
+check(r.status === 200 && r.body.inserted === false && mails.length === 2, "webhook: užsakymą jau įrašė padėkos puslapis - laiškai vis tiek išsiunčiami (2)");
 calls.length = 0;
 r = await res(await shop.webhook(req(`${F}/stripe-webhook`, { body: raw, headers: { "stripe-signature": `t=${t},v1=${sig}` } })));
-check(r.status === 200 && !calls.some(c => c.url.includes("resend")), "webhook: pakartotinis – laiškų nekartoja");
+check(r.status === 200 && !calls.some(c => c.url.includes("resend")), "webhook: pakartotinis - laiškų nekartoja");
 const owner = mails[0]?.body;
-check(owner?.to?.[0] === S.company.email && /Kauno paštomatas/.test(owner.html) && /Su gimtadieniu/.test(owner.html) && /VD-E5F6G7H8/.test(owner.html), "webhook: savininko laiške – paštomatas, rašteliukas, kodas");
+check(owner?.to?.[0] === S.company.email && /Kauno paštomatas/.test(owner.html) && /Su gimtadieniu/.test(owner.html) && /VD-E5F6G7H8/.test(owner.html), "webhook: savininko laiške - paštomatas, rašteliukas, kodas");
 
 // ── admin ──
 r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.user", body: { action: "ship", order_id: "o1" } })));
@@ -247,7 +247,7 @@ check(r.status === 409, "admin: antrą kartą grąžinti negalima");
 r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "restock-notify", product_id: "arven" } })));
 check(r.status === 200 && r.body.sent === 1 && db.restock[0].notified, "admin: „Pranešti, kai bus“ laiškai išsiųsti ir pažymėti");
 
-// ── Kvapo importas pašalintas – veiksmo nebėra ──
+// ── Kvapo importas pašalintas - veiksmo nebėra ──
 r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://allegro.pl/oferta/x" } })));
 check(r.status === 400, "admin: importo veiksmo nebėra");
 

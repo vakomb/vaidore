@@ -1,4 +1,4 @@
-/* Statiniai puslapiai (/aciu, /salygos, /privatumas) – ta pati DNR kaip parduotuvė. Naudojamas tik build-site.mjs. */
+/* Statiniai puslapiai (/aciu, /salygos, /privatumas) - ta pati DNR kaip parduotuvė. Naudojamas tik build-site.mjs. */
 .page {
   min-height: 100dvh;
   display: flex;

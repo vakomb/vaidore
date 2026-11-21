@@ -1,5 +1,5 @@
-// 18 – Omniva paštomato pasirinkimas krepšelyje. Sąrašą (data/omniva.json) surinkimo metu parsiunčia tools/build-site.mjs
-// iš viešo Omniva API; window.VAIDORE_LOCKERS – kiek paštomatų yra (0 – sąrašo nėra, adresą pirkėjas nurodo Stripe lange).
+// 18 - Omniva paštomato pasirinkimas krepšelyje. Sąrašą (data/omniva.json) surinkimo metu parsiunčia tools/build-site.mjs
+// iš viešo Omniva API; window.VAIDORE_LOCKERS - kiek paštomatų yra (0 - sąrašo nėra, adresą pirkėjas nurodo Stripe lange).
 // Įrašas: [zip, pavadinimas, adresas, miestas, šalis, platuma, ilguma]. Sąrašas įkeliamas tik atidarius pasirinkimą.
 const LOCKERS_N = Number(window.VAIDORE_LOCKERS) || 0;
 let lockersP = null;
@@ -15,7 +15,7 @@ function loadLockers() {
     });
   return lockersP;
 }
-// Paieška be galūnių: „Vilnius“ randa „Vilniaus“, „Kaunas“ – „Kauno“, „Klaipeda“ – „Klaipėdos“
+// Paieška be galūnių: „Vilnius“ randa „Vilniaus“, „Kaunas“ - „Kauno“, „Klaipeda“ - „Klaipėdos“
 const stem = w => (w.length > 5 ? w.replace(/(ius|ias|io|us|as|is|ys|es|os|e|a|ai|iu|u|o)$/, "") : w);
 const needLocker = () => LOCKERS_N > 0 && state.ship.method === "omniva";
 function lockerRowHTML(l, on = false) {
@@ -47,7 +47,7 @@ async function openLockerPicker() {
     const total = list.length;
     list = list.slice(0, 60);
     listEl.innerHTML = total
-      ? `<div class="group">${list.map(l => lockerRowHTML(l, cur?.zip === l.zip)).join("")}</div>${total > 60 ? `<p class="qzHint">Rodomi 60 iš ${total} – patikslinkite paiešką.</p>` : ""}`
+      ? `<div class="group">${list.map(l => lockerRowHTML(l, cur?.zip === l.zip)).join("")}</div>${total > 60 ? `<p class="qzHint">Rodomi 60 iš ${total} - patikslinkite paiešką.</p>` : ""}`
       : `<p class="qzHint">Nieko neradome. Pabandykite miesto pavadinimą be galūnės, pvz. „Kaun“.</p>`;
   };
   try {
@@ -86,7 +86,7 @@ async function openLockerPicker() {
         },
         () => {
           btn.disabled = false;
-          toast("Vietos nustatyti nepavyko – įveskite miestą", { icon: "info" });
+          toast("Vietos nustatyti nepavyko - įveskite miestą", { icon: "info" });
           q.focus();
         },
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }

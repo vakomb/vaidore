@@ -1,14 +1,14 @@
-// 24 – Vaidore scenos: vieno stiliaus kompozicijos iš tikrų buteliukų be fono (img/kvapai/<id>-1.webp), 2 ml mėginukų
-// (img/meginukas.webp) ir CSS formų – arka, cilindras, blokas, diskas, juoda dovanų dėžutė su VAIDORE logotipu.
+// 24 - Vaidore scenos: vieno stiliaus kompozicijos iš tikrų buteliukų be fono (img/kvapai/<id>-1.webp), 2 ml mėginukų
+// (img/meginukas.webp) ir CSS formų - arka, cilindras, blokas, diskas, juoda dovanų dėžutė su VAIDORE logotipu.
 // Naudoja: pradžios skaidrės (07-home), kategorijų plytelės „Produktai“ (07-home), katalogo antraštė (08-shop).
-// Išdėstymas ir spalvos – 12-stage.css ir 01-tokens.css (--st-*). Matai – „u“: 100u ≈ scenos aukštis
+// Išdėstymas ir spalvos - 12-stage.css ir 01-tokens.css (--st-*). Matai - „u“: 100u ≈ scenos aukštis
 // (siauroje ar žemoje scenoje kompozicija proporcingai sumažėja, todėl niekas nenukerpama ir niekas nepasislenka).
-//   [tipas, x, y, w|s, h, spalva]  x – centro poslinkis nuo kompozicijos ašies, y – apačia virš grindų,
-//   w/h – plotis/aukštis, s – buteliuko (kvadratinio paveikslo) ar mėginuko aukštis.
-//   Tipai: ar – arka, sn – diskas, pl – cilindras, bk – blokas, bx – dovanų dėžutė, b – buteliukas (n-tas sąrašo kvapas),
-//   v – mėginukas. Spalva: "" – scenos tonas, "d" – tamsi (grafitas), "l" – šviesi.
+//   [tipas, x, y, w|s, h, spalva]  x - centro poslinkis nuo kompozicijos ašies, y - apačia virš grindų,
+//   w/h - plotis/aukštis, s - buteliuko (kvadratinio paveikslo) ar mėginuko aukštis.
+//   Tipai: ar - arka, sn - diskas, pl - cilindras, bk - blokas, bx - dovanų dėžutė, b - buteliukas (n-tas sąrašo kvapas),
+//   v - mėginukas. Spalva: "" - scenos tonas, "d" - tamsi (grafitas), "l" - šviesi.
 const STAGES = {
-  // Pradžios skaidrės – plačios, didesni objektai
+  // Pradžios skaidrės - plačios, didesni objektai
   collection: {
     tone: "stone",
     items: [
@@ -43,7 +43,7 @@ const STAGES = {
       ["bx", -6, 0, 72, 30]
     ]
   },
-  // Kategorijos – skirtingos kompozicijos, tas pats stilius
+  // Kategorijos - skirtingos kompozicijos, tas pats stilius
   women: {
     tone: "rose",
     items: [
@@ -103,7 +103,7 @@ const STAGES = {
     ]
   }
 };
-// Administratoriaus sukurtoms kategorijoms – kompozicija pagal eilės numerį (vis tiek vienodo stiliaus)
+// Administratoriaus sukurtoms kategorijoms - kompozicija pagal eilės numerį (vis tiek vienodo stiliaus)
 const STAGE_CYCLE = ["unisex", "women", "fresh", "men"];
 // Katalogo puslapio scena (08-shop): lytis / mėginukai / kategorija
 function shopStageName() {
@@ -118,7 +118,7 @@ function categoryStageName(id) {
   const i = Math.max(0, visibleCategories().findIndex(c => c.id === id));
   return STAGE_CYCLE[i % STAGE_CYCLE.length];
 }
-// list – kvapai, kurių buteliukai rodomi (n-tas elementas – ["b", …, n]); eager – pirmo ekrano scena (be lazy)
+// list - kvapai, kurių buteliukai rodomi (n-tas elementas - ["b", …, n]); eager - pirmo ekrano scena (be lazy)
 function stageHTML(name, list, { eager = false, cls = "" } = {}) {
   const st = STAGES[name] || STAGES.unisex;
   const ps = (list || []).filter(Boolean);

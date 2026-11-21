@@ -1,13 +1,13 @@
-// 03 – Užsakymai: sąrašas (filtras pagal būseną, paieška – nr., vardas, el. paštas, telefonas, CSV buhalterijai) ir
-// užsakymo ekranas admin/uzsakymai/<nr.> (kompiuteryje – šalia sąrašo). Veiksmai: „Supakuota“ → „Išsiųsta“ (siuntos nr. +
-// laiškas pirkėjui, shop/admin) → „Pristatyta“; „Grąžinti pinigus“ (Stripe + likučiai). Greiti veiksmai sąraše – braukiant.
+// 03 - Užsakymai: sąrašas (filtras pagal būseną, paieška - nr., vardas, el. paštas, telefonas, CSV buhalterijai) ir
+// užsakymo ekranas admin/uzsakymai/<nr.> (kompiuteryje - šalia sąrašo). Veiksmai: „Supakuota“ → „Išsiųsta“ (siuntos nr. +
+// laiškas pirkėjui, shop/admin) → „Pristatyta“; „Grąžinti pinigus“ (Stripe + likučiai). Greiti veiksmai sąraše - braukiant.
 const ORDER_FILTERS = [
   ["laukia", "Laukia", o => o.status === "paid" || o.status === "packed"],
   ["issiusti", "Išsiųsti", o => o.status === "shipped"],
   ["visi", "Visi", () => true],
   ["grazinti", "Grąžinti", o => o.status === "refunded" || o.status === "cancelled"]
 ];
-const SHIP_NAME = id => VD.SET.shipping?.find(s => s.id === id)?.name || id || "—";
+const SHIP_NAME = id => VD.SET.shipping?.find(s => s.id === id)?.name || id || "-";
 const ordersState = { filter: "laukia", q: "", list: [], at: 0, shown: 50 };
 const orderKey = o => o.ref || o.id;
 const findOrder = key => ordersState.list.find(o => o.ref === key || o.id === key);
@@ -115,7 +115,7 @@ function paintOrders() {
       const what = (o.items || []).map(i => `${i.name}${i.qty > 1 ? ` × ${i.qty}` : ""}`).join(", ");
       return `<div class="axCell" data-order="${esc(orderKey(o))}" data-title="${esc(o.ref)}"><a class="axRow axRow2" href="admin/uzsakymai/${esc(orderKey(o))}" data-nav${
         cur && (cur === o.ref || cur === o.id) ? ' aria-current="page"' : ""
-      }><span class="axRowTxt"><b>${esc(o.ref)} · ${esc(o.name || o.email || "—")}</b><small>${fmtDateTime(o.created_at)} · ${esc(what)}</small></span><span class="axVal axValCol"><b class="money">${centsEur(
+      }><span class="axRowTxt"><b>${esc(o.ref)} · ${esc(o.name || o.email || "-")}</b><small>${fmtDateTime(o.created_at)} · ${esc(what)}</small></span><span class="axVal axValCol"><b class="money">${centsEur(
         o.amount_total
       )}</b>${statusPill(o.status)}</span><span class="axChev">${glyph("chev-right")}</span></a><button class="axRowMore" type="button" data-row-more aria-label="Veiksmai">${glyph("dots")}</button></div>`;
     })
@@ -162,7 +162,7 @@ function renderOrder(box, key, seq) {
 <div class="axOrderHead">${statusPill(o.status)}<b class="money">${centsEur(o.amount_total)}</b><small>${fmtDateTime(o.created_at)}</small></div>
 ${orderActionsHTML(o)}
 ${groupHTML(
-  kv("Vardas", esc(o.name || "—")) +
+  kv("Vardas", esc(o.name || "-")) +
     (o.email ? kv("El. paštas", `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`) : "") +
     (o.phone ? kv("Telefonas", `<a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>`) : "") +
     (o.user_id ? kv("Paskyra", "Su paskyra") : ""),
@@ -211,9 +211,9 @@ function openShipSheet(o) {
   openSheet({
     title: `Išsiųsti ${o.ref}`,
     html: `<form class="sheetPad admForm" novalidate>
-<p class="axSheetNote">${esc(SHIP_NAME(o.shipping?.method))}: ${esc(shipTo(o) || "adresas – Stripe užsakyme")}</p>
+<p class="axSheetNote">${esc(SHIP_NAME(o.shipping?.method))}: ${esc(shipTo(o) || "adresas - Stripe užsakyme")}</p>
 <div class="ig"><label class="field axField"><span>Siuntos nr.</span><input name="tracking" maxlength="80" autocomplete="off" value="${esc(o.tracking || "")}" placeholder="CE123456789EE" /></label></div>
-<p class="igFoot">${o.email ? `Pirkėjui (${esc(o.email)}) bus išsiųstas laiškas su siuntos numeriu.` : "Pirkėjo el. pašto nėra – laiškas nebus siunčiamas."}</p>
+<p class="igFoot">${o.email ? `Pirkėjui (${esc(o.email)}) bus išsiųstas laiškas su siuntos numeriu.` : "Pirkėjo el. pašto nėra - laiškas nebus siunčiamas."}</p>
 <button class="btn primary block" type="submit">${glyph("truck")}Pažymėti išsiųstu</button></form>`
   });
   const form = $("#sheetBody form");
@@ -224,7 +224,7 @@ function openShipSheet(o) {
       const d = await shopAdmin({ action: "ship", order_id: o.id, tracking });
       Object.assign(o, { status: "shipped", tracking: tracking || null, shipped_at: new Date().toISOString() });
       closeSheet();
-      toast(d.mailed ? "Išsiųsta – pirkėjui išsiųstas laiškas" : "Pažymėta išsiųstu (laiškas nesiųstas)", { icon: "truck", ms: 3600 });
+      toast(d.mailed ? "Išsiųsta - pirkėjui išsiųstas laiškas" : "Pažymėta išsiųstu (laiškas nesiųstas)", { icon: "truck", ms: 3600 });
       repaintOrder(o);
     });
   });
@@ -236,7 +236,7 @@ async function orderAction(o, act, btn) {
     return navigator.clipboard?.writeText(txt).then(() => toast("Adresas nukopijuotas", { icon: "copy" }));
   }
   if (act === "refund") {
-    const ok = await askConfirm(`Pirkėjui ${o.name || o.email} bus grąžinta ${centsEur(o.amount_total)} per Stripe, o likučiai – atstatyti. Atšaukti nebus galima.`, {
+    const ok = await askConfirm(`Pirkėjui ${o.name || o.email} bus grąžinta ${centsEur(o.amount_total)} per Stripe, o likučiai - atstatyti. Atšaukti nebus galima.`, {
       title: `Grąžinti pinigus už ${o.ref}?`,
       ok: "Grąžinti pinigus",
       danger: true
@@ -245,7 +245,7 @@ async function orderAction(o, act, btn) {
     const run = async () => {
       await shopAdmin({ action: "refund", order_id: o.id });
       o.status = "refunded";
-      toast("Pinigai grąžinami – Stripe juos perves per 5–10 d.", { icon: "return", ms: 4200 });
+      toast("Pinigai grąžinami - Stripe juos perves per 5-10 d.", { icon: "return", ms: 4200 });
       repaintOrder(o);
       VD.refreshCatalog({ rerender: false }).catch(() => {});
     };
@@ -272,7 +272,7 @@ function exportOrders() {
     o.phone,
     (o.items || []).map(i => `${i.name} × ${i.qty}`).join("; "),
     n(o.amount_total - o.amount_shipping),
-    `${SHIP_NAME(o.shipping?.method)}${shipTo(o) ? ` – ${shipTo(o)}` : ""}`,
+    `${SHIP_NAME(o.shipping?.method)}${shipTo(o) ? ` - ${shipTo(o)}` : ""}`,
     n(o.amount_shipping),
     n(o.amount_total),
     o.credit_code || "",

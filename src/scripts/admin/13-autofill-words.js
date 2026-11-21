@@ -1,6 +1,6 @@
-// 13 – automatinio produktų pridėjimo žodynai (v15): natos PL / EN → LT, būdvardžiai, kvapų grupės, rinkodaros žodžiai.
-// Grynas JS be DOM – tą patį failą tikrina tools/test-autofill.mjs. Variklis – 13-autofill.js.
-// Raktai – mažosiomis raidėmis; reikšmė – lietuviškas parfumerijos pavadinimas (vardininkas, didžioji raidė).
+// 13 - automatinio produktų pridėjimo žodynai (v15): natos PL / EN → LT, būdvardžiai, kvapų grupės, rinkodaros žodžiai.
+// Grynas JS be DOM - tą patį failą tikrina tools/test-autofill.mjs. Variklis - 13-autofill.js.
+// Raktai - mažosiomis raidėmis; reikšmė - lietuviškas parfumerijos pavadinimas (vardininkas, didžioji raidė).
 
 const AF_NOTES = {
   // ── Citrusai ──

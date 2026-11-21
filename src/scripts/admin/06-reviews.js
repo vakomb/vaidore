@@ -1,4 +1,4 @@
-// 06 – Atsiliepimai: rašo tik pirkę (RLS), skelbiami tik peržiūrėti. Laukia → Paskelbti / Paslėpti; ištrinti.
+// 06 - Atsiliepimai: rašo tik pirkę (RLS), skelbiami tik peržiūrėti. Laukia → Paskelbti / Paslėpti; ištrinti.
 const REV_FILTERS = [
   ["pending", "Laukia"],
   ["approved", "Paskelbti"],
@@ -71,7 +71,7 @@ async function reviewsClick(e) {
     }
     paintReviews();
     loadCounts();
-    // Parduotuvėje matomi tik paskelbti – katalogą atnaujiname, jei pasikeitė, kas rodoma
+    // Parduotuvėje matomi tik paskelbti - katalogą atnaujiname, jei pasikeitė, kas rodoma
     if (act === "approved" || wasPublic) await catalogChanged(act === "approved" ? "Atsiliepimas paskelbtas" : act === "delete" ? "Ištrinta" : "Paslėpta");
   });
 }

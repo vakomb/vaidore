@@ -1,5 +1,5 @@
-// 07 – „Pranešti, kai bus“: kas laukia kurio kvapo. Kvapą vėl turint (likutis ne 0) – „Pranešti“ išsiunčia laiškus
-// (shop/admin, Resend) ir pažymi užklausas. Ištrintos užklausos – pirkėjo prašymu (BDAR).
+// 07 - „Pranešti, kai bus“: kas laukia kurio kvapo. Kvapą vėl turint (likutis ne 0) - „Pranešti“ išsiunčia laiškus
+// (shop/admin, Resend) ir pažymi užklausas. Ištrintos užklausos - pirkėjo prašymu (BDAR).
 const restockState = { rows: [] };
 
 async function renderRestock(main, _param, seq) {
@@ -24,7 +24,7 @@ async function renderRestock(main, _param, seq) {
             const inStock = p.stock == null || p.stock > 0;
             return `<article class="ig admRestock" data-pid="${esc(pid)}">
 <header><a class="admProd" href="admin/kvapai/${esc(pid)}" data-nav><span class="admThumb" style="--tint:${esc(p.look?.tint || "#F6F7F9")}">${VD.artImg(appProduct(p))}</span><span><b>${esc(p.name)}</b><small>${
-              inStock ? `Vėl prekyboje${p.stock != null ? ` · liko ${p.stock}` : ""}` : "Išparduota – papildykite likutį, tada praneškite"
+              inStock ? `Vėl prekyboje${p.stock != null ? ` · liko ${p.stock}` : ""}` : "Išparduota - papildykite likutį, tada praneškite"
             }</small></span></a>${
               waiting.length
                 ? `<button class="btn ${inStock ? "primary" : "ghost"} small" type="button" data-notify${attr(!inStock, "disabled")} >${glyph("mail")}Pranešti (${waiting.length})</button>`
@@ -38,7 +38,7 @@ async function renderRestock(main, _param, seq) {
 </article>`;
           })
           .join("")}</div>`
-      : emptyBox("Niekas nelaukia", "Kai prekė išparduota (likutis 0), pirkėjai gali palikti el. paštą – jie atsiras čia.")
+      : emptyBox("Niekas nelaukia", "Kai prekė išparduota (likutis 0), pirkėjai gali palikti el. paštą - jie atsiras čia.")
   }` });
   hydrateIcons(main);
   main.addEventListener("click", async e => {
@@ -58,7 +58,7 @@ async function renderRestock(main, _param, seq) {
 }
 async function notifyRestock(productId) {
   const d = await shopAdmin({ action: "restock-notify", product_id: productId });
-  if (!d.mail) toast("Laiškų siuntimas neįjungtas (RESEND_API_KEY) – parašykite pirkėjams patys", { icon: "info", ms: 6000 });
+  if (!d.mail) toast("Laiškų siuntimas neįjungtas (RESEND_API_KEY) - parašykite pirkėjams patys", { icon: "info", ms: 6000 });
   else toast(`Išsiųsta ${d.sent} iš ${d.total}`, { icon: "mail", ms: 3600 });
   loadCounts();
   return d;

@@ -1,4 +1,4 @@
-// 09 – Veiksmų žurnalas (audit_log, pildo duomenų bazės trigeriai): kas, kada ir ką pakeitė kvapuose, kategorijose,
+// 09 - Veiksmų žurnalas (audit_log, pildo duomenų bazės trigeriai): kas, kada ir ką pakeitė kvapuose, kategorijose,
 // šeimose, nustatymuose, užsakymuose, atsiliepimuose. Tik skaitomas.
 const LOG_ENTITY = {
   products: "Produktas",
@@ -30,9 +30,9 @@ const LOG_FIELD = {
   family: "šeima"
 };
 const logValue = v => {
-  if (v == null) return "—";
+  if (v == null) return "-";
   if (typeof v === "boolean") return v ? "taip" : "ne";
-  if (Array.isArray(v) && v.every(x => x && typeof x === "object" && "ml" in x)) return v.map(s => `${s.ml} ml – ${s.price} €`).join(", ");
+  if (Array.isArray(v) && v.every(x => x && typeof x === "object" && "ml" in x)) return v.map(s => `${s.ml} ml - ${s.price} €`).join(", ");
   const s = typeof v === "object" ? JSON.stringify(v) : String(v);
   return s.length > 80 ? `${s.slice(0, 80)}…` : s;
 };
@@ -45,7 +45,7 @@ function logChanges(row) {
       k === "data"
         ? `nustatymai: ${Object.keys(v?.dabar || {})
             .filter(key => JSON.stringify(v?.buvo?.[key]) !== JSON.stringify(v?.dabar?.[key]))
-            .join(", ") || "—"}`
+            .join(", ") || "-"}`
         : `<span>${esc(LOG_FIELD[k] || k)}: <s>${esc(logValue(v?.buvo))}</s> → ${esc(logValue(v?.dabar))}</span>`
     )
     .join("");
@@ -63,7 +63,7 @@ async function renderLog(main, _param, seq) {
               r.entity_id ? `<code>${esc(r.entity_id.length > 12 && r.entity === "orders" ? r.entity_id.slice(-8).toUpperCase() : r.entity_id)}</code>` : ""
             }</span><span class="admLogCh">${logChanges(r)}</span><small>${fmtDateTime(r.at)} · ${esc(r.actor_email || "sistema (pirkimas, Stripe)")}</small></span></div>`
           )
-          .join("")}</div><p class="igFoot">Paskutiniai 300 pakeitimų. Įrašo duomenų bazė – keisti negalima.</p>`
+          .join("")}</div><p class="igFoot">Paskutiniai 300 pakeitimų. Įrašo duomenų bazė - keisti negalima.</p>`
       : emptyBox("Įrašų dar nėra", "Čia matysite visus produktų, nustatymų ir užsakymų pakeitimus.")
   }` });
 }

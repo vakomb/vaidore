@@ -1,7 +1,7 @@
-// 12 – Juosta virš header'io (admin/vitrina/juosta): žinutės (tekstas, trumpas variantas telefonui, nuoroda,
+// 12 - Juosta virš header'io (admin/vitrina/juosta): žinutės (tekstas, trumpas variantas telefonui, nuoroda,
 // rodoma / paslėpta, eilė), dizainas (paruošti variantai + savos spalvos, gradientas, šrifto dydis telefone / kompiuteryje,
 // storis, tarpai tarp raidžių, didžiosios raidės, aukštis, linija), keitimosi laikas, rodyklės, animacija.
-// Saugoma settings.topbar (formatas – 21-header.js). Peržiūra – ta pati kaip pradžios puslapio (10-home.js).
+// Saugoma settings.topbar (formatas - 21-header.js). Peržiūra - ta pati kaip pradžios puslapio (10-home.js).
 const TB_DESIGNS = {
   black: { name: "Juoda", style: { bg: "#111111", color: "#c7c7c7", accent: "#ffffff", grad: "solid", weight: 400, upper: false } },
   gold: { name: "Aukso gradientas", style: { bg: "#b8974a", bg2: "#d8be74", grad: "mid", color: "#1a1a1a", accent: "#000000", weight: 600, upper: true, ls: 0.06 } },
@@ -43,7 +43,7 @@ function topbarSectionHTML() {
 <div class="ig"><label class="axField axSwitchRow"><span>Rodyti juostą</span><input type="checkbox" class="admSwitchInp" data-tb="on"${attr(TB.cfg.on !== false, "checked")} /></label></div>
 <h2 class="igHead">Žinutės</h2><div class="ig heList" id="tbItems"></div>
 <div class="ig"><button class="axRow axAddRow" type="button" data-tb-add>${glyph("plus")}<span class="axRowTxt"><b>Nauja žinutė</b></span></button><button class="axRow" type="button" data-tb-auto><span class="axRowTxt"><b class="axLink">Numatytosios žinutės</b></span></button></div>
-<p class="igFoot">Keičiasi viena po kitos. *žodis* – paryškinamas.</p>
+<p class="igFoot">Keičiasi viena po kitos. *žodis* - paryškinamas.</p>
 <h2 class="igHead">Dizainas</h2>
 <div class="tbDesigns" id="tbDesigns"></div>
 <div class="ig"><button class="axRow" type="button" data-push="tbstyle"><span class="axRowTxt"><b>Spalvos ir šriftas</b></span><span class="axVal" id="tbStyleSum"></span><span class="axChev">${glyph("chev-right")}</span></button></div>
@@ -62,7 +62,7 @@ ${fieldHTML(
 )}
 <label class="axField axSwitchRow"><span>Rodyklės ‹ ›</span><input type="checkbox" class="admSwitchInp" data-tb="arrows"${attr(TB.cfg.arrows !== false, "checked")} /></label>
 </div>
-<p class="igFoot">0 s – žinutės nesikeičia pačios.</p>
+<p class="igFoot">0 s - žinutės nesikeičia pačios.</p>
 <div class="ig"><button class="axRow" type="button" data-he-reset><span class="axRowTxt"><b class="axLink">Grąžinti numatytuosius</b></span></button></div>
 </div>`;
 }
@@ -80,7 +80,7 @@ ${groupHTML(
     "Trumpas",
     `<input name="short" maxlength="70" value="${esc(x.short || "")}" placeholder="Nemokamai nuo *60 €*" />`
   )}`,
-  { foot: "Trumpas – telefone, jei ilgas netelpa į 2 eilutes." }
+  { foot: "Trumpas - telefone, jei ilgas netelpa į 2 eilutes." }
 )}
 ${groupHTML(linkField(x.href, "Be nuorodos", custom, "nuolaidos arba https://…"))}
 <div class="ig"><button class="axRow danger" type="button" data-tb-del><span class="axRowTxt"><b>Ištrinti žinutę</b></span></button></div>
@@ -89,7 +89,7 @@ ${groupHTML(linkField(x.href, "Be nuorodos", custom, "nuolaidos arba https://…
 function paintTbItems() {
   const box = $("#tbItems");
   if (!box) return;
-  box.innerHTML = TB.cfg.items.length ? TB.cfg.items.map(tbItemRow).join("") : `<p class="axRowNote heEmpty">Žinučių nėra – juosta nerodoma.</p>`;
+  box.innerHTML = TB.cfg.items.length ? TB.cfg.items.map(tbItemRow).join("") : `<p class="axRowNote heEmpty">Žinučių nėra - juosta nerodoma.</p>`;
   hydrateIcons(box);
   sortable(box, {
     item: ".heItem",
@@ -133,7 +133,7 @@ ${rng("weight", "Storis", 300, 800, 100, 400, "")}${rng("ls", "Tarpai tarp raid�
 ${rng("h", "Aukštis telefone", 36, 96, 1, 66, " px")}${rng("hD", "Aukštis kompiuteryje", 32, 80, 1, 49, " px")}
 <label class="axField axSwitchRow"><span>DIDŽIOSIOS RAIDĖS</span><input type="checkbox" class="admSwitchInp" data-tb-st="upper"${attr(!!st.upper, "checked")} /></label>
 <label class="axField axSwitchRow"><span>Linija apačioje</span><input type="checkbox" class="admSwitchInp" data-tb-st="line"${attr(!!st.line, "checked")} /></label>
-<p class="tbContrast axRowNote${ratio < 4.5 ? " bad" : ""}" role="status">${ratio < 4.5 ? `${glyph("info")}Per mažas kontrastas (${ratio.toFixed(1)}:1) – tekstas bus sunkiai įskaitomas. Reikia bent 4,5:1.` : `${glyph("check")}Kontrastas ${ratio.toFixed(1)}:1 – gerai įskaitoma`}</p>
+<p class="tbContrast axRowNote${ratio < 4.5 ? " bad" : ""}" role="status">${ratio < 4.5 ? `${glyph("info")}Per mažas kontrastas (${ratio.toFixed(1)}:1) - tekstas bus sunkiai įskaitomas. Reikia bent 4,5:1.` : `${glyph("check")}Kontrastas ${ratio.toFixed(1)}:1 - gerai įskaitoma`}</p>
 <button class="axRow tbResetStyle" type="button" data-tb-design="black"><span class="axRowTxt"><b class="axLink">Numatytasis dizainas</b></span></button>`;
   hydrateIcons($("#tbStyle"));
 }
@@ -199,7 +199,7 @@ function bindTopbar(page) {
       TB.cfg.style = { ...TB.cfg.style, [k]: v };
       if (t.type === "range") $("output", t.closest("label")).textContent = `${v}${{ fs: " px", fsD: " px", h: " px", hD: " px", ls: " em" }[k] || ""}`;
       if (t.type === "color") $("code", t.closest("label")).textContent = v;
-      // Spalvos ir tipas – perpiešiame (kontrastas, antra spalva); slankikliai – tik peržiūra (kad neprarastų fokuso)
+      // Spalvos ir tipas - perpiešiame (kontrastas, antra spalva); slankikliai - tik peržiūra (kad neprarastų fokuso)
       if (e.type === "change" && (k === "grad" || t.type === "color" || t.type === "checkbox")) return tbChanged({ style: true });
       return tbChanged();
     }

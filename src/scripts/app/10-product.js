@@ -1,36 +1,36 @@
-// 10 – prekės puslapis /<tipas>/<id> (kaip parfumada.lt): PAVADINIMAS tarp linijų ir paantraštė, švari galerija
+// 10 - prekės puslapis /<tipas>/<id> (kaip parfumada.lt): PAVADINIMAS tarp linijų ir paantraštė, švari galerija
 // (nuotraukos braukiant arba buteliukas), kaina, talpa (33 ml / 100 ml / 2 ml mėginukas), kiekis, „Įdėti į krepšelį“,
-// susietos prekės, „Į mėgstamus“ / „Dalintis“, aprašymas; po straipsniu – turinio blokai pagal kategoriją ir išskleidžiamos
-// dalys (28-story.js, v29), atsiliepimai (tik tikri), „Jums gali patikti“. Prilipusi pirkimo juosta: telefone – praslinkus mygtuką, kompiuteryje –
-// kai mygtuko nesimato (nuotrauka, pavadinimas, kaina, kiekis, mygtukas – kaip parfumada.lt). Išparduotam – „Pranešti, kai bus“.
+// susietos prekės, „Į mėgstamus“ / „Dalintis“, aprašymas; po straipsniu - turinio blokai pagal kategoriją ir išskleidžiamos
+// dalys (28-story.js, v29), atsiliepimai (tik tikri), „Jums gali patikti“. Prilipusi pirkimo juosta: telefone - praslinkus mygtuką, kompiuteryje -
+// kai mygtuko nesimato (nuotrauka, pavadinimas, kaina, kiekis, mygtukas - kaip parfumada.lt). Išparduotam - „Pranešti, kai bus“.
 function galleryHTML(p) {
   const imgs = (p.images || []).filter(Boolean);
   if (!imgs.length) return bottleSVG(p);
   return `<div class="gal" tabindex="0" aria-label="${esc(p.name)} nuotraukos">${imgs
     .map(
       (src, i) =>
-        `<img${flatImg(src) ? ' class="flat"' : ""} src="${esc(src)}" alt="${esc(p.name)}${imgs.length > 1 ? ` – ${i + 1} iš ${imgs.length}` : ""}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" />`
+        `<img${flatImg(src) ? ' class="flat"' : ""} src="${esc(src)}" alt="${esc(p.name)}${imgs.length > 1 ? ` - ${i + 1} iš ${imgs.length}` : ""}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async" />`
     )
     .join("")}</div>${imgs.length > 1 ? `<div class="galDots" aria-hidden="true">${imgs.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}`;
 }
 // Pristatymo laikas ant „Į krepšelį“ (v25): išsiuntimas (SET.dispatch) + greičiausias pristatymo būdas (SET.shipping[].days),
-// pvz. „1–2 d. d.“ + „1–2 d. d.“ → „Pristatysime per 2–4 d. d.“. Neatpažinus – „Išsiunčiame per …“ (tik tikri duomenys).
+// pvz. „1-2 d. d.“ + „1-2 d. d.“ → „Pristatysime per 2-4 d. d.“. Neatpažinus - „Išsiunčiame per …“ (tik tikri duomenys).
 function deliveryEta() {
   const rng = s => {
-    const m = String(s || "").match(/(\d+)\s*(?:[–-]\s*(\d+))?/);
+    const m = String(s || "").match(/(\d+)\s*(?:[\u2013-]\s*(\d+))?/);
     return m ? [Number(m[1]), Number(m[2] || m[1])] : null;
   };
-  const d = rng(SET.dispatch || "1–2 d. d.");
+  const d = rng(SET.dispatch || "1-2 d. d.");
   const ship = (SET.shipping || []).map(o => rng(o.days)).filter(Boolean).sort((a, b) => a[1] - b[1] || a[0] - b[0])[0];
-  if (!d || !ship) return `Išsiunčiame per ${SET.dispatch || "1–2 d. d."}`;
+  if (!d || !ship) return `Išsiunčiame per ${SET.dispatch || "1-2 d. d."}`;
   const lo = d[0] + ship[0],
     hi = d[1] + ship[1];
-  return `Pristatysime per ${lo === hi ? lo : `${lo}–${hi}`} d. d.`;
+  return `Pristatysime per ${lo === hi ? lo : `${lo}-${hi}`} d. d.`;
 }
-// „Įdėti į krepšelį“ – dvi eilutės: veiksmas ir pristatymo laikas su žaliu „gyvu“ tašku
+// „Įdėti į krepšelį“ - dvi eilutės: veiksmas ir pristatymo laikas su žaliu „gyvu“ tašku
 const addBtnHTML = () => `<span class="addMain">Įdėti į krepšelį</span><span class="addEta"><i class="liveDot" aria-hidden="true"></i>${esc(nb(deliveryEta()))}</span>`;
 // Susietų prekių eilutė (v25, v28): nuotrauka, pavadinimas, antraeilė (forma · talpa / originalas / savybės), kaina,
-// „+“ – iškart į krepšelį. hidden – „Rodyti dar …“ sąrašuose
+// „+“ - iškart į krepšelį. hidden - „Rodyti dar …“ sąrašuose
 function formRowHTML(x, { sub = "", hidden = false } = {}) {
   const ml = defaultMl(x);
   const sold = !inStock(x);
@@ -41,7 +41,7 @@ function formRowHTML(x, { sub = "", hidden = false } = {}) {
     sold ? "" : `<button class="formAdd" type="button" data-form-add="${esc(x.id)}" aria-label="Įdėti į krepšelį: ${esc(x.name)}">${glyph("plus")}</button>`
   }</div>`;
 }
-// Susietų prekių blokas: antraštė ir sąrašas; daugiau nei „limit“ – „Rodyti dar N“ (išskleidžia likusias)
+// Susietų prekių blokas: antraštė ir sąrašas; daugiau nei „limit“ - „Rodyti dar N“ (išskleidžia likusias)
 function pickListHTML(title, items, { sub = () => "", limit = 0 } = {}) {
   if (!items.length) return "";
   const more = limit && items.length > limit ? items.length - limit : 0;
@@ -49,7 +49,7 @@ function pickListHTML(title, items, { sub = () => "", limit = 0 } = {}) {
     .map((x, i) => formRowHTML(x, { sub: sub(x), hidden: more && i >= limit }))
     .join("")}</div>${more ? `<button class="formMore" type="button" data-more-forms>${esc(`Rodyti dar ${more}`)}${glyph("chev-down")}</button>` : ""}</section>`;
 }
-// Originalas eilutėje („Paco Rabanne One Million · 10 ml“) – renkantis aliejų pagal kvapą
+// Originalas eilutėje („Paco Rabanne One Million · 10 ml“) - renkantis aliejų pagal kvapą
 const inspLine = x => {
   const insp = inspiredOf(x);
   if (!insp) return "";
@@ -58,7 +58,7 @@ const inspLine = x => {
 };
 // Elektrinio difuzoriaus savybės eilutėje („300 ml · iki 10 val.“)
 const deviceLine = x => [x.attrs?.tank && `${x.attrs.tank} ml`, x.attrs?.runtime && `${x.attrs.runtime} val.`].filter(Boolean).join(" · ") || TYPE.get(typeOf(x)).one;
-// Pagrindinės savybės kortelėmis po kaina (v28, ne kvepalams): reikšmė stambiai, pavadinimas – po ja
+// Pagrindinės savybės kortelėmis po kaina (v28, ne kvepalams): reikšmė stambiai, pavadinimas - po ja
 const SPEC_FMT = {
   tank: v => [`${v} ml`, "vandens talpa"],
   runtime: v => [`${v} val.`, "veikimo laikas"],
@@ -73,7 +73,7 @@ const SPEC_FMT = {
   wax: v => [String(v), "vaškas"],
   wick: v => [String(v), "dagtis"]
 };
-// Taip / ne savybės – viena aiški eilutė su varnele po kaina (v28b), ne kortelė
+// Taip / ne savybės - viena aiški eilutė su varnele po kaina (v28b), ne kortelė
 const SPEC_LINE = { forDiffuser: "Tinka elektriniams difuzoriams" };
 function specsHTML(p) {
   const lines = (ATTR_DEFS[typeOf(p)] || []).filter(([k]) => SPEC_LINE[k] && p.attrs?.[k] === true).map(([k]) => SPEC_LINE[k]);
@@ -111,12 +111,12 @@ function productPageHTML(p, ml) {
   const device = typeOf(p) === "elektriniai-difuzoriai";
   const attrs = attrList(p);
   const T = TYPE.get(typeOf(p));
-  // Tas pats kvapas kitose kategorijose (products.scent_id): „Šis kvapas taip pat“ – kvepalai, difuzorius, žvakė…
+  // Tas pats kvapas kitose kategorijose (products.scent_id): „Šis kvapas taip pat“ - kvepalai, difuzorius, žvakė…
   const forms = p.scent ? PRODUCTS.filter(x => x.scent === p.scent && x.id !== p.id).sort((a, b) => TYPES.findIndex(t => t.id === typeOf(a)) - TYPES.findIndex(t => t.id === typeOf(b))) : [];
   const similar = PRODUCTS.filter(x => x.id !== p.id && inStock(x) && typeOf(x) === typeOf(p) && (x.family === p.family || x.gender === p.gender || !isPerfume(p)))
     .sort((a, b) => (b.family === p.family) - (a.family === p.family) || a.rank - b.rank)
     .slice(0, 8);
-  // Kartu reikalingos prekės (v28): aliejui – elektriniai difuzoriai, elektriniam difuzoriui – aliejai (pirmi 5, kiti – „Rodyti dar“)
+  // Kartu reikalingos prekės (v28): aliejui - elektriniai difuzoriai, elektriniam difuzoriui - aliejai (pirmi 5, kiti - „Rodyti dar“)
   const byNeed = list => list.sort((a, b) => inStock(b) - inStock(a) || a.rank - b.rank);
   const devices = typeOf(p) === "aliejai" ? byNeed(PRODUCTS.filter(x => typeOf(x) === "elektriniai-difuzoriai")) : [];
   const oils = device ? byNeed(PRODUCTS.filter(x => typeOf(x) === "aliejai")) : [];
@@ -130,21 +130,21 @@ function productPageHTML(p, ml) {
   const buyBtn = sold
     ? `<button class="btn primary" type="button" data-notify="${p.id}">${glyph("bell")}Pranešti, kai bus</button>`
     : `<button class="btn primary pdAdd" type="button" data-add>${addBtnHTML()}</button>`;
-  // Natos – trys eilutės (kaip parfumada.lt): „Viršutinės natos: …“
+  // Natos - trys eilutės (kaip parfumada.lt): „Viršutinės natos: …“
   const noteRow = (lab, list) => `<div><dt>${lab}</dt><dd>${list.map(esc).join(" · ")}</dd></div>`;
   const notes = `<dl class="pdNotes">${noteRow("Viršutinės natos", p.notes.top)}${noteRow("Širdies natos", p.notes.heart)}${noteRow("Bazinės natos", p.notes.base)}</dl>`;
-  // Kam skirti – lytis ir kvapų šeima
+  // Kam skirti - lytis ir kvapų šeima
   const who = `<ul class="accList">${[
-    p.gender === "unisex" ? "Unisex – moterims ir vyrams" : GENDER_NAME[p.gender],
+    p.gender === "unisex" ? "Unisex - moterims ir vyrams" : GENDER_NAME[p.gender],
     familyName(p.family) && `${familyName(p.family)} kvapai`
   ]
     .filter(Boolean)
     .map(t => `<li>${esc(t)}</li>`)
     .join("")}</ul>`;
-  // Išskleidžiamos dalys – turinio blokų pabaigoje (28-story.js). Natos – tik jei natų blokas išjungtas administravime.
+  // Išskleidžiamos dalys - turinio blokų pabaigoje (28-story.js). Natos - tik jei natų blokas išjungtas administravime.
   const cfg = pdpOf(typeOf(p));
   const notesInStory = blockOn(cfg.notes) && T.scented;
-  const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} – ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1–2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. – <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
+  const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} - ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>Nemokamai, kai užsakymas nuo ${eurShort(SET.freeShippingFrom)}</li><li>Išsiunčiame per ${esc(nb(SET.dispatch || "1-2 d. d."))}</li><li>Grąžinimas per ${SET.returnDays || 14} d. - <a href="pagalba#grazinimas" data-nav>kaip grąžinti</a></li></ul>`;
   const details = [
     isPerfume(p) ? accHTML("user", "Kam skirti", who) : "",
     !notesInStory && keyNotes(p).length ? accHTML("drop", isPerfume(p) ? "Natos" : "Kvapo natos", notes, { id: "pdNotesH" }) : "",
@@ -214,14 +214,14 @@ function renderProduct(id, params) {
   const root = $("#productRoot");
   if (!p || p.visible === false) return false;
   const ml = Number(params?.get("ml")) === SAMPLE_ML && hasSample(p) ? SAMPLE_ML : defaultMl(p);
-  // Senas adresas (kvepalai/<difuzoriaus id>) – pataisomas į tikrąjį be naujo įrašo istorijoje
+  // Senas adresas (kvepalai/<difuzoriaus id>) - pataisomas į tikrąjį be naujo įrašo istorijoje
   const want = absUrl(productUrl(p) + location.search);
   if (currentPath() !== productUrl(p) && want !== location.href) history.replaceState(history.state, "", want);
   pdState.id = id;
   pdState.ml = ml;
   pdState.qty = 1;
   root.innerHTML = productPageHTML(p, ml);
-  document.title = `${p.name} – ${kindName(p)} | ${SET.shop}`;
+  document.title = `${p.name} - ${kindName(p)} | ${SET.shop}`;
   renderReviews($("[data-pd-reviews]", root), [p], { title: "Atsiliepimai", showProduct: false });
   bindGallery(root);
   bindRails(root);
@@ -278,7 +278,7 @@ function bindProduct() {
       openMiniCart({ added: `${p.name} · ${sizeLabel(pdState.ml, p)}` });
       return;
     }
-    // „Rodyti dar N“ – išskleidžia likusias susietas prekes (švelniai), mygtukas dingsta
+    // „Rodyti dar N“ - išskleidžia likusias susietas prekes (švelniai), mygtukas dingsta
     const more = t?.closest("[data-more-forms]");
     if (more) {
       const sec = more.closest(".pdForms");
@@ -290,7 +290,7 @@ function bindProduct() {
       $("[data-more-row] .formLink", sec)?.focus({ preventScroll: true });
       return;
     }
-    // „Tas pats kvapas“: „+“ – kita forma (difuzorius, žvakė…) iškart į krepšelį, numatyta talpa
+    // „Tas pats kvapas“: „+“ - kita forma (difuzorius, žvakė…) iškart į krepšelį, numatyta talpa
     const fa = t?.closest("[data-form-add]");
     if (fa) {
       const x = BY_ID.get(fa.dataset.formAdd);
@@ -304,12 +304,12 @@ function bindProduct() {
     }
   });
 }
-// Dalintis – švari nuoroda į kvapo puslapį
+// Dalintis - švari nuoroda į kvapo puslapį
 async function shareProduct(id) {
   const p = BY_ID.get(id);
   const url = absUrl(BY_ID.has(id) ? productUrl(BY_ID.get(id)) : `kvepalai/${id}`);
   try {
-    if (navigator.share) return await navigator.share({ title: `${p.name} – ${SET.shop}`, text: p.tagline, url });
+    if (navigator.share) return await navigator.share({ title: `${p.name} - ${SET.shop}`, text: p.tagline, url });
     await navigator.clipboard.writeText(url);
     toast("Nuoroda nukopijuota", { icon: "copy" });
   } catch (err) {

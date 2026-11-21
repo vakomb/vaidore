@@ -1,9 +1,9 @@
-// 04 – Produktai: sąrašas (paieška, filtras; greiti veiksmai braukiant / dešiniuoju pelės mygtuku – likutis, rodyti / slėpti)
-// ir produkto ekranas admin/kvapai/<id> (admin/kvapai/naujas – naujas; kompiuteryje – šalia sąrašo). Forma – iOS stiliumi:
-// pagrindiniame ekrane nuotraukos, prekė, kaina, rodymas; ilgesnės dalys – vidiniuose ekranuose (Aprašymas, Natos, Savybės,
-// Spalvos, Kolekcijos, Išsamiau, Užpildyti iš aprašymo). Automatinis užpildymas (v15, 13-autofill.js) – su peržiūra prieš
-// pritaikant. Bendras kvapas (scents) – kvapo pasirinkimas ir naujo kvapo sukūrimas.
-// id – adresas <tipas>/<id>; sukūrus nebekeičiamas (gali būti pirkėjų krepšeliuose ir nuorodose).
+// 04 - Produktai: sąrašas (paieška, filtras; greiti veiksmai braukiant / dešiniuoju pelės mygtuku - likutis, rodyti / slėpti)
+// ir produkto ekranas admin/kvapai/<id> (admin/kvapai/naujas - naujas; kompiuteryje - šalia sąrašo). Forma - iOS stiliumi:
+// pagrindiniame ekrane nuotraukos, prekė, kaina, rodymas; ilgesnės dalys - vidiniuose ekranuose (Aprašymas, Natos, Savybės,
+// Spalvos, Kolekcijos, Išsamiau, Užpildyti iš aprašymo). Automatinis užpildymas (v15, 13-autofill.js) - su peržiūra prieš
+// pritaikant. Bendras kvapas (scents) - kvapo pasirinkimas ir naujo kvapo sukūrimas.
+// id - adresas <tipas>/<id>; sukūrus nebekeičiamas (gali būti pirkėjų krepšeliuose ir nuorodose).
 const PROD_FILTERS = [
   ["visi", "Visi", () => true],
   ["matomi", "Matomi", p => p.visible !== false],
@@ -34,7 +34,7 @@ const SHAPES = [
   ["square", "Kvadratinis"]
 ];
 const BADGES = ["", "Populiaru", "Naujiena", "Riboto leidimo"];
-// Forma pagal kategoriją (v15, minimalistinė): pavyzdžiai laukuose ir pavadinimai – kiekvienam prekės tipui savi
+// Forma pagal kategoriją (v15, minimalistinė): pavyzdžiai laukuose ir pavadinimai - kiekvienam prekės tipui savi
 const TYPE_FORM = {
   kvepalai: { name: "VANOR", tagline: "Ryto gaiva ant baltųjų rožių", desc: "Kaip kvapas atsiskleidžia, kam ir kada tinka", inci: "Ingredientai (INCI)", inciPh: "Alcohol Denat., Parfum, Aqua…", notes: "Natos" },
   difuzoriai: { name: "Difuzorius LIBRADORE", tagline: "Švelnus gėlių aromatas namams", desc: "Kvapas, kiek jo užtenka", inci: "Sudėtis", inciPh: "Isopropyl Myristate, Parfum…", notes: "Kvapas" },
@@ -44,7 +44,7 @@ const TYPE_FORM = {
 };
 // Trumpi pavadinimai kategorijos pasirinkimui
 const TYPE_SHORT = { "elektriniai-difuzoriai": "Elektriniai" };
-// Katalogo perjungiklis (telefone ir planšetėje; kompiuteryje – šoniniame meniu)
+// Katalogo perjungiklis (telefone ir planšetėje; kompiuteryje - šoniniame meniu)
 const catalogSeg = cur =>
   `<div class="axSeg axCatSeg" role="tablist" aria-label="Katalogas">${[
     ["kvapai", "Produktai"],
@@ -151,10 +151,10 @@ function productLine(p) {
     ? [VD.GENDER_NAME[p.gender] || "", famName(p.family), p.conc].filter(Boolean).join(" · ")
     : [typeName(p), p.type === "elektriniai-difuzoriai" ? "" : famName(p.family)].filter(Boolean).join(" · ");
 }
-// Sąraše – mažiausia kaina („nuo …“, jei talpų kelios)
+// Sąraše - mažiausia kaina („nuo …“, jei talpų kelios)
 function priceFrom(p) {
   const prices = (p.sizes || []).map(s => Number(s.price));
-  if (!prices.length) return "—";
+  if (!prices.length) return "-";
   return `${prices.length > 1 && Math.max(...prices) !== Math.min(...prices) ? "<small>nuo</small> " : ""}${eur(Math.min(...prices))}`;
 }
 function paintProducts() {
@@ -186,7 +186,7 @@ function paintProducts() {
     .join("")}</div>${rows.length > prodState.shown ? `<button class="axMoreBtn" type="button" data-prod-more>Rodyti daugiau (${rows.length - prodState.shown})</button>` : ""}`;
   hydrateIcons(box);
 }
-// Filtrų mygtukai po paieška: „Kategorija ▾“, „Originalas ▾“… (pasirinkta – juodas, su reikšme), „Išvalyti“
+// Filtrų mygtukai po paieška: „Kategorija ▾“, „Originalas ▾“… (pasirinkta - juodas, su reikšme), „Išvalyti“
 function facetOptions(key) {
   const [, , vals] = PROD_FACETS.find(f => f[0] === key);
   const fn = PROD_FILTERS.find(f => f[0] === prodState.filter)[2];
@@ -268,7 +268,7 @@ function openStockSheet(p) {
 <div class="ig"><div class="axField axStepper"><span>Likutis, vnt.</span><span class="axStep"><button type="button" class="roundBtn" data-step="-1" aria-label="Mažiau">${glyph("minus")}</button><input name="stock" type="number" inputmode="numeric" min="0" step="1" value="${
       p.stock ?? ""
     }" placeholder="∞" aria-label="Likutis" data-stock /><button type="button" class="roundBtn" data-step="1" aria-label="Daugiau">${glyph("plus")}</button></span></div></div>
-<p class="igFoot">Tuščia – neribotas. 0 – „Laikinai išparduota“ ir „Pranešti, kai bus“.</p>
+<p class="igFoot">Tuščia - neribotas. 0 - „Laikinai išparduota“ ir „Pranešti, kai bus“.</p>
 <button class="btn primary block" type="submit">Išsaugoti</button></form>`
   });
   const form = $("#sheetBody form");
@@ -282,14 +282,14 @@ function openStockSheet(p) {
     e.preventDefault();
     const raw = inp.value.trim();
     const stock = raw === "" ? null : Math.max(0, Math.round(Number(raw)));
-    if (raw !== "" && !Number.isFinite(stock)) return toast("Likutis – sveikas skaičius", { icon: "info" });
+    if (raw !== "" && !Number.isFinite(stock)) return toast("Likutis - sveikas skaičius", { icon: "info" });
     const before = p.stock;
     busy($("button[type=submit]", form), async () => {
       const row = await patchProduct(p.id, { stock });
       closeSheet();
       paintProducts();
       await catalogChanged(stock === 0 ? "Pažymėta: išparduota" : "Likutis išsaugotas");
-      // Vėl turime – pasiūlome pranešti laukiantiems
+      // Vėl turime - pasiūlome pranešti laukiantiems
       if (before === 0 && stock !== 0) offerRestockNotify(row);
     });
   });
@@ -337,7 +337,7 @@ const blankProduct = () => ({
   mood_title: "",
   mood_line: ""
 });
-// Laukas eilutėje: pavadinimas kairėje, reikšmė dešinėje; stack – pavadinimas virš (ilgam tekstui)
+// Laukas eilutėje: pavadinimas kairėje, reikšmė dešinėje; stack - pavadinimas virš (ilgam tekstui)
 const fieldHTML = (label, input, { cls = "", stack = false, attrs = "" } = {}) => `<label class="field axField${stack ? " stack" : ""}${cls ? ` ${cls}` : ""}" ${attrs}><span>${label}</span>${input}</label>`;
 const chipCheck = (name, value, on, label) => `<label class="admCheck"><input type="checkbox" name="${name}" value="${esc(value)}"${attr(on, "checked")} /><span>${esc(label)}</span></label>`;
 const chipsRow = (label, chips) => `<div class="admChecks"><span>${label}</span><div class="admChipList">${chips}</div></div>`;
@@ -355,7 +355,7 @@ async function renderProductEdit(main, id, seq) {
           if (r?.[0] && !("inspired" in r[0])) delete b.inspired;
           if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
           if (r?.[0] && !("type" in r[0])) delete b.type;
-          // v15: attrs, scent_id – tik po migracijos 20261120120000
+          // v15: attrs, scent_id - tik po migracijos 20261120120000
           for (const k of ["attrs", "scent_id", "subtitle", "mood_image", "mood_title", "mood_line"]) if (r?.[0] && !(k in r[0])) delete b[k];
           if (r?.[0] && "inspired_image" in r[0]) b.inspired_image = "";
           return [b];
@@ -364,7 +364,7 @@ async function renderProductEdit(main, id, seq) {
     sbRest("families?select=*&order=sort.asc"),
     sbRest("categories?select=*&order=sort.asc"),
     isNew ? Promise.resolve([]) : sbRest(`product_categories?select=category_id&product_id=eq.${encodeURIComponent(id)}`),
-    // Bendri kvapai (v15); lentelės dar nėra – null (automatinis užpildymas veikia ir be jų)
+    // Bendri kvapai (v15); lentelės dar nėra - null (automatinis užpildymas veikia ir be jų)
     sbRest("scents?select=*&order=name.asc").catch(() => null)
   ]);
   if (stale(seq)) return;
@@ -374,9 +374,9 @@ async function renderProductEdit(main, id, seq) {
     return;
   }
   const ed = { p: structuredClone(p), isNew, cats: new Set(links.map(l => l.category_id)), images: [...(p.images || [])], scents, scentId: null, af: null, pending: null, fams };
-  // Originalo nuotrauka (v18): produktui su kvapu – iš kvapo (keičiama kvape), be kvapo – įkeliama čia
+  // Originalo nuotrauka (v18): produktui su kvapu - iš kvapo (keičiama kvape), be kvapo - įkeliama čia
   ed.inspImg = p.inspired_image || "";
-  // Nuotaikos juosta (v29) – tik jei duomenų bazėje jau yra stulpeliai (migracija 20261122090000)
+  // Nuotaikos juosta (v29) - tik jei duomenų bazėje jau yra stulpeliai (migracija 20261122090000)
   ed.mood = { image: p.mood_image || "", title: p.mood_title || "", line: p.mood_line || "" };
   const n = p.notes || {};
   const opt = (v, label, cur) => `<option value="${esc(v)}"${sel(String(cur) === String(v))}>${esc(label)}</option>`;
@@ -399,7 +399,7 @@ ${groupHTML(
   `${fieldHTML("Pavadinimas", `<input name="name" required maxlength="60" value="${esc(p.name)}" placeholder="${esc(tf.name)}" data-tf-ph="name" />`)}${
     "type" in p && !isNew ? fieldHTML("Kategorija", `<select name="type">${VD.TYPES.map(t => opt(t.id, t.name, p.type || "kvepalai")).join("")}</select>`) : ""
   }${"type" in p && isNew ? `<input type="hidden" name="type" value="${esc(p.type || "kvepalai")}" />` : ""}${
-    "inspired" in p ? fieldHTML("Originalas", `<input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="Tom Ford – Tobacco Vanille" />`, { cls: "scentOnly" }) : ""
+    "inspired" in p ? fieldHTML("Originalas", `<input name="inspired" maxlength="120" value="${esc(p.inspired || "")}" placeholder="Tom Ford - Tobacco Vanille" />`, { cls: "scentOnly" }) : ""
   }${"inspired_image" in p ? `<div class="scentOnly" id="pInsp"></div>` : ""}${fieldHTML("Kam", `<select name="gender">${Object.entries(VD.GENDER_NAME).map(([v, l]) => opt(v, l, p.gender)).join("")}</select>`, { cls: "perfOnly" })}${fieldHTML(
     "Koncentracija",
     `<select name="conc">${Object.entries(VD.CONC_NAME).map(([v, l]) => opt(v, l, p.conc)).join("")}</select>`,
@@ -412,7 +412,7 @@ ${groupHTML(
     "Likutis, vnt.",
     `<input name="stock" type="number" inputmode="numeric" min="0" step="1" value="${p.stock ?? ""}" placeholder="Neribotas" />`
   )}</div>
-<p class="igFoot" id="sizesNote">Sena kaina – tik akcijai (mažiausia per 30 d.)</p>
+<p class="igFoot" id="sizesNote">Sena kaina - tik akcijai (mažiausia per 30 d.)</p>
 ${groupHTML(
   `<label class="axField axSwitchRow"><span>Rodomas parduotuvėje</span><input type="checkbox" name="visible" class="admSwitchInp"${attr(p.visible !== false, "checked")} /></label>${fieldHTML(
     "Žymė",
@@ -452,7 +452,7 @@ ${groupHTML(
     `<input name="heart" value="${esc((n.heart || []).join(", "))}" placeholder="Rožė, Jazminas" />`,
     { stack: true }
   )}${fieldHTML("Bazinės", `<input name="base" value="${esc((n.base || []).join(", "))}" placeholder="Muskusas, Kedras" />`, { stack: true })}`,
-  { foot: "Natos – kableliais." }
+  { foot: "Natos - kableliais." }
 )}
 </div>
 ${"attrs" in p ? `<div data-pane="savybes" data-title="Savybės" hidden><div class="ig admAttrs" id="attrsBox"></div></div>` : ""}
@@ -466,7 +466,7 @@ ${"attrs" in p ? `<div data-pane="savybes" data-title="Savybės" hidden><div cla
     `<select name="shape">${SHAPES.map(([v, l]) => opt(v, l, p.look?.shape)).join("")}</select>`,
     { cls: "perfOnly" }
   )}</div>
-<p class="igFoot">Fonas – kortelėje, kol nėra nuotraukos.</p>
+<p class="igFoot">Fonas - kortelėje, kol nėra nuotraukos.</p>
 </div>
 ${
   cats.length
@@ -478,7 +478,7 @@ ${
 ${
   "subtitle" in p
     ? `<div data-pane="puslapis" data-title="Puslapio turinys" data-focus="no" hidden>
-${groupHTML(fieldHTML("Paantraštė", `<input name="subtitle" maxlength="80" value="${esc(p.subtitle || "")}" data-sub-ph />`), { head: "Po pavadinimu", foot: "Tuščia – pagal kategoriją." })}
+${groupHTML(fieldHTML("Paantraštė", `<input name="subtitle" maxlength="80" value="${esc(p.subtitle || "")}" data-sub-ph />`), { head: "Po pavadinimu", foot: "Tuščia - pagal kategoriją." })}
 ${"mood_image" in p ? moodGroupHTML(ed, { cls: "scentOnly" }) : ""}
 </div>`
     : ""
@@ -506,7 +506,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
   const page = form.closest(".axPage");
   paintSizes(form, ed.p.sizes || []);
   paintAttrs(form, ed.p.attrs || {});
-  // „Naujas produktas su šiuo kvapu“ (skiltis „Kvapai“): admin/kvapai/naujas?kvapas=<id> – kvapas parenkamas iš karto
+  // „Naujas produktas su šiuo kvapu“ (skiltis „Kvapai“): admin/kvapai/naujas?kvapas=<id> - kvapas parenkamas iš karto
   const preType = isNew && new URLSearchParams(location.search).get("kategorija");
   if (preType && form.elements.type && VD.TYPES.some(t => t.id === preType)) {
     form.elements.type.value = preType;
@@ -547,7 +547,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
     }
   });
   form.addEventListener("change", e => {
-    // Pakeitus kategoriją – talpų eilutės ir kvepalų laukai perpiešiami (įvestos kainos lieka)
+    // Pakeitus kategoriją - talpų eilutės ir kvepalų laukai perpiešiami (įvestos kainos lieka)
     if (e.target.name === "type") {
       paintSizes(form, readSizes(form).filter(s => s.price !== "" || s.was !== ""));
       paintAttrs(form, readAttrs(form));
@@ -584,7 +584,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
     busy($(`.axSave[form="prodForm"]`, page), () => saveProduct(ed, form));
   });
 }
-// Originalo nuotrauka įkeliama tik Katalogas → Kvapai → kvapas (v19). Produkte – tik peržiūra ir nuoroda į kvapą.
+// Originalo nuotrauka įkeliama tik Katalogas → Kvapai → kvapas (v19). Produkte - tik peržiūra ir nuoroda į kvapą.
 function paintProdInsp(ed, form) {
   const box = $("#pInsp", form);
   if (!box) return;
@@ -618,23 +618,23 @@ function paintSums(form) {
   const cats = $$('input[name="cats"]:checked', form).map(c => c.closest("label").textContent.trim());
   set("kolekcijos", cats.length ? esc(short(cats.join(", "))) : `<span class="axMuted2">Nėra</span>`);
   set("isamiau", `Eilė ${esc(f.rank.value || "100")}`);
-  // Paantraštė (v29): numatyta – pagal kategoriją (kvepalams – koncentracija ir lytis)
+  // Paantraštė (v29): numatyta - pagal kategoriją (kvepalams - koncentracija ir lytis)
   if (f.subtitle) {
     const def = VD.subtitleOf({ type: formType(form), conc: f.conc.value, gender: f.gender.value });
     f.subtitle.placeholder = def;
     set("puslapis", esc(short(f.subtitle.value.trim() || def)));
   }
 }
-// Talpos: kvepalams – fiksuotos (VD.BOTTLE_ML: 33 ir 100 ml); difuzoriams ir aliejams – dvi eilutės su laisvu tūriu (ml),
-// žvakėms – svoris (g, sizes[].unit = "g"), elektriniam difuzoriui – viena eilutė „1 vnt.“ (unit = "vnt").
-// Kiekvienai – kaina ir sena kaina; tuščia kaina – ta talpa neparduodama
+// Talpos: kvepalams - fiksuotos (VD.BOTTLE_ML: 33 ir 100 ml); difuzoriams ir aliejams - dvi eilutės su laisvu tūriu (ml),
+// žvakėms - svoris (g, sizes[].unit = "g"), elektriniam difuzoriui - viena eilutė „1 vnt.“ (unit = "vnt").
+// Kiekvienai - kaina ir sena kaina; tuščia kaina - ta talpa neparduodama
 const formType = form => form.elements.type?.value || "kvepalai";
 function paintSizes(form, sizes) {
   const type = formType(form);
   const perf = type === "kvepalai";
   const unit = type === "zvakes" ? "g" : "ml";
-  const price = s => `<label class="field"><span>Kaina, €</span><input inputmode="decimal" data-size-price value="${esc(dec(s.price ?? ""))}" placeholder="—" /></label>
-<label class="field"><span>Sena, €</span><input inputmode="decimal" data-size-was value="${esc(dec(s.was ?? ""))}" placeholder="—" /></label>`;
+  const price = s => `<label class="field"><span>Kaina, €</span><input inputmode="decimal" data-size-price value="${esc(dec(s.price ?? ""))}" placeholder="-" /></label>
+<label class="field"><span>Sena, €</span><input inputmode="decimal" data-size-was value="${esc(dec(s.was ?? ""))}" placeholder="-" /></label>`;
   const free = [...sizes.filter(s => s.ml !== "" && s.ml != null), {}, {}].slice(0, 2);
   if (!perf && !free[0].ml) free[0] = { ...free[0], ml: 100 };
   $("#sizesBox", form).innerHTML = perf
@@ -660,7 +660,7 @@ const readSizes = form =>
     price: $("[data-size-price]", r).value.trim(),
     was: $("[data-size-was]", r).value.trim()
   }));
-// Nuotraukų juosta: tempiant keičiama eilė, paspaudus – veiksmai, × – pašalinti, + – įkelti
+// Nuotraukų juosta: tempiant keičiama eilė, paspaudus - veiksmai, × - pašalinti, + - įkelti
 function paintImages(ed, form) {
   const box = $("#imgsBox", form);
   box.innerHTML = `${ed.images
@@ -712,7 +712,7 @@ async function addImages(ed, form, input) {
     paintImages(ed, form);
     afDone("images");
     A.dirty = true;
-    toast(`${plural(urls.length, "nuotrauka įkelta", "nuotraukos įkeltos", "nuotraukų įkelta")} – neužmirškite išsaugoti`, { icon: "check", ms: 3600 });
+    toast(`${plural(urls.length, "nuotrauka įkelta", "nuotraukos įkeltos", "nuotraukų įkelta")} - neužmirškite išsaugoti`, { icon: "check", ms: 3600 });
   } catch (err) {
     toast(errText(err), { icon: "info", ms: 4200 });
   } finally {
@@ -748,7 +748,7 @@ function readProduct(ed, form) {
     description: f.description.value.trim(),
     ...(f.ingredients ? { ingredients: f.ingredients.value.trim() } : {}),
     notes,
-    // Ilgaamžiškumas ir sklaida formoje nerodomi (v15) – saugomi tyliai (kvapo testas, „Kam skirti“)
+    // Ilgaamžiškumas ir sklaida formoje nerodomi (v15) - saugomi tyliai (kvapo testas, „Kam skirti“)
     longevity: ed.p.longevity || 3,
     sillage: ed.p.sillage || 3,
     sizes: sizes.sort((a, b) => a.ml - b.ml),
@@ -766,14 +766,14 @@ function readProduct(ed, form) {
     added: f.added.value || new Date().toISOString().slice(0, 10)
   };
   if (!row.name) errors.push("Įrašykite pavadinimą");
-  if (!/^[a-z0-9-]+$/.test(id)) errors.push("Adresas (id) – tik mažosios raidės, skaičiai ir „-“");
-  if (ed.isNew && VD.CAT.products.some(p => p.id === id)) errors.push("Toks adresas jau užimtas – pakeiskite");
+  if (!/^[a-z0-9-]+$/.test(id)) errors.push("Adresas (id) - tik mažosios raidės, skaičiai ir „-“");
+  if (ed.isNew && VD.CAT.products.some(p => p.id === id)) errors.push("Toks adresas jau užimtas - pakeiskite");
   if (VD.SET.discovery?.id === id) errors.push("Šis adresas skirtas atradimų rinkiniui");
-  if (ed.isNew && ["naujas", "kvapu-sarasas"].includes(id)) errors.push("Šis adresas užimtas – pakeiskite");
+  if (ed.isNew && ["naujas", "kvapu-sarasas"].includes(id)) errors.push("Šis adresas užimtas - pakeiskite");
   const type = row.type || "kvepalai";
   const perf = type === "kvepalai";
   const scented = AF_SCENTED.has(type);
-  // Elektrinis difuzorius – be kvapo: šeima (privaloma duomenų bazėje) – pirmoji, lytis – unisex
+  // Elektrinis difuzorius - be kvapo: šeima (privaloma duomenų bazėje) - pirmoji, lytis - unisex
   if (!scented) {
     row.family = row.family || VD.CAT.families[0]?.id || "";
     row.gender = "unisex";
@@ -781,13 +781,13 @@ function readProduct(ed, form) {
   if (!row.family) errors.push("Pasirinkite kvapo šeimą");
   if (!perf) row.sample = 0;
   if (!sizes.length) errors.push(perf ? "Įrašykite kainą bent vienai talpai (33 ml arba 100 ml)" : type === "elektriniai-difuzoriai" ? "Įrašykite kainą" : `Įrašykite ${type === "zvakes" ? "svorį" : "tūrį"} ir kainą`);
-  if (sizes.some(s => (s.unit || "ml") === "ml" && !(s.ml > 2))) errors.push("Tūris – daugiau nei 2 ml");
-  if (sizes.some(s => !(s.ml > 0))) errors.push(type === "zvakes" ? "Svoris – daugiau nei 0 g" : "Tūris – daugiau nei 0");
+  if (sizes.some(s => (s.unit || "ml") === "ml" && !(s.ml > 2))) errors.push("Tūris - daugiau nei 2 ml");
+  if (sizes.some(s => !(s.ml > 0))) errors.push(type === "zvakes" ? "Svoris - daugiau nei 0 g" : "Tūris - daugiau nei 0");
   if (new Set(sizes.map(s => s.ml)).size !== sizes.length) errors.push("Tūriai kartojasi");
-  if (sizes.some(s => !(s.price > 0))) errors.push("Kaina – daugiau nei 0 €");
+  if (sizes.some(s => !(s.price > 0))) errors.push("Kaina - daugiau nei 0 €");
   if (sizes.some(s => s.was != null && !(s.was > s.price))) errors.push("Sena kaina turi būti didesnė už kainą (arba tuščia)");
-  if (!(row.sample >= 0)) errors.push("Mėginuko kaina – skaičius");
-  if (row.stock != null && !(Number.isInteger(row.stock) && row.stock >= 0)) errors.push("Likutis – sveikas skaičius ≥ 0");
+  if (!(row.sample >= 0)) errors.push("Mėginuko kaina - skaičius");
+  if (row.stock != null && !(Number.isInteger(row.stock) && row.stock >= 0)) errors.push("Likutis - sveikas skaičius ≥ 0");
   if (perf && (!notes.top.length || !notes.heart.length || !notes.base.length)) errors.push("Įrašykite viršutines, širdies ir bazines natas");
   if (scented && !perf && !notes.top.length && !notes.heart.length && !notes.base.length) errors.push("Įrašykite bent vieną natą");
   return { row, cats: fd.getAll("cats"), errors };
@@ -802,7 +802,7 @@ async function saveProduct(ed, form) {
   else {
     const { id, ...patch } = row;
     [saved] = (await sbRest(`products?id=eq.${encodeURIComponent(ed.p.id)}`, { method: "PATCH", body: patch, prefer: "return=representation" })) || [];
-    if (!saved) throw new Error("Produktas nerastas – galbūt ištrintas");
+    if (!saved) throw new Error("Produktas nerastas - galbūt ištrintas");
   }
   // Kategorijos: pašaliname nebepažymėtas, pridedame naujas
   const removed = [...ed.cats].filter(c => !cats.includes(c));
@@ -810,7 +810,7 @@ async function saveProduct(ed, form) {
   if (removed.length) await sbRest(`product_categories?product_id=eq.${encodeURIComponent(row.id)}&category_id=in.(${removed.map(encodeURIComponent).join(",")})`, { method: "DELETE" });
   if (added.length) await sbRest("product_categories", { method: "POST", body: added.map(c => ({ product_id: row.id, category_id: c })) });
   ed.cats = new Set(cats);
-  // Naujas produktas be pasirinkto kvapo – sukuriamas bendras kvapas (scents) ir susiejamas (kitam produktui – sąraše)
+  // Naujas produktas be pasirinkto kvapo - sukuriamas bendras kvapas (scents) ir susiejamas (kitam produktui - sąraše)
   if (ed.isNew && ed.scents && "scent_id" in saved && !saved.scent_id && AF_SCENTED.has(saved.type || "kvepalai")) {
     try {
       const sid = await createScent(ed, saved);
@@ -829,7 +829,7 @@ async function saveProduct(ed, form) {
   if (ed.isNew) navigate(`admin/kvapai/${saved.id}`, { replace: true });
 }
 async function deleteProduct(p) {
-  const ok = await askConfirm(`„${p.name}“ bus ištrintas kartu su atsiliepimais ir laukiančiųjų sąrašu. Užsakymų įrašai liks. Atšaukti nebus galima – gal geriau paslėpti?`, {
+  const ok = await askConfirm(`„${p.name}“ bus ištrintas kartu su atsiliepimais ir laukiančiųjų sąrašu. Užsakymų įrašai liks. Atšaukti nebus galima - gal geriau paslėpti?`, {
     title: "Ištrinti produktą?",
     ok: "Ištrinti",
     danger: true
@@ -850,7 +850,7 @@ async function deleteProduct(p) {
 // ── Prekės tipas sąraše ──
 const typeName = p => VD.TYPES.find(t => t.id === (p.type || "kvepalai"))?.one || "";
 
-// ── Tipo savybės (products.attrs, v15) – laukai pagal AF_ATTRS (13-autofill.js) ──
+// ── Tipo savybės (products.attrs, v15) - laukai pagal AF_ATTRS (13-autofill.js) ──
 function paintAttrs(form, attrs) {
   const box = $("#attrsBox", form);
   if (!box) return;
@@ -887,10 +887,10 @@ ${
     ? groupHTML(
         fieldHTML(
           "Kvapas",
-          `<select id="afScent"><option value="">Naujas kvapas</option>${scents.map(x => opt(x.id, x.inspired ? `${x.name} – ${x.inspired}` : x.name, "")).join("")}</select>`,
+          `<select id="afScent"><option value="">Naujas kvapas</option>${scents.map(x => opt(x.id, x.inspired ? `${x.name} - ${x.inspired}` : x.name, "")).join("")}</select>`,
           { cls: "afScentField" }
         ),
-        { foot: "Pasirinkus esamą kvapą – natos, lytis ir savybės užpildomos iš karto." }
+        { foot: "Pasirinkus esamą kvapą - natos, lytis ir savybės užpildomos iš karto." }
       )
     : ""
 }
@@ -923,7 +923,7 @@ function afRun(ed, form) {
     ["Trumpas aprašymas", x.tagline]
   ].filter(([, v]) => v);
   prev.innerHTML = `<h2 class="igHead">Bus įrašyta į formą</h2><div class="ig"><dl class="afFactList">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") || "<div><dd>Nieko neatpažinau</dd></div>"}</dl></div>
-<p class="igFoot">Pritaikius – reikšmes galėsite pakeisti; „Auto“ žymi užpildytus laukus.</p>
+<p class="igFoot">Pritaikius - reikšmes galėsite pakeisti; „Auto“ žymi užpildytus laukus.</p>
 <button class="btn primary block" type="button" data-af-apply>${glyph("check")}Pritaikyti</button>`;
   hydrateIcons(prev);
   prev.scrollIntoView({ block: "start", behavior: reduceMotion() ? "auto" : "smooth" });
@@ -934,7 +934,7 @@ function afApplyPending(ed, form) {
   ed.pending = null;
   $("#afPrev", form).hidden = true;
   popAll(form.closest(".axPage"));
-  toast("Forma užpildyta – patikrinkite ir išsaugokite", { icon: "check" });
+  toast("Forma užpildyta - patikrinkite ir išsaugokite", { icon: "check" });
 }
 function afScentChanged(ed, form, id, pop) {
   ed.scentId = id || null;
@@ -959,7 +959,7 @@ function afTypeChanged(ed, form) {
   paintBottle(form);
 }
 function afUniqueId(base) {
-  // „naujas“ ir „kvapu-sarasas“ – administravimo adresai (admin/kvapai/…)
+  // „naujas“ ir „kvapu-sarasas“ - administravimo adresai (admin/kvapai/…)
   const taken = new Set([...VD.CAT.products.map(p => p.id), ...prodState.rows.map(p => p.id), VD.SET.discovery?.id, "naujas", "kvapu-sarasas"].filter(Boolean));
   let id = base || "produktas";
   for (let i = 2; taken.has(id); i++) id = `${base}-${i}`;
@@ -1001,7 +1001,7 @@ function afApply(ed, form, res) {
   paintSums(form);
   A.dirty = true;
 }
-// „Auto“ žymos: lauko pavadinime; pakeitus lauką – žyma dingsta. Vidinių ekranų eilutės – taškas „Auto“.
+// „Auto“ žymos: lauko pavadinime; pakeitus lauką - žyma dingsta. Vidinių ekranų eilutės - taškas „Auto“.
 const AF_MARK_FIELDS = { name: ["name"], inspired: ["inspired"], gender: ["gender"], conc: ["conc"], family: ["family"], tagline: ["tagline"], description: ["description"], ingredients: ["ingredients"], notes: ["top", "heart", "base"], look: ["liquid", "tint"] };
 function afMark(form, keys) {
   $$(".afAuto", form).forEach(el => el.classList.remove("afAuto"));
@@ -1041,7 +1041,7 @@ function afTouched(form, el) {
 function afDone(key) {
   $$(`[data-af-go="${key}"]`).forEach(b => b.remove());
   const box = $("#afMissing");
-  if (box && !$("[data-af-go]", box)) box.innerHTML = `<b>Liko užpildyti</b><p class="afAll">Viskas užpildyta – patikrinkite ir išsaugokite.</p>`;
+  if (box && !$("[data-af-go]", box)) box.innerHTML = `<b>Liko užpildyti</b><p class="afAll">Viskas užpildyta - patikrinkite ir išsaugokite.</p>`;
 }
 function afReport(form, res) {
   const out = $("#afOut", form);
@@ -1052,7 +1052,7 @@ function afReport(form, res) {
   out.innerHTML = `<div class="afMissing" id="afMissing"><b>Liko užpildyti</b>${
     missing.length
       ? `<div class="afChips">${missing.map(m => `<button type="button" class="afChip" data-af-go="${esc(m.key)}">${esc(m.label)}</button>`).join("")}</div>`
-      : `<p class="afAll">Viskas užpildyta – patikrinkite ir išsaugokite.</p>`
+      : `<p class="afAll">Viskas užpildyta - patikrinkite ir išsaugokite.</p>`
   }</div>
 <details class="afFacts"><summary>Ką atpažinau</summary><dl>${res.facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl></details>`;
 }
@@ -1069,7 +1069,7 @@ function afGo(form, key) {
           : f[(AF_GO[key] || [key])[0]];
   revealField(el);
 }
-// Naujas bendras kvapas (scents) iš išsaugoto produkto; id – unikalus pagal pavadinimą
+// Naujas bendras kvapas (scents) iš išsaugoto produkto; id - unikalus pagal pavadinimą
 async function createScent(ed, row) {
   const prefix = AF_NAME_PREFIX[row.type || "kvepalai"];
   const name = ed.af?.fields.scentName || (prefix && row.name.startsWith(`${prefix} `) ? row.name.slice(prefix.length + 1) : row.name);

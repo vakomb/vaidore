@@ -1,4 +1,4 @@
-/* Planšetė ir kompiuteris. ≥ 700 px – platesnis tinklelis, langai centre; ≥ 1024 px – dviejų eilių header'is
+/* Planšetė ir kompiuteris. ≥ 700 px - platesnis tinklelis, langai centre; ≥ 1024 px - dviejų eilių header'is
    (paieška · logotipas centre · paskyra / mėgstami / krepšelis + tamsi kategorijų juosta), karuselės su rodyklėmis,
    filtrų šoninė juosta, kvapo puslapis dviem stulpeliais, krepšelis su lipnia suvestine. Visada paskutinis. */
 @media (min-width: 700px) {
@@ -81,7 +81,7 @@
     grid-auto-columns: calc((100% - 3 * 14px) / 3.4);
     gap: 14px;
   }
-  /* Kai plytelių mažiau nei 4 – jos telpa ir yra centre */
+  /* Kai plytelių mažiau nei 4 - jos telpa ir yra centre */
   .catTiles:not(:has(> .tile:nth-child(4))) {
     justify-content: center;
   }
@@ -139,7 +139,7 @@
   .pdH1 {
     font-size: 40px;
   }
-  /* Langai – centre, ne iš apačios */
+  /* Langai - centre, ne iš apačios */
   .backdrop {
     align-items: center;
     padding: 24px;
@@ -159,8 +159,8 @@
   .pdGal svg.bottle {
     height: 78%;
   }
-  /* Kvapo puslapis planšetėje ir kompiuteryje (v17) – du stulpeliai: lipni nuotrauka kairėje; dešinėje – pavadinimas,
-     kaina, talpa, kiekis ir „Į krepšelį“ (pirkimas – iškart matomas), tada aprašymas ir išskleidžiamos dalys */
+  /* Kvapo puslapis planšetėje ir kompiuteryje (v17) - du stulpeliai: lipni nuotrauka kairėje; dešinėje - pavadinimas,
+     kaina, talpa, kiekis ir „Į krepšelį“ (pirkimas - iškart matomas), tada aprašymas ir išskleidžiamos dalys */
   .pd {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas: "gal head" "gal info";
@@ -221,20 +221,20 @@
 @media (min-width: 1024px) {
   :root {
     --pad: 40px;
-    --maxW: var(--maxWide); /* v17: vienas plotis visiems puslapiams – header'is ir turinys sutampa */
+    --maxW: var(--maxWide); /* v17: vienas plotis visiems puslapiams - header'is ir turinys sutampa */
     --hdrH: 68px; /* v26: žemesnė balta eilutė (paieška · logotipas · paskyra), 45 px tamsi meniu juosta */
     --navH: 45px;
-    --hdrAll: 0px; /* v26: kompiuteryje header'is neprilipęs – lipnūs elementai (nuotrauka, filtrai) – nuo ekrano viršaus */
+    --hdrAll: 0px; /* v26: kompiuteryje header'is neprilipęs - lipnūs elementai (nuotrauka, filtrai) - nuo ekrano viršaus */
   }
-  /* v26: kompiuteryje header'is ir meniu juosta neprilipę – slenka kartu su puslapiu */
+  /* v26: kompiuteryje header'is ir meniu juosta neprilipę - slenka kartu su puslapiu */
   .hdr {
     position: relative;
   }
   .hdr.scrolled {
     box-shadow: 0 1px 0 var(--line);
   }
-  /* Header'is (v17): kairėje – visada matomas paieškos laukas (☰ ir paieškos piktograma – tik telefone / planšetėje),
-     logotipas centre, dešinėje – Paskyra · Mėgstami · Krepšelis su užrašais; 2 eilutė – tamsi kategorijų juosta */
+  /* Header'is (v17): kairėje - visada matomas paieškos laukas (☰ ir paieškos piktograma - tik telefone / planšetėje),
+     logotipas centre, dešinėje - Paskyra · Mėgstami · Krepšelis su užrašais; 2 eilutė - tamsi kategorijų juosta */
   .hdrIn {
     max-width: var(--maxWide);
     gap: 24px;
@@ -245,7 +245,7 @@
     display: none !important;
   }
   :root {
-    --logoH: 32px; /* logotipas ≈ 210 px pločio (v26 – žemesniame header'yje) */
+    --logoH: 32px; /* logotipas ≈ 210 px pločio (v26 - žemesniame header'yje) */
     --noteH: 49px;
     --noteFs: 17px;
   }
@@ -264,7 +264,7 @@
     display: block;
     background: var(--band);
   }
-  /* Meniu juosta – per visą plotį; tarpai ir šriftas prisitaiko, kad visos nuorodos tilptų vienoje eilutėje */
+  /* Meniu juosta - per visą plotį; tarpai ir šriftas prisitaiko, kad visos nuorodos tilptų vienoje eilutėje */
   .hdrNavIn {
     --navPad: clamp(8px, 0.9vw, 14px);
     margin: 0 auto;
@@ -372,7 +372,7 @@
     top: calc(100% + 8px);
     width: 440px;
   }
-  /* Paskyra · Mėgstami · Krepšelis – piktograma su užrašu */
+  /* Paskyra · Mėgstami · Krepšelis - piktograma su užrašu */
   .hdrTools {
     gap: 4px;
   }
@@ -430,12 +430,12 @@
     padding: 0 24px 0 28px;
     font-size: 16px;
   }
-  /* v17: pradžios skyriai – plačiame konteineryje (1360 px), juodos juostos – per visą plotį */
+  /* v17: pradžios skyriai - plačiame konteineryje (1360 px), juodos juostos - per visą plotį */
   .hsec > .wrap {
     max-width: var(--maxWide);
     padding: 0 var(--pad);
   }
-  /* Plytelės – iki 5 telpa vienoje eilėje (ne platesnės nei 246 px, centre); daugiau – slenkama eilė, kurioje
+  /* Plytelės - iki 5 telpa vienoje eilėje (ne platesnės nei 246 px, centre); daugiau - slenkama eilė, kurioje
      matosi kitos plytelės dalis (v21) */
   .catTiles {
     --tileFs: 21px;
@@ -451,7 +451,7 @@
     grid-auto-columns: calc((100% - 5 * 16px) / 5.4);
     justify-content: start;
   }
-  /* Karuselė (v21b) – ~3,4 didelės kortelės (≥ 1280 px – ~3,8), kitos dalis matosi dešinėje; rodyklės ir „1/N“ */
+  /* Karuselė (v21b) - ~3,4 didelės kortelės (≥ 1280 px - ~3,8), kitos dalis matosi dešinėje; rodyklės ir „1/N“ */
   .rail {
     --railGap: 24px;
     grid-auto-columns: calc((100% - 3 * var(--railGap)) / 3.4);
@@ -489,7 +489,7 @@
     padding: 6px 0 18px;
   }
 
-  /* Prekės kortelė – užvedus paveikslas pakyla ir rodo greitą veiksmą */
+  /* Prekės kortelė - užvedus paveikslas pakyla ir rodo greitą veiksmą */
   .grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 40px 24px;
@@ -504,7 +504,7 @@
     font-size: 17px;
   }
 
-  /* Katalogas: filtrai kairėje (išskleidžiamos grupės), viršuje – paieška, kiekis ir rūšiavimas */
+  /* Katalogas: filtrai kairėje (išskleidžiamos grupės), viršuje - paieška, kiekis ir rūšiavimas */
   .shopLayout {
     display: grid;
     grid-template-columns: 250px minmax(0, 1fr);
@@ -541,7 +541,7 @@
     max-width: var(--maxWide);
   }
 
-  /* Poraštė kompiuteryje – viena eilė: prekės ženklas ir kontaktai · Parduotuvė · Pagalba · Vaidore · naujienlaiškis;
+  /* Poraštė kompiuteryje - viena eilė: prekės ženklas ir kontaktai · Parduotuvė · Pagalba · Vaidore · naujienlaiškis;
      grupės visada atskleistos (21-header.js), be linijų ir rodyklių */
   .ftrIn {
     padding-top: 56px;
@@ -588,8 +588,8 @@
     margin-top: 44px;
   }
 
-  /* Kvapo puslapis kompiuteryje (v17): plačiame konteineryje – nuotrauka ~58 % kairėje (lipni), informacija dešinėje;
-     prilipusi pirkimo juosta – tik nuslinkus žemiau „Į krepšelį“ */
+  /* Kvapo puslapis kompiuteryje (v17): plačiame konteineryje - nuotrauka ~58 % kairėje (lipni), informacija dešinėje;
+     prilipusi pirkimo juosta - tik nuslinkus žemiau „Į krepšelį“ */
   #view-product > .wrap {
     max-width: var(--maxWide);
     padding: 0 var(--pad);
@@ -679,7 +679,7 @@
     display: flex;
   }
 
-  /* Krepšelis – prekės ir lipni suvestinė */
+  /* Krepšelis - prekės ir lipni suvestinė */
   .cartLayout.has {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 400px;
@@ -694,7 +694,7 @@
     margin-top: 8px;
   }
 }
-/* Katalogas plačiame kompiuteryje – 4 kortelės eilėje, filtrai – 260 px kairėje */
+/* Katalogas plačiame kompiuteryje - 4 kortelės eilėje, filtrai - 260 px kairėje */
 @media (min-width: 1280px) {
   .rail {
     grid-auto-columns: calc((100% - 3 * var(--railGap)) / 3.8);
@@ -713,7 +713,7 @@
 .hdrNav [hidden] {
   display: none !important;
 }
-/* Gulsčias telefonas – mažiau vertikalios erdvės */
+/* Gulsčias telefonas - mažiau vertikalios erdvės */
 @media (orientation: landscape) and (max-height: 500px) {
   .pdGal {
     height: 300px;
@@ -721,7 +721,7 @@
   .pdGal svg.bottle {
     height: 240px;
   }
-  /* Skaidrės – žemesnės, tekstas kairėje, kompozicija dešinėje (kaip kompiuteryje) */
+  /* Skaidrės - žemesnės, tekstas kairėje, kompozicija dešinėje (kaip kompiuteryje) */
   :root {
     --heroH: 300px;
   }

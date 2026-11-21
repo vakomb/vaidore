@@ -1,11 +1,11 @@
-// 28 – prekės puslapio turinys pagal kategoriją (v29, parfumada.lt „namų kvapo“ lygis, Vaidore stiliumi):
+// 28 - prekės puslapio turinys pagal kategoriją (v29, parfumada.lt „namų kvapo“ lygis, Vaidore stiliumi):
 //   paantraštė po pavadinimu, aprašymas su automatiškai paryškintais pavadinimu, talpa ir natomis („Skaityti daugiau“),
-//   blokai po pirkimu: natos (kvepalams – segmentai Viršutinės · Širdies · Bazinės), kvapo charakteris, nuotaikos juosta,
-//   „Kaip naudoti“ žingsniai, „Kur …“ piktogramos, mėginuko kortelė, pastaba; pabaigoje – išskleidžiamos dalys.
-// Blokas rodomas tik turėdamas duomenų. Tekstai – data/pdp.json (window.VAIDORE_PDP) + administravimo settings.pdp[tipas];
-// natų nuotraukos – natų biblioteka (NOTE_IMG), nuotaikos juosta – kvapo (SCENT_INFO) arba produkto laukai (moodOf).
+//   blokai po pirkimu: natos (kvepalams - segmentai Viršutinės · Širdies · Bazinės), kvapo charakteris, nuotaikos juosta,
+//   „Kaip naudoti“ žingsniai, „Kur …“ piktogramos, mėginuko kortelė, pastaba; pabaigoje - išskleidžiamos dalys.
+// Blokas rodomas tik turėdamas duomenų. Tekstai - data/pdp.json (window.VAIDORE_PDP) + administravimo settings.pdp[tipas];
+// natų nuotraukos - natų biblioteka (NOTE_IMG), nuotaikos juosta - kvapo (SCENT_INFO) arba produkto laukai (moodOf).
 
-// Savos linijinės piktogramos (24 × 24, brūkšnys – CSS): kūno vietos, kambariai, naudojimo žingsniai
+// Savos linijinės piktogramos (24 × 24, brūkšnys - CSS): kūno vietos, kambariai, naudojimo žingsniai
 const STORY_ICO = {
   wrist:
     '<path d="M9 12.5V5.6a1.25 1.25 0 0 1 2.5 0v5.4M11.5 10.6V4.3a1.25 1.25 0 0 1 2.5 0v6.3M14 10.8V5.8a1.25 1.25 0 0 1 2.5 0v6"/><path d="M16.5 11.6V8.4a1.25 1.25 0 0 1 2.5 0v6.1c0 3.6-2.6 6.4-6 6.4h-1.3c-1.8 0-3.2-.7-4.4-2l-2.8-3.3a1.3 1.3 0 0 1 1.9-1.8L9 16.4v-3.9"/>',
@@ -72,14 +72,14 @@ function subtitleOf(p) {
   if (d) return d;
   return isPerfume(p) ? [CONC_NAME[p.conc] || p.conc, GENDER_NAME[p.gender]].filter(Boolean).join(" · ") : TYPE.get(typeOf(p)).one;
 }
-// Nuotaikos juosta: produkto laukai, tušti – iš bendro kvapo (scents)
+// Nuotaikos juosta: produkto laukai, tušti - iš bendro kvapo (scents)
 function moodOf(p) {
   const s = (p.scent && SCENT_INFO.get(p.scent)) || {};
   return { image: p.moodImage || s.moodImage || "", title: p.moodTitle || s.moodTitle || "", line: p.moodLine || s.moodLine || "" };
 }
 
 // ── Aprašymas: pastraipos ir paryškinimai ──
-// Ilgą vientisą tekstą skaido į 2–3 pastraipas sakinių riba
+// Ilgą vientisą tekstą skaido į 2-3 pastraipas sakinių riba
 function descParas(text) {
   const raw = String(text || "").trim();
   if (!raw) return [];
@@ -103,7 +103,7 @@ function descParas(text) {
   if (cur.trim()) out.push(cur.trim());
   return out;
 }
-// Lietuviškų galūnių šalinimas: „Vanilė“ randa „vanilę“, „Tonkos pupelės“ – „tonkos pupeles“
+// Lietuviškų galūnių šalinimas: „Vanilė“ randa „vanilę“, „Tonkos pupelės“ - „tonkos pupeles“
 const LT_END = /(iams|iems|ams|ems|oms|ėms|ims|ius|iai|ies|ių|ais|is|ys|us|as|ai|ės|os|ą|ę|į|ų|ū|a|ė|e|i|o|u|y)$/;
 const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function termRe(phrase) {
@@ -125,7 +125,7 @@ function termRe(phrase) {
   }
 }
 const VOLUME_RE = /(^|[^\p{L}\d])(\d+(?:[.,]\d+)?\s?(?:ml|g))(?![\p{L}\d])/iu;
-// Tekstas su paryškintais terminais (kiekvienas – tik pirmą kartą): segmentai [{ t, b }] → HTML
+// Tekstas su paryškintais terminais (kiekvienas - tik pirmą kartą): segmentai [{ t, b }] → HTML
 function boldify(segs, regs) {
   for (const re of regs) {
     for (let i = 0; i < segs.length; i++) {
@@ -144,14 +144,14 @@ function boldify(segs, regs) {
 function descHTML(p) {
   const notes = [...new Set([...p.notes.top, ...p.notes.heart, ...p.notes.base].filter(Boolean))].sort((a, b) => b.length - a.length);
   const regs = [...notes.map(termRe), VOLUME_RE].filter(Boolean);
-  // Pirma pastraipa: „PAVADINIMAS – šūkis.“ (be šūkio – pavadinimas prieš pirmą aprašymo pastraipą). Jei aprašymas pats
-  // prasideda pavadinimu („Difuzorius CREEDORE – lengvas…“) – jis neištęsiamas: pavadinimas paryškinamas aprašyme, be šūkio
+  // Pirma pastraipa: „PAVADINIMAS - šūkis.“ (be šūkio - pavadinimas prieš pirmą aprašymo pastraipą). Jei aprašymas pats
+  // prasideda pavadinimu („Difuzorius CREEDORE - lengvas…“) - jis neištęsiamas: pavadinimas paryškinamas aprašyme, be šūkio
   const body = descParas(p.desc);
   const tag = String(p.tagline || "").replace(/[.\s]+$/, "");
   const own = body[0] && fold(body[0]).startsWith(fold(p.name));
   const head = own ? body[0].slice(0, p.name.length) : p.name;
-  const paras = own ? [body[0].slice(p.name.length), ...body.slice(1)] : tag ? [` – ${tag}.`, ...body] : [` – ${body[0] || ""}`, ...body.slice(1)];
-  // Visas tekstas – viena segmentų eilė (pastraipos atskirtos \n), kad terminas būtų paryškintas tik pirmą kartą
+  const paras = own ? [body[0].slice(p.name.length), ...body.slice(1)] : tag ? [` - ${tag}.`, ...body] : [` - ${body[0] || ""}`, ...body.slice(1)];
+  // Visas tekstas - viena segmentų eilė (pastraipos atskirtos \n), kad terminas būtų paryškintas tik pirmą kartą
   const segs = boldify([{ t: head, b: true }, { t: paras.join("\n"), b: false }], regs);
   const html = segs
     .map(s => (s.b ? `<b>${esc(nb(s.t))}</b>` : esc(nb(s.t))))
@@ -167,7 +167,7 @@ function descHTML(p) {
 // ── Blokai ──
 const blockHTML = (cls, title, body, { lead = "", rv = true, id = "" } = {}) =>
   `<section class="pdBlock ${cls}"${id ? ` id="${id}"` : ""}${rv ? " data-rv" : ""}><div class="pbHead"><h2 class="pbT">${esc(title)}</h2>${lead ? `<p class="pbLead">${esc(nb(lead))}</p>` : ""}</div><div class="pbBody">${body}</div></section>`;
-// Natos nuotrauka iš natų bibliotekos: tikslus vardas, kitaip – pagrindinis žodis („Madagaskaro vanilė“ → „Vanilė“,
+// Natos nuotrauka iš natų bibliotekos: tikslus vardas, kitaip - pagrindinis žodis („Madagaskaro vanilė“ → „Vanilė“,
 // „Jazminas sambac“ → „Jazminas“), kad vieną kartą įkelta nuotrauka tiktų visiems tos natos variantams
 function noteMedia(name) {
   const key = noteKey(name);
@@ -185,8 +185,8 @@ const noteTileHTML = n => {
   }</span><b>${esc(n)}</b></li>`;
 };
 const noteGridHTML = list => `<ul class="ntGrid" data-n="${Math.min(list.length, 6)}">${list.map(noteTileHTML).join("")}</ul>`;
-// Pagrindinės natos (ne kvepalams): po vieną iš viršutinių, širdies ir bazinių; pirmiausia – natos su skirtingomis tikromis
-// nuotraukomis (natų biblioteka), tada – kitos eilės tvarka
+// Pagrindinės natos (ne kvepalams): po vieną iš viršutinių, širdies ir bazinių; pirmiausia - natos su skirtingomis tikromis
+// nuotraukomis (natų biblioteka), tada - kitos eilės tvarka
 function mainNotes(p, n = 3) {
   const tiers = [p.notes.top, p.notes.heart, p.notes.base].map(t => (t || []).filter(Boolean));
   const order = [];
@@ -229,7 +229,7 @@ function notesBlockHTML(p, cfg) {
     .join("")}</div>`;
   return blockHTML("pbNotes pbPyramid", cfg.notes.title || "Kvapo natos", seg + panels);
 }
-// Kvapo charakteris (kvepalams): ilgaamžiškumas ir sklaida 1–5 – tik jei nustatyti (numatytos „3“ nerodomos)
+// Kvapo charakteris (kvepalams): ilgaamžiškumas ir sklaida 1-5 - tik jei nustatyti (numatytos „3“ nerodomos)
 function traitsBlockHTML(p, cfg) {
   if (!isPerfume(p) || !blockOn(cfg.traits)) return "";
   const l = Number(p.longevity) || 0;
@@ -239,7 +239,7 @@ function traitsBlockHTML(p, cfg) {
     `<div class="tr"><dt>${esc(label)}</dt><dd><span class="trBar" aria-hidden="true">${[0, 1, 2, 3, 4].map(k => `<i${k < v ? ` class="on" style="--k:${k}"` : ""}></i>`).join("")}</span><span class="trVal">${esc(nb(val))}</span></dd></div>`;
   return blockHTML("pbTraits", cfg.traits.title || "Kvapo charakteris", `<dl class="traits">${row("Ilgaamžiškumas", l, LASTS[l])}${row("Sklaida", s, LEVEL[s])}</dl>`);
 }
-// Kvapo linija (be įkeltos nuotaikos nuotraukos): tikros to paties kvapo produktų nuotraukos vienoje eilėje – kvepalai, aliejus,
+// Kvapo linija (be įkeltos nuotaikos nuotraukos): tikros to paties kvapo produktų nuotraukos vienoje eilėje - kvepalai, aliejus,
 // žvakė, difuzorius (kaip parduotuvės nuotraukose: produktas su ingredientais baltame fone). Tik tikros nuotraukos, nieko savo.
 const FORM_SHORT = { kvepalai: "Kvepalai", difuzoriai: "Difuzorius", zvakes: "Žvakė", aliejai: "Aliejus" };
 function scentLine(p) {
@@ -290,7 +290,7 @@ function whereBlockHTML(cfg) {
     { lead: b.text || "" }
   );
 }
-// Mėginuko kortelė (kvepalams su 2 ml mėginuku): „Rinktis mėginuką“ – pasirenka 2 ml ir grąžina prie pirkimo
+// Mėginuko kortelė (kvepalams su 2 ml mėginuku): „Rinktis mėginuką“ - pasirenka 2 ml ir grąžina prie pirkimo
 function sampleBlockHTML(p, cfg) {
   if (!isPerfume(p) || !blockOn(cfg.sample) || !hasSample(p) || !inStock(p)) return "";
   return `<section class="pdBlock pdTry" data-rv><div class="tryCard"><span class="tryIco">${storyIco("vial")}</span><div class="tryTxt"><b>Išbandykite 2 ml mėginuką</b><p>${esc(
@@ -302,7 +302,7 @@ function noticeHTML(cfg) {
   if (!blockOn(b) || !b.text) return "";
   return `<aside class="pdNotice" data-rv>${glyph("info")}<p>${b.title ? `<b>${esc(b.title)}.</b> ` : ""}${esc(nb(b.text))}</p></aside>`;
 }
-// Visi turinio blokai + išskleidžiamos dalys (pabaigoje). details – jau paruoštos dalys (10-product.js)
+// Visi turinio blokai + išskleidžiamos dalys (pabaigoje). details - jau paruoštos dalys (10-product.js)
 function storyHTML(p, details = "") {
   const cfg = pdpOf(typeOf(p));
   const blocks = [notesBlockHTML(p, cfg), traitsBlockHTML(p, cfg), moodBlockHTML(p, cfg), stepsBlockHTML(cfg), whereBlockHTML(cfg), sampleBlockHTML(p, cfg), noticeHTML(cfg)].filter(Boolean);

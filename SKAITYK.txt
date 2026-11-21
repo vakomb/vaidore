@@ -24,6 +24,7 @@ Prekes, kainas, likučius, užsakymus ir nustatymus valdote administravimo skyde
        20261118010000_inspired_image.sql, 20261118120000_product_type.sql, 20261120120000_scents_types.sql,
        20261121090000_scent_inspired_image.sql,
        20261122090000_product_page.sql                         (v29: paantraštė, nuotaikos juosta, natų biblioteka)
+       20261122100000_plain_dashes.sql                         (v30: jau įrašytuose tekstuose ilgi brūkšniai -> „-“)
    - Jei bazė jau veikia: paleiskite tik naujus failus (20261115000300_vaidore_kvapai.sql, supabase/seed.sql,
      20261117000100_newsletter.sql) ir iš naujo įdiekite funkciją „shop“ (žr. žemiau) – naujienlaiškio laiškams.
    - Administratorius: el. paštas vakomb@gmail.com jau įrašytas (lentelė admin_emails). Kitą pridėti:

@@ -1,18 +1,18 @@
-// 10 – Vitrina (admin/vitrina): viskas, ką mato pirkėjas. Ekranai: Skaidrės, Skyriai su produktais, Plytelės, Juosta virš
-// header'io (12-topbar.js) – su gyva peržiūra (kompiuteryje – šone, telefone – mygtukas „Peržiūra“, visame ekrane);
-// Prekių kortelės ir Mūsų istorija – nustatymų ekranai (08-settings.js).
-// Skaidrė: rodoma / paslėpta, eilė (tempiant), fonas – nuotrauka (kompiuteriui ir, nebūtinai, telefonui; spustelėjus
-// nurodoma vieta, kuri turi likti matoma) arba Vaidore scena su pasirinkto kvapo buteliukais; tekstai (tušti – iš šablono),
+// 10 - Vitrina (admin/vitrina): viskas, ką mato pirkėjas. Ekranai: Skaidrės, Skyriai su produktais, Plytelės, Juosta virš
+// header'io (12-topbar.js) - su gyva peržiūra (kompiuteryje - šone, telefone - mygtukas „Peržiūra“, visame ekrane);
+// Prekių kortelės ir Mūsų istorija - nustatymų ekranai (08-settings.js).
+// Skaidrė: rodoma / paslėpta, eilė (tempiant), fonas - nuotrauka (kompiuteriui ir, nebūtinai, telefonui; spustelėjus
+// nurodoma vieta, kuri turi likti matoma) arba Vaidore scena su pasirinkto kvapo buteliukais; tekstai (tušti - iš šablono),
 // mygtukas, nuoroda, tekstas šviesus / tamsus. Plytelė: rodoma, eilė, pavadinimas, nuotrauka. Skyrius (v15, settings.rails):
-// pagal taisyklę arba pasirinkti ranka. Saugoma settings.slides / tiles / rails / slideSeconds / topbar (formatas –
-// 25-home-config.js). Peržiūra – tikra parduotuvė <iframe> (?vdPreview=1), juodraštis – postMessage.
+// pagal taisyklę arba pasirinkti ranka. Saugoma settings.slides / tiles / rails / slideSeconds / topbar (formatas -
+// 25-home-config.js). Peržiūra - tikra parduotuvė <iframe> (?vdPreview=1), juodraštis - postMessage.
 const SCENE_NAMES = {
   collection: "Arka ir postamentas",
   samples: "Mėginukų eilė",
   gift: "Dovanų dėžutė",
-  women: "Moterims – arka",
-  men: "Vyrams – tamsus blokas",
-  unisex: "Unisex – diskas",
+  women: "Moterims - arka",
+  men: "Vyrams - tamsus blokas",
+  unisex: "Unisex - diskas",
   vials: "Buteliukas ir mėginukai",
   set: "Rinkinys",
   fresh: "Laiptai"
@@ -109,19 +109,19 @@ async function renderHomeEditor(main, part, seq, back) {
   const resetRow = `<div class="ig"><button class="axRow" type="button" data-he-reset><span class="axRowTxt"><b class="axLink">Grąžinti numatytuosius</b></span></button></div>`;
   const sections = {
     skaidres: `<div class="ig"><label class="field axField"><span>Keičiasi kas, s</span><input type="number" inputmode="numeric" min="0" max="30" value="${HE.secs}" data-he-secs aria-label="Sekundės" /></label></div>
-<p class="igFoot">0 – skaidrės nesikeičia pačios.</p>
+<p class="igFoot">0 - skaidrės nesikeičia pačios.</p>
 <h2 class="igHead">Skaidrės</h2><div class="ig heList" id="heSlides"></div>
 <div class="ig"><button class="axRow axAddRow" type="button" data-he-add-menu>${glyph("plus")}<span class="axRowTxt"><b>Nauja skaidrė</b></span></button></div>
-<p class="igFoot">Pirmoji – svarbiausia. Eilę keiskite tempdami ⋮⋮.</p>
+<p class="igFoot">Pirmoji - svarbiausia. Eilę keiskite tempdami ⋮⋮.</p>
 ${resetRow}`,
     plyteles: `<h2 class="igHead">Plytelės po skaidrėmis</h2><div class="ig heList" id="heTiles"></div>
 <div class="ig" id="heTileAdd"></div>
-<p class="igFoot">Nuotrauka – stati 4:5 (1000 × 1250). Be nuotraukos – Vaidore scena su tos grupės buteliukais.</p>
+<p class="igFoot">Nuotrauka - stati 4:5 (1000 × 1250). Be nuotraukos - Vaidore scena su tos grupės buteliukais.</p>
 ${resetRow}`,
     skyriai: `<h2 class="igHead">Karuselės pradžios puslapyje</h2><div class="ig heList" id="heRails"></div>
 <div class="ig"><button class="axRow axAddRow" type="button" data-he-addrail="auto">${glyph("plus")}<span class="axRowTxt"><b>Naujas skyrius pagal taisyklę</b></span></button><button class="axRow axAddRow" type="button" data-he-addrail="manual">${glyph(
       "plus"
-    )}<span class="axRowTxt"><b>Naujas skyrius – pasirinkti produktus</b></span></button></div>
+    )}<span class="axRowTxt"><b>Naujas skyrius - pasirinkti produktus</b></span></button></div>
 <p class="igFoot">Skyrius be produktų nerodomas.</p>
 ${resetRow}`,
     juosta: topbarSectionHTML()
@@ -161,7 +161,7 @@ ${part === "juosta" ? `<div data-pane="tbstyle" data-title="Spalvos ir šriftas"
     ({ skaidres: paintSlides, plyteles: paintTiles, skyriai: paintRails, juosta: paintTbItems })[HE.part]?.();
   });
 }
-// Elemento redagavimas – atskirame ekrane (iOS „push“)
+// Elemento redagavimas - atskirame ekrane (iOS „push“)
 function openItem(page, title, html) {
   const pane = $('[data-pane="item"]', page);
   pane.dataset.title = title;
@@ -174,7 +174,7 @@ function closeItem() {
   const page = $(".heLayoutPage");
   if (page?._panes?.length) popPane(page);
 }
-// Peržiūra telefone – visame ekrane
+// Peržiūra telefone - visame ekrane
 function openPreview() {
   const box = $(".hePrev");
   if (!box) return;
@@ -277,14 +277,14 @@ const linkField = (cur, empty, custom, ph = "kvepalai?seima=gurmaniski") =>
     cls: "heCustom",
     attrs: custom ? "" : "hidden"
   })}`;
-// „Tik nuotrauka“: dvi nuotraukos (kompiuteriui / telefonui), nebūtina nuoroda ir aprašymas skaitytuvams – be kvapo ir tekstų
+// „Tik nuotrauka“: dvi nuotraukos (kompiuteriui / telefonui), nebūtina nuoroda ir aprašymas skaitytuvams - be kvapo ir tekstų
 function photoSlideFormHTML(s) {
   const custom = s.href && !isKnownLink(s.href) ? s.href : "";
   return `<div class="heForm admForm">
 <div class="heZones">${imgZone("image", "Kompiuteriui", "plati, 2880 × 934", s.image, s.focus)}${imgZone("imageM", "Telefonui", "1000 × 1150", s.imageM, s.focusM)}</div>
-<p class="igFoot">Spustelėkite nuotraukoje vietą, kuri turi likti matoma siaurame ekrane. Tekstas – pačioje nuotraukoje.</p>
-${groupHTML(`${linkField(s.href, "Be nuorodos", custom)}${fieldHTML("Aprašymas", `<input name="title" maxlength="80" value="${esc(s.title || "")}" placeholder="Žiemos kolekcija – Ventor" />`)}`, {
-  foot: "Aprašymas nerodomas – skaitytuvams ir šiam sąrašui."
+<p class="igFoot">Spustelėkite nuotraukoje vietą, kuri turi likti matoma siaurame ekrane. Tekstas - pačioje nuotraukoje.</p>
+${groupHTML(`${linkField(s.href, "Be nuorodos", custom)}${fieldHTML("Aprašymas", `<input name="title" maxlength="80" value="${esc(s.title || "")}" placeholder="Žiemos kolekcija - Ventor" />`)}`, {
+  foot: "Aprašymas nerodomas - skaitytuvams ir šiam sąrašui."
 })}
 ${itemActs()}
 </div>`;
@@ -319,7 +319,7 @@ ${groupHTML(
     `<textarea name="text" rows="${String(d.text || "").includes("\n") ? 4 : 2}" maxlength="240" placeholder="${esc(d.text || "")}">${esc(s.text || "")}</textarea>`,
     { stack: true }
   )}${fld("cta", "Mygtukas", d.cta, 30)}${linkField(s.href, "Pagal šabloną", custom)}`,
-  { head: "Tekstai", foot: "Tuščias laukas – šablono tekstas (rodomas pilkai). Kelios teksto eilutės – teiginiai su linijomis." }
+  { head: "Tekstai", foot: "Tuščias laukas - šablono tekstas (rodomas pilkai). Kelios teksto eilutės - teiginiai su linijomis." }
 )}
 ${itemActs()}
 </div>`;
@@ -327,7 +327,7 @@ ${itemActs()}
 function paintSlides() {
   const box = $("#heSlides");
   if (!box) return;
-  box.innerHTML = HE.slides.length ? HE.slides.map(slideRow).join("") : `<p class="axRowNote heEmpty">Skaidrių nėra – pradžios puslapis prasidės plytelėmis.</p>`;
+  box.innerHTML = HE.slides.length ? HE.slides.map(slideRow).join("") : `<p class="axRowNote heEmpty">Skaidrių nėra - pradžios puslapis prasidės plytelėmis.</p>`;
   hydrateIcons(box);
   sortable(box, { item: ".heItem", onMove: (from, to) => (moveItem(HE.slides, from, to), changed({ repaint: "slides", slide: to })) });
   const s = HE.open && HE.slides.find(x => x.id === HE.open);
@@ -348,7 +348,7 @@ function tileRow(t) {
     on: t.on,
     thumb: thumbHTML(p?.stage || "unisex", p?.list || [], img, t.focus),
     title: esc(t.title || tileName(t)),
-    sub: `${img ? "nuotrauka" : "scena"}${p?.list?.length === 0 ? " · nėra prekių – nerodoma" : ""}${t.on === false ? " · paslėpta" : ""}`
+    sub: `${img ? "nuotrauka" : "scena"}${p?.list?.length === 0 ? " · nėra prekių - nerodoma" : ""}${t.on === false ? " · paslėpta" : ""}`
   });
 }
 function tileFormHTML(t) {
@@ -587,7 +587,7 @@ function bindHomeEditor(main) {
     setImage(z, z.dataset.heZone, e.dataTransfer.files[0]);
   });
 }
-// Numatytieji – tik šio ekrano daliai
+// Numatytieji - tik šio ekrano daliai
 async function resetHome() {
   const what = { skaidres: "Skaidrės", plyteles: "Plytelės", skyriai: "Skyriai", juosta: "Juostos žinutės ir dizainas" }[HE.part];
   const ok = await askConfirm(`${what} grįš į numatytuosius (išsaugojus). Įkeltos nuotraukos liks saugykloje, bet nebus rodomos.`, { title: "Grąžinti numatytuosius?", ok: "Grąžinti" });
@@ -639,7 +639,7 @@ async function saveHome() {
 }
 
 // ── Skyriai su produktais (karuselės, v15) ────────────
-// Taisyklės laukai: [rule raktas, pavadinimas, parinktys]; tuščia reikšmė – „Visi“
+// Taisyklės laukai: [rule raktas, pavadinimas, parinktys]; tuščia reikšmė - „Visi“
 function railRuleFields() {
   return [
     ["type", "Kategorija", VD.TYPES.map(t => [t.id, t.name]), "Visos"],
@@ -677,7 +677,7 @@ function railLinkOptions(r) {
   const auto = VD.railHref({ ...r, href: "" });
   const cur = r.href || "";
   const known = !cur || cur === "none" || isKnownLink(cur);
-  return `<option value=""${sel(!cur)}>Automatiškai${auto ? ` (${esc(auto)})` : " – nerodoma"}</option><option value="none"${sel(cur === "none")}>Nerodyti</option>${linkGroups()
+  return `<option value=""${sel(!cur)}>Automatiškai${auto ? ` (${esc(auto)})` : " - nerodoma"}</option><option value="none"${sel(cur === "none")}>Nerodyti</option>${linkGroups()
     .map(([g, l]) => `<optgroup label="${esc(g)}">${l.map(([v, n]) => `<option value="${esc(v)}"${sel(v === cur)}>${esc(n)}</option>`).join("")}</optgroup>`)
     .join("")}<option value="__custom"${sel(!known)}>Kitas adresas…</option>`;
 }
@@ -695,7 +695,7 @@ ${groupHTML(
     "Paantraštė",
     `<input name="rline" maxlength="90" value="${esc(r.line || "")}" placeholder="${esc(VD.railLine(r) || "Nebūtina")}" />`
   )}`,
-  { foot: "Pavadinimas ir paantraštė – juodoje juostoje virš karuselės, su nuoroda „Peržiūrėti viską“. Tuščia paantraštė parenkama automatiškai." }
+  { foot: "Pavadinimas ir paantraštė - juodoje juostoje virš karuselės, su nuoroda „Peržiūrėti viską“. Tuščia paantraštė parenkama automatiškai." }
 )}
 <div class="axSeg heSeg" role="tablist" aria-label="Produktai"><button type="button" role="tab" data-he-rmode="auto" aria-selected="${r.mode !== "manual"}">Pagal taisyklę</button><button type="button" role="tab" data-he-rmode="manual" aria-selected="${
     r.mode === "manual"
@@ -711,7 +711,7 @@ ${
                 )}">${glyph("x")}</button></div>`
               )
               .join("")
-          : `<p class="axRowNote heEmpty">Dar nepasirinkta – raskite produktą žemiau.</p>`
+          : `<p class="axRowNote heEmpty">Dar nepasirinkta - raskite produktą žemiau.</p>`
       }</div>
 ${searchHTML(`rs-${esc(r.id)}`, "Pridėti produktą: pavadinimas, kvapas", "", "Pridėti produktą").replace('type="search"', 'type="search" name="rsearch"')}
 <div class="ig heRResults" data-he-rresults hidden></div>`
@@ -734,7 +734,7 @@ ${itemActs()}
 function paintRails() {
   const box = $("#heRails");
   if (!box) return;
-  box.innerHTML = HE.rails.length ? HE.rails.map(railRow).join("") : `<p class="axRowNote heEmpty">Skyrių nėra – pridėkite žemiau.</p>`;
+  box.innerHTML = HE.rails.length ? HE.rails.map(railRow).join("") : `<p class="axRowNote heEmpty">Skyrių nėra - pridėkite žemiau.</p>`;
   hydrateIcons(box);
   sortable(box, { item: ".heItem", onMove: (from, to) => (moveItem(HE.rails, from, to), changed({ repaint: "rails", scroll: `rail:${HE.rails[to].id}` })) });
   const r = HE.openRail && HE.rails.find(x => x.id === HE.openRail);
@@ -755,7 +755,7 @@ function paintRails() {
     if (focused) $('#heItemBox input[name="rsearch"]', page)?.focus();
   }
 }
-// Atnaujinama tik skyriaus santrauka (ne visa forma – kad nedingtų fokusas)
+// Atnaujinama tik skyriaus santrauka (ne visa forma - kad nedingtų fokusas)
 function railRefresh(r) {
   const txt = railSummary(r);
   $$(`[data-he-rail="${CSS.escape(r.id)}"]`).forEach(it => {
@@ -780,7 +780,7 @@ function railResults(r, q) {
   hydrateIcons(box);
 }
 function railClick(t, r, it) {
-  // „Kiek rodyti“: − / + (1–48); įrašyti skaičių galima ir ranka
+  // „Kiek rodyti“: - / + (1-48); įrašyti skaičių galima ir ranka
   const step = t.closest("[data-he-rstep]");
   if (step) {
     const inp = $('input[name="rlimit"]', step.closest(".axStep"));

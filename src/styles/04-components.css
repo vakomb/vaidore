@@ -1,6 +1,6 @@
 /* Bendri komponentai: paspaudimas, mygtukai, laukai, žymės, skyrių antraštės, langai (#sheet), sąrašai, pranešimai. */
 
-/* Paspaudimo pojūtis – 0,975 ir atšokimas spyruokle (visur vienodas) */
+/* Paspaudimo pojūtis - 0,975 ir atšokimas spyruokle (visur vienodas) */
 .press,
 .btn,
 .tile,
@@ -166,7 +166,7 @@
   stroke-linejoin: round;
 }
 
-/* Skyriai (be rėmelių – erdvė ir antraštė) */
+/* Skyriai (be rėmelių - erdvė ir antraštė) */
 .sec {
   margin-top: 44px;
 }
@@ -445,7 +445,7 @@
   height: 16px;
 }
 
-/* Langai (#sheet): telefone – apatinis lapas, kompiuteryje – centre */
+/* Langai (#sheet): telefone - apatinis lapas, kompiuteryje - centre */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -557,7 +557,7 @@
   }
 }
 
-/* Sąrašai (iOS „Settings“ eilutės) – plonas kontūras, be šešėlio */
+/* Sąrašai (iOS „Settings“ eilutės) - plonas kontūras, be šešėlio */
 .group {
   background: #fff;
   border-radius: 18px;
@@ -689,7 +689,7 @@ a.row:hover {
   color: var(--ink3);
 }
 
-/* Pranešimai – tamsi kapsulė viršuje */
+/* Pranešimai - tamsi kapsulė viršuje */
 .toastWrap {
   position: fixed;
   z-index: 95;

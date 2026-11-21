@@ -8,7 +8,7 @@
     "where": {
       "on": true,
       "title": "Kur purkšti",
-      "text": "Purkškite iš 15–20 cm atstumo ir netrinkite – natos atsiskleis tolygiai.",
+      "text": "Purkškite iš 15-20 cm atstumo ir netrinkite - natos atsiskleis tolygiai.",
       "items": [
         { "ico": "wrist", "label": "Riešai" },
         { "ico": "neck", "label": "Kaklas" },
@@ -17,7 +17,7 @@
       ]
     },
     "sample": { "on": true },
-    "note": { "on": true, "title": "", "text": "Laikykite vėsioje ir tamsioje vietoje – kvapas ilgai išliks toks pat." }
+    "note": { "on": true, "title": "", "text": "Laikykite vėsioje ir tamsioje vietoje - kvapas ilgai išliks toks pat." }
   },
   "difuzoriai": {
     "sub": "Namų kvapas su lazdelėmis",
@@ -29,7 +29,7 @@
       "items": [
         { "ico": "cap", "title": "Atidarykite", "text": "Atsukite dangtelį ir nuimkite kamštelį." },
         { "ico": "reeds", "title": "Įmerkite lazdeles", "text": "Sudėkite lazdeles į buteliuką ir išskleiskite vėduokle." },
-        { "ico": "flip", "title": "Apverskite kas savaitę", "text": "Apverstos lazdelės vėl įsigeria aliejaus – kvapas sustiprėja." }
+        { "ico": "flip", "title": "Apverskite kas savaitę", "text": "Apverstos lazdelės vėl įsigeria aliejaus - kvapas sustiprėja." }
       ]
     },
     "where": {
@@ -45,7 +45,7 @@
         { "ico": "office", "label": "Biuras" }
       ]
     },
-    "note": { "on": true, "title": "", "text": "Laikykite vaikams ir gyvūnams nepasiekiamoje vietoje. Aliejus gali pažeisti lakuotus paviršius – statykite ant padėkliuko." }
+    "note": { "on": true, "title": "", "text": "Laikykite vaikams ir gyvūnams nepasiekiamoje vietoje. Aliejus gali pažeisti lakuotus paviršius - statykite ant padėkliuko." }
   },
   "zvakes": {
     "sub": "Kvapni žvakė namams",
@@ -55,8 +55,8 @@
       "on": true,
       "title": "Pirmasis uždegimas ir priežiūra",
       "items": [
-        { "ico": "candle", "title": "Pirmą kartą – ilgiau", "text": "Leiskite degti, kol ištirps visas paviršius: taip žvakė degs tolygiai." },
-        { "ico": "scissors", "title": "Patrumpinkite dagtį", "text": "Prieš kiekvieną uždegimą – iki 5 mm. Liepsna bus rami, be dūmų." },
+        { "ico": "candle", "title": "Pirmą kartą - ilgiau", "text": "Leiskite degti, kol ištirps visas paviršius: taip žvakė degs tolygiai." },
+        { "ico": "scissors", "title": "Patrumpinkite dagtį", "text": "Prieš kiekvieną uždegimą - iki 5 mm. Liepsna bus rami, be dūmų." },
         { "ico": "clock", "title": "Iki 4 valandų", "text": "Degkite ne ilgiau kaip 4 val. iš eilės ir leiskite vaškui atvėsti." }
       ]
     },
@@ -72,7 +72,7 @@
       "title": "Kaip naudoti",
       "items": [
         { "ico": "water", "title": "Įpilkite vandens", "text": "Pripildykite difuzoriaus talpą iki žymos." },
-        { "ico": "drops", "title": "Įlašinkite aliejaus", "text": "Užtenka kelių lašų – stiprumą reguliuokite lašų kiekiu." },
+        { "ico": "drops", "title": "Įlašinkite aliejaus", "text": "Užtenka kelių lašų - stiprumą reguliuokite lašų kiekiu." },
         { "ico": "power", "title": "Įjunkite", "text": "Švelni aromato migla pasklis po visą kambarį." }
       ]
     },

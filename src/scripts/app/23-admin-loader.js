@@ -1,5 +1,5 @@
-// 23 – administravimas /admin: tik patvirtintam administratoriui (teisę tikrina duomenų bazė – is_admin(), RLS).
-// Pats skydelis – atskiras failas assets/admin.js + admin.css (src/scripts/admin, src/styles/admin.css), įkeliamas tik čia,
+// 23 - administravimas /admin: tik patvirtintam administratoriui (teisę tikrina duomenų bazė - is_admin(), RLS).
+// Pats skydelis - atskiras failas assets/admin.js + admin.css (src/scripts/admin, src/styles/admin.css), įkeliamas tik čia,
 // todėl pirkėjams svetainė lieka lengva. Skydeliui atveriamos bendros funkcijos per window.VD.
 let adminLoad = null;
 function adminGate(root, html) {

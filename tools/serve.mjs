@@ -1,5 +1,5 @@
-// Vietinė peržiūra: node tools/serve.mjs [prievadas] → http://localhost:4180 (site/ kaip Vercel: cleanUrls, nežinomi adresai – 404.html).
-// Pirma surinkite: node tools/build-site.mjs. Duomenų bazė ir apmokėjimas – tikras Supabase (src/data/supabase.json),
+// Vietinė peržiūra: node tools/serve.mjs [prievadas] → http://localhost:4180 (site/ kaip Vercel: cleanUrls, nežinomi adresai - 404.html).
+// Pirma surinkite: node tools/build-site.mjs. Duomenų bazė ir apmokėjimas - tikras Supabase (src/data/supabase.json),
 // todėl vietoje apmokėti nepavyks (grįžimo adresas localhost leidžiamas tik bandomajam Stripe raktui).
 // Testai naudoja startServer(aplankas, prievadas).
 import http from "node:http";
@@ -45,7 +45,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "site");
   const port = Number(process.argv[2] || 4180);
   if (!fs.existsSync(root)) {
-    console.error("Nėra site/ – pirma: node tools/build-site.mjs");
+    console.error("Nėra site/ - pirma: node tools/build-site.mjs");
     process.exit(1);
   }
   await startServer(root, port);

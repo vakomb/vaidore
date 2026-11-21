@@ -1,8 +1,8 @@
-/* Vaidore scenos (24-stage.js): pradžios skaidrės, kategorijų plytelės, katalogo antraštė. Vienas stilius – šilta
+/* Vaidore scenos (24-stage.js): pradžios skaidrės, kategorijų plytelės, katalogo antraštė. Vienas stilius - šilta
    „studijos“ siena su šviesa iš kairės viršaus, grindys, CSS formos ir tikri buteliukai be fono su kontaktiniu šešėliu.
    Matas „u“ = min(--uh × aukščio, --uw × pločio): kompozicija visada telpa ir išlaiko proporcijas.
-   --cx – kompozicijos ašis (pagal nutylėjimą – centras), --fl – grindų linija nuo apačios. Spalvos – 01-tokens.css. */
-/* Numatytosios reikšmės – :where (specifiškumas 0), kad .heroStage / .tileStage / .shopStage jas perrašytų */
+   --cx - kompozicijos ašis (pagal nutylėjimą - centras), --fl - grindų linija nuo apačios. Spalvos - 01-tokens.css. */
+/* Numatytosios reikšmės - :where (specifiškumas 0), kad .heroStage / .tileStage / .shopStage jas perrašytų */
 :where(.stage) {
   --uh: 0.9;
   --uw: 0.8;
@@ -136,7 +136,7 @@
   bottom: calc(min(var(--w), 44) * -0.04 * var(--u));
   height: calc(min(var(--w), 44) * 0.1 * var(--u));
 }
-/* Arka – siena už kompozicijos, be šešėlio */
+/* Arka - siena už kompozicijos, be šešėlio */
 .ar {
   border-radius: calc(var(--w) * 0.5 * var(--u)) calc(var(--w) * 0.5 * var(--u)) 0 0;
   background: linear-gradient(180deg, color-mix(in srgb, var(--c), #000 3%), var(--c) 60%, color-mix(in srgb, var(--c), #fff 10%));
@@ -150,7 +150,7 @@
   border-radius: 50%;
   background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--c), #fff 34%) 0%, var(--c) 72%);
 }
-/* Cilindras: priekis su šviesos juosta, viršus – elipsė */
+/* Cilindras: priekis su šviesos juosta, viršus - elipsė */
 .pl {
   border-radius: 0 0 50% 50% / 0 0 calc(var(--w) * 0.08 * var(--u)) calc(var(--w) * 0.08 * var(--u));
   background: linear-gradient(
@@ -207,7 +207,7 @@
   margin-top: calc(1 * var(--u));
 }
 
-/* Katalogo antraštė (08-shop): telefone – scena juostoje virš pavadinimo, kompiuteryje – pavadinimas ant scenos kairėje */
+/* Katalogo antraštė (08-shop): telefone - scena juostoje virš pavadinimo, kompiuteryje - pavadinimas ant scenos kairėje */
 .shopStageBox {
   display: none;
 }
@@ -256,8 +256,8 @@
 }
 
 /* Įkeltos nuotraukos (administravimo skydelis „Pradžia“, kategorijos): užpildo tą pačią vietą kaip scena.
-   --fx / --fxm – kuri nuotraukos vieta lieka matoma (kompiuteryje / telefone). Po tekstu – švelnus permatomas
-   sluoksnis (--scrim): telefone viršuje, kompiuteryje kairėje. dark (.onDark) – tamsi nuotrauka, tekstas baltas. */
+   --fx / --fxm - kuri nuotraukos vieta lieka matoma (kompiuteryje / telefone). Po tekstu - švelnus permatomas
+   sluoksnis (--scrim): telefone viršuje, kompiuteryje kairėje. dark (.onDark) - tamsi nuotrauka, tekstas baltas. */
 .scenePic {
   display: block;
   overflow: hidden;
@@ -294,11 +294,11 @@
 .slide.onDark .heroLine {
   color: rgba(255, 255, 255, 0.9);
 }
-/* „Tik nuotrauka“ – be permatomo sluoksnio (ant jos nėra svetainės teksto) */
+/* „Tik nuotrauka“ - be permatomo sluoksnio (ant jos nėra svetainės teksto) */
 .slide.textless .scenePic::after {
   display: none;
 }
-/* Katalogo antraštė: telefone tekstas po nuotrauka (be permatomo sluoksnio), kompiuteryje – ant jos */
+/* Katalogo antraštė: telefone tekstas po nuotrauka (be permatomo sluoksnio), kompiuteryje - ant jos */
 .pageHead .scenePic::after {
   display: none;
 }

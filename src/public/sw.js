@@ -1,7 +1,7 @@
-// Vaidore service worker: tinklas pirmiausia (visada naujausia versija), be ryšio – paskutinė išsaugota kopija.
-// Keičiant CACHE pavadinimą, telefonai išmeta seną kopiją. Duomenų bazė ir apmokėjimas (Supabase) – kitas adresas, neliečiami.
+// Vaidore service worker: tinklas pirmiausia (visada naujausia versija), be ryšio - paskutinė išsaugota kopija.
+// Keičiant CACHE pavadinimą, telefonai išmeta seną kopiją. Duomenų bazė ir apmokėjimas (Supabase) - kitas adresas, neliečiami.
 const CACHE = "vaidore-v10";
-// Santykiniai keliai – veikia ir svetainės šaknyje, ir GitHub Pages poaplankyje (/vaidore/)
+// Santykiniai keliai - veikia ir svetainės šaknyje, ir GitHub Pages poaplankyje (/vaidore/)
 const CORE = ["./", "manifest.webmanifest", "favicon.svg", "icons/icon-192.png"];
 const HOME = new URL("./", self.registration.scope).href;
 

@@ -1,11 +1,11 @@
-// 07 – Pradžia: skaidrės, karuselės, produktų plytelės, atsiliepimai (tik tikri).
+// 07 - Pradžia: skaidrės, karuselės, produktų plytelės, atsiliepimai (tik tikri).
 // Pradžia: skaidrės → karuselės (naujienos, populiariausi moterims / vyrams / unisex) → „Produktai“ (plytelės)
 // → nuolaidos (jei yra) → atsiliepimai. Bėgančios privalumų juostos nėra (savininko prašymu).
-// Skyrių antraštės – tamsios juostos per visą plotį.
+// Skyrių antraštės - tamsios juostos per visą plotį.
 const sampleFrom = () => Math.min(...PRODUCTS.filter(hasSample).map(p => p.sample));
-// Pradžios skaidrės ir plytelės – iš nustatymų (25-home-config.js, administravimo skydelis „Pradžia“):
+// Pradžios skaidrės ir plytelės - iš nustatymų (25-home-config.js, administravimo skydelis „Pradžia“):
 // nuotrauka arba Vaidore scena (24-stage.js), trumpas tekstas ir VIENAS aiškus veiksmas.
-// Aukštis fiksuotas (CSS) – keičiantis skaidrėms ir kraunantis nuotraukoms niekas nepasislenka.
+// Aukštis fiksuotas (CSS) - keičiantis skaidrėms ir kraunantis nuotraukoms niekas nepasislenka.
 const slideBg = (x, i) => (x.image ? photoHTML(x, { eager: !i, cls: "heroStage" }) : stageHTML(x.stage, x.list, { eager: !i, cls: "heroStage" }));
 function heroHTML() {
   const slides = homeSlides();
@@ -13,7 +13,7 @@ function heroHTML() {
   return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
     .map((x, i) => {
       const H = i ? "h2" : "h1";
-      // Tik nuotrauka: su nuoroda – visa skaidrė paspaudžiama, be nuorodos – tiesiog paveikslas; pavadinimas – skaitytuvams
+      // Tik nuotrauka: su nuoroda - visa skaidrė paspaudžiama, be nuorodos - tiesiog paveikslas; pavadinimas - skaitytuvams
       if (x.textless) {
         const tag = x.href ? "a" : "div";
         return `<${tag} class="slide hasPhoto textless"${x.href ? ` href="${esc(x.href)}" data-nav` : ""} aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(
@@ -34,7 +34,7 @@ ${x.cta ? `<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span>` : "
       : ""
   }</section>`;
 }
-// Skaidrės tekstas: viena eilutė – sakinys; kelios – teiginiai su auksinėmis linijomis (kaip parfumada.lt)
+// Skaidrės tekstas: viena eilutė - sakinys; kelios - teiginiai su auksinėmis linijomis (kaip parfumada.lt)
 function heroTextHTML(text) {
   const lines = String(text || "")
     .split(/\n+/)
@@ -43,7 +43,7 @@ function heroTextHTML(text) {
   if (!lines.length) return "";
   return lines.length === 1 ? `<p class="heroLine">${esc(lines[0])}</p>` : `<ul class="heroClaims">${lines.map(t => `<li>${esc(t)}</li>`).join("")}</ul>`;
 }
-// Taškai po skaidrėmis: rodo aktyvią, paspaudus – pereina
+// Taškai po skaidrėmis: rodo aktyvią, paspaudus - pereina
 function syncHeroDots() {
   const rail = $("#homeHero .heroRail");
   if (!rail) return;
@@ -77,8 +77,8 @@ function startHeroAuto() {
     rail.scrollTo({ left: end ? 0 : rail.scrollLeft + rail.clientWidth, behavior: "smooth" });
   }, secs * 1000);
 }
-// Kategorijos plytelė (kaip parfumada.lt): pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis), po juo – paveikslas
-// 4:5 su apvalintais kampais (nuotrauka arba scena su tos grupės buteliukais – 24-stage.js).
+// Kategorijos plytelė (kaip parfumada.lt): pavadinimas VIRŠ paveikslo (22,75 px / 700, didžiosiomis), po juo - paveikslas
+// 4:5 su apvalintais kampais (nuotrauka arba scena su tos grupės buteliukais - 24-stage.js).
 function tileHTML({ name, href, list, stage, image, focus, dark }) {
   const bg = image ? photoHTML({ image, focus }, { cls: "tileStage" }) : stageHTML(stage, list, { cls: "tileStage" });
   return `<a class="tile${dark ? " onDark" : ""}${image ? " hasPhoto" : ""}" href="${href}" data-nav><span class="tileName">${esc(name)}</span><span class="tileArt">${bg}</span></a>`;
@@ -89,7 +89,7 @@ function railHTML(cards) {
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
-// Skyriaus antraštė (v22): juoda juosta – pavadinimas ir po juo paantraštė su „Peržiūrėti viską ›“ (vienas blokas)
+// Skyriaus antraštė (v22): juoda juosta - pavadinimas ir po juo paantraštė su „Peržiūrėti viską ›“ (vienas blokas)
 function bandHTML(title, line, href) {
   const sub = line || href ? `<p class="bandSub">${line ? `<span>${esc(line)}</span>` : ""}${href ? `<a href="${esc(href)}" data-nav>Peržiūrėti viską${glyph("chev-right")}</a>` : ""}</p>` : "";
   return `<div class="bandBox"><h2 class="band">${esc(title)}</h2>${sub}</div>`;
@@ -97,8 +97,8 @@ function bandHTML(title, line, href) {
 function railSecHTML({ id, title, line, href, list }) {
   return `<section class="hsec"${id ? ` data-rail="${esc(id)}"` : ""}>${bandHTML(title, line, href)}<div class="wrap">${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""))}</div></section>`;
 }
-// Karuselės (v21): visur matosi dalis kitos kortelės (telefone ~2,3, planšetėje ~3,4, kompiuteryje ~4,5) – aišku,
-// kad galima slinkti. Rodyklės (nuo 700 px) slenka per visas matomas korteles; „1/N“ – puslapiai.
+// Karuselės (v21): visur matosi dalis kitos kortelės (telefone ~2,3, planšetėje ~3,4, kompiuteryje ~4,5) - aišku,
+// kad galima slinkti. Rodyklės (nuo 700 px) slenka per visas matomas korteles; „1/N“ - puslapiai.
 const railCardStep = rail => (rail.children.length > 1 ? rail.children[1].offsetLeft - rail.children[0].offsetLeft : rail.clientWidth);
 function railPageStep(rail) {
   const c = railCardStep(rail);
@@ -153,7 +153,7 @@ function renderHome() {
   $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 
-  // Skyriai su produktais (v15: settings.rails – administravime „Pradžia“; numatytieji – naujienos, moterims, vyrams,
+  // Skyriai su produktais (v15: settings.rails - administravime „Pradžia“; numatytieji - naujienos, moterims, vyrams,
   // unisex, nuolaidos). Skyrius rodomas, jei jame yra bent vienas produktas.
   const sec = homeRails()
     .filter(r => r && r.on !== false && r.title)
@@ -163,10 +163,10 @@ function renderHome() {
   $("#homeRailsMore").innerHTML = "";
   bindRails($("#view-home"));
 
-  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai – rašo tik pirkę" });
+  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai - rašo tik pirkę" });
   startHeroAuto();
 }
-// Pardavėjo rekvizitai (settings.company) – neužpildyti laukai „[…]“ nerodomi
+// Pardavėjo rekvizitai (settings.company) - neužpildyti laukai „[…]“ nerodomi
 const filled = v => v && !/^\[.*\]$/.test(String(v).trim());
 function companyParts() {
   const c = SET.company;
@@ -179,7 +179,7 @@ function companyParts() {
   ].filter(Boolean);
 }
 const companyLine = () => `© ${new Date().getFullYear()} ${companyParts().map(esc).join(" · ")}`;
-// Atsiliepimai – rodomi TIK tikri (patvirtinti duomenų bazėje arba products[].reviews kataloge); jei nėra – sekcijos nėra
+// Atsiliepimai - rodomi TIK tikri (patvirtinti duomenų bazėje arba products[].reviews kataloge); jei nėra - sekcijos nėra
 function reviewsOf(list) {
   return list.flatMap(p => (p.reviews || []).filter(r => r?.text && r?.name).map(r => ({ ...r, p })));
 }

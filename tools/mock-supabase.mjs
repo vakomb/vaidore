@@ -1,7 +1,7 @@
 // Imituotas Supabase naršyklės testams (be interneto): PostgREST (lentelės, filtrai, rūšiavimas, RLS esmė),
 // Auth (prisijungimas, vartotojas), Storage (nuotraukų įkėlimas), Edge Function shop (checkout, order, admin).
 // Naudojimas: const sb = mockSupabase({ url, catalog }); await page.route(`${url}/**`, sb.handle);
-// sb.db – lentelės (tikrinti pakeitimus), sb.calls – funkcijų kvietimai, sb.users – prisijungimo duomenys.
+// sb.db - lentelės (tikrinti pakeitimus), sb.calls - funkcijų kvietimai, sb.users - prisijungimo duomenys.
 
 export const ADMIN = { id: "00000000-0000-4000-8000-00000000a001", email: "vakomb@gmail.com", password: "slaptas-123", token: "eyJ.admin.token" };
 export const BUYER = { id: "00000000-0000-4000-8000-00000000b001", email: "ona@example.com", password: "pirkeja-123", token: "eyJ.buyer.token" };
@@ -46,7 +46,7 @@ export function dbFromCatalog(cat) {
     categories: (cat.categories || []).map((c, i) => ({ id: c.id, name: c.name, description: c.description || "", image: c.image || "", sort: c.sort ?? i + 1, visible: true })),
     product_categories: cat.products.flatMap(p => (p.categories || []).map(c => ({ product_id: p.id, category_id: c }))),
     settings: [{ id: 1, data: structuredClone(cat.settings) }],
-    // Katalogo atsiliepimai (testams) – kaip paskelbti duomenų bazėje
+    // Katalogo atsiliepimai (testams) - kaip paskelbti duomenų bazėje
     reviews: cat.products.flatMap(p =>
       (p.reviews || []).map((r, i) => ({ id: `rv-${p.id}-${i}`, product_id: p.id, user_id: null, name: r.name, text: r.text, rating: r.rating ?? null, status: "approved", verified: r.verified !== false, created_at: `${r.date || "2026-11-01"}T12:00:00Z` }))
     ),
@@ -106,7 +106,7 @@ export function mockSupabase({ url, catalog, fail = {} }) {
     }
     return row => conds.every(c => c(row));
   }
-  // Viešai matomi įrašai (RLS esmė): paslėpti kvapai ir nepaskelbti atsiliepimai – tik administratoriui
+  // Viešai matomi įrašai (RLS esmė): paslėpti kvapai ir nepaskelbti atsiliepimai - tik administratoriui
   const visibleTo = (table, row, u) => {
     if (isAdmin(u)) return true;
     if (["products", "families", "categories"].includes(table)) return row.visible !== false;
@@ -262,7 +262,7 @@ export function mockSupabase({ url, catalog, fail = {} }) {
               : table === "note_media"
                 ? r => r.name
                 : r => r.id;
-      // Upsert (Prefer: resolution=merge-duplicates) – esamas įrašas atnaujinamas
+      // Upsert (Prefer: resolution=merge-duplicates) - esamas įrašas atnaujinamas
       const merge = prefer.includes("resolution=merge-duplicates");
       const out = [];
       for (const r of rows) {

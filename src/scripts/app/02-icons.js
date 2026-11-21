@@ -1,4 +1,4 @@
-// 02 – ikonos: linijiniai glifai (1,85 px), spalvotos kategorijų ir kvapo šeimų ikonos, logotipas.
+// 02 - ikonos: linijiniai glifai (1,85 px), spalvotos kategorijų ir kvapo šeimų ikonos, logotipas.
 const GLYPH = {
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
@@ -55,10 +55,10 @@ const GLYPH = {
 const glyph = (name, cls = "") =>
   `<svg class="gl ${cls}" viewBox="0 0 24 24" aria-hidden="true">${GLYPH[name] || ""}</svg>`;
 
-// Logotipas: VAIDORE etiketės šriftu (kontūrai – src/partials/logo.svg, tools/make-logo.py; įdėtas į header'į surinkimo metu)
+// Logotipas: VAIDORE etiketės šriftu (kontūrai - src/partials/logo.svg, tools/make-logo.py; įdėtas į header'į surinkimo metu)
 const logoHTML = () => document.querySelector(".hdr .logo svg.wordmark")?.outerHTML || `<b>Vaidore</b>`;
 
-// Spalvotos plytelių ikonos (48 × 48, spalvos pačiame SVG – kaip AutoEasier plytelės)
+// Spalvotos plytelių ikonos (48 × 48, spalvos pačiame SVG - kaip AutoEasier plytelės)
 const TILE_ICO = {
   moterims:
     '<svg viewBox="0 0 48 48"><circle cx="24" cy="19" r="7.5" fill="#F9A8C0"/><circle cx="17" cy="23" r="7" fill="#F48FB1"/><circle cx="31" cy="23" r="7" fill="#F48FB1"/><circle cx="20.5" cy="29.5" r="7" fill="#EC6F9A"/><circle cx="27.5" cy="29.5" r="7" fill="#EC6F9A"/><circle cx="24" cy="25" r="4.2" fill="#FDE68A"/><path d="M24 36v8" stroke="#4CA867" stroke-width="2.6" stroke-linecap="round"/></svg>',

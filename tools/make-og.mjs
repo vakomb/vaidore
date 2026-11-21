@@ -1,5 +1,5 @@
 // Open Graph paveikslai (1200 × 630 JPEG) dalinimuisi: src/public/og/<id>.jpg kiekvienam kvapui ir og/home.jpg.
-// Buteliukas – tas pats SVG kaip programėlėje (paimamas iš surinktos programėlės). Paleisti pakeitus katalogą:
+// Buteliukas - tas pats SVG kaip programėlėje (paimamas iš surinktos programėlės). Paleisti pakeitus katalogą:
 //   node tools/make-og.mjs        (reikia Playwright: npm install)
 // Kai kvapas turi tikrą nuotrauką (images), puslapis naudoja ją, o ne šį paveikslą.
 import fs from "node:fs";
@@ -20,7 +20,7 @@ const CONC = { EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", E
 const FAM = Object.fromEntries(catalog.families.map(f => [f.id, f.name]));
 const money = n => (Number.isInteger(n) ? `${n} €` : `${n.toFixed(2).replace(".", ",")} €`);
 const esc = v => String(v ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-// VAIDORE logotipas – tas pats kaip svetainėje (src/partials/logo.svg, tools/make-logo.py)
+// VAIDORE logotipas - tas pats kaip svetainėje (src/partials/logo.svg, tools/make-logo.py)
 const LOGO = fs.readFileSync(path.join(root, "src/partials/logo.svg"), "utf8").trim();
 const page = (tint, art, text) => `<!doctype html><html><head><meta charset="utf-8"><style>
 *{box-sizing:border-box;margin:0}body{width:1200px;height:630px;overflow:hidden;font-family:-apple-system,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:#111;
@@ -31,7 +31,7 @@ h1{font-size:84px;line-height:1.02;letter-spacing:-.03em}h1.home{font-size:58px;
 .meta{margin-top:30px;display:inline-flex;padding:14px 22px;border-radius:999px;background:#fff;box-shadow:0 0 0 1px rgba(226,232,240,.7),0 8px 24px -8px rgba(15,23,42,.15);font-size:26px;font-weight:700;color:#111}
 </style></head><body><div class="art${art.trio ? " trio" : ""}">${art.svg}</div><div class="txt"><div class="brand">${LOGO}</div>${text}</div></body></html>`;
 
-// Buteliukų SVG – iš tikros programėlės (window.VD.bottleSVG), be duomenų bazės
+// Buteliukų SVG - iš tikros programėlės (window.VD.bottleSVG), be duomenų bazės
 const app = buildApp({ catalog, supabase: null });
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
@@ -40,7 +40,7 @@ await p.route("http://og.local/**", r => (r.request().url() === "http://og.local
 await p.goto("http://og.local/");
 await p.waitForFunction(() => window.VD?.bottleSVG);
 const svgs = await p.evaluate(() => Object.fromEntries(window.VD.CAT.products.map(pr => [pr.id, window.VD.bottleSVG(pr)])));
-// Jei kvapas turi savą nuotrauką (src/public/img/…) – naudojama ji (pirmoji, permatomame fone)
+// Jei kvapas turi savą nuotrauką (src/public/img/…) - naudojama ji (pirmoji, permatomame fone)
 const photo = pr => {
   const f = pr.images?.[0] && path.join(root, "src/public", pr.images[0]);
   if (!f || !fs.existsSync(f)) return null;
@@ -62,4 +62,4 @@ await p.setContent(
 await p.screenshot({ path: path.join(out, "home.jpg"), type: "jpeg", quality: 84 });
 await browser.close();
 const files = fs.readdirSync(out);
-console.log(`og/ – ${files.length} paveikslai, ${Math.round(files.reduce((s, f) => s + fs.statSync(path.join(out, f)).size, 0) / 1024)} KB`);
+console.log(`og/ - ${files.length} paveikslai, ${Math.round(files.reduce((s, f) => s + fs.statSync(path.join(out, f)).size, 0) / 1024)} KB`);

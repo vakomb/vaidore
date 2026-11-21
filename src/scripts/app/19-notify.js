@@ -1,12 +1,12 @@
-// 19 – „Pranešti, kai bus“ (išparduotam kvapui, stock: 0): el. paštas įrašomas į duomenų bazę (restock_requests –
-// matoma administravimo skydelyje). Be duomenų bazės – settings.notifyForm (pvz. Formspree) arba laiškas parduotuvei.
+// 19 - „Pranešti, kai bus“ (išparduotam kvapui, stock: 0): el. paštas įrašomas į duomenų bazę (restock_requests -
+// matoma administravimo skydelyje). Be duomenų bazės - settings.notifyForm (pvz. Formspree) arba laiškas parduotuvei.
 function openNotify(id) {
   const p = BY_ID.get(id);
   if (!p) return;
   openSheet({
     title: "Pranešti, kai bus",
     html: `<form class="sheetPad notify" novalidate>
-<p class="notifyLead"><b>${esc(p.name)}</b> laikinai išparduotas. Parašysime vieną laišką, kai vėl turėsime – daugiau nieko nesiųsime.</p>
+<p class="notifyLead"><b>${esc(p.name)}</b> laikinai išparduotas. Parašysime vieną laišką, kai vėl turėsime - daugiau nieko nesiųsime.</p>
 <label class="field"><span>El. paštas</span><input type="email" name="email" autocomplete="email" inputmode="email" required placeholder="vardas@pastas.lt" value="${esc(auth.user?.email || "")}" /></label>
 <p class="formErr" role="alert" hidden></p>
 <button class="btn primary block" type="submit">${glyph("bell")}Pranešti man</button>
@@ -37,7 +37,7 @@ function openNotify(id) {
           logError("restock", ex);
           btn.disabled = false;
           err.hidden = false;
-          err.textContent = "Nepavyko išsiųsti – bandykite dar kartą";
+          err.textContent = "Nepavyko išsiųsti - bandykite dar kartą";
           return;
         }
       }
@@ -66,7 +66,7 @@ function openNotify(id) {
       logError("notify", ex);
       btn.disabled = false;
       err.hidden = false;
-      err.textContent = "Nepavyko išsiųsti – bandykite dar kartą";
+      err.textContent = "Nepavyko išsiųsti - bandykite dar kartą";
     }
   });
 }

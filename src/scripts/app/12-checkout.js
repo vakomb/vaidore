@@ -1,8 +1,8 @@
-// 12 – Apmokėjimas: krepšelis siunčiamas Supabase funkcijai shop/checkout (supabase/functions) – veikia ir
+// 12 - Apmokėjimas: krepšelis siunčiamas Supabase funkcijai shop/checkout (supabase/functions) - veikia ir
 // Vercel, ir GitHub Pages kopijoje. Prisijungusio pirkėjo užsakymas susiejamas su paskyra (Authorization).
-// Kainas serveris ima iš savo katalogo kopijos – naršyklėje pakeista kaina nieko nekeičia.
+// Kainas serveris ima iš savo katalogo kopijos - naršyklėje pakeista kaina nieko nekeičia.
 // Siunčiama: items [{ id, ml, qty, picks? }], shipping { method, locker? }, gift { on, note }.
-// Atsakymas { url } – Stripe Checkout puslapis (kortelė, Apple Pay, Google Pay; adresas – jei ne paštomatas).
+// Atsakymas { url } - Stripe Checkout puslapis (kortelė, Apple Pay, Google Pay; adresas - jei ne paštomatas).
 async function startCheckout(btn) {
   if (!state.cart.length) return;
   if (needLocker() && !state.ship.locker) {

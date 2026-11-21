@@ -1,6 +1,6 @@
 /* Svetainės karkasas (telefonas pirmiausia): informacinė juosta, prilipęs header'is, šoninis meniu (iš kairės),
    mini krepšelis (iš dešinės), išskleidžiamas „Kvepalai“ meniu, puslapių plotis, naršymo kelias, poraštė.
-   Kompiuteris – 09-desktop.css. */
+   Kompiuteris - 09-desktop.css. */
 .skip {
   position: absolute;
   z-index: 100;
@@ -24,7 +24,7 @@
 }
 .view.active {
   display: block;
-  animation: vdView 0.32s var(--spring) backwards; /* ne „both“: pasibaigus nelieka transform – kitaip fixed vaikai (pirkimo juosta) prilimpa ne prie ekrano */
+  animation: vdView 0.32s var(--spring) backwards; /* ne „both“: pasibaigus nelieka transform - kitaip fixed vaikai (pirkimo juosta) prilimpa ne prie ekrano */
 }
 @keyframes vdView {
   from {
@@ -38,10 +38,10 @@
   padding: 0 var(--pad);
 }
 
-/* Informacinė juosta – tamsi, žinutės keičiasi (21-header.js), rodyklės kraštuose. v10 (kaip parfumada.lt):
+/* Informacinė juosta - tamsi, žinutės keičiasi (21-header.js), rodyklės kraštuose. v10 (kaip parfumada.lt):
    telefone 66 px, 19,5 px tekstas iki 2 eilučių; kompiuteryje 49 px (09-desktop.css). Aukštis fiksuotas. */
-/* Juosta virš header'io – visos reikšmės keičiamos administravime (settings.topbar → CSS kintamieji --n…, 21-header.js);
-   numatytosios – žemiau (tamsi, 19,5 px; kompiuteryje 17 px, 49 px) */
+/* Juosta virš header'io - visos reikšmės keičiamos administravime (settings.topbar → CSS kintamieji --n…, 21-header.js);
+   numatytosios - žemiau (tamsi, 19,5 px; kompiuteryje 17 px, 49 px) */
 .topNote {
   --noteFsNow: var(--nfs, var(--noteFs));
   display: grid;
@@ -119,9 +119,9 @@
   height: 18px;
 }
 
-/* Header'is: telefone – ☰ · logotipas · paieška · krepšelis; kompiuteryje – ta pati eilutė + tamsi kategorijų juosta
-   (09-desktop.css). Baltas, be matinio stiklo (kaip parfumada.lt) – slenkant naršyklei nereikia kiekviename kadre
-   perskaičiuoti suliejimo, todėl slinkimas sklandus. Užslinkus – tik švelnus šešėlis. */
+/* Header'is: telefone - ☰ · logotipas · paieška · krepšelis; kompiuteryje - ta pati eilutė + tamsi kategorijų juosta
+   (09-desktop.css). Baltas, be matinio stiklo (kaip parfumada.lt) - slenkant naršyklei nereikia kiekviename kadre
+   perskaičiuoti suliejimo, todėl slinkimas sklandus. Užslinkus - tik švelnus šešėlis. */
 .hdr {
   position: sticky;
   top: 0;
@@ -199,7 +199,7 @@
 }
 .iconBtn svg,
 .hdr .iconBtn [data-glyph] svg {
-  /* .hdr – kad bendra 20 px glifų taisyklė (04-components.css) neperrašytų header'io ikonų */
+  /* .hdr - kad bendra 20 px glifų taisyklė (04-components.css) neperrašytų header'io ikonų */
   width: var(--hdrIcon);
   height: var(--hdrIcon);
   stroke-width: var(--hdrStroke);
@@ -252,8 +252,8 @@
   box-shadow: 0 0 0 2px #fff;
 }
 
-/* v10 – telefone ir planšetėje (kaip parfumada.lt): ☰ · logotipas · … · paieška · krepšelis, mygtukai 57 × 57,
-   paskyra – šoniniame meniu. Kompiuteryje (≥ 1024 px) – 09-desktop.css. */
+/* v10 - telefone ir planšetėje (kaip parfumada.lt): ☰ · logotipas · … · paieška · krepšelis, mygtukai 57 × 57,
+   paskyra - šoniniame meniu. Kompiuteryje (≥ 1024 px) - 09-desktop.css. */
 @media (max-width: 1023.98px) {
   .hdrIn {
     display: flex;
@@ -292,7 +292,7 @@
   }
 }
 
-/* Paieškos pasiūlymai (kompiuteryje – po lauku; telefone – lange) */
+/* Paieškos pasiūlymai (kompiuteryje - po lauku; telefone - lange) */
 .searchPop {
   position: absolute;
   top: calc(100% + 10px);
@@ -528,7 +528,7 @@
   display: grid;
   gap: 12px;
 }
-/* Šoninis meniu (v17) – kaip iOS programėlė: pilkas fonas, baltos sugrupuotos eilutės su plonais skyrikliais */
+/* Šoninis meniu (v17) - kaip iOS programėlė: pilkas fonas, baltos sugrupuotos eilutės su plonais skyrikliais */
 #drawer {
   background: var(--ax-bg);
 }
@@ -697,7 +697,7 @@
   line-height: 22px;
   text-align: center;
 }
-/* Trys greiti pasirinkimai – baltos plytelės */
+/* Trys greiti pasirinkimai - baltos plytelės */
 .navTiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -820,8 +820,8 @@
   color: var(--ink);
 }
 
-/* Poraštė – šviesi ir kompaktiška: telefone naujienlaiškis, trys išskleidžiamos grupės, kontaktai, mokėjimo būdai,
-   © ir teisinės nuorodos; kompiuteryje (09-desktop.css) – viena eilė stulpeliais. */
+/* Poraštė - šviesi ir kompaktiška: telefone naujienlaiškis, trys išskleidžiamos grupės, kontaktai, mokėjimo būdai,
+   © ir teisinės nuorodos; kompiuteryje (09-desktop.css) - viena eilė stulpeliais. */
 .ftr {
   margin-top: 88px;
   background: var(--ftrBg);
@@ -923,7 +923,7 @@
   color: inherit;
   text-decoration: underline;
 }
-/* Naujienlaiškio puslapis (/naujienlaiskis) – ta pati forma, centre */
+/* Naujienlaiškio puslapis (/naujienlaiskis) - ta pati forma, centre */
 .newsPage {
   padding: 36px 22px 40px;
   border-radius: var(--r-card);
@@ -933,7 +933,7 @@
   margin: 0 auto;
   text-align: center;
 }
-/* Nuorodų grupės – telefone išskleidžiamos */
+/* Nuorodų grupės - telefone išskleidžiamos */
 .ftrGrp {
   border-top: 1px solid var(--ftrLine);
 }

@@ -50,7 +50,7 @@
   display: none;
 }
 
-/* Filtrai (kompiuteryje – šoninė juosta, telefone – langas „Filtruoti ir rūšiuoti“): išskleidžiamos grupės */
+/* Filtrai (kompiuteryje - šoninė juosta, telefone - langas „Filtruoti ir rūšiuoti“): išskleidžiamos grupės */
 .fGroup {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
@@ -107,7 +107,7 @@
 .fCheck:hover {
   color: var(--ink);
 }
-/* „Natos“ – ilgas sąrašas slenka savo lauke */
+/* „Natos“ - ilgas sąrašas slenka savo lauke */
 .fScroll {
   display: flex;
   flex-direction: column;
@@ -167,7 +167,7 @@
     transform: translate(-50%, 18px) scale(0.96);
   }
 }
-/* Antraštė virš visko: PAVADINIMAS tarp linijų, po juo – trys natos (kaip parfumada.lt) */
+/* Antraštė virš visko: PAVADINIMAS tarp linijų, po juo - trys natos (kaip parfumada.lt) */
 .pdHead {
   padding: 10px 0 22px;
   text-align: center;
@@ -207,15 +207,15 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-/* Originalas (v24) – pirmas po nuotrauka (telefone) / po pavadinimu (kompiuteryje), viena eilutė */
+/* Originalas (v24) - pirmas po nuotrauka (telefone) / po pavadinimu (kompiuteryje), viena eilutė */
 .pdInsp {
   order: 0;
   display: flex;
   max-width: 100%;
   margin-top: 6px;
 }
-/* „Šis kvapas jūsų namams“ / „Tas pats kvapas kitomis formomis“ (v25): prekės viena po kitos – nuotrauka, pavadinimas,
-   forma ir talpa, kaina; dešinėje „+“ – iškart į krepšelį */
+/* „Šis kvapas jūsų namams“ / „Tas pats kvapas kitomis formomis“ (v25): prekės viena po kitos - nuotrauka, pavadinimas,
+   forma ir talpa, kaina; dešinėje „+“ - iškart į krepšelį */
 .pdForms {
   margin-top: 26px;
 }
@@ -312,7 +312,7 @@
 .formRow[hidden] {
   display: none;
 }
-/* „Rodyti dar N“ (v28) – ramus mygtukas po sąrašu; išskleistos eilutės įsilieja švelniai */
+/* „Rodyti dar N“ (v28) - ramus mygtukas po sąrašu; išskleistos eilutės įsilieja švelniai */
 .formMore {
   display: flex;
   align-items: center;
@@ -381,7 +381,7 @@
   line-height: 1.3;
   color: var(--ink3);
 }
-/* Taip / ne savybė (v28b) – viena eilutė: juodas apskritimas su varnele ir stambus tekstas */
+/* Taip / ne savybė (v28b) - viena eilutė: juodas apskritimas su varnele ir stambus tekstas */
 .pdFit {
   order: 1;
   display: flex;
@@ -412,7 +412,7 @@
 .pdFit + .pdSpecs {
   margin-top: 12px;
 }
-/* „Įdėti į krepšelį“ (v25) – dvi eilutės: veiksmas ir pristatymo laikas su žaliu „gyvu“ tašku */
+/* „Įdėti į krepšelį“ (v25) - dvi eilutės: veiksmas ir pristatymo laikas su žaliu „gyvu“ tašku */
 .pdAdd {
   flex-direction: column;
   gap: 3px;
@@ -465,8 +465,8 @@
   line-height: 1.5;
   color: var(--ink3);
 }
-/* Tvarka (v23 – ir telefone, kaip programėlėje): kaina → talpa → kiekis → „Į krepšelį“ → pristatymas → kitos formos →
-   mėgstami / dalintis; po linija – aprašymas, teisinė pastaba. Turinio blokai ir išskleidžiamos dalys – po straipsniu
+/* Tvarka (v23 - ir telefone, kaip programėlėje): kaina → talpa → kiekis → „Į krepšelį“ → pristatymas → kitos formos →
+   mėgstami / dalintis; po linija - aprašymas, teisinė pastaba. Turinio blokai ir išskleidžiamos dalys - po straipsniu
    (.pdStory, 13-story.css) */
 .pdInfo {
   display: flex;
@@ -553,7 +553,7 @@
   min-height: 63px;
   font-size: 19.5px;
 }
-/* „Į mėgstamus“ · „Dalintis“ – ramios teksto nuorodos po pirkimu (ne ant nuotraukos) */
+/* „Į mėgstamus“ · „Dalintis“ - ramios teksto nuorodos po pirkimu (ne ant nuotraukos) */
 .pdActs {
   display: flex;
   flex-wrap: wrap;
@@ -586,7 +586,7 @@
   fill: #e11d48;
   stroke: #e11d48;
 }
-/* Kiekis – apvalus keitiklis (kaip parfumada) */
+/* Kiekis - apvalus keitiklis (kaip parfumada) */
 .qty {
   display: inline-flex;
   align-items: center;
@@ -613,7 +613,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Tūrio pasirinkimas – „piliulės“, pasirinkta – tamsi */
+/* Tūrio pasirinkimas - „piliulės“, pasirinkta - tamsi */
 .sizes {
   display: flex;
   flex-wrap: wrap;
@@ -705,7 +705,7 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-/* Natos – trys eilutės (kaip parfumada.lt): spalvotas taškas, „Viršutinės natos:“ ir natos vientisu tekstu */
+/* Natos - trys eilutės (kaip parfumada.lt): spalvotas taškas, „Viršutinės natos:“ ir natos vientisu tekstu */
 .pdNotes {
   display: grid;
   gap: 10px;
@@ -738,8 +738,8 @@
   content: ": ";
 }
 
-/* Prilipusi pirkimo juosta – telefone ir planšetėje: kaina + mygtukas (praslinkus pagrindinį mygtuką); kompiuteryje –
-   nuotrauka, pavadinimas, kaina, kiekis, mygtukas (09-desktop.css). Balta, be matinio stiklo – slinkimas lieka sklandus. */
+/* Prilipusi pirkimo juosta - telefone ir planšetėje: kaina + mygtukas (praslinkus pagrindinį mygtuką); kompiuteryje -
+   nuotrauka, pavadinimas, kaina, kiekis, mygtukas (09-desktop.css). Balta, be matinio stiklo - slinkimas lieka sklandus. */
 .buyBar {
   position: fixed;
   z-index: 30;
@@ -801,7 +801,7 @@
   min-height: 54px;
   font-size: 18px;
 }
-/* Lange (rinkinys) – lipnus juostos variantas */
+/* Lange (rinkinys) - lipnus juostos variantas */
 .sheet .buyBar {
   position: sticky;
   display: flex;
@@ -813,7 +813,7 @@
 .sheet:has(.buyBar) .sheetBody {
   padding-bottom: 0;
 }
-/* „Jums gali patikti“ – juosta per visą plotį ir kvapo puslapyje */
+/* „Jums gali patikti“ - juosta per visą plotį ir kvapo puslapyje */
 .pdSimilar > .bandBox {
   margin: 0 calc(var(--pad) * -1);
 }
@@ -821,7 +821,7 @@
   padding: 0;
 }
 
-/* Kaina nuo–iki (kaip parfumada.lt): du laukai su „€“ */
+/* Kaina nuo-iki (kaip parfumada.lt): du laukai su „€“ */
 .fPriceHint {
   margin: 0 0 10px;
   font-size: 15px;

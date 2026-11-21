@@ -1,5 +1,5 @@
-// 05 – Kategorijos (kolekcijos: kategorija/<id>, meniu, poraštė) ir kvapo šeimos (filtrai, „Pagal nuotaiką“).
-// Redaguojama lange: pavadinimas, id (tik kuriant), aprašymas / užuomina, eilė, rodymas; kategorijai – paveikslas.
+// 05 - Kategorijos (kolekcijos: kategorija/<id>, meniu, poraštė) ir kvapo šeimos (filtrai, „Pagal nuotaiką“).
+// Redaguojama lange: pavadinimas, id (tik kuriant), aprašymas / užuomina, eilė, rodymas; kategorijai - paveikslas.
 const TAXO = {
   categories: {
     title: "Kolekcijos",
@@ -88,7 +88,7 @@ function openTaxo(kind, item) {
 <label class="field axField"><span>Eilė</span><input name="sort" type="number" inputmode="numeric" value="${esc(x.sort ?? 0)}" /></label>
 <label class="axField axSwitchRow"><span>Rodoma</span><input type="checkbox" name="visible" class="admSwitchInp"${attr(x.visible !== false, "checked")} /></label>
 </div>
-<p class="igFoot">${kind === "categories" ? "vaidore.com/kategorija/" : "Filtro reikšmė: "}<span data-id-prev>${esc(x.id || "…")}</span>${isNew ? "" : " – nebekeičiamas"}</p>
+<p class="igFoot">${kind === "categories" ? "vaidore.com/kategorija/" : "Filtro reikšmė: "}<span data-id-prev>${esc(x.id || "…")}</span>${isNew ? "" : " - nebekeičiamas"}</p>
 ${
   T.image
     ? `<h2 class="igHead">Paveikslas</h2><div class="ig axImgBox"><div class="admTaxoImg" id="taxoImg"></div><label class="axRow admUpload">${glyph("upload")}<span class="axRowTxt"><b class="axLink">Įkelti paveikslą</b></span><input type="file" accept="image/*" hidden data-taxo-img /></label></div>`
@@ -131,7 +131,7 @@ ${isNew ? "" : `<button class="btn ghost block axDangerBtn" type="button" data-t
     }
     if (t?.closest("[data-taxo-del]")) {
       const n = taxoState.counts[kind].get(x.id) || 0;
-      if (kind === "families" && n) return toast(`Šeimai priklauso ${plural(n, "kvapas", "kvapai", "kvapų")} – pirma pakeiskite jų šeimą`, { icon: "info", ms: 4200 });
+      if (kind === "families" && n) return toast(`Šeimai priklauso ${plural(n, "kvapas", "kvapai", "kvapų")} - pirma pakeiskite jų šeimą`, { icon: "info", ms: 4200 });
       const ok = await askConfirm(`„${x.name}“ bus ištrinta${kind === "categories" && n ? ` (kvapai liks, tik nebebus šioje kategorijoje)` : ""}.`, { title: "Ištrinti?", ok: "Ištrinti", danger: true });
       if (!ok) return;
       try {
@@ -152,7 +152,7 @@ ${isNew ? "" : `<button class="btn ghost block axDangerBtn" type="button" data-t
       if (T.image) row.image = image;
       const problems = [
         !row.name && "Įrašykite pavadinimą",
-        !/^[a-z0-9-]+$/.test(row.id) && "Adresas – tik mažosios raidės, skaičiai ir „-“",
+        !/^[a-z0-9-]+$/.test(row.id) && "Adresas - tik mažosios raidės, skaičiai ir „-“",
         isNew && taxoState[kind].some(y => y.id === row.id) && "Toks adresas jau yra"
       ].filter(Boolean);
       err.hidden = !problems.length;

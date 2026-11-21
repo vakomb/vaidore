@@ -1,5 +1,5 @@
-// Programėlės ikonos (PNG) iš favicon.svg (v7 – auksinė „V“ juodame fone): node tools/make-icons.mjs (reikia sharp: npm i -D sharp).
-// Sugeneruoti failai saugomi src/public/icons/ ir įkeliami į repozitoriją – Vercel'yje sharp nereikia.
+// Programėlės ikonos (PNG) iš favicon.svg (v7 - auksinė „V“ juodame fone): node tools/make-icons.mjs (reikia sharp: npm i -D sharp).
+// Sugeneruoti failai saugomi src/public/icons/ ir įkeliami į repozitoriją - Vercel'yje sharp nereikia.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,8 +10,8 @@ const require = createRequire(import.meta.url);
 const sharp = require("sharp");
 const out = path.join(root, "src/public/icons");
 fs.mkdirSync(out, { recursive: true });
-// Ženklas – src/public/favicon.svg (tools/make-logo.py): auksinė „V“ juodame fone. Ikonoms – be užapvalinimo
-// (telefonas apvalina pats), maskable – su didesne paraštė.
+// Ženklas - src/public/favicon.svg (tools/make-logo.py): auksinė „V“ juodame fone. Ikonoms - be užapvalinimo
+// (telefonas apvalina pats), maskable - su didesne paraštė.
 const fav = fs.readFileSync(path.join(root, "src/public/favicon.svg"), "utf8").replace(/ rx="\d+"/, "");
 const icon = (scale = 1) =>
   Buffer.from(scale === 1 ? fav : fav.replace(/<path transform="translate\(([\d.-]+) ([\d.-]+)\) scale\(([\d.]+)\)"/, (_, x, y, k) => {

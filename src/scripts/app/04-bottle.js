@@ -1,6 +1,6 @@
-// 04 – kvepalų buteliuko piešinys (SVG): stiklas su šviesos atspindžiu, skystis pagal look.liquid,
+// 04 - kvepalų buteliuko piešinys (SVG): stiklas su šviesos atspindžiu, skystis pagal look.liquid,
 // etiketė su pavadinimu, dangtelis (gold / black / silver / wood), forma (rect / tall / round / square).
-// Tikras nuotraukas galima pridėti vėliau – žr. docs/ARCHITECTURE.md „Nuotraukos“.
+// Tikras nuotraukas galima pridėti vėliau - žr. docs/ARCHITECTURE.md „Nuotraukos“.
 let bottleSeq = 0;
 const CAP_TONES = {
   gold: ["#F6E7B4", "#D4AF5A", "#9C7A2E"],

@@ -1,4 +1,4 @@
-// 02 – Šiandien: pajamos (šiandien, 7 d., 30 d., vidutinis krepšelis), „Prieš paleidimą“, „Reikia dėmesio“ (kiekviena
+// 02 - Šiandien: pajamos (šiandien, 7 d., 30 d., vidutinis krepšelis), „Prieš paleidimą“, „Reikia dėmesio“ (kiekviena
 // eilutė veda tiesiai į darbą), maži likučiai, perkamiausi per 30 d., naujausi užsakymai.
 const PAID = ["paid", "packed", "shipped", "delivered"];
 async function renderOverview(main, _param, seq) {
@@ -33,14 +33,14 @@ async function renderOverview(main, _param, seq) {
   const company = VD.SET.company || {};
   const todo = [
     Object.entries(company).some(([, v]) => /^\[.*\]$/.test(String(v))) && ["Užpildykite įmonės rekvizitus", "admin/nustatymai/imone", "Rodomi poraštėje ir pirkimo sąlygose"],
-    !products.some(p => p.images?.length) && ["Įkelkite produktų nuotraukas", "admin/kvapai", "Kol nėra – rodomas nupieštas buteliukas"]
+    !products.some(p => p.images?.length) && ["Įkelkite produktų nuotraukas", "admin/kvapai", "Kol nėra - rodomas nupieštas buteliukas"]
   ].filter(Boolean);
   const kpi = (label, value, sub = "") => `<div class="admKpi"><span>${label}</span><b class="money">${value}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
   const att = (n, text, href, ico, done) =>
     navRow({ href, ico, icoBg: n ? "var(--amber)" : "var(--green)", title: text, sub: n ? "" : done, value: n ? `<b class="admRowNum">${n}</b>` : "" });
   const body = `<div class="admKpis">${kpi("Šiandien", centsEur(sum(today)))}${kpi("7 dienos", centsEur(sum(d7)))}${kpi("30 dienų", centsEur(sum(new Date(0))), plural(paid.length, "užsakymas", "užsakymai", "užsakymų"))}${kpi(
     "Vidutinis krepšelis",
-    paid.length ? centsEur(sum(new Date(0)) / paid.length) : "–"
+    paid.length ? centsEur(sum(new Date(0)) / paid.length) : "-"
   )}</div>
 ${todo.length ? groupHTML(todo.map(([t, href, sub]) => navRow({ href, ico: "check", icoBg: "var(--brand)", title: t, sub })).join(""), { head: "Prieš paleidimą" }) : ""}
 <div class="axCols">
@@ -65,7 +65,7 @@ ${
       ? orders
           .slice(0, 5)
           .map(o =>
-            navRow({ href: `admin/uzsakymai/${o.ref}`, title: `${esc(o.ref)} · ${esc(o.name || "—")}`, sub: fmtDateTime(o.created_at), value: `${statusPill(o.status)}<b class="money">${centsEur(o.amount_total)}</b>` })
+            navRow({ href: `admin/uzsakymai/${o.ref}`, title: `${esc(o.ref)} · ${esc(o.name || "-")}`, sub: fmtDateTime(o.created_at), value: `${statusPill(o.status)}<b class="money">${centsEur(o.amount_total)}</b>` })
           )
           .join("")
       : `<p class="axRowNote">Kai pirkėjas apmokės, užsakymas atsiras čia.</p>`,

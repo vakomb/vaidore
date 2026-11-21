@@ -1,6 +1,6 @@
 /* Prekės puslapio turinys pagal kategoriją (v29, 28-story.js): paantraštė, aprašymas su paryškinimais ir „Skaityti daugiau“,
-   blokai po pirkimu – natos (segmentai), kvapo charakteris, nuotaikos juosta, žingsniai, „Kur …“ piktogramos, mėginukas,
-   pastaba, išskleidžiamos dalys. Telefone – vienas po kito; kompiuteryje – antraštė kairėje, turinys dešinėje (iki 1100 px). */
+   blokai po pirkimu - natos (segmentai), kvapo charakteris, nuotaikos juosta, žingsniai, „Kur …“ piktogramos, mėginukas,
+   pastaba, išskleidžiamos dalys. Telefone - vienas po kito; kompiuteryje - antraštė kairėje, turinys dešinėje (iki 1100 px). */
 
 /* Paantraštė po pavadinimu (kaip parfumada.lt „Namų ir tekstilės kvapas“) */
 .pdSub {
@@ -15,7 +15,7 @@
   margin-top: 10px;
 }
 
-/* Aprašymas – trumpos pastraipos, svarbiausi žodžiai paryškinti */
+/* Aprašymas - trumpos pastraipos, svarbiausi žodžiai paryškinti */
 .pdText {
   order: 10;
   margin-top: 26px;
@@ -93,7 +93,7 @@
   color: #000;
 }
 
-/* Natos: apskritimas su natos nuotrauka (natų biblioteka) arba monograma, po juo – pavadinimas */
+/* Natos: apskritimas su natos nuotrauka (natų biblioteka) arba monograma, po juo - pavadinimas */
 .ntGrid {
   --cols: 3;
   display: flex;
@@ -197,7 +197,7 @@
   outline: 2px solid var(--focus);
   outline-offset: 1px;
 }
-/* Visi lygiai – tame pačiame langelyje: aukštis nesikeičia, perjungiant niekas nešokinėja */
+/* Visi lygiai - tame pačiame langelyje: aukštis nesikeičia, perjungiant niekas nešokinėja */
 .ntPanels {
   display: grid;
   margin-top: 20px;
@@ -299,7 +299,7 @@
   height: 100%;
   object-fit: cover;
 }
-/* Kvapo linija: tikros to paties kvapo produktų nuotraukos (baltas fonas susilieja su šviesiai pilku – multiply) */
+/* Kvapo linija: tikros to paties kvapo produktų nuotraukos (baltas fonas susilieja su šviesiai pilku - multiply) */
 .mlStrip {
   display: flex;
   justify-content: center;
@@ -345,7 +345,7 @@ a.mlItem:hover img {
   color: var(--band-sub);
 }
 
-/* Žingsniai: telefone – slenkama eilė (kitos kortelės kraštas matosi), nuo planšetės – stulpeliai */
+/* Žingsniai: telefone - slenkama eilė (kitos kortelės kraštas matosi), nuo planšetės - stulpeliai */
 .useSteps {
   display: grid;
   grid-auto-flow: column;
@@ -413,7 +413,7 @@ a.mlItem:hover img {
   color: var(--ink2);
 }
 
-/* „Kur …“ – piktogramos šviesiuose apskritimuose */
+/* „Kur …“ - piktogramos šviesiuose apskritimuose */
 .icoGrid {
   --cols: 3;
   display: flex;
@@ -535,7 +535,7 @@ a.mlItem:hover img {
   margin-top: 44px;
 }
 
-/* Įsiliejimas slenkant (tik kai judesys neišjungtas – 28-story.js bindStory) */
+/* Įsiliejimas slenkant (tik kai judesys neišjungtas - 28-story.js bindStory) */
 .rv {
   opacity: 0;
   transform: translateY(18px);
@@ -559,7 +559,7 @@ a.mlItem:hover img {
   }
 }
 
-/* Planšetė: žingsniai – stulpeliais, piktogramos ir natos – iki 6 eilėje */
+/* Planšetė: žingsniai - stulpeliais, piktogramos ir natos - iki 6 eilėje */
 @media (min-width: 700px) {
   .pdSub {
     font-size: 20px;
@@ -580,7 +580,7 @@ a.mlItem:hover img {
   .useSteps[data-n="4"] {
     --n: 4;
   }
-  /* Vienodo dydžio langeliai (6 eilėje), lygiuojami kairėn – kaip antraštė */
+  /* Vienodo dydžio langeliai (6 eilėje), lygiuojami kairėn - kaip antraštė */
   .icoGrid,
   .ntGrid,
   .icoGrid[data-n],

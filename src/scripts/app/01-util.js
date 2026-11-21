@@ -1,18 +1,29 @@
-// 01 – pagalbinės funkcijos: DOM, tekstas, pinigai, vietinė atmintis.
+// 01 - pagalbinės funkcijos: DOM, tekstas, pinigai, vietinė atmintis.
 // Visi src/scripts/app/*.js sujungiami eilės tvarka į vieną IIFE (bendras scope, be import/export).
 const $ = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+// v30: ilgų brūkšnių (U+2012-2015) ir minuso ženklo (U+2212) nėra niekur - visur paprastas „-“:
+// kode, duomenų bazės tekstuose (sbRest skaitant ir rašant, setCatalog) ir išvestyje (esc, nb, eur)
+const DASH_RE = /[\u2012-\u2015\u2212]/g;
+const plain = v => String(v ?? "").replace(DASH_RE, "-");
+// Visi objekto ar masyvo tekstai - vietoje (grąžina tą patį objektą)
+const plainDeep = v => {
+  if (typeof v === "string") return plain(v);
+  if (Array.isArray(v)) for (let i = 0; i < v.length; i++) v[i] = plainDeep(v[i]);
+  else if (v && typeof v === "object") for (const k of Object.keys(v)) v[k] = plainDeep(v[k]);
+  return v;
+};
 const esc = v =>
-  String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-// Nelaužomi tarpai: „1–2 d. d.“, „30 d.“, „2 ml“, „5 val.“ niekada nelūžta per eilutę
-const nb = t => String(t ?? "").replace(/(\d) (?=d\.|ml\b|val\.|vnt\.)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)–(\d)/g, "$1\u2060–\u2060$2");
+  plain(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// Nelaužomi tarpai: „1-2 d. d.“, „30 d.“, „2 ml“, „5 val.“ niekada nelūžta per eilutę
+const nb = t => plain(t).replace(/(\d) (?=d\.|ml\b|val\.|vnt\.)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)-(\d)/g, "$1\u2060-\u2060$2");
 const fold = s =>
   String(s || "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "");
 const eurFmt = new Intl.NumberFormat("lt-LT", { style: "currency", currency: "EUR" });
-const eur = n => eurFmt.format(Math.round(Number(n || 0) * 100) / 100);
+const eur = n => plain(eurFmt.format(Math.round(Number(n || 0) * 100) / 100)); // lt-LT neigiamą sumą rašo su „-“
 const eurShort = n => (Number.isInteger(n) ? `${n} €` : eur(n));
 const plural = (n, one, few, many) => {
   const d = n % 10,
@@ -34,11 +45,11 @@ const store = {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      /* privatus režimas – tęsiame be išsaugojimo */
+      /* privatus režimas - tęsiame be išsaugojimo */
     }
   }
 };
-// Svetainės šaknis: <base href> (Vercel – „/“, GitHub Pages – „/vaidore/“, nustato tools/build-site.mjs BASE_PATH)
+// Svetainės šaknis: <base href> (Vercel - „/“, GitHub Pages - „/vaidore/“, nustato tools/build-site.mjs BASE_PATH)
 const BASE_PATH = new URL(document.baseURI).pathname.replace(/[^/]*$/, "");
 const SITE_ROOT = new URL(BASE_PATH, location.origin).href;
 const absUrl = rel => new URL(rel, SITE_ROOT).href;

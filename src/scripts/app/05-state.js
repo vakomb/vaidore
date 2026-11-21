@@ -1,9 +1,9 @@
-// 05 – būsena: krepšelis, mėgstami, pristatymas ir dovanų pakavimas (localStorage).
-// Krepšelio eilutė: { id, ml, qty } (ml = 2 – mėginukas) arba atradimų rinkinys { id: DISC.id, ml: 0, qty, picks: [id…] }.
-// Raktų nepervadinkite – jie saugomi pirkėjų telefonuose.
+// 05 - būsena: krepšelis, mėgstami, pristatymas ir dovanų pakavimas (localStorage).
+// Krepšelio eilutė: { id, ml, qty } (ml = 2 - mėginukas) arba atradimų rinkinys { id: DISC.id, ml: 0, qty, picks: [id…] }.
+// Raktų nepervadinkite - jie saugomi pirkėjų telefonuose.
 const CART_KEY = "vaidore_cart_v1";
 const FAV_KEY = "vaidore_fav_v1";
-const SHIP_KEY = "vaidore_ship_v1"; // { method, locker: { zip, name, addr, city, cc } } – paštomatas prisimenamas ir pasirinkus kurjerį
+const SHIP_KEY = "vaidore_ship_v1"; // { method, locker: { zip, name, addr, city, cc } } - paštomatas prisimenamas ir pasirinkus kurjerį
 const GIFT_KEY = "vaidore_gift_v1"; // { on, note }
 const state = {
   cart: sanitizeCart(store.get(CART_KEY, [])),
@@ -44,7 +44,7 @@ const linePrice = l => (isDisc(l.id) ? DISC.price : priceOf(BY_ID.get(l.id), l.m
 const cartCount = () => state.cart.reduce((n, l) => n + l.qty, 0);
 const cartSubtotal = () => state.cart.reduce((s, l) => s + linePrice(l) * l.qty, 0);
 const giftPrice = () => (state.gift.on && state.cart.length ? SET.gift.price : 0);
-// Nemokamo pristatymo riba skaičiuojama nuo prekių (be pakavimo) – taip pat ir serveryje
+// Nemokamo pristatymo riba skaičiuojama nuo prekių (be pakavimo) - taip pat ir serveryje
 const shipLeft = () => Math.max(0, SET.freeShippingFrom - cartSubtotal());
 const minShipping = () => Math.min(...SET.shipping.map(o => o.price));
 const shipPrice = () => {
@@ -111,7 +111,7 @@ function toggleFav(id) {
   return state.fav.has(id);
 }
 
-// Kitame skirtuke pakeistas krepšelis (pvz. apmokėta kitame lange) – atnaujiname
+// Kitame skirtuke pakeistas krepšelis (pvz. apmokėta kitame lange) - atnaujiname
 window.addEventListener("storage", e => {
   if (e.key === CART_KEY) {
     state.cart = sanitizeCart(store.get(CART_KEY, []));

@@ -1,6 +1,6 @@
-// 22 – paskyra /paskyra: prisijungimas, registracija, slaptažodžio atkūrimas; prisijungus – užsakymai (būsena, siunta,
+// 22 - paskyra /paskyra: prisijungimas, registracija, slaptažodžio atkūrimas; prisijungus - užsakymai (būsena, siunta,
 // atsiliepimas), profilis, adresas ir mėgstamas paštomatas, nuolaidos kodai, nustatymai (slaptažodis, duomenų
-// atsisiuntimas, paskyros ištrynimas – BDAR). Pirkti galima ir be paskyros.
+// atsisiuntimas, paskyros ištrynimas - BDAR). Pirkti galima ir be paskyros.
 const ACC_TABS = [
   ["uzsakymai", "Užsakymai", "box"],
   ["profilis", "Profilis", "user"],
@@ -74,7 +74,7 @@ ${
         ? `<button class="linkBtn" type="button" data-auth-mode="login">Grįžti prie prisijungimo</button>`
         : `<span>Registruodamiesi sutinkate su <a href="salygos">pirkimo sąlygomis</a> ir <a href="privatumas">privatumo politika</a>.</span>`
   }</div>
-<p class="authGuest">${glyph("bag")}Pirkti galima ir be paskyros – <a href="kvepalai" data-nav>tęsti apsipirkimą</a></p>
+<p class="authGuest">${glyph("bag")}Pirkti galima ir be paskyros - <a href="kvepalai" data-nav>tęsti apsipirkimą</a></p>
 </div>`;
   const form = $(".authForm", root);
   root.onclick = e => {
@@ -97,7 +97,7 @@ ${
       err.hidden = false;
     };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email || "")) return fail("Patikrinkite el. pašto adresą");
-    if (m !== "recover" && (f.password || "").length < 8) return fail("Slaptažodis – bent 8 simboliai");
+    if (m !== "recover" && (f.password || "").length < 8) return fail("Slaptažodis - bent 8 simboliai");
     if (m === "signup" && !f.name?.trim()) return fail("Įrašykite vardą");
     btn.disabled = true;
     try {
@@ -198,7 +198,7 @@ function openReviewForm(productId) {
   let rating = 5;
   openSheet({
     title: "Jūsų atsiliepimas",
-    html: `<form class="sheetPad reviewForm" novalidate><p class="notifyLead"><b>${esc(p.name)}</b> – atsiliepimas bus paskelbtas po peržiūros, pažymėtas „Patvirtintas pirkėjas“.</p>
+    html: `<form class="sheetPad reviewForm" novalidate><p class="notifyLead"><b>${esc(p.name)}</b> - atsiliepimas bus paskelbtas po peržiūros, pažymėtas „Patvirtintas pirkėjas“.</p>
 <div class="rateRow" role="radiogroup" aria-label="Įvertinimas">${[1, 2, 3, 4, 5].map(n => `<button type="button" role="radio" data-rate="${n}" aria-checked="${n === rating}" aria-label="${n} iš 5">★</button>`).join("")}</div>
 <label class="field"><span>Vardas (rodomas)</span><input name="name" maxlength="60" required value="${esc((auth.profile?.name || "").split(" ").map((w, i) => (i ? `${w[0] || ""}.` : w)).join(" "))}" /></label>
 <label class="field"><span>Atsiliepimas</span><textarea name="text" minlength="10" maxlength="1200" required placeholder="Kaip kvapas skamba, kiek išsilaiko, kam tinka…"></textarea></label>
@@ -283,7 +283,7 @@ function accSettings(body) {
 <section class="accDanger"><h2>Mano duomenys</h2><p class="pageSub">Atsisiųskite visus savo duomenis (profilis, užsakymai, atsiliepimai) arba ištrinkite paskyrą. Užsakymų įrašai lieka buhalterijai, bet nebebus susieti su jumis.</p>
 <div class="accActs"><button class="btn ghost" type="button" data-export>${glyph("upload")}Atsisiųsti duomenis</button><button class="btn danger" type="button" data-delete-acc>${glyph("trash")}Ištrinti paskyrą</button></div></section>`;
   bindAccForm(body, async f => {
-    if ((f.password || "").length < 8) throw new Error("Slaptažodis – bent 8 simboliai");
+    if ((f.password || "").length < 8) throw new Error("Slaptažodis - bent 8 simboliai");
     await updatePassword(f.password);
     $("form", body).reset();
   });
@@ -306,7 +306,7 @@ function accSettings(body) {
     });
     if (!ok) return;
     const r = await sbFn("shop/account", { method: "POST", body: JSON.stringify({ action: "delete" }) });
-    if (!r.ok) return toast("Nepavyko ištrinti – parašykite mums", { icon: "info" });
+    if (!r.ok) return toast("Nepavyko ištrinti - parašykite mums", { icon: "info" });
     await signOut();
     toast("Paskyra ištrinta", { icon: "check" });
     navigate("");

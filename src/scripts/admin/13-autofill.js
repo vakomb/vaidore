@@ -1,11 +1,11 @@
-// 13 – automatinis produktų pridėjimas (v15): įklijuotas prekės aprašymas (LT / PL / EN) → produkto formos laukai lietuviškai.
-// Be jokio API: taisyklės, žodynai (13-autofill-words.js) ir lietuviški šablonai. Grynas JS be DOM – tikrina tools/test-autofill.mjs.
+// 13 - automatinis produktų pridėjimas (v15): įklijuotas prekės aprašymas (LT / PL / EN) → produkto formos laukai lietuviškai.
+// Be jokio API: taisyklės, žodynai (13-autofill-words.js) ir lietuviški šablonai. Grynas JS be DOM - tikrina tools/test-autofill.mjs.
 //
 //   afParse(text, { scent, type, families }) → { lang, type, fields, auto, facts, missing, unknown }
-//     scent    – pasirinktas esamas kvapas (scents eilutė): kvapo laukai imami iš jo, tekstas papildo tik tipą, talpą, savybes
-//     type     – dabartinis formos tipas (jei tekste tipo nėra)
-//     families – leidžiamos kvapo šeimos (id); kitos – nenaudojamos
-//   Iš šaltinio imami tik faktai; aprašymas ir šūkis – savi (šablonai), be pardavėjo teiginių ir prekės ženklų.
+//     scent    - pasirinktas esamas kvapas (scents eilutė): kvapo laukai imami iš jo, tekstas papildo tik tipą, talpą, savybes
+//     type     - dabartinis formos tipas (jei tekste tipo nėra)
+//     families - leidžiamos kvapo šeimos (id); kitos - nenaudojamos
+//   Iš šaltinio imami tik faktai; aprašymas ir šūkis - savi (šablonai), be pardavėjo teiginių ir prekės ženklų.
 //   Rezultatas deterministinis: sakinių variantai parenkami pagal pavadinimą (afPick).
 
 const AF_TYPE_IDS = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"];
@@ -98,10 +98,10 @@ const AF_LABELS = {
   inspired: ["inspirowane", "inspirowany", "inspirowana", "inspiracja", "odpowiednik", "zamiennik", "inspired by", "alternative to", "dupe of", "[įi]kv[ėe]pta", "[įi]kv[ėe]ptas", "analogas", "originalas"]
 };
 const AF_LABEL_ORDER = Object.keys(AF_LABELS);
-const AF_LABEL_RE = Object.fromEntries(AF_LABEL_ORDER.map(k => [k, new RegExp(`^(?:${AF_LABELS[k].join("|")})\\s*(?:\\([^)]{0,30}\\))?\\s*[:：=\\-–—]\\s*(.*)$`, "i")]));
+const AF_LABEL_RE = Object.fromEntries(AF_LABEL_ORDER.map(k => [k, new RegExp(`^(?:${AF_LABELS[k].join("|")})\\s*(?:\\([^)]{0,30}\\))?\\s*[:：=\\-\u2013\u2014]\\s*(.*)$`, "i")]));
 const AF_LABEL_SPLIT = new RegExp(`(^|[\\s.;,)])((?:${AF_LABEL_ORDER.flatMap(k => AF_LABELS[k]).join("|")})\\s*(?:\\([^)]{0,30}\\))?\\s*[:：])`, "gi");
 
-// Tekstas → eilutės: be emoji, ženklų (✅ ❤️ ▶ •) ir brūkšnių eilučių; žinomos žymos – naujoje eilutėje
+// Tekstas → eilutės: be emoji, ženklų (✅ ❤️ ▶ •) ir brūkšnių eilučių; žinomos žymos - naujoje eilutėje
 function afLines(text) {
   let t = String(text ?? "")
     .replace(/\r/g, "")
@@ -112,13 +112,13 @@ function afLines(text) {
     .split("\n")
     .map(l =>
       l
-        .replace(/^[\s*•·\-–—>|]+/, "")
+        .replace(/^[\s*•·\-\u2013\u2014>|]+/, "")
         .replace(/\s+/g, " ")
         .trim()
     )
     .filter(l => l && !/^[-_=~.*\s]+$/.test(l));
 }
-// Žymų reikšmės: { top: ["…"], volume: ["33ml"], … } (pirmoji eilutė – pavadinimas, jei ne žyma)
+// Žymų reikšmės: { top: ["…"], volume: ["33ml"], … } (pirmoji eilutė - pavadinimas, jei ne žyma)
 function afLabeled(lines) {
   const out = {};
   const rest = [];
@@ -203,7 +203,7 @@ function afNote(raw) {
 const afSplitNotes = s =>
   String(s ?? "")
     .replace(/\s+(i|oraz|and|ir|&|ou|und)\s+/gi, ", ")
-    .split(/\s*[,;•·/|+]\s*|\s+[-–—]\s+/)
+    .split(/\s*[,;•·/|+]\s*|\s+[-\u2013\u2014]\s+/)
     .map(x => x.trim())
     .filter(x => x && x.length < 50);
 
@@ -226,13 +226,13 @@ function afFamily(group, notes) {
   }
   const all = [...notes.base, ...notes.heart, ...notes.top];
   if (!all.length) return null;
-  // Svarbiausia – bazė ir širdis: skaičiuojami atitikmenys su svoriais
+  // Svarbiausia - bazė ir širdis: skaičiuojami atitikmenys su svoriais
   const score = Object.fromEntries(AF_FAMILY_LT.map(([id]) => [id, 0]));
   const add = (list, w) => list.forEach(n => AF_FAMILY_LT.forEach(([id, re]) => re.test(n) && (score[id] += w)));
   add(notes.top, 1);
   add(notes.heart, 2);
   add(notes.base, 2);
-  if (notes.heart.some(n => AF_FAMILY_LT[2][1].test(n))) score.geliu += 2; // gėlių širdis – lemia charakterį
+  if (notes.heart.some(n => AF_FAMILY_LT[2][1].test(n))) score.geliu += 2; // gėlių širdis - lemia charakterį
   const best = Object.entries(score).sort((a, b) => b[1] - a[1])[0];
   return best[1] > 0 ? best[0] : "sviezi";
 }
@@ -276,7 +276,7 @@ function afGender(s) {
 // ── Pavadinimas ──
 function afName(title, body, brand) {
   const words = String(title || "")
-    .replace(/\s(?:[-–—]\s*)?(?:inspired by|inspirowan\w*|odpowiednik\w*|zamiennik\w*|[įi]kv[ėe]pt\w*|analog\w*)\b.*$/i, "")
+    .replace(/\s(?:[-\u2013\u2014]\s*)?(?:inspired by|inspirowan\w*|odpowiednik\w*|zamiennik\w*|[įi]kv[ėe]pt\w*|analog\w*)\b.*$/i, "")
     .replace(/\s(?:with|z|ze|su)\s.*$/i, "")
     .replace(/\([^)]*\)/g, " ")
     .replace(/\b\d+(?:[.,]\d+)?\s*(?:ml|l|g|gr|kg|szt|pcs|vnt|h|%)\b\.?/gi, " ")
@@ -288,7 +288,7 @@ function afName(title, body, brand) {
   const brandSet = new Set(afFold(brand).split(" ").filter(Boolean));
   const fbody = ` ${afFold(body)} `;
   let keep = words.filter(w => !AF_DROP_IX.has(afFold(w)) && !brandSet.has(afFold(w)) && !/^\d+$/.test(w));
-  // Pavadinimas didžiosiomis tarp kitų žodžių („Aromatinis aliejus … SAULĖS SODAS“) – imamas jis
+  // Pavadinimas didžiosiomis tarp kitų žodžių („Aromatinis aliejus … SAULĖS SODAS“) - imamas jis
   const isCaps = w => /\p{L}{2}/u.test(w) && w === w.toLocaleUpperCase("pl") && w !== w.toLocaleLowerCase("pl");
   const caps = keep.filter(isCaps);
   if (caps.length && caps.length < keep.length) {
@@ -311,9 +311,9 @@ function afName(title, body, brand) {
 const AF_RX = {
   ml: /(\d+(?:[.,]\d+)?)\s*(ml|l)\b/i,
   g: /(\d+(?:[.,]\d+)?)\s*(g|gr|gram\w*|kg)\b/i,
-  hours: /(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:h\b|godz\w*|hours?|hrs?|val\w*)/i,
-  weeks: /(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:tygod\w*|weeks?|savai\w*|sav\.)/i,
-  months: /(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:miesi\w*|months?|m[ėe]nes\w*|m[ėe]n\.)/i,
+  hours: /(\d+)(?:\s*[-\u2013]\s*(\d+))?\s*(?:h\b|godz\w*|hours?|hrs?|val\w*)/i,
+  weeks: /(\d+)(?:\s*[-\u2013]\s*(\d+))?\s*(?:tygod\w*|weeks?|savai\w*|sav\.)/i,
+  months: /(\d+)(?:\s*[-\u2013]\s*(\d+))?\s*(?:miesi\w*|months?|m[ėe]nes\w*|m[ėe]n\.)/i,
   pct: /(\d+(?:[.,]\d+)?)\s*%/,
   count: /(\d+)\s*(?:szt\.?\s*)?(?:[\p{L}]+\s+){0,3}?(?:patycz\p{L}*|pa[łl]ecz\p{L}*|sticks?|reeds?|lazdel\p{L}*)/iu
 };
@@ -345,18 +345,18 @@ const AF_WICK = [
 
 // ── Sugeneruoti laukai pagal šeimą ──
 const AF_FAMILY_TXT = {
-  geliu: { homeMood: ["Sukuria šviesią, romantišką nuotaiką.", "Namuose kvepia lyg žydinčiame sode."], kind: ["švelnus gėlių kvapas", "elegantiškas gėlių kvapas"], home: ["švelnus gėlių aromatas", "elegantiškas gėlių aromatas"], mood: ["Šviesus ir elegantiškas – švelniai gaubia ir palieka malonų pėdsaką.", "Subtilus ir švelnus, jis kuria lengvą, elegantišką įspūdį."], look: [{ liquid: "#F1C9CF", tint: "#FBF0F1" }, { liquid: "#EFC3CB", tint: "#FAEEF0" }] },
-  sviezi: { homeMood: ["Gaivina erdvę ir suteikia švaros pojūtį.", "Namuose kvepia lengvai ir švariai, lyg po lietaus."], kind: ["gaivus, šviesus kvapas", "švarus ir gaivus kvapas"], home: ["gaivus, švarus aromatas", "lengvas ir gaivus aromatas"], mood: ["Lengvas ir švarus – suteikia gaivumo ir energijos.", "Gaivus kaip ryto oras, jis palieka švarų ir šviesų įspūdį."], look: [{ liquid: "#CFE4EA", tint: "#EEF5F7" }, { liquid: "#D5E8E0", tint: "#F0F6F3" }] },
-  medienos: { homeMood: ["Kuria ramią ir jaukią atmosferą.", "Suteikia namams šilumos ir ramybės."], kind: ["elegantiškas medienos kvapas", "ramus, sodrus medienos kvapas"], home: ["šiltas medienos aromatas", "ramus medienos aromatas"], mood: ["Ramus ir pasitikintis savimi – medienos gilumas suteikia jam charakterio.", "Sodrus, bet santūrus, jis kuria tvirtą ir elegantišką įspūdį."], look: [{ liquid: "#C9A27A", tint: "#F3ECE4" }, { liquid: "#BF9C78", tint: "#F2EBE3" }] },
-  ambros: { homeMood: ["Kuria šiltą, prabangią atmosferą.", "Namai prisipildo šilumos ir jaukumo."], kind: ["šiltas, gaubiantis ambros kvapas", "sodrus ambros kvapas"], home: ["šiltas, gaubiantis ambros aromatas", "sodrus ambros aromatas"], mood: ["Sodrus ir paslaptingas – gaubiantis ir įsimintinas.", "Šiltas ir gaubiantis, jis ilgai išlieka ir palieka įsimintiną pėdsaką."], look: [{ liquid: "#D9A05B", tint: "#F7EEE2" }, { liquid: "#D49A57", tint: "#F6EDE1" }] },
-  gurmaniski: { homeMood: ["Kuria jaukią, šiltą namų atmosferą.", "Namuose kvepia jaukiai, lyg ką tik iškeptais saldumynais."], kind: ["saldus, gurmaniškas kvapas", "jaukus gurmaniškas kvapas"], home: ["jaukus, saldus aromatas", "šiltas gurmaniškas aromatas"], mood: ["Jaukus ir viliojantis – saldus, bet subtilus.", "Saldus, bet ne per saldus, jis kuria jaukumo ir artumo jausmą."], look: [{ liquid: "#C98B5A", tint: "#F6EDE4" }, { liquid: "#C4875A", tint: "#F5ECE3" }] }
+  geliu: { homeMood: ["Sukuria šviesią, romantišką nuotaiką.", "Namuose kvepia lyg žydinčiame sode."], kind: ["švelnus gėlių kvapas", "elegantiškas gėlių kvapas"], home: ["švelnus gėlių aromatas", "elegantiškas gėlių aromatas"], mood: ["Šviesus ir elegantiškas - švelniai gaubia ir palieka malonų pėdsaką.", "Subtilus ir švelnus, jis kuria lengvą, elegantišką įspūdį."], look: [{ liquid: "#F1C9CF", tint: "#FBF0F1" }, { liquid: "#EFC3CB", tint: "#FAEEF0" }] },
+  sviezi: { homeMood: ["Gaivina erdvę ir suteikia švaros pojūtį.", "Namuose kvepia lengvai ir švariai, lyg po lietaus."], kind: ["gaivus, šviesus kvapas", "švarus ir gaivus kvapas"], home: ["gaivus, švarus aromatas", "lengvas ir gaivus aromatas"], mood: ["Lengvas ir švarus - suteikia gaivumo ir energijos.", "Gaivus kaip ryto oras, jis palieka švarų ir šviesų įspūdį."], look: [{ liquid: "#CFE4EA", tint: "#EEF5F7" }, { liquid: "#D5E8E0", tint: "#F0F6F3" }] },
+  medienos: { homeMood: ["Kuria ramią ir jaukią atmosferą.", "Suteikia namams šilumos ir ramybės."], kind: ["elegantiškas medienos kvapas", "ramus, sodrus medienos kvapas"], home: ["šiltas medienos aromatas", "ramus medienos aromatas"], mood: ["Ramus ir pasitikintis savimi - medienos gilumas suteikia jam charakterio.", "Sodrus, bet santūrus, jis kuria tvirtą ir elegantišką įspūdį."], look: [{ liquid: "#C9A27A", tint: "#F3ECE4" }, { liquid: "#BF9C78", tint: "#F2EBE3" }] },
+  ambros: { homeMood: ["Kuria šiltą, prabangią atmosferą.", "Namai prisipildo šilumos ir jaukumo."], kind: ["šiltas, gaubiantis ambros kvapas", "sodrus ambros kvapas"], home: ["šiltas, gaubiantis ambros aromatas", "sodrus ambros aromatas"], mood: ["Sodrus ir paslaptingas - gaubiantis ir įsimintinas.", "Šiltas ir gaubiantis, jis ilgai išlieka ir palieka įsimintiną pėdsaką."], look: [{ liquid: "#D9A05B", tint: "#F7EEE2" }, { liquid: "#D49A57", tint: "#F6EDE1" }] },
+  gurmaniski: { homeMood: ["Kuria jaukią, šiltą namų atmosferą.", "Namuose kvepia jaukiai, lyg ką tik iškeptais saldumynais."], kind: ["saldus, gurmaniškas kvapas", "jaukus gurmaniškas kvapas"], home: ["jaukus, saldus aromatas", "šiltas gurmaniškas aromatas"], mood: ["Jaukus ir viliojantis - saldus, bet subtilus.", "Saldus, bet ne per saldus, jis kuria jaukumo ir artumo jausmą."], look: [{ liquid: "#C98B5A", tint: "#F6EDE4" }, { liquid: "#C4875A", tint: "#F5ECE3" }] }
 };
 const AF_GENDER_TXT = { moterims: " moterims", vyrams: " vyrams", unisex: ", tinkantis ir jai, ir jam" };
 const AF_CONC_TXT = {
-  EDT: "Eau de Toilette – lengvesnės koncentracijos, gaivus kvapas.",
-  EDP: "Eau de Parfum koncentracija – kvapas ilgai išlieka ant odos.",
-  Parfum: "Parfum koncentracija – sodrus ir itin ilgai išliekantis kvapas.",
-  Extrait: "Extrait de Parfum – didžiausia koncentracija, kvapas išlieka visą dieną."
+  EDT: "Eau de Toilette - lengvesnės koncentracijos, gaivus kvapas.",
+  EDP: "Eau de Parfum koncentracija - kvapas ilgai išlieka ant odos.",
+  Parfum: "Parfum koncentracija - sodrus ir itin ilgai išliekantis kvapas.",
+  Extrait: "Extrait de Parfum - didžiausia koncentracija, kvapas išlieka visą dieną."
 };
 const AF_LEVELS = { EDT: [3, 2], EDP: [4, 3], Parfum: [5, 4], Extrait: [5, 4] };
 
@@ -375,8 +375,8 @@ function afNotesSentence(f, seed) {
   const v = afPick([0, 1], seed, "notes");
   const parts =
     v === 0
-      ? [n.top.length && `viršutinės natos – ${lc(n.top)}`, n.heart.length && `širdies – ${lc(n.heart)}`, n.base.length && `bazinės – ${lc(n.base)}`]
-      : [n.top.length && `pradžioje – ${lc(n.top)}`, n.heart.length && `širdyje – ${lc(n.heart)}`, n.base.length && `${n.top.length || n.heart.length ? "o bazėje" : "bazėje"} – ${lc(n.base)}`];
+      ? [n.top.length && `viršutinės natos - ${lc(n.top)}`, n.heart.length && `širdies - ${lc(n.heart)}`, n.base.length && `bazinės - ${lc(n.base)}`]
+      : [n.top.length && `pradžioje - ${lc(n.top)}`, n.heart.length && `širdyje - ${lc(n.heart)}`, n.base.length && `${n.top.length || n.heart.length ? "o bazėje" : "bazėje"} - ${lc(n.base)}`];
   return `${afCap(parts.filter(Boolean).join(", "))}.`;
 }
 function afDescribe(f) {
@@ -385,39 +385,39 @@ function afDescribe(f) {
   const S = [];
   const a = f.attrs || {};
   if (f.type === "kvepalai") {
-    S.push(`${f.name} – ${ft ? afPick(ft.kind, seed, "kind") : "išskirtinis kvapas"}${AF_GENDER_TXT[f.gender] || ""}.`);
+    S.push(`${f.name} - ${ft ? afPick(ft.kind, seed, "kind") : "išskirtinis kvapas"}${AF_GENDER_TXT[f.gender] || ""}.`);
     S.push(afNotesSentence(f, seed));
     if (ft) S.push(afPick(ft.mood, seed, "mood"));
     S.push(AF_CONC_TXT[f.conc] || "");
   } else if (f.type === "elektriniai-difuzoriai") {
-    S.push(`${f.name} – ${f.name === "Elektrinis difuzorius" ? "aromato prietaisas" : "elektrinis aromato difuzorius"}, kuris tyliai ir tolygiai paskleidžia mėgstamą kvapą po visus namus.`);
-    const tech = [a.tank && `vandens talpa – ${a.tank} ml`, a.runtime && `veikimo laikas – iki ${a.runtime} val.`].filter(Boolean);
+    S.push(`${f.name} - ${f.name === "Elektrinis difuzorius" ? "aromato prietaisas" : "elektrinis aromato difuzorius"}, kuris tyliai ir tolygiai paskleidžia mėgstamą kvapą po visus namus.`);
+    const tech = [a.tank && `vandens talpa - ${a.tank} ml`, a.runtime && `veikimo laikas - iki ${a.runtime} val.`].filter(Boolean);
     if (tech.length) S.push(`${afCap(tech.join(", "))}`.replace(/([^.])$/, "$1."));
     if (a.light) S.push(/spalv/.test(a.light) ? `Turi LED apšvietimą (${a.light.replace(/^LED,?\s*/i, "")}), kuris sukuria jaukią nuotaiką.` : "Turi švelnų LED apšvietimą, kuris sukuria jaukią nuotaiką.");
-    S.push("Įlašinkite kelis lašus aromatinio aliejaus į vandenį – ir namai prisipildys kvapo.");
+    S.push("Įlašinkite kelis lašus aromatinio aliejaus į vandenį - ir namai prisipildys kvapo.");
     S.push(afPick(["Tinka miegamajam, svetainei ar biurui.", "Puikiai tinka miegamajam, svetainei ir darbo kambariui."], seed, "rooms"));
   } else {
     const home = ft ? afPick(ft.home, seed, "home") : "malonus aromatas";
     const intro = {
-      difuzoriai: `${f.name} – ${home} jūsų namams.`,
-      zvakes: `${f.name} – ${home} jaukiai namų atmosferai.`,
-      aliejai: `${f.name} – ${home} elektriniams difuzoriams ir drėkintuvams.`
+      difuzoriai: `${f.name} - ${home} jūsų namams.`,
+      zvakes: `${f.name} - ${home} jaukiai namų atmosferai.`,
+      aliejai: `${f.name} - ${home} elektriniams difuzoriams ir drėkintuvams.`
     }[f.type];
     S.push(intro);
     S.push(afNotesSentence(f, seed));
     if (f.type === "difuzoriai") {
       S.push("Lazdelės tolygiai sugeria kvapą ir skleidžia jį be ugnies ir elektros.");
-      if (a.sticks) S.push(`Komplekte – ${a.sticks} ${afPlural(a.sticks, "lazdelė", "lazdelės", "lazdelių")}.`);
+      if (a.sticks) S.push(`Komplekte - ${a.sticks} ${afPlural(a.sticks, "lazdelė", "lazdelės", "lazdelių")}.`);
       if (a.weeks) S.push(`Kvapo užtenka iki ${a.weeks} ${afPlural(a.weeks, "savaitės", "savaičių", "savaičių")}.`);
       S.push(afPick(["Tinka svetainei, miegamajam ar biurui.", "Puikiai tinka svetainei, prieškambariui ar vonios kambariui."], seed, "rooms"));
       S.push("Apvertus lazdeles kas kelias dienas, kvapas sustiprėja.");
     } else if (f.type === "zvakes") {
       const wax = AF_WAX.find(w => w[1] === a.wax);
       if (wax) S.push(`Žvakė pagaminta iš ${wax[2]}${a.wick ? `, su ${a.wick === "Medinė" ? "medine" : "medvilnine"} dagtimi` : ""}.`);
-      if (a.burn) S.push(`Degimo trukmė – iki ${a.burn} val.`);
+      if (a.burn) S.push(`Degimo trukmė - iki ${a.burn} val.`);
       S.push("Pirmą kartą uždekite bent valandai, kad vaškas tolygiai išsilydytų visu paviršiumi.");
     } else if (f.type === "aliejai") {
-      S.push("Užtenka kelių lašų į difuzoriaus vandenį – kvapas tolygiai pasklinda po visą patalpą.");
+      S.push("Užtenka kelių lašų į difuzoriaus vandenį - kvapas tolygiai pasklinda po visą patalpą.");
       if (a.weeks) S.push(`Vieno buteliuko užtenka iki ${a.weeks} ${afPlural(a.weeks, "savaitės", "savaičių", "savaičių")}.`);
       S.push("Skirtas tik patalpoms aromatizuoti.");
     }
@@ -425,7 +425,7 @@ function afDescribe(f) {
   }
   let text = S.filter(Boolean).join(" ");
   if (text.length < 350 && f.type === "kvepalai")
-    text += ` ${afPick(["Prieš renkantis didesnį buteliuką, verta išbandyti 2 ml mėginuką – taip geriausiai pajusite, kaip kvapas skleidžiasi ant jūsų odos.", "Kvapas ant kiekvieno žmogaus odos skleidžiasi savitai, todėl pradėti verta nuo 2 ml mėginuko."], seed, "sample")}`;
+    text += ` ${afPick(["Prieš renkantis didesnį buteliuką, verta išbandyti 2 ml mėginuką - taip geriausiai pajusite, kaip kvapas skleidžiasi ant jūsų odos.", "Kvapas ant kiekvieno žmogaus odos skleidžiasi savitai, todėl pradėti verta nuo 2 ml mėginuko."], seed, "sample")}`;
   else if (text.length < 350 && f.type === "zvakes") text += ` ${afPick(["Tinka svetainei, miegamajam ar vonios kambariui.", "Puikiai tinka vonios ritualams ar dovanai."], seed, "rooms")}`;
   else if (text.length < 350 && f.type === "aliejai") text += " Tinka svetainei, miegamajam ar biurui.";
   return text.replace(/\s+/g, " ").trim().slice(0, 1500);
@@ -454,7 +454,7 @@ function afParse(text, opts = {}) {
   fact("Kategorija", detected ? "atpažinta iš aprašymo" : "nepakeista (aprašyme nenurodyta)");
   const scented = AF_SCENTED.has(type);
 
-  // Pavadinimas: „Linia: inna (MY PINK)“ → MY PINK; kitaip – pirmoji eilutė be prekės ženklo ir rinkodaros žodžių
+  // Pavadinimas: „Linia: inna (MY PINK)“ → MY PINK; kitaip - pirmoji eilutė be prekės ženklo ir rinkodaros žodžių
   const title = rest[0] || "";
   const body = lines.filter(l => l !== title).join(" ");
   const line = first("line");
@@ -522,7 +522,7 @@ function afParse(text, opts = {}) {
     const wk = afMax(first("duration").match(AF_RX.weeks) || all.match(AF_RX.weeks)) || (afMax(first("duration").match(AF_RX.months) || all.match(AF_RX.months)) || 0) * 4;
     if (wk) attrs.weeks = wk;
   } else if (type === "zvakes") {
-    const near = all.match(/(?:palen|spalan|[śs]wiecen|burn|deg)\w*[^.\n\d]{0,20}(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:h\b|godz|hours?|hrs?|val)/i) || all.match(/(\d+)(?:\s*[-–]\s*(\d+))?\s*(?:h\b|godz\w*|hours?|hrs?|val\w*)\.?\s*(?:palen|spalan|[śs]wiecen|burn|deg)/i);
+    const near = all.match(/(?:palen|spalan|[śs]wiecen|burn|deg)\w*[^.\n\d]{0,20}(\d+)(?:\s*[-\u2013]\s*(\d+))?\s*(?:h\b|godz|hours?|hrs?|val)/i) || all.match(/(\d+)(?:\s*[-\u2013]\s*(\d+))?\s*(?:h\b|godz\w*|hours?|hrs?|val\w*)\.?\s*(?:palen|spalan|[śs]wiecen|burn|deg)/i);
     const b = afMax(first("burn").match(AF_RX.hours)) || afMax(near) || afMax(first("duration").match(AF_RX.hours));
     if (b) attrs.burn = b;
     const wx = AF_WAX.find(([re]) => re.test(first("wax") || all));
@@ -545,15 +545,15 @@ function afParse(text, opts = {}) {
   }
   for (const [k] of AF_ATTRS[type] || []) if (attrs[k] != null) auto.add(`attr:${k}`);
 
-  // Originalo kvapas – tik aiškiai parašytas
+  // Originalo kvapas - tik aiškiai parašytas
   let inspired = first("inspired");
   if (!inspired) {
-    const m = all.match(/(?:inspirowan\w*|odpowiednik\w*|zamiennik\w*|inspired by|alternative to|dupe of|[įi]kv[ėe]pt\w*|analogas)\s*(?:zapachem|zapachu|perfumami|perfum|kvapo|kvapu|by)?\s*[:\-–]?\s*[„"“]?([A-ZÀ-Ž][^.,;\n"“”]{2,60})/u);
+    const m = all.match(/(?:inspirowan\w*|odpowiednik\w*|zamiennik\w*|inspired by|alternative to|dupe of|[įi]kv[ėe]pt\w*|analogas)\s*(?:zapachem|zapachu|perfumami|perfum|kvapo|kvapu|by)?\s*[:\-\u2013]?\s*[„"“]?([A-ZÀ-Ž][^.,;\n"“”]{2,60})/u);
     inspired = m?.[1] || "";
   }
   inspired = inspired
     .replace(/[„"“”]/g, "")
-    .replace(/\s+[-–—]\s+/g, " – ")
+    .replace(/\s+[-\u2013\u2014]\s+/g, " - ")
     .trim()
     .slice(0, 120);
   if (inspired) fact("Originalo kvapas", inspired);
@@ -633,12 +633,12 @@ function afParse(text, opts = {}) {
   if (scented && !f.family) need("family", "Kvapo pobūdis");
   if (type === "kvepalai" && !fromScent && !gender) need("gender", "Kam skirta (lytis)");
   if (type === "kvepalai" && !cc.how) need("conc", "Koncentracija (patikrinkite)");
-  if (!f.sizes.length) need("sizes", type === "kvepalai" ? (ml ? `Talpa (${ml} ml – parduotuvėje tik 33 / 100 ml)` : "Talpa") : type === "zvakes" ? "Svoris" : "Talpa");
+  if (!f.sizes.length) need("sizes", type === "kvepalai" ? (ml ? `Talpa (${ml} ml - parduotuvėje tik 33 / 100 ml)` : "Talpa") : type === "zvakes" ? "Svoris" : "Talpa");
   need("price", "Kaina");
   need("stock", "Likutis");
   need("images", "Nuotraukos");
   if (scented && !f.inspired) need("inspired", "Originalo kvapas");
-  if (unknown.length) need("notes", `Natos – patikrinkite: ${unknown.slice(0, 4).join(", ")}`);
+  if (unknown.length) need("notes", `Natos - patikrinkite: ${unknown.slice(0, 4).join(", ")}`);
 
   return { lang, type, detected: !!detected, fromScent, fields: f, auto: [...auto], facts, missing, unknown };
 }

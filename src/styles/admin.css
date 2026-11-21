@@ -1,6 +1,6 @@
-/* Administravimo skydelis (/admin, v16) – iOS stilius: sugrupuoti įtraukti sąrašai, navigacijos juosta su didele antrašte,
+/* Administravimo skydelis (/admin, v16) - iOS stilius: sugrupuoti įtraukti sąrašai, navigacijos juosta su didele antrašte,
    skirtukų juosta telefone (apačioje), ikonų juosta planšetėje ir telefone gulsčiai (kairėje), šoninis meniu kompiuteryje.
-   Įkeliamas tik administratoriui (assets/admin.css). Spalvos, kampai, šešėliai – 01-tokens.css (--ax-*). */
+   Įkeliamas tik administratoriui (assets/admin.css). Spalvos, kampai, šešėliai - 01-tokens.css (--ax-*). */
 
 /* ── Parduotuvės dalių administravime nerodome ── */
 .isAdmin .hdr,
@@ -725,7 +725,7 @@ button.axRow:active {
 }
 
 /* Segmentuotas valdiklis, paieška */
-/* Produktų sąrašo filtrai (v20): kapsulės po paieška, pasirinkta – juoda su reikšme */
+/* Produktų sąrašo filtrai (v20): kapsulės po paieška, pasirinkta - juoda su reikšme */
 .axFacets {
   display: flex;
   gap: 8px;
@@ -1155,7 +1155,7 @@ button.axRow:active {
   }
 }
 
-/* Kraunant – skeleton eilutės */
+/* Kraunant - skeleton eilutės */
 .axSkel .axSkelRow {
   display: flex;
   align-items: center;
@@ -1407,7 +1407,7 @@ button.axRow:active {
   height: 44px;
 }
 
-/* Pranešimai – apačioje, virš skirtukų juostos */
+/* Pranešimai - apačioje, virš skirtukų juostos */
 .isAdmin .toastWrap {
   top: auto;
   bottom: calc(70px + var(--safeB));
@@ -2558,7 +2558,7 @@ button.axRow:active {
   font-weight: 400;
   opacity: 0.75;
 }
-/* Telefone, kai rašoma, skirtukų juosta paslepiama – klaviatūra ir juosta neuždengia lauko */
+/* Telefone, kai rašoma, skirtukų juosta paslepiama - klaviatūra ir juosta neuždengia lauko */
 @media (max-width: 699.98px) {
   .ax:has(.axMain input:not([type="checkbox"]):not([type="color"]):focus, .axMain textarea:focus) .axTabs {
     display: none;
@@ -2756,7 +2756,7 @@ button.axRow:active {
   margin: 0 auto;
 }
 
-/* Nuotaikos juosta produkto ir kvapo formose – plati peržiūra */
+/* Nuotaikos juosta produkto ir kvapo formose - plati peržiūra */
 .axMoodPrev {
   display: grid;
   gap: 8px;

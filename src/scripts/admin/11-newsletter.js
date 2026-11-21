@@ -1,5 +1,5 @@
-// 11 – Naujienlaiškis: prenumeratoriai (iš poraštės / /naujienlaiskis), CSV, laiškas visiems (shop/admin „newsletter-send“,
-// Resend; kiekviename laiške – atsisakymo nuoroda). Pirma galima išsiųsti bandomąjį laišką sau.
+// 11 - Naujienlaiškis: prenumeratoriai (iš poraštės / /naujienlaiskis), CSV, laiškas visiems (shop/admin „newsletter-send“,
+// Resend; kiekviename laiške - atsisakymo nuoroda). Pirma galima išsiųsti bandomąjį laišką sau.
 async function renderNewsletter(main, _param, seq) {
   const back = hubBack();
   main.innerHTML = pageHTML({ title: "Naujienlaiškis", back, body: loading(4) });
@@ -21,9 +21,9 @@ async function renderNewsletter(main, _param, seq) {
     actions: rows.length ? barBtn("doc", "Atsisiųsti CSV", "data-news-csv") : "",
     body: `<form class="admForm" id="newsForm" novalidate>
 <h2 class="igHead">Laiškas prenumeratoriams</h2>
-<div class="ig"><label class="field axField"><span>Tema</span><input name="subject" maxlength="150" required placeholder="Naujas kvapas – Vanor" /></label>
+<div class="ig"><label class="field axField"><span>Tema</span><input name="subject" maxlength="150" required placeholder="Naujas kvapas - Vanor" /></label>
 <label class="field axField stack"><span>Tekstas</span><textarea name="text" rows="8" maxlength="20000" required placeholder="Sveiki!&#10;&#10;…"></textarea></label></div>
-<p class="igFoot">Tuščia eilutė – nauja pastraipa. Apačioje automatiškai – nuoroda į parduotuvę ir „Atsisakyti“.</p>
+<p class="igFoot">Tuščia eilutė - nauja pastraipa. Apačioje automatiškai - nuoroda į parduotuvę ir „Atsisakyti“.</p>
 <div class="axActRow"><button class="btn ghost" type="button" data-news-test>${glyph("mail")}Bandomasis man</button><button class="btn primary" type="submit"${attr(!active.length, "disabled")}>${glyph("mail")}Siųsti ${plural(
       active.length,
       "prenumeratoriui",
@@ -39,7 +39,7 @@ ${
           r =>
             `<li data-nl="${esc(r.id)}"><span>${esc(r.email)}</span><small>${fmtDate(r.created_at)}${r.unsubscribed_at ? " · atsisakė" : r.welcomed_at ? " · patvirtinta laišku" : ""}</small><button class="roundBtn" type="button" data-nl-del aria-label="Ištrinti ${esc(r.email)}">${glyph("trash")}</button></li>`
         )
-        .join("")}</ul></div>${rows.length > 500 ? `<p class="igFoot">Rodomi 500 naujausių – visus rasite CSV.</p>` : ""}`
+        .join("")}</ul></div>${rows.length > 500 ? `<p class="igFoot">Rodomi 500 naujausių - visus rasite CSV.</p>` : ""}`
     : emptyBox("Prenumeratorių dar nėra", "Kai pirkėjai įrašys el. paštą poraštėje, jie atsiras čia.")
 }`
   });

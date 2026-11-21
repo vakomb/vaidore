@@ -36,7 +36,7 @@ h3,
 p {
   margin: 0;
 }
-/* v10: antraštės – visiškai juodos, tekstas – 75 % juodos (tamsiuose blokuose spalvą paveldi iš bloko) */
+/* v10: antraštės - visiškai juodos, tekstas - 75 % juodos (tamsiuose blokuose spalvą paveldi iš bloko) */
 :where(h1, h2, h3) {
   color: #000;
 }
@@ -117,7 +117,7 @@ svg {
     transition-duration: 0.01ms !important;
   }
 }
-/* Didžiosiomis raidėmis su tarpais – juostos, pavadinimai, žymės */
+/* Didžiosiomis raidėmis su tarpais - juostos, pavadinimai, žymės */
 .caps {
   text-transform: uppercase;
   letter-spacing: var(--caps);
