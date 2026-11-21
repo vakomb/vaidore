@@ -68,19 +68,24 @@ const SPEC_FMT = {
     return [main, rest.join(", ") || "apšvietimas"];
   },
   weeks: v => [`${v} sav.`, "kvapo užtenka"],
-  forDiffuser: () => ["Tinka", "elektriniams difuzoriams"],
   sticks: v => [`${v} vnt.`, "lazdelės"],
   burn: v => [`${v} val.`, "degimo trukmė"],
   wax: v => [String(v), "vaškas"],
   wick: v => [String(v), "dagtis"]
 };
+// Taip / ne savybės – viena aiški eilutė su varnele po kaina (v28b), ne kortelė
+const SPEC_LINE = { forDiffuser: "Tinka elektriniams difuzoriams" };
 function specsHTML(p) {
+  const lines = (ATTR_DEFS[typeOf(p)] || []).filter(([k]) => SPEC_LINE[k] && p.attrs?.[k] === true).map(([k]) => SPEC_LINE[k]);
   const specs = (ATTR_DEFS[typeOf(p)] || [])
     .map(([k]) => k)
     .filter(k => SPEC_FMT[k] && p.attrs?.[k] != null && p.attrs[k] !== "" && p.attrs[k] !== false)
     .slice(0, 3)
     .map(k => SPEC_FMT[k](p.attrs[k]));
-  return specs.length ? `<ul class="pdSpecs">${specs.map(([v, l]) => `<li><b>${esc(nb(v))}</b><span>${esc(l)}</span></li>`).join("")}</ul>` : "";
+  return (
+    lines.map(t => `<p class="pdFit">${glyph("check")}<span>${esc(t)}</span></p>`).join("") +
+    (specs.length ? `<ul class="pdSpecs">${specs.map(([v, l]) => `<li><b>${esc(nb(v))}</b><span>${esc(l)}</span></li>`).join("")}</ul>` : "")
+  );
 }
 function sampleNoteHTML() {
   return `<p class="pdNote" data-sample-note>${glyph("return")}<span>${esc(creditText())}${

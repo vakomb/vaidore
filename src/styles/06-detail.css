@@ -397,6 +397,37 @@
   line-height: 1.3;
   color: var(--ink3);
 }
+/* Taip / ne savybė (v28b) – viena eilutė: juodas apskritimas su varnele ir stambus tekstas */
+.pdFit {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin: 14px 0 0;
+  font-size: min(18px, 4.5vw);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: #000;
+}
+.pdFit svg {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+}
+.pdFit span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pdFit + .pdSpecs {
+  margin-top: 12px;
+}
 /* „Įdėti į krepšelį“ (v25) – dvi eilutės: veiksmas ir pristatymo laikas su žaliu „gyvu“ tašku */
 .pdAdd {
   flex-direction: column;

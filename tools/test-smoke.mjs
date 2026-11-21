@@ -59,7 +59,7 @@ const OILS = variant.products.slice(0, 7).map((p, i) => ({
   name: `Aromatinis aliejus ${p.name.toUpperCase()}`,
   type: "aliejai",
   sizes: [{ ml: 10, price: 4.99 }],
-  attrs: { weeks: 4 },
+  attrs: { weeks: 4, forDiffuser: true },
   sample: 0,
   rank: 200 + i,
   badge: null,
@@ -760,6 +760,14 @@ async function run(viewport) {
     (await v.page.locator("#productRoot .pdForms .pdLabel").first().textContent()) === "Tinkamas elektrinis difuzorius" &&
       (await v.page.locator('#productRoot .formRow a[href="elektriniai-difuzoriai/el-difuzorius"]').count()) === 1,
     "aliejaus puslapyje – „Tinkamas elektrinis difuzorius“"
+  );
+  // v28b: „Tinka elektriniams difuzoriams“ – viena eilutė su varnele (ne kortelė), savybių kortelės – atskirai
+  const fit = v.page.locator("#productRoot .pdFit");
+  check(
+    (await fit.textContent()) === "Tinka elektriniams difuzoriams" &&
+      (await fit.evaluate(el => el.getBoundingClientRect().height)) < 40 &&
+      !(await v.page.locator("#productRoot .pdSpecs").textContent()).includes("Tinka"),
+    "aliejus: „Tinka elektriniams difuzoriams“ – vienoje eilutėje"
   );
   await open(v.page, `${B}kvepalai/arven`);
   await v.page.waitForSelector("#productRoot [data-notify]");
