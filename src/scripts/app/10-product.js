@@ -13,8 +13,32 @@ function galleryHTML(p) {
     )
     .join("")}</div>${imgs.length > 1 ? `<div class="galDots" aria-hidden="true">${imgs.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}`;
 }
-const shipLine = () =>
-  `Išsiunčiame per ${nb(SET.dispatch || "1–2 d. d.")} · Nemokamai nuo ${eurShort(SET.freeShippingFrom)} · Grąžinimas per ${SET.returnDays || 14} d.`;
+// Pristatymo laikas ant „Į krepšelį“ (v25): išsiuntimas (SET.dispatch) + greičiausias pristatymo būdas (SET.shipping[].days),
+// pvz. „1–2 d. d.“ + „1–2 d. d.“ → „Pristatysime per 2–4 d. d.“. Neatpažinus – „Išsiunčiame per …“ (tik tikri duomenys).
+function deliveryEta() {
+  const rng = s => {
+    const m = String(s || "").match(/(\d+)\s*(?:[–-]\s*(\d+))?/);
+    return m ? [Number(m[1]), Number(m[2] || m[1])] : null;
+  };
+  const d = rng(SET.dispatch || "1–2 d. d.");
+  const ship = (SET.shipping || []).map(o => rng(o.days)).filter(Boolean).sort((a, b) => a[1] - b[1] || a[0] - b[0])[0];
+  if (!d || !ship) return `Išsiunčiame per ${SET.dispatch || "1–2 d. d."}`;
+  const lo = d[0] + ship[0],
+    hi = d[1] + ship[1];
+  return `Pristatysime per ${lo === hi ? lo : `${lo}–${hi}`} d. d.`;
+}
+// „Įdėti į krepšelį“ – dvi eilutės: veiksmas ir pristatymo laikas su žaliu „gyvu“ tašku
+const addBtnHTML = () => `<span class="addMain">Įdėti į krepšelį</span><span class="addEta"><i class="liveDot" aria-hidden="true"></i>${esc(nb(deliveryEta()))}</span>`;
+// „Tas pats kvapas“ – kitos to paties kvapo prekės: nuotrauka, pavadinimas, talpa ir kaina, mygtukas „+“ (į krepšelį iškart)
+function formRowHTML(x) {
+  const ml = defaultMl(x);
+  const sold = !inStock(x);
+  return `<div class="formRow"><a class="formLink" href="${productUrl(x)}" data-nav><span class="art${x.images?.length ? " hasPhoto" : ""}" style="--tint:${x.look.tint}">${artImg(x)}</span><span class="formTxt"><b>${esc(
+    x.name
+  )}</b><small>${esc(TYPE.get(typeOf(x)).one)} · ${esc(sizeLabel(ml, x))}</small><span class="formPrice money">${sold ? "Išparduota" : eur(priceOf(x, ml))}</span></span></a>${
+    sold ? "" : `<button class="formAdd" type="button" data-form-add="${esc(x.id)}" aria-label="Įdėti į krepšelį: ${esc(x.name)}">${glyph("plus")}</button>`
+  }</div>`;
+}
 function sampleNoteHTML() {
   return `<p class="pdNote" data-sample-note>${glyph("return")}<span>${esc(creditText())}${
     DISC ? ` <button class="linkBtn" type="button" data-disc>Arba ${DISC.count} mėginukai už ${eur(DISC.price)}</button>` : ""
@@ -48,7 +72,7 @@ function productPageHTML(p, ml) {
   const rate = ratingOf(p);
   const buyBtn = sold
     ? `<button class="btn primary" type="button" data-notify="${p.id}">${glyph("bell")}Pranešti, kai bus</button>`
-    : `<button class="btn primary" type="button" data-add>Įdėti į krepšelį</button>`;
+    : `<button class="btn primary pdAdd" type="button" data-add>${addBtnHTML()}</button>`;
   // Natos – trys eilutės (kaip parfumada.lt): „Viršutinės natos: …“
   const noteRow = (lab, list) => `<div><dt>${lab}</dt><dd>${list.map(esc).join(" · ")}</dd></div>`;
   const notes = `<dl class="pdNotes">${noteRow("Viršutinės natos", p.notes.top)}${noteRow("Širdies natos", p.notes.heart)}${noteRow("Bazinės natos", p.notes.base)}</dl>`;
@@ -88,12 +112,11 @@ ${
 }
 ${sold ? "" : `<p class="pdLabel pdLabQty">Kiekis</p>`}
 <div class="pdBuy" data-buy-anchor>${sold ? "" : qtyHTML()}${buyBtn}</div>
-<p class="pdShip">${glyph("truck")}<span>${esc(shipLine())}</span></p>
 ${
   forms.length
-    ? `<div class="pdForms"><p class="pdLabel">Šis kvapas taip pat</p><div class="pdFormLinks">${forms
-        .map(x => `<a class="chip" href="${productUrl(x)}" data-nav>${esc(TYPE.get(typeOf(x)).one)}</a>`)
-        .join("")}</div></div>`
+    ? `<section class="pdForms"><h2 class="pdLabel">${isPerfume(p) && forms.every(x => !isPerfume(x)) ? "Šis kvapas jūsų namams" : "Tas pats kvapas kitomis formomis"}</h2><div class="formList">${forms
+        .map(formRowHTML)
+        .join("")}</div></section>`
     : ""
 }
 <div class="pdActs">${heartBtn(p, "pdAct")}<button class="pdAct" type="button" data-share="${p.id}">${glyph("share")}<span>Dalintis</span></button></div>
@@ -190,11 +213,25 @@ function bindProduct() {
       pdState.qty = 1;
       $$("[data-qty]", root).forEach(o => (o.textContent = "1"));
       $$("[data-add]", root).forEach(b => {
-        b.innerHTML = `${glyph("check")}Įdėta`;
+        b.dataset.html ||= b.innerHTML;
+        b.innerHTML = `<span class="addMain">${glyph("check")}Įdėta</span>`;
         b.classList.add("added");
       });
-      setTimeout(() => $$("[data-add]", root).forEach(b => ((b.innerHTML = "Įdėti į krepšelį"), b.classList.remove("added"))), 1400);
+      setTimeout(() => $$("[data-add]", root).forEach(b => ((b.innerHTML = b.dataset.html || addBtnHTML()), b.classList.remove("added"))), 1400);
       openMiniCart({ added: `${p.name} · ${sizeLabel(pdState.ml, p)}` });
+      return;
+    }
+    // „Tas pats kvapas“: „+“ – kita forma (difuzorius, žvakė…) iškart į krepšelį, numatyta talpa
+    const fa = t?.closest("[data-form-add]");
+    if (fa) {
+      const x = BY_ID.get(fa.dataset.formAdd);
+      if (!x || !inStock(x)) return;
+      const ml = defaultMl(x);
+      addToCart(x.id, ml, 1);
+      fa.classList.add("added");
+      fa.innerHTML = glyph("check");
+      setTimeout(() => ((fa.innerHTML = glyph("plus")), fa.classList.remove("added")), 1400);
+      openMiniCart({ added: `${x.name} · ${sizeLabel(ml, x)}` });
     }
   });
 }

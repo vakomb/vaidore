@@ -395,10 +395,21 @@ async function run(viewport) {
   );
   check(
     (await page.locator('#productRoot .pdCat a[href="zvakes"]').textContent()) === "Kvapnios žvakės" &&
-      (await page.locator("#productRoot .pdFormLinks a").allTextContents()).join() === "Kvepalai,Namų kvapų difuzorius" &&
-      (await page.locator('#productRoot .pdFormLinks a[href="kvepalai/vanor"]').count()) === 1,
-    "žvakės puslapis: kategorijos nuoroda ir „Šis kvapas taip pat“ (kvepalai, difuzorius)"
+      (await page.locator("#productRoot .pdForms .pdLabel").textContent()) === "Tas pats kvapas kitomis formomis" &&
+      (await page.locator("#productRoot .formRow").count()) === 2 &&
+      (await page.locator('#productRoot .formRow a.formLink[href="kvepalai/vanor"]').count()) === 1 &&
+      (await page.locator("#productRoot .formRow .formLink .art img, #productRoot .formRow .formLink .art svg").count()) === 2,
+    "žvakės puslapis: kategorijos nuoroda; „Tas pats kvapas kitomis formomis“ – 2 prekės su nuotraukomis (v25)"
   );
+  // „+“ prie kitos formos – iškart į krepšelį (numatyta talpa)
+  const cartBefore = await page.evaluate(() => JSON.parse(localStorage.getItem("vaidore_cart_v1") || "[]").length);
+  await page.locator('#productRoot [data-form-add="vanor"]').click();
+  check(
+    await until(async () => (await page.evaluate(() => JSON.parse(localStorage.getItem("vaidore_cart_v1") || "[]").some(l => l.id === "vanor" && l.ml === 33))) && cartBefore >= 0),
+    "„+“ prie kitos formos – į krepšelį (VANOR 33 ml)"
+  );
+  await page.evaluate(() => localStorage.setItem("vaidore_cart_v1", "[]"));
+  await page.keyboard.press("Escape");
   await open(page, `${A}elektriniai-difuzoriai/${DEVICE.id}`);
   await page.waitForSelector("#productRoot [data-add]");
   check(
@@ -476,6 +487,10 @@ async function run(viewport) {
   check((await page.locator("#productRoot h1").textContent()).includes("Vanor"), "kvapo puslapis: pavadinimas");
   const ord = await page.evaluate(() => ["pdPrice", "pdBuy", "pdDesc"].map(c => document.querySelector(`#productRoot .${c}`).getBoundingClientRect().top));
   check(ord[0] < ord[1] && ord[1] < ord[2], "kvapo puslapis: kaina ir „Į krepšelį“ – prieš aprašymą (v23)");
+  const eta = await page.locator("#productRoot .pdBuy [data-add] .addEta").textContent();
+  check(/^Pristatysime per \d+(–\d+)?\s?d\.\s?d\.$/.test(eta.replace(/\u00a0/g, " ").replace(/\u2060/g, "")) && (await page.locator("#productRoot .pdBuy [data-add] .liveDot").count()) === 1 && (await page.locator("#productRoot .pdShip").count()) === 0, `„Įdėti į krepšelį“ – su pristatymo laiku (${eta}), be teksto po mygtuku (v25)`);
+  const fl = await page.locator("#productRoot .pdForms .pdLabel").textContent().catch(() => "");
+  check(fl === "Šis kvapas jūsų namams", `kvepalų puslapyje – „Šis kvapas jūsų namams“ (${fl})`);
   await page.locator("#productRoot .pdActs [data-fav]").click();
   check(await until(async () => (await page.locator('[data-badge="fav"]').first().textContent()) === "1"), "širdelė kvapo puslapyje → mėgstami (1)");
   check(
