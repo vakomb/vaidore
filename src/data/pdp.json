@@ -21,7 +21,7 @@
   },
   "difuzoriai": {
     "sub": "Namų kvapas su lazdelėmis",
-    "notes": { "on": true, "title": "Pagrindinės natos" },
+    "notes": { "on": true, "title": "Kvapo natos" },
     "mood": { "on": true },
     "steps": {
       "on": true,
@@ -49,7 +49,7 @@
   },
   "zvakes": {
     "sub": "Kvapni žvakė namams",
-    "notes": { "on": true, "title": "Pagrindinės natos" },
+    "notes": { "on": true, "title": "Kvapo natos" },
     "mood": { "on": true },
     "steps": {
       "on": true,
@@ -65,7 +65,7 @@
   },
   "aliejai": {
     "sub": "Aromatinis aliejus difuzoriui",
-    "notes": { "on": true, "title": "Pagrindinės natos" },
+    "notes": { "on": true, "title": "Kvapo natos" },
     "mood": { "on": true },
     "steps": {
       "on": true,

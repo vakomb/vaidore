@@ -207,10 +207,7 @@ const TIERS = [
 ];
 function notesBlockHTML(p, cfg) {
   if (!blockOn(cfg.notes) || !TYPE.get(typeOf(p)).scented) return "";
-  if (!isPerfume(p)) {
-    const list = mainNotes(p);
-    return list.length ? blockHTML("pbNotes", cfg.notes.title || "Pagrindinės natos", noteGridHTML(list)) : "";
-  }
+  // v30c: visoms kvapnioms prekėms - visos natos (viršutinės, širdies, bazinės)
   const tiers = TIERS.filter(([k]) => p.notes[k]?.length);
   if (!tiers.length) return "";
   if (tiers.length === 1) return blockHTML("pbNotes", cfg.notes.title || "Kvapo natos", noteGridHTML(p.notes[tiers[0][0]]));
