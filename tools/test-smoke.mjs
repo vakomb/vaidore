@@ -441,6 +441,9 @@ async function run(viewport) {
       (await page.locator("#productRoot .pbTraits, #productRoot .pdTry").count()) === 0,
     "difuzoriaus puslapis: natos, „Kaip naudoti“ (3), „Kur pastatyti“ (6), pastaba; be kvepalų blokų (v29)"
   );
+  // v30b: pagrindinės natos - tikros ingredientų nuotraukos (iškirptos iš Vaidore produktų nuotraukų), visos skirtingos
+  const mainSrc = await page.locator("#productRoot .pbNotes .ntArt img").evaluateAll(a => a.map(i => i.getAttribute("src")));
+  check(mainSrc.length === 3 && new Set(mainSrc).size === 3 && mainSrc.every(x => x.startsWith("img/natos/")), "v30b: 3 pagrindinės natos - su skirtingomis tikromis nuotraukomis");
   check(
     await page.evaluate(() => {
       const st = document.querySelector("#productRoot .useSteps");
@@ -654,9 +657,10 @@ async function run(viewport) {
   await page.keyboard.press("ArrowRight");
   check((await seg.locator('[aria-selected="true"]').textContent()) === "Bazinės" && (await onNotes()).join() === vanor.notes.base.join(), "natos: klaviatūra (→) - „Bazinės“");
   check(
-    (await page.locator("#productRoot .ntPanel.on .nt:has-text('Mediena') .ntArt img").getAttribute("src")) === "img/natos/kedras.webp" &&
-      (await page.locator("#productRoot .ntPanel.on .nt:has-text('Džiovinti vaisiai') .ntArt i").count()) === 1,
-    "natos: ingredientas iš tikrų produktų nuotraukų (numatytoji biblioteka), be nuotraukos - tvarkinga monograma"
+    (await page.locator("#productRoot .ntPanel.on .nt:has-text('Mediena') .ntArt img").getAttribute("src")) === "img/natos/medienos-natos.webp" &&
+      (await page.locator("#productRoot .ntPanel.on .nt:has-text('Džiovinti vaisiai') .ntArt img").getAttribute("src")) === "img/natos/dziovinti-vaisiai.webp" &&
+      (await page.locator("#productRoot .ntPanel .nt:has-text('Imbieras') .ntArt i").count()) === 1,
+    "natos: ingredientai iš tikrų produktų nuotraukų (numatytoji biblioteka, v30b), be nuotraukos - tvarkinga monograma"
   );
   // Kvapo linija - tikros to paties kvapo produktų nuotraukos (be įkeltos nuotaikos nuotraukos)
   check(

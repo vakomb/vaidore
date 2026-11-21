@@ -292,6 +292,9 @@ dviem stulpeliais, centre iki 1100 px: antraštė kairėje, turinys dešinėje.
   Vaidore produktų nuotraukų; `window.VAIDORE_NOTES`), bazėje – `note_media` (papildo ir perrašo). Paieška (`noteMedia`):
   tikslus pavadinimas, kitaip – pagrindinis žodis („Madagaskaro vanilė“ → „Vanilė“, „Jazminas sambac“ → „Jazminas“).
   Be nuotraukos – monograma. Apskritime nuotrauka užpildo visą plotą, baltas fonas susilieja (`mix-blend-mode: multiply`).
+  v30b: 40 nuotraukų iš 10 kvapų aliejų nuotraukų (vienodas iškirpimas: ingredientas centre, be buteliuko, 360 px WebP);
+  ingredientas pavadintas pagal to kvapo originalo natas (pvz. INVIDORE mediena - gvajako mediena, BACADORE mediena su
+  sakų lašais - kėnių derva). `notes.json` - pagrindiniai pavadinimai ir sinonimai; `check.mjs` tikrina failus.
 - **Tekstai pagal tipą** – `src/data/pdp.json` (`window.VAIDORE_PDP`, `pdpOf`) + `settings.pdp[tipas]` (tik skirtumai).
 - Įsiliejimas slenkant – `bindStory` (IntersectionObserver, tik `opacity` ir `transform`, vieną kartą; be judesio – jei
   „Reduce motion“). Katalogo objektai nekeičiami (natų žemėlapis `NOTE_IMG`, `SCENT_INFO` – atskirai), kad atnaujinus

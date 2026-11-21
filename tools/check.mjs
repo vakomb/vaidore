@@ -71,6 +71,21 @@ for (const f of fs.readdirSync(path.join(root, "src/styles")).filter(f => f.ends
       });
 }
 
+// v30b: natų biblioteka (src/data/notes.json) - kiekviena nuotrauka yra, pavadinimai nesikartoja, kiekvienas failas naudojamas
+{
+  const lib = JSON.parse(fs.readFileSync(path.join(root, "src/data/notes.json"), "utf8"));
+  const key = s => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+  const seen = new Set();
+  for (const n of lib) {
+    if (!n?.name || !/^img\/natos\/[a-z0-9-]+\.webp$/.test(n.image || "")) fail(`notes.json: netinkamas įrašas ${JSON.stringify(n)}`);
+    else if (!fs.existsSync(path.join(root, "src/public", n.image))) fail(`notes.json: ${n.name} - nėra failo ${n.image}`);
+    if (seen.has(key(n.name))) fail(`notes.json: pasikartoja „${n.name}“`);
+    seen.add(key(n.name));
+  }
+  const used = new Set(lib.map(n => n.image.split("/").pop()));
+  for (const f of fs.readdirSync(path.join(root, "src/public/img/natos"))) if (!used.has(f)) fail(`img/natos/${f}: nenaudojamas notes.json`);
+}
+
 // 2. JS sintaksė (programėlė kaip vienas scope)
 const html = buildApp();
 const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
