@@ -129,5 +129,8 @@
   { "name": "Kaktusų žiedai", "image": "img/natos/kaktusu-ziedai.webp" },
   { "name": "Kaktuso žiedai", "image": "img/natos/kaktusu-ziedai.webp" },
   { "name": "Rožių pumpurai", "image": "img/natos/roziu-pumpurai.webp" },
-  { "name": "Juzu", "image": "img/natos/juzu.webp" }
+  { "name": "Juzu", "image": "img/natos/juzu.webp" },
+  { "name": "Irisas", "image": "img/natos/irisas.webp" },
+  { "name": "Irisai", "image": "img/natos/irisas.webp" },
+  { "name": "Irisų šaknys", "image": "img/natos/irisas.webp" }
 ]
