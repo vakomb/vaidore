@@ -494,11 +494,11 @@
 .pdForms {
   order: 8;
 }
-.pdActs {
-  order: 9;
-}
 .pdText {
   order: 10;
+}
+.pdActs {
+  order: 11;
 }
 .pdLegal {
   order: 13;
@@ -554,33 +554,59 @@
   font-size: 19.5px;
 }
 /* „Į mėgstamus“ · „Dalintis“ - ramios teksto nuorodos po pirkimu (ne ant nuotraukos) */
+/* Mėgstami / dalintis (v31) - po aprašymu, du lygūs kontūriniai mygtukai */
 .pdActs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 22px;
-  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 24px;
 }
 .pdAct {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px var(--drawerLine);
   color: #000;
   font-size: 16px;
   letter-spacing: 0.03em;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.42s var(--spring);
+}
+.pdAct:active {
+  transform: scale(0.97);
+  transition-duration: 0.08s;
+}
+@media (hover: hover) {
+  .pdAct:hover {
+    background: var(--ax-hover);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+  }
 }
 .pdAct svg {
   width: 20px;
   height: 20px;
+  flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.7;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+.pdAct.pop svg {
+  animation: vdHeartPop 0.5s var(--spring);
 }
 .pdAct[data-fav]::after {
   content: "Į mėgstamus";
 }
 .pdAct[data-fav][aria-pressed="true"]::after {
   content: "Mėgstamas";
+}
+.pdAct[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px #000;
 }
 .pdAct[aria-pressed="true"] svg {
   fill: #e11d48;

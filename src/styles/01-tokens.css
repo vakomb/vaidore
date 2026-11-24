@@ -108,6 +108,9 @@
   --press: 0.975;
 
   --gap: 16px;
+  --drawerW: clamp(296px, 78vw, 400px); /* šoniniai langai (meniu, mini krepšelis) telefone - ~3/4 ekrano (v31) */
+  --drawerR: 22px;
+  --drawerLine: rgba(0, 0, 0, 0.12); /* kontūrinės dėžutės šoniniuose languose (kaip pristatymo juosta) */
   --pad: 20px; /* puslapio kraštai: 20 px telefone, 40 px kompiuteryje (09-desktop.css) */
   --maxW: 1280px;
   --maxWide: 1360px; /* kompiuteryje: header'is, pradžios skyriai, kvapo puslapis (v17) */

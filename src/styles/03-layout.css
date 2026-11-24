@@ -446,7 +446,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.28);
+  background: rgba(15, 23, 42, 0.32);
   animation: vdFade 0.25s ease both;
 }
 .drawerWrap.closing::before {
@@ -457,9 +457,11 @@
   top: 0;
   bottom: 0;
   left: 0;
-  width: 100vw;
+  width: var(--drawerW);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  border-radius: 0 var(--drawerR) var(--drawerR) 0;
   background: #fff;
   box-shadow: var(--elev-3);
   outline: none;
@@ -469,7 +471,7 @@
 .drawerWrap.right .drawer {
   left: auto;
   right: 0;
-  width: min(420px, 100vw);
+  border-radius: var(--drawerR) 0 0 var(--drawerR);
   animation-name: vdDrawerR;
 }
 .drawerWrap.closing .drawer {
@@ -506,21 +508,37 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: calc(var(--hdrH) + var(--safeT));
-  padding: var(--safeT) 10px 0 14px;
-  border-bottom: 1px solid var(--line);
+  gap: 12px;
+  min-height: calc(64px + var(--safeT));
+  padding: var(--safeT) 12px 0 20px;
 }
 .drawerHead h2 {
-  font-size: 18px;
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.drawerHead .logo svg.wordmark {
+  height: 19px;
+}
+/* Uždaryti - vienodas abiejuose languose: apvalus, švelnus fonas */
+.drawerHead .iconBtn {
+  width: 40px;
+  height: 40px;
+  background: var(--ax-fill);
+}
+.drawerHead .iconBtn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
 }
 .drawerBody {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 16px 0 24px;
+  padding: 6px 0 24px;
 }
 .drawerFoot {
-  padding: 14px var(--pad) calc(14px + var(--safeB));
+  padding: 14px 20px calc(14px + var(--safeB));
   border-top: 1px solid var(--line);
   background: #fff;
 }
@@ -528,29 +546,22 @@
   display: grid;
   gap: 12px;
 }
-/* Šoninis meniu (v17) - kaip iOS programėlė: pilkas fonas, baltos sugrupuotos eilutės su plonais skyrikliais */
-#drawer {
-  background: var(--ax-bg);
-}
-#drawer .drawerHead {
-  border-bottom: 0;
-  background: var(--ax-bg);
-}
+/* Šoninis meniu (v31) - toks pat kaip mini krepšelis: baltas, sąrašas su plonais skyrikliais, kontūrinės dėžutės */
 #drawer .drawerBody {
-  padding: 4px 0 28px;
+  padding: 6px 0 28px;
 }
 .navSearch {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: calc(100% - 2 * var(--pad));
-  height: 46px;
-  margin: 0 var(--pad) 16px;
+  width: calc(100% - 40px);
+  height: 48px;
+  margin: 0 20px 18px;
   padding: 0 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--ax-fill);
   color: var(--ink3);
-  font-size: 16.5px;
+  font-size: 16px;
   letter-spacing: 0.01em;
   text-align: left;
 }
@@ -564,28 +575,32 @@
 .mAcct {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 0 var(--pad) 22px;
-  padding: 12px 14px;
-  border-radius: var(--ax-r);
-  background: var(--ax-card);
+  gap: 12px;
+  margin: 0 20px 24px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px var(--drawerLine);
   color: #000;
+  transition: background-color 0.15s ease;
+}
+.mAcct:active {
+  background: var(--ax-press);
 }
 .mAvatar {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 54px;
-  height: 54px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: var(--brand);
   color: #fff;
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 500;
 }
 .mAvatar svg {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   stroke-width: 1.5;
 }
 .mAcctTxt {
@@ -596,14 +611,15 @@
 }
 .mAcctTxt b {
   overflow: hidden;
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .mAcctTxt small {
   color: var(--ink3);
-  font-size: 14px;
+  font-size: 13.5px;
+  line-height: 1.35;
 }
 .mAcct > svg,
 .mRow > svg {
@@ -615,7 +631,7 @@
 }
 /* Skyriaus pavadinimas virš grupės */
 .mHead {
-  margin: 0 calc(var(--pad) + 16px) 7px;
+  margin: 0 20px 2px;
   color: var(--ink3);
   font-size: 13px;
   font-weight: 500;
@@ -623,12 +639,9 @@
   text-transform: uppercase;
 }
 .mGroup {
-  margin: 0 var(--pad) 24px;
+  margin: 0 0 22px;
   padding: 0;
-  overflow: hidden;
   list-style: none;
-  border-radius: var(--ax-r);
-  background: var(--ax-card);
 }
 .mGroup li {
   position: relative;
@@ -637,10 +650,10 @@
   content: "";
   position: absolute;
   top: 0;
-  left: var(--sepL, 16px);
-  right: 0;
+  left: var(--sepL, 20px);
+  right: 20px;
   height: 1px;
-  background: var(--ax-sep);
+  background: var(--line);
 }
 .mGroup li:has(.mIco) + li::before,
 .mGroup li:has(.mIco) {
@@ -649,9 +662,9 @@
 .mRow {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 50px;
-  padding: 6px 14px 6px 16px;
+  gap: 14px;
+  min-height: 54px;
+  padding: 4px 18px 4px 20px;
   color: #000;
   font-size: 17px;
   letter-spacing: 0.01em;
@@ -664,16 +677,14 @@
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: var(--brand);
-  color: #fff;
+  width: 24px;
+  height: 24px;
+  color: #000;
 }
 .mIco svg {
-  width: 18px;
-  height: 18px;
-  stroke-width: 1.7;
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.6;
 }
 .mTxt {
   flex: 1;
@@ -701,8 +712,8 @@
 .navTiles {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0 var(--pad) 24px;
+  gap: 8px;
+  margin: 6px 20px 26px;
   padding: 0;
   list-style: none;
 }
@@ -713,10 +724,10 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  min-height: 96px;
+  min-height: 92px;
   padding: 14px 6px 12px;
-  border-radius: var(--ax-r);
-  background: var(--ax-card);
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px var(--drawerLine);
   color: #000;
   font-size: 13.5px;
   font-weight: 500;
@@ -735,16 +746,13 @@
 }
 /* Apačia: kiek liko iki nemokamo pristatymo */
 #drawer .drawerFoot {
-  gap: 8px;
-  border-top: 1px solid var(--ax-sep);
-  background: var(--ax-bg);
+  gap: 10px;
 }
 .navShip {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.02em;
   color: var(--ink3);
 }

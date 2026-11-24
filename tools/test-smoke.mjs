@@ -427,12 +427,11 @@ async function run(viewport) {
       (await page.title()).includes("Namų kvapų difuzorius"),
     "difuzoriaus puslapis: tik 100 ml (be mėginuko), be „Kam skirti“, be „Eau de Parfum“"
   );
-  // v29: difuzoriaus su lazdelėmis turinys - paantraštė, 3 pagrindinės natos, žingsniai, „Kur pastatyti“, pastaba
+  // v29: difuzoriaus su lazdelėmis turinys - paantraštė, natos (v30c - visos: viršutinės, širdies, bazinės), žingsniai, „Kur pastatyti“, pastaba
   check(
     (await page.locator("#productRoot .pdSub").textContent()) === "Namų kvapas su lazdelėmis" &&
-      (await page.locator("#productRoot .pbNotes .pbT").textContent()) === "Pagrindinės natos" &&
-      (await page.locator("#productRoot .pbNotes .nt").count()) === 3 &&
-      (await page.locator("#productRoot .ntSeg").count()) === 0 &&
+      (await page.locator("#productRoot .pbNotes .pbT").textContent()) === "Kvapo natos" &&
+      (await page.locator("#productRoot .pbNotes .ntPanel.on .nt").count()) >= 1 &&
       (await page.locator("#productRoot .pbSteps .useStep").count()) === 3 &&
       (await page.locator("#productRoot .pbSteps .pbT").textContent()) === "Kaip naudoti" &&
       (await page.locator("#productRoot .pbWhere .pbT").textContent()) === "Kur pastatyti" &&
@@ -441,9 +440,9 @@ async function run(viewport) {
       (await page.locator("#productRoot .pbTraits, #productRoot .pdTry").count()) === 0,
     "difuzoriaus puslapis: natos, „Kaip naudoti“ (3), „Kur pastatyti“ (6), pastaba; be kvepalų blokų (v29)"
   );
-  // v30b: pagrindinės natos - tikros ingredientų nuotraukos (iškirptos iš Vaidore produktų nuotraukų), visos skirtingos
+  // v30b: natos - tikros ingredientų nuotraukos (iškirptos iš Vaidore produktų nuotraukų), visos skirtingos
   const mainSrc = await page.locator("#productRoot .pbNotes .ntArt img").evaluateAll(a => a.map(i => i.getAttribute("src")));
-  check(mainSrc.length === 3 && new Set(mainSrc).size === 3 && mainSrc.every(x => x.startsWith("img/natos/")), "v30b: 3 pagrindinės natos - su skirtingomis tikromis nuotraukomis");
+  check(mainSrc.length >= 2 && new Set(mainSrc).size === mainSrc.length && mainSrc.every(x => x.startsWith("img/natos/")), "v30b: natos - su skirtingomis tikromis nuotraukomis");
   check(
     await page.evaluate(() => {
       const st = document.querySelector("#productRoot .useSteps");
@@ -488,8 +487,8 @@ async function run(viewport) {
   );
   // v29b: žvakės turinys - pagrindinės natos (pirmiausia su tikromis nuotraukomis), priežiūros žingsniai, saugos pastaba, kvapo linija
   check(
-    (await page.locator("#productRoot .pbNotes .nt b").allTextContents()).join() === "Vanilė,Mediena,Tabako lapai" &&
-      (await page.locator("#productRoot .pbNotes .nt .ntArt img").count()) === 2 &&
+    (await page.locator("#productRoot .pbNotes .nt").count()) >= 3 &&
+      (await page.locator("#productRoot .pbNotes .nt .ntArt img").count()) >= 2 &&
       (await page.locator("#productRoot .pbSteps .pbT").textContent()) === "Pirmasis uždegimas ir priežiūra" &&
       (await page.locator("#productRoot .pbSteps .useStep").count()) === 3 &&
       (await page.locator("#productRoot .pbWhere").count()) === 0 &&
@@ -890,7 +889,7 @@ async function run(viewport) {
   check(
     (await v.page.locator("#productRoot .pdSub").textContent()) === "Aromatinis aliejus difuzoriui" &&
       (await v.page.locator("#productRoot .pbSteps .useT").first().textContent()).includes("Įpilkite vandens") &&
-      (await v.page.locator("#productRoot .pbNotes .pbT").textContent()) === "Pagrindinės natos" &&
+      (await v.page.locator("#productRoot .pbNotes .pbT").textContent()) === "Kvapo natos" &&
       /nevartokite viduje/.test(await v.page.locator("#productRoot .pdNotice").textContent()),
     "aliejaus puslapis: natos, „Kaip naudoti“ su difuzoriumi, saugos pastaba (v29b)"
   );

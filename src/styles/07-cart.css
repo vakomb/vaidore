@@ -212,35 +212,89 @@
   margin-top: 32px;
 }
 
-/* Mini krepšelis (šoninis langas iš dešinės) */
+/* Mini krepšelis (šoninis langas iš dešinės, v31 - ~3/4 ekrano, dydžiai pritaikyti siauresniam langui) */
 .mini .drawerBody {
-  padding: 4px 20px 16px;
+  padding: 6px 20px 16px;
 }
 .mini .ship {
-  margin-top: 12px;
+  padding: 14px 16px;
+}
+.mini .shipTxt {
+  gap: 8px;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+.mini .shipTxt svg {
+  width: 20px;
+  height: 20px;
+}
+.mini .shipBar {
+  margin-top: 10px;
 }
 .mini .line {
-  grid-template-columns: 80px minmax(0, 1fr) auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  column-gap: 14px;
+  row-gap: 12px;
+  padding: 20px 0;
 }
 .mini .line .art {
-  width: 80px;
+  width: 72px;
+}
+.mini .lineName b,
+.mini .lineName a {
+  font-size: 16px;
+  letter-spacing: 0.04em;
+}
+.mini .lineName small {
+  margin-top: 4px;
+  font-size: 14.5px;
+}
+.mini .linePrice {
+  font-size: 16.5px;
+  letter-spacing: 0.04em;
+}
+.mini .step {
+  height: 46px;
+  border-radius: 15px;
+}
+.mini .stepBtn {
+  width: 42px;
+  height: 46px;
+}
+.mini .step output {
+  font-size: 17px;
+}
+.mini .empty {
+  padding: 48px 4px 32px;
+}
+.mini .empty h3 {
+  font-size: 23px;
+}
+.mini .empty p {
+  font-size: 16px;
 }
 .miniTotal {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 14px;
-  font-size: 19px;
+  margin-bottom: 12px;
+  font-size: 17px;
   font-weight: 400;
 }
 .miniTotal b {
-  font-size: 23px;
+  font-size: 20px;
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 .miniActs {
   display: grid;
   gap: 8px;
+}
+.mini .btn {
+  min-height: 52px;
+  padding: 0 16px;
+  font-size: 16px;
+  letter-spacing: 0.05em;
 }
 
 /* Krepšelio puslapio viršus - kaip parfumada */
