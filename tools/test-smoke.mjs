@@ -659,8 +659,8 @@ async function run(viewport) {
     (await page.locator("#productRoot .ntPanel.on .nt:has-text('Mediena') .ntArt img").getAttribute("src")) === "img/natos/medienos-natos.webp" &&
       (await page.locator("#productRoot .ntPanel.on .nt:has-text('Džiovinti vaisiai') .ntArt img").getAttribute("src")) === "img/natos/dziovinti-vaisiai.webp" &&
       (await page.locator("#productRoot .ntPanel .nt:has-text('Imbieras') .ntArt img").getAttribute("src")) === "img/natos/imbieras.webp" &&
-      (await page.locator("#productRoot .ntPanel .nt:has-text('Tabako žiedai') .ntArt i").count()) === 1,
-    "natos: ingredientai iš tikrų produktų nuotraukų (numatytoji biblioteka, v30b), be nuotraukos - tvarkinga monograma"
+      (await page.locator("#productRoot .ntPanel .nt:has-text('Tabako žiedai') .ntArt img").getAttribute("src")) === "img/natos/tabako-ziedai.webp",
+    "natos: ingredientų nuotraukos iš numatytosios bibliotekos (v30b, v31e)"
   );
   // Kvapo linija - tikros to paties kvapo produktų nuotraukos (be įkeltos nuotaikos nuotraukos)
   check(
