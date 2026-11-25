@@ -262,7 +262,7 @@ async function run(viewport) {
       const a = document.querySelector("#homeTiles .tileArt").getBoundingClientRect();
       return { full: t.filter(r => r.left >= 0 && r.right <= innerWidth + 0.5).length, ratio: a.height / a.width };
     });
-    check(tl.full === 2 && tl.ratio > 1 && tl.ratio < 1.15, `pradžia telefone: matomos 2 kategorijos (+ trečios dalis), beveik kvadratinės (${tl.full}, ${tl.ratio.toFixed(2)})`);
+    check(tl.full === 1 && tl.ratio > 1 && tl.ratio < 1.15, `pradžia telefone (v32e): didelė kategorijos kortelė (+ kitos dalis), beveik kvadratinė (${tl.full}, ${tl.ratio.toFixed(2)})`);
   }
   check((await page.locator("#homeRails .band").count()) >= 4, "pradžia: skyriai juostose (naujienos, moterims, vyrams, unisex)");
   const noteOk = await page.evaluate(async () => {
@@ -360,7 +360,7 @@ async function run(viewport) {
       insp: !!insp && insp.getBoundingClientRect().top >= art.getBoundingClientRect().bottom && insp.getBoundingClientRect().bottom <= c.querySelector(".cardPrice").getBoundingClientRect().top && !c.querySelector(".cardTxt .cardInsp"),
       price: Number(getComputedStyle(price).fontWeight) >= 600 && parseFloat(getComputedStyle(price).fontSize) >= 20,
       lines: getComputedStyle(sub).borderTopWidth === "0px" && getComputedStyle(sub).borderBottomWidth === "1px",
-      fonts: parseFloat(getComputedStyle(c.querySelector(".cardName")).fontSize) >= 21 && parseFloat(getComputedStyle(head.querySelector(".inspTxt")).fontSize) >= 17.5 && parseFloat(getComputedStyle(sub.querySelector(".bandLine")).fontSize) >= 18 && parseFloat(getComputedStyle(sub.querySelector(".bandMore")).fontSize) >= 18 && parseFloat(getComputedStyle(r.closest(".hsec").querySelector(".band")).fontSize) >= 22,
+      fonts: parseFloat(getComputedStyle(c.querySelector(".cardName")).fontSize) >= 23 && parseFloat(getComputedStyle(head.querySelector(".inspTxt")).fontSize) >= 19 && parseFloat(getComputedStyle(price).fontSize) >= 24 && parseFloat(getComputedStyle(sub.querySelector(".bandLine")).fontSize) >= 17 && parseFloat(getComputedStyle(sub.querySelector(".bandMore")).fontSize) >= 18 && parseFloat(getComputedStyle(r.closest(".hsec").querySelector(".band")).fontSize) >= 22,
       gap: Math.round(sub.getBoundingClientRect().top - r.closest(".hsec").querySelector(".band").getBoundingClientRect().bottom),
       even: top(".art") === 1 && top(".cardName") === 1 && top(".cardPrice") === 1
     };
@@ -378,7 +378,7 @@ async function run(viewport) {
     const cw = await rail.evaluate(r => r.children[0].getBoundingClientRect().width / innerWidth);
     check(g.full === 1 && g.part === 1 && g.nav !== "none" && cw > 0.7, `pradžios karuselė telefone: didelė kortelė (${Math.round(cw * 100)} %) ir kitos dalis, rodyklės (${g.full}+${g.part})`);
     const tp = await page.evaluate(() => [...document.querySelectorAll("#homeTiles .tile")].filter(t => { const x = t.getBoundingClientRect(); return x.left < innerWidth - 1 && x.right > innerWidth + 1; }).length);
-    check(tp === 1 || (await page.locator("#homeTiles .tile").count()) <= 2, "pradžia telefone: matosi trečios kategorijos dalis");
+    check(tp === 1 || (await page.locator("#homeTiles .tile").count()) <= 1, "pradžia telefone: matosi kitos kategorijos dalis");
     await rail.evaluate(r => r.scrollTo({ left: 0, behavior: "auto" }));
   }
   await shot(page, `${tag}-pradzia`);

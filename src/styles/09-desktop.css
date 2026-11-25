@@ -18,7 +18,7 @@
     scroll-padding: 0 var(--pad);
   }
   .rail .cardName {
-    font-size: 22px;
+    font-size: 24px;
   }
   .rail .inspTxt {
     font-size: 16.5px;
@@ -101,7 +101,8 @@
     margin-top: 22px;
   }
   .catTiles {
-    grid-auto-columns: calc((100% - 3 * 14px) / 3.4);
+    --tileFs: 18px;
+    grid-auto-columns: calc((100% - 2 * 14px) / 2.6);
     gap: 0 14px;
   }
   /* Kai plytelių mažiau nei 4 - jos telpa ir yra centre */
@@ -461,9 +462,9 @@
   /* Plytelės - iki 5 telpa vienoje eilėje (ne platesnės nei 246 px, centre); daugiau - slenkama eilė, kurioje
      matosi kitos plytelės dalis (v21) */
   .catTiles {
-    --tileFs: 16px;
+    --tileFs: 19px;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 246px);
+    grid-auto-columns: minmax(0, 300px);
     justify-content: center;
     margin: 0;
     padding: 2px 0 6px;
@@ -483,7 +484,7 @@
     scroll-padding: 0;
   }
   .rail .cardName {
-    font-size: 23px;
+    font-size: 25px;
   }
   .railNav {
     margin-top: 8px;
