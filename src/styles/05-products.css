@@ -709,9 +709,9 @@
 .rail .art {
   border-radius: var(--r-photo);
 }
-/* Pradžios karuselės (v32) - kortelė kaip iOS programėlėje: pavadinimas → originalas „Įkvėpti …“ → nuotrauka → kaina.
+/* Pradžios karuselės (v32c) - kortelė kaip iOS programėlėje: nuotrauka → pavadinimas → originalas „Įkvėpti …“ → kaina.
    Kortelės eilutės - bendros visai karuselei (subgrid): trumpas ir ilgas pavadinimas, su originalu ar be jo -
-   nuotraukos ir kainos visose kortelėse vienoje linijoje, o tuščios vietos rezervuojama tik tiek, kiek reikia */
+   pavadinimai, originalai ir kainos visose kortelėse vienoje linijoje, tuščios vietos - tik tiek, kiek reikia */
 .cardHead {
   display: flex;
   flex-direction: column;
@@ -738,8 +738,11 @@
   display: grid;
   grid-row: span 3;
   grid-template-rows: subgrid;
-  row-gap: 10px;
+  row-gap: 8px;
   align-content: start;
+}
+.card.nameTop .cardHead {
+  padding-top: 4px;
 }
 .card.nameTop .cardTxt {
   justify-content: flex-start;

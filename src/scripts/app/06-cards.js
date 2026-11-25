@@ -30,19 +30,19 @@ function cardPriceHTML(p, sample) {
 }
 // Originalas „Įkvėpti …“ (v18) arba šūkis, jei originalo nėra
 const cardInspHTML = p => `<span class="cardInsp">${inspiredHTML(p) || `<span class="cardTag">${esc(p.tagline || keyNotes(p).join(" · "))}</span>`}</span>`;
-// Pavadinimas virš nuotraukos (pradžios karuselės, v31g): visas prekės pavadinimas vienodu stiliumi („Aromatinis aliejus JADORE“),
-// iki 2 eilučių; v32 - po juo originalas „Įkvėpti …“, po nuotrauka - tik kaina. Eilučių aukščiai bendri visai karuselei
-// (subgrid, 05-products.css) - nuotraukos ir kainos visose kortelėse vienoje linijoje
+// Pradžios karuselės (v32c): nuotrauka → pavadinimas (visas, vienodu stiliumi - „Aromatinis aliejus JADORE“, iki 2 eilučių)
+// → originalas „Įkvėpti …“ → kaina. Eilučių aukščiai bendri visai karuselei (subgrid, 05-products.css) - pavadinimai,
+// originalai ir kainos visose kortelėse vienoje linijoje
 const cardHeadHTML = p => `<div class="cardHead"><span class="cardName">${esc(p.name)}</span>${cardInspHTML(p)}</div>`;
 function cardHTML(p, opts = {}) {
   const sample = !!opts.sample;
   const sold = !inStock(p);
   const rate = ratingOf(p);
   const top = !!opts.top;
-  return `<article class="card${sold ? " sold" : ""}${top ? " nameTop" : ""}">${top ? cardHeadHTML(p) : ""}
+  return `<article class="card${sold ? " sold" : ""}${top ? " nameTop" : ""}">
 <div class="art${p.images?.length ? ` hasPhoto${isPerfume(p) ? " isPerf" : ""}` : ""}" style="--tint:${p.look.tint}">${artImg(p)}${SET.cards?.badges !== false ? badgePill(p) : ""}${
     opts.heart !== false && SET.cards?.heart !== false ? heartBtn(p) : ""
-  }</div>
+  }</div>${top ? cardHeadHTML(p) : ""}
 <div class="cardTxt">${top ? "" : `<span class="cardName">${esc(p.name)}</span>${cardInspHTML(p)}`}<span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
     rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""
   }</div>
