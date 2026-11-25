@@ -130,8 +130,8 @@
   background: var(--brand);
 }
 
-/* ── Skyriai (v32): pavadinimas - juodoje juostoje per visą plotį, iškart po ja baltame fone (be linijų) - paantraštė ir
-   „Peržiūrėti viską“ su judančiu pabraukimu. Kompaktiški tarpai, visi skyriai vienodi (pradžia, „Jums gali patikti“). ── */
+/* ── Skyriai (v32): pavadinimas - juodoje juostoje per visą plotį, iškart po ja baltame fone (be viršutinės linijos) -
+   paantraštė ir „Peržiūrėti viską“ su judančiu pabraukimu, apačioje - plona linija. Kompaktiški tarpai, visi skyriai vienodi (pradžia, „Jums gali patikti“). ── */
 .hsec {
   margin-top: 18px;
 }
@@ -168,13 +168,14 @@
   width: calc(100% - 2 * var(--pad));
   max-width: calc(var(--maxW) - 2 * var(--pad));
   margin: 0 auto;
-  padding: 12px 8px 0;
+  padding: 12px 8px 14px;
+  border-bottom: 1px solid var(--lineSoft);
   background: #fff;
   text-align: center;
 }
 .bandLine {
   margin: 0;
-  font-size: 16.5px;
+  font-size: 19px;
   font-weight: 500;
   line-height: 1.35;
   letter-spacing: 0.01em;
@@ -190,7 +191,7 @@
   margin: -4px -4px -8px;
   padding: 4px 4px 8px;
   color: var(--ink);
-  font-size: 14.5px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: 0.04em;
@@ -699,7 +700,7 @@
 
 /* Karuselėje - stambūs, stori pavadinimai, paveikslas - kvadratas */
 .rail .cardName {
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 700;
   letter-spacing: 0.03em;
   white-space: normal;
@@ -769,21 +770,22 @@
   height: 44px;
   border-radius: 9px;
 }
-/* Po pavadinimu (v32) - kompaktiškiau: 34 px nuotrauka, viena eilutė */
+/* Po pavadinimu (v32) - 38 px nuotrauka, 17,5 px tekstas, viena eilutė */
 .rail .cardHead .cardInsp {
   min-height: 0;
   margin-top: 0;
 }
 .rail .cardHead .insp {
-  gap: 8px;
+  gap: 9px;
 }
 .rail .cardHead .inspPh {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: 8px;
 }
 .rail .cardHead .inspTxt {
   -webkit-line-clamp: 1;
+  font-size: 17.5px;
 }
 .rail .inspTxt,
 .insp-pd .inspTxt {

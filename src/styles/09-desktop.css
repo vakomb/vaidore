@@ -18,7 +18,7 @@
     scroll-padding: 0 var(--pad);
   }
   .rail .cardName {
-    font-size: 20px;
+    font-size: 22px;
   }
   .rail .inspTxt {
     font-size: 16.5px;
@@ -76,10 +76,10 @@
     justify-content: center;
     gap: 6px 0;
     margin-top: 0;
-    padding: 16px 8px 0;
+    padding: 16px 8px 18px;
   }
   .bandLine {
-    font-size: 18.5px;
+    font-size: 21px;
   }
   .bandLine + .bandMore {
     margin-left: 16px;
@@ -95,7 +95,7 @@
     background: var(--lineSoft);
   }
   .bandMore {
-    font-size: 15.5px;
+    font-size: 17px;
   }
   .hsec > .wrap > .railWrap:first-child {
     margin-top: 22px;
@@ -483,7 +483,7 @@
     scroll-padding: 0;
   }
   .rail .cardName {
-    font-size: 21px;
+    font-size: 23px;
   }
   .railNav {
     margin-top: 8px;

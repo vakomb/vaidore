@@ -359,12 +359,13 @@ async function run(viewport) {
     return {
       insp: !!insp && insp.getBoundingClientRect().bottom <= art.getBoundingClientRect().top && !c.querySelector(".cardTxt .cardInsp"),
       price: Number(getComputedStyle(price).fontWeight) >= 600 && parseFloat(getComputedStyle(price).fontSize) >= 20,
-      lines: getComputedStyle(sub).borderTopWidth === "0px" && getComputedStyle(sub).borderBottomWidth === "0px",
+      lines: getComputedStyle(sub).borderTopWidth === "0px" && getComputedStyle(sub).borderBottomWidth === "1px",
+      fonts: parseFloat(getComputedStyle(c.querySelector(".cardName")).fontSize) >= 21 && parseFloat(getComputedStyle(head.querySelector(".inspTxt")).fontSize) >= 17.5 && parseFloat(getComputedStyle(sub.querySelector(".bandLine")).fontSize) >= 19,
       gap: Math.round(sub.getBoundingClientRect().top - r.closest(".hsec").querySelector(".band").getBoundingClientRect().bottom),
       even: top(".art") === 1 && top(".cardPrice") === 1
     };
   });
-  check(v32.insp && v32.price && v32.lines && v32.gap === 0 && v32.even, `pradžia (v32): originalas virš nuotraukos, ryški kaina, antraštė be linijų, kortelės lygios (${JSON.stringify(v32)})`);
+  check(v32.insp && v32.price && v32.lines && v32.fonts && v32.gap === 0 && v32.even, `pradžia (v32): originalas virš nuotraukos, ryški kaina, be viršutinės linijos (apatinė lieka), stambūs šriftai, kortelės lygios (${JSON.stringify(v32)})`);
   if (mobile && viewport.width < 700) {
     // v21b: didelė kortelė (kaip parfumada.lt) ir kitos dalis dešinėje; rodyklės ir „1/N“
     const rail = page.locator("#homeRails .rail").first();
