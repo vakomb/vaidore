@@ -89,13 +89,15 @@ function railHTML(cards) {
     "chev-left"
   )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
 }
-// Skyriaus antraštė (v22): juoda juosta - pavadinimas ir po juo paantraštė su „Peržiūrėti viską ›“ (vienas blokas)
+// Skyriaus antraštė (v31f, kaip parfumada.lt): pavadinimas - juodoje juostoje, po ja baltame fone tarp plonų linijų -
+// paantraštė ir „Peržiūrėti viską“ su judančiu pabraukimu (.bandMore)
 function bandHTML(title, line, href) {
-  const sub = line || href ? `<p class="bandSub">${line ? `<span>${esc(line)}</span>` : ""}${href ? `<a href="${esc(href)}" data-nav>Peržiūrėti viską${glyph("chev-right")}</a>` : ""}</p>` : "";
+  const more = href ? `<a class="bandMore" href="${esc(href)}" data-nav><span>Peržiūrėti viską</span>${glyph("chev-right")}</a>` : "";
+  const sub = line || href ? `<div class="bandSub">${line ? `<p class="bandLine">${esc(line)}</p>` : ""}${more}</div>` : "";
   return `<div class="bandBox"><h2 class="band">${esc(title)}</h2>${sub}</div>`;
 }
 function railSecHTML({ id, title, line, href, list }) {
-  return `<section class="hsec"${id ? ` data-rail="${esc(id)}"` : ""}>${bandHTML(title, line, href)}<div class="wrap">${railHTML(list.map(p => cardHTML(p, { heart: false })).join(""))}</div></section>`;
+  return `<section class="hsec"${id ? ` data-rail="${esc(id)}"` : ""}>${bandHTML(title, line, href)}<div class="wrap">${railHTML(list.map(p => cardHTML(p, { heart: false, top: true })).join(""))}</div></section>`;
 }
 // Karuselės (v21): visur matosi dalis kitos kortelės (telefone ~2,3, planšetėje ~3,4, kompiuteryje ~4,5) - aišku,
 // kad galima slinkti. Rodyklės (nuo 700 px) slenka per visas matomas korteles; „1/N“ - puslapiai.

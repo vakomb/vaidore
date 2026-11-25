@@ -64,18 +64,41 @@
     margin-left: 0;
     font-size: 16.5px;
   }
+  /* v31f: paantraštė ir „Peržiūrėti viską“ - vienoje eilutėje, tarp jų plona vertikali linija */
   .band {
-    min-height: 65px;
-    font-size: 31px;
-  }
-  .bandBox {
-    padding: 14px var(--pad) 15px;
+    min-height: 76px;
+    font-size: 36px;
   }
   .bandSub {
     flex-direction: row;
     flex-wrap: wrap;
-    margin-top: 4px;
-    font-size: 16px;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px 0;
+    margin-top: 28px;
+    padding: 20px 8px 22px;
+  }
+  .bandLine {
+    font-size: 23px;
+  }
+  .bandLine + .bandMore {
+    margin-left: 20px;
+    padding-left: 24px;
+  }
+  .bandLine + .bandMore::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    bottom: 12px;
+    left: 0;
+    width: 1px;
+    background: var(--lineSoft);
+  }
+  .bandMore {
+    font-size: 18px;
+  }
+  .hsec > .wrap > .railWrap:first-child {
+    margin-top: 30px;
   }
   .catTiles {
     grid-auto-columns: calc((100% - 3 * 14px) / 3.4);

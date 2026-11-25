@@ -490,7 +490,9 @@ check(
 );
 await page.click('[data-note-f="be"]');
 check(await until(async () => (await page.locator("[data-note-open]").count()) > 0 && (await page.locator("[data-note-open] .ntThumb img").count()) === 0), "natos: filtras „Be nuotraukos“");
-await page.click('[data-note-open="Imbieras"]');
+// Pirmoji nata be nuotraukos (biblioteka pildosi - konkretus pavadinimas neįrašomas)
+const noPic = await page.locator("[data-note-open]").first().getAttribute("data-note-open");
+await page.click(`[data-note-open="${noPic}"]`);
 await page.waitForSelector('[data-pane="note"]:not([hidden]) [data-note-pick]');
 await page.click("[data-note-pick]");
 await page.waitForSelector('[data-pane="pick"]:not([hidden]) .ntPick');
@@ -511,16 +513,16 @@ await page.locator("[data-zoom-in]").evaluate(el => {
 check((await page.locator("[data-crop] img").evaluate(el => el.style.transform)) !== tf0, "natos: iškirpimas - tempiama ir didinama");
 await page.click("[data-crop-save]");
 check(
-  await until(() => sb.db.note_media.some(n => n.name === "Imbieras" && /natos\/imbieras/.test(n.image)) && sb.uploads.some(u => u.path.includes("natos/imbieras"))),
+  await until(() => sb.db.note_media.some(n => n.name === noPic && /natos\//.test(n.image)) && sb.uploads.some(u => u.path.includes("natos/"))),
   "natos: iškirpta iš produkto nuotraukos, įkelta ir išsaugota bibliotekoje"
 );
 check(
-  await until(async () => (await page.locator('[data-pane="note"]:not([hidden]) .ntBigArt img').count()) === 1 && (await page.locator('[data-note-open="Imbieras"]').count()) === 0),
+  await until(async () => (await page.locator('[data-pane="note"]:not([hidden]) .ntBigArt img').count()) === 1 && (await page.locator(`[data-note-open="${noPic}"]`).count()) === 0),
   "natos: nauja nuotrauka iškart matoma, nata dingo iš „Be nuotraukos“"
 );
 await page.click("[data-note-rm]");
 await page.click("[data-confirm-ok]");
-check(await until(() => !sb.db.note_media.some(n => n.name === "Imbieras")), "natos: nuotrauka pašalinta");
+check(await until(() => !sb.db.note_media.some(n => n.name === noPic)), "natos: nuotrauka pašalinta");
 // Produktas → „Puslapio turinys“: paantraštė ir nuotaikos juosta; kvapas - nuotaikos juosta visoms formoms
 sb.db.products.find(x => x.id === "vanor").description = "Švelnus vanilės kvapas \u2013 jaukiems vakarams \u2014 visada.";
 await page.goto(`${BASE}admin/kvapai/vanor`);

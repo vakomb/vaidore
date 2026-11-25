@@ -337,10 +337,15 @@ async function run(viewport) {
     check(await until(async () => (await nav.locator(".railPage").textContent()) !== before), `karuselė: rodyklė „pirmyn“ (${before} → kitas puslapis)`);
   }
   check((await page.locator("#homeRails .card [data-fav]").count()) === 0, "pradžia: karuselių kortelėse širdelių nėra");
-  // v22: pavadinimas ir paantraštė - viename juodame bloke; be įrašytos paantraštės - automatinė, su „Peržiūrėti viską“
-  const heads = await page.locator("#homeRails .hsec").evaluateAll(a => a.map(s => [!!s.querySelector(".bandBox .band"), !!s.querySelector(".bandBox .bandSub span"), !s.querySelector(".secLine")]));
-  check(heads.length && heads.every(h => h.every(Boolean)), "pradžia: kiekvieno skyriaus antraštė su paantrašte, be linijų");
-  check((await page.locator('#homeRails .bandSub a', { hasText: "Peržiūrėti viską" }).count()) >= 3, "pradžia: „Peržiūrėti viską“ skyrių antraštėse");
+  // v31f: pavadinimas - juodoje juostoje, po ja paantraštė ir „Peržiūrėti viską“ (kiekviename skyriuje)
+  const heads = await page.locator("#homeRails .hsec").evaluateAll(a =>
+    a.map(s => [!!s.querySelector(".bandBox .band"), !!s.querySelector(".bandSub .bandLine"), !!s.querySelector(".bandSub .bandMore[href]"), getComputedStyle(s.querySelector(".bandSub")).backgroundColor !== getComputedStyle(s.querySelector(".band")).backgroundColor])
+  );
+  check(heads.length && heads.every(h => h.every(Boolean)), "pradžia: kiekviename skyriuje - juosta, paantraštė baltame fone ir „Peržiūrėti viską“");
+  check((await page.locator("#homeRails .bandMore span").first().evaluate(el => getComputedStyle(el).animationName)) === "bandSweep", "pradžia: „Peržiūrėti viską“ - judantis pabraukimas");
+  // v31f: pavadinimas virš nuotraukos (rūšis + vardas), kortelės apačioje vardas nekartojamas
+  const top = await page.locator("#homeRails .rail .card").first().evaluate(c => [c.firstElementChild.className, c.querySelectorAll(".cardName").length, c.querySelector(".cardHead").getBoundingClientRect().bottom <= c.querySelector(".art").getBoundingClientRect().top]);
+  check(top[0] === "cardHead" && top[1] === 1 && top[2], `pradžia: pavadinimas virš nuotraukos (${top.join(", ")})`);
   const ri = await page.locator("#homeRails .rail .inspTxt").first().evaluate(el => [getComputedStyle(el.querySelector(".inspBrand")).display, parseFloat(getComputedStyle(el).fontSize)]);
   check(ri[0] === "inline" && ri[1] >= 16, `pradžia: originalas vienoje eilutėje, stambiau (${ri.join(", ")})`);
   if (mobile && viewport.width < 700) {

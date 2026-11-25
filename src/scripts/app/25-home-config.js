@@ -90,11 +90,15 @@ function railLine(r) {
   if (q.category) return CATEGORY.get(q.category)?.description?.split(/[.!?]/)[0] || "Kolekcija";
   return RAIL_LINES[q.type && q.type !== "kvepalai" ? q.type : q.gender || q.type || "kvepalai"] || "";
 }
-// „Peržiūrėti“ nuoroda: nustatyta ranka arba sudaroma iš taisyklės (tie patys filtrai kaip katalogo puslapyje)
+// „Peržiūrėti“ nuoroda: nustatyta ranka arba sudaroma iš taisyklės (tie patys filtrai kaip katalogo puslapyje);
+// rankinis skyrius (v31f) - bendro tipo puslapis, mišrus - „Visos prekės“
 function railHref(r) {
   if (r.href === "none") return "";
   if (r.href) return r.href;
-  if (r.mode === "manual") return "";
+  if (r.mode === "manual") {
+    const types = new Set((r.ids || []).map(id => BY_ID.get(id)).filter(Boolean).map(typeOf));
+    return types.size === 1 ? [...types][0] : "visos-prekes";
+  }
   const q = r.rule || {};
   if (q.sale) return "nuolaidos";
   if (q.category) return `kategorija/${q.category}`;
