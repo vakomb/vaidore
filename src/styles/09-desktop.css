@@ -66,8 +66,8 @@
   }
   /* v32: paantraštė ir „Peržiūrėti viską“ - vienoje eilutėje iškart po juosta, tarp jų plona vertikali linija */
   .band {
-    min-height: 62px;
-    font-size: 29px;
+    min-height: 68px;
+    font-size: 34px;
   }
   .bandSub {
     flex-direction: row;
@@ -79,7 +79,7 @@
     padding: 16px 8px 18px;
   }
   .bandLine {
-    font-size: 21px;
+    font-size: 24px;
   }
   .bandLine + .bandMore {
     margin-left: 16px;
@@ -88,14 +88,14 @@
   .bandLine + .bandMore::before {
     content: "";
     position: absolute;
-    top: 6px;
-    bottom: 11px;
+    top: 7px;
+    bottom: 12px;
     left: 0;
     width: 1px;
     background: var(--lineSoft);
   }
   .bandMore {
-    font-size: 17px;
+    font-size: 19px;
   }
   .hsec > .wrap > .railWrap:first-child {
     margin-top: 22px;

@@ -360,7 +360,7 @@ async function run(viewport) {
       insp: !!insp && insp.getBoundingClientRect().top >= art.getBoundingClientRect().bottom && insp.getBoundingClientRect().bottom <= c.querySelector(".cardPrice").getBoundingClientRect().top && !c.querySelector(".cardTxt .cardInsp"),
       price: Number(getComputedStyle(price).fontWeight) >= 600 && parseFloat(getComputedStyle(price).fontSize) >= 20,
       lines: getComputedStyle(sub).borderTopWidth === "0px" && getComputedStyle(sub).borderBottomWidth === "1px",
-      fonts: parseFloat(getComputedStyle(c.querySelector(".cardName")).fontSize) >= 21 && parseFloat(getComputedStyle(head.querySelector(".inspTxt")).fontSize) >= 17.5 && parseFloat(getComputedStyle(sub.querySelector(".bandLine")).fontSize) >= 19,
+      fonts: parseFloat(getComputedStyle(c.querySelector(".cardName")).fontSize) >= 21 && parseFloat(getComputedStyle(head.querySelector(".inspTxt")).fontSize) >= 17.5 && parseFloat(getComputedStyle(sub.querySelector(".bandLine")).fontSize) >= 18 && parseFloat(getComputedStyle(sub.querySelector(".bandMore")).fontSize) >= 18 && parseFloat(getComputedStyle(r.closest(".hsec").querySelector(".band")).fontSize) >= 22,
       gap: Math.round(sub.getBoundingClientRect().top - r.closest(".hsec").querySelector(".band").getBoundingClientRect().bottom),
       even: top(".art") === 1 && top(".cardName") === 1 && top(".cardPrice") === 1
     };
