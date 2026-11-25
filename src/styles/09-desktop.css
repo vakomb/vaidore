@@ -18,7 +18,7 @@
     scroll-padding: 0 var(--pad);
   }
   .rail .cardName {
-    font-size: 22.75px;
+    font-size: 20px;
   }
   .rail .inspTxt {
     font-size: 16.5px;
@@ -64,45 +64,45 @@
     margin-left: 0;
     font-size: 16.5px;
   }
-  /* v31f: paantraštė ir „Peržiūrėti viską“ - vienoje eilutėje, tarp jų plona vertikali linija */
+  /* v32: paantraštė ir „Peržiūrėti viską“ - vienoje eilutėje iškart po juosta, tarp jų plona vertikali linija */
   .band {
-    min-height: 76px;
-    font-size: 36px;
+    min-height: 62px;
+    font-size: 29px;
   }
   .bandSub {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: center;
-    gap: 10px 0;
-    margin-top: 28px;
-    padding: 20px 8px 22px;
+    gap: 6px 0;
+    margin-top: 0;
+    padding: 16px 8px 0;
   }
   .bandLine {
-    font-size: 23px;
+    font-size: 18.5px;
   }
   .bandLine + .bandMore {
-    margin-left: 20px;
-    padding-left: 24px;
+    margin-left: 16px;
+    padding-left: 18px;
   }
   .bandLine + .bandMore::before {
     content: "";
     position: absolute;
-    top: 9px;
-    bottom: 12px;
+    top: 6px;
+    bottom: 11px;
     left: 0;
     width: 1px;
     background: var(--lineSoft);
   }
   .bandMore {
-    font-size: 18px;
+    font-size: 15.5px;
   }
   .hsec > .wrap > .railWrap:first-child {
-    margin-top: 30px;
+    margin-top: 22px;
   }
   .catTiles {
     grid-auto-columns: calc((100% - 3 * 14px) / 3.4);
-    gap: 14px;
+    gap: 0 14px;
   }
   /* Kai plytelių mažiau nei 4 - jos telpa ir yra centre */
   .catTiles:not(:has(> .tile:nth-child(4))) {
@@ -153,7 +153,7 @@
     margin-top: 64px;
   }
   .hsec {
-    margin-top: 32px;
+    margin-top: 28px;
   }
   #homeHero + .hsec,
   #homeHero + .hsec[hidden] + #homeRails > .hsec:first-child {
@@ -461,14 +461,14 @@
   /* Plytelės - iki 5 telpa vienoje eilėje (ne platesnės nei 246 px, centre); daugiau - slenkama eilė, kurioje
      matosi kitos plytelės dalis (v21) */
   .catTiles {
-    --tileFs: 21px;
+    --tileFs: 16px;
     grid-auto-flow: column;
     grid-auto-columns: minmax(0, 246px);
     justify-content: center;
     margin: 0;
-    padding: 0 0 6px;
+    padding: 2px 0 6px;
     overflow-x: auto;
-    gap: 16px;
+    gap: 0 16px;
   }
   .catTiles:has(> .tile:nth-child(6)) {
     grid-auto-columns: calc((100% - 5 * 16px) / 5.4);
@@ -483,7 +483,7 @@
     scroll-padding: 0;
   }
   .rail .cardName {
-    font-size: 22.75px;
+    font-size: 21px;
   }
   .railNav {
     margin-top: 8px;

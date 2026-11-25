@@ -286,7 +286,7 @@ async function run(viewport) {
   check((await page.locator("#homeHero .heroClaims li").count()) >= 3, "skaidrė su teiginiais ir auksinėmis linijomis");
   check(
     (await page.locator("#homeTiles .tile .tileName").first().evaluate(e => [Number(getComputedStyle(e).fontWeight) >= 600, getComputedStyle(e).textTransform, e.offsetHeight > 0].join())) === "true,uppercase,true",
-    "plytelės: pavadinimas virš paveikslo (didžiosiomis)"
+    "plytelės: vientisa kortelė - pavadinimas po paveikslu (didžiosiomis, pusjuodis)"
   );
   check((await page.locator("#homeHero h1").count()) === 1, "pradžia: vienas h1");
   // v7: skaidrės ir kategorijos - scenos su Vaidore buteliukais be fono, kiekviena skaidrė - vienas veiksmas
@@ -348,6 +348,23 @@ async function run(viewport) {
   check(top[0] === "cardHead" && top[1] === 1 && top[2], `pradžia: pavadinimas virš nuotraukos (${top.join(", ")})`);
   const ri = await page.locator("#homeRails .rail .inspTxt").first().evaluate(el => [getComputedStyle(el.querySelector(".inspBrand")).display, parseFloat(getComputedStyle(el).fontSize)]);
   check(ri[0] === "inline" && ri[1] >= 16, `pradžia: originalas vienoje eilutėje, stambiau (${ri.join(", ")})`);
+  // v32: originalas - po pavadinimu, virš nuotraukos; kaina - ryški; antraštė be linijų; nuotraukos ir kainos - vienoje linijoje
+  const v32 = await page.locator("#homeRails .rail").first().evaluate(r => {
+    const cards = [...r.children].slice(0, 3);
+    const c = cards[0];
+    const head = c.querySelector(".cardHead"), insp = head.querySelector(".cardInsp"), art = c.querySelector(".art");
+    const price = c.querySelector(".cardPrice .money:not(s)");
+    const sub = r.closest(".hsec").querySelector(".bandSub");
+    const top = sel => new Set(cards.map(x => Math.round(x.querySelector(sel).getBoundingClientRect().top))).size;
+    return {
+      insp: !!insp && insp.getBoundingClientRect().bottom <= art.getBoundingClientRect().top && !c.querySelector(".cardTxt .cardInsp"),
+      price: Number(getComputedStyle(price).fontWeight) >= 600 && parseFloat(getComputedStyle(price).fontSize) >= 20,
+      lines: getComputedStyle(sub).borderTopWidth === "0px" && getComputedStyle(sub).borderBottomWidth === "0px",
+      gap: Math.round(sub.getBoundingClientRect().top - r.closest(".hsec").querySelector(".band").getBoundingClientRect().bottom),
+      even: top(".art") === 1 && top(".cardPrice") === 1
+    };
+  });
+  check(v32.insp && v32.price && v32.lines && v32.gap === 0 && v32.even, `pradžia (v32): originalas virš nuotraukos, ryški kaina, antraštė be linijų, kortelės lygios (${JSON.stringify(v32)})`);
   if (mobile && viewport.width < 700) {
     // v21b: didelė kortelė (kaip parfumada.lt) ir kitos dalis dešinėje; rodyklės ir „1/N“
     const rail = page.locator("#homeRails .rail").first();

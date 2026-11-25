@@ -130,10 +130,10 @@
   background: var(--brand);
 }
 
-/* ── Skyriai (v31f, kaip parfumada.lt): pavadinimas - juodoje juostoje per visą plotį, po ja baltame fone tarp plonų
-   linijų - paantraštė ir „Peržiūrėti viską“ su judančiu pabraukimu. Visi skyriai vienodi (pradžia, „Jums gali patikti“). ── */
+/* ── Skyriai (v32): pavadinimas - juodoje juostoje per visą plotį, iškart po ja baltame fone (be linijų) - paantraštė ir
+   „Peržiūrėti viską“ su judančiu pabraukimu. Kompaktiški tarpai, visi skyriai vienodi (pradžia, „Jums gali patikti“). ── */
 .hsec {
-  margin-top: 22px;
+  margin-top: 18px;
 }
 /* Iškart po pagrindine nuotrauka - be tarpo (pirmas skyrius: „Produktai“, o jei jo nėra - „Kvapnios naujienos“) */
 #homeHero + .hsec,
@@ -147,15 +147,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 64px;
+  min-height: 52px;
   margin-bottom: 0;
-  padding: 12px var(--pad);
+  padding: 10px var(--pad);
   background: var(--band);
   color: #fff;
-  font-size: clamp(24px, 6.6vw, 30px); /* telefone ilgas pavadinimas („Difuzoriai su lazdelėmis“) - vienoje eilutėje */
-  font-weight: 400;
+  font-size: clamp(20px, 5.6vw, 25px); /* telefone ilgas pavadinimas („Difuzoriai su lazdelėmis“) - vienoje eilutėje */
+  font-weight: 500;
   line-height: 1.2;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   text-align: center;
   text-wrap: balance;
@@ -164,22 +164,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
   width: calc(100% - 2 * var(--pad));
   max-width: calc(var(--maxW) - 2 * var(--pad));
-  margin: 22px auto 0;
-  padding: 18px 8px 20px;
-  border-top: 1px solid var(--lineSoft);
-  border-bottom: 1px solid var(--lineSoft);
+  margin: 0 auto;
+  padding: 12px 8px 0;
+  background: #fff;
   text-align: center;
 }
 .bandLine {
   margin: 0;
-  font-size: 21px;
-  font-weight: 600;
+  font-size: 16.5px;
+  font-weight: 500;
   line-height: 1.35;
   letter-spacing: 0.01em;
-  color: var(--ink);
+  color: var(--ink2);
   text-wrap: balance;
 }
 /* „Peržiūrėti viską“: po žodžiais - plona linija, per ją pirmyn ir atgal slenka storesnis brūkšnys; užvedus - per visą plotį */
@@ -187,28 +186,28 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin: -8px -4px -10px;
-  padding: 8px 4px 10px;
+  gap: 3px;
+  margin: -4px -4px -8px;
+  padding: 4px 4px 8px;
   color: var(--ink);
-  font-size: 17px;
+  font-size: 14.5px;
   font-weight: 600;
   line-height: 1.3;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-decoration: none;
   white-space: nowrap;
 }
 .bandMore span {
-  padding-bottom: 5px;
+  padding-bottom: 3px;
   background:
     linear-gradient(currentColor, currentColor) 0 100% / 34% 2px no-repeat,
     linear-gradient(var(--lineSoft), var(--lineSoft)) 0 100% / 100% 1px no-repeat;
   animation: bandSweep var(--sweep) infinite alternate;
 }
 .bandMore svg {
-  width: 16px;
-  height: 16px;
-  margin-bottom: 5px;
+  width: 14px;
+  height: 14px;
+  margin-bottom: 3px;
   transition: transform var(--ease);
 }
 @keyframes bandSweep {
@@ -237,28 +236,27 @@
 .hsec > .wrap > .catTiles:first-child {
   margin-top: 0;
 }
-/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) - mažas tarpas viršuje
-   (iki pavadinimo raidžių ~14 px: tik pavadinimo viršutinė paraštė) */
+/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) - nedidelis tarpas viršuje (v32) */
 #homeTilesSec {
-  padding-top: 0;
-}
-#homeTilesSec .tileName {
-  padding-top: 10px;
+  padding-top: 14px;
 }
 .hsec > .wrap > .railWrap:first-child,
 .hsec > .wrap > .reviews:first-child {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
-/* ── Kategorijų plytelės (kaip parfumada.lt): pavadinimas virš paveikslo (22,75 px / 700, didžiosiomis, juodas),
-   po juo - paveikslas 4:5 su 16 px kampais; telefone - slenkama eilė, kompiuteryje - visos vienoje eilėje ── */
+/* ── Kategorijų plytelės (v32, kaip iOS programėlėje): vientisa kortelė - paveikslas viršuje, po juo aiškus pavadinimas
+   (didžiosiomis, pusjuodis), švelnus kontūras ir užapvalinti kampai. Telefone - slenkama eilė (~2,3 matomos),
+   kompiuteryje - iki 5 vienoje eilėje centre. Pavadinimai ir paveikslai - bendrose eilėse (subgrid): ilgas pavadinimas
+   („Elektriniai difuzoriai“) keliamas į antrą eilutę, o visų plytelių paveikslai ir pavadinimai lieka vienoje linijoje ── */
 .catTiles {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 40%;
-  gap: 10px;
+  grid-template-rows: auto auto;
+  gap: 0 10px;
   margin: 0 calc(var(--pad) * -1);
-  padding: 2px var(--pad) 6px;
+  padding: 2px var(--pad) 4px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-padding: 0 var(--pad);
@@ -267,45 +265,44 @@
 .catTiles::-webkit-scrollbar {
   display: none;
 }
-/* v15: ilgas pavadinimas („Elektriniai difuzoriai“) keliamas į antrą eilutę; pavadinimai ir paveikslai - bendrose
-   eilėse (subgrid), todėl visų plytelių paveikslai prasideda vienoje linijoje */
-.catTiles {
-  grid-template-rows: auto auto;
-}
 .tile {
   position: relative;
   display: grid;
   grid-row: span 2;
   grid-template-rows: subgrid;
+  row-gap: 0;
+  overflow: hidden;
+  border-radius: var(--r-tileArt);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--line);
   color: #000;
   scroll-snap-align: start;
+  transition: transform 0.35s var(--spring), box-shadow var(--ease);
+}
+.tileArt {
+  position: relative;
+  grid-row: 1;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--st-stone);
 }
 .tileName {
-  display: block;
-  align-self: end;
-  padding: 17px 0 16px;
-  font-size: var(--tileFs, 22.75px);
-  font-weight: 700;
-  line-height: 30px;
-  letter-spacing: 0.03em;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 11px 8px 12px;
+  border-top: 1px solid var(--line);
+  font-size: var(--tileFs, 15px);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.07em;
   text-align: center;
   text-transform: uppercase;
   text-wrap: balance;
   color: #000;
-}
-.tile:hover .tileName {
-  text-decoration: underline;
-  text-underline-offset: 6px;
-  text-decoration-thickness: 2px;
-}
-.tileArt {
-  position: relative;
-  display: block;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--r-tileArt);
-  overflow: hidden;
-  background: var(--st-stone);
-  transition: transform 0.5s var(--spring);
 }
 .tile .scenePic::after {
   display: none;
@@ -317,26 +314,31 @@
   --uw: 0.84;
   --fl: 9cqh;
 }
+.tileArt img {
+  transition: transform 0.5s var(--spring);
+}
+@media (hover: hover) {
+  .tile:hover {
+    box-shadow: inset 0 0 0 1px var(--line2), 0 6px 18px rgba(0, 0, 0, 0.06);
+  }
+  .tile:hover .tileArt img {
+    transform: scale(1.03);
+  }
+}
 .tile:active {
   transform: scale(var(--press));
 }
-/* Telefone (v21): ~2,3 plytelės - trečios dalis matosi krašte, aišku, kad galima slinkti; paveikslas beveik
-   kvadratinis, pavadinimas mažesnis (telpa ir „Elektriniai difuzoriai“ dviem eilutėmis) */
+/* Telefone: ~2,3 plytelės - trečios dalis matosi krašte, aišku, kad galima slinkti; paveikslas beveik kvadratinis */
 @media (max-width: 699.98px) {
   .catTiles {
-    --tileFs: 17px;
+    --tileFs: 14px;
     grid-auto-columns: calc((100% - 2 * 10px) / 2.3);
-  }
-  .tileName {
-    padding: 14px 0 12px;
-    line-height: 22px;
-  }
-  #homeTilesSec .tileName {
-    padding-top: 10px;
   }
   .tileArt {
     aspect-ratio: 10 / 11;
-    border-radius: 12px;
+  }
+  .tileName {
+    padding: 10px 6px 11px;
   }
 }
 
@@ -593,17 +595,19 @@
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: center;
-  gap: 2px 12px;
+  gap: 2px 10px;
   margin-top: 4px;
-  font-size: 20.8px;
-  font-weight: 400;
-  letter-spacing: 0.06em;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   color: #000;
+  font-variant-numeric: tabular-nums;
 }
 .cardPrice s {
-  font-size: 16.9px;
+  font-size: 15.5px;
   font-weight: 400;
-  color: var(--text);
+  color: var(--ink3);
+  text-decoration-thickness: 1px;
 }
 .cardPrice small {
   font-size: 14px;
@@ -693,25 +697,28 @@
   color: var(--ink3);
 }
 
-/* Karuselėje - stambūs, stori pavadinimai (kaip parfumada.lt: 22,75 px / 700), paveikslas - kvadratas */
+/* Karuselėje - stambūs, stori pavadinimai, paveikslas - kvadratas */
 .rail .cardName {
-  font-size: 22.75px;
+  font-size: 19px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   white-space: normal;
 }
 
 .rail .art {
   border-radius: var(--r-photo);
 }
-/* Pradžios karuselės (v31f) - pavadinimas virš nuotraukos: maža rūšis ir stambus kvapo vardas, vienodo aukščio visose kortelėse */
+/* Pradžios karuselės (v32) - kortelė kaip iOS programėlėje: pavadinimas → originalas „Įkvėpti …“ → nuotrauka → kaina.
+   Kortelės eilutės - bendros visai karuselei (subgrid): trumpas ir ilgas pavadinimas, su originalu ar be jo -
+   nuotraukos ir kainos visose kortelėse vienoje linijoje, o tuščios vietos rezervuojama tik tiek, kiek reikia */
 .cardHead {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: flex-start;
+  gap: 6px;
   min-width: 0;
-  padding: 2px 6px 0;
+  padding: 0 4px;
   text-align: center;
 }
 .cardHead .cardName {
@@ -722,15 +729,31 @@
   line-height: 1.2;
   text-wrap: balance;
 }
-.rail .cardHead {
-  justify-content: center;
-  min-height: 55px; /* 2 eilutės - trumpas ir ilgas pavadinimas lygiai */
+.rail:has(> .card.nameTop) {
+  grid-template-rows: auto auto auto;
+  row-gap: 0;
 }
-.card.nameTop {
-  gap: 14px;
+.rail > .card.nameTop {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 10px;
+  align-content: start;
 }
 .card.nameTop .cardTxt {
-  padding-top: 0;
+  justify-content: flex-start;
+  gap: 2px;
+  padding: 0;
+}
+.card.nameTop .cardPrice {
+  margin-top: 0;
+  font-size: 22px;
+}
+.card.nameTop .cardPrice s {
+  font-size: 16px;
+}
+.cardHead .cardInsp {
+  min-height: 0;
 }
 /* Karuselėse (v23) ir produkto puslapyje (v24, .insp-pd) - originalas vienoje eilutėje: prekės ženklas (pusjuodis) ir
    kvapas, stambiau; ilgas - iki 2 eilučių */
@@ -745,6 +768,22 @@
   width: 44px;
   height: 44px;
   border-radius: 9px;
+}
+/* Po pavadinimu (v32) - kompaktiškiau: 34 px nuotrauka, viena eilutė */
+.rail .cardHead .cardInsp {
+  min-height: 0;
+  margin-top: 0;
+}
+.rail .cardHead .insp {
+  gap: 8px;
+}
+.rail .cardHead .inspPh {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+.rail .cardHead .inspTxt {
+  -webkit-line-clamp: 1;
 }
 .rail .inspTxt,
 .insp-pd .inspTxt {
@@ -867,8 +906,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  margin-top: 6px;
+  gap: 14px;
+  margin-top: 2px;
 }
 .railNav[hidden] {
   display: none;
@@ -882,8 +921,8 @@
   font-variant-numeric: tabular-nums;
 }
 .railBtn {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border-radius: 50%;

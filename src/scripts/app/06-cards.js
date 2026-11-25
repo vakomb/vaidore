@@ -28,9 +28,12 @@ function cardPriceHTML(p, sample) {
     ? `<s class="money">${eur(c.was)}</s><span class="money sale">${from}${eur(c.price)}</span>`
     : `<span class="money">${from}${eur(c.price)}</span>`;
 }
+// Originalas „Įkvėpti …“ (v18) arba šūkis, jei originalo nėra
+const cardInspHTML = p => `<span class="cardInsp">${inspiredHTML(p) || `<span class="cardTag">${esc(p.tagline || keyNotes(p).join(" · "))}</span>`}</span>`;
 // Pavadinimas virš nuotraukos (pradžios karuselės, v31g): visas prekės pavadinimas vienodu stiliumi („Aromatinis aliejus JADORE“),
-// iki 2 eilučių, rezervuotas vienodas aukštis - kortelės lygios
-const cardHeadHTML = p => `<div class="cardHead"><span class="cardName">${esc(p.name)}</span></div>`;
+// iki 2 eilučių; v32 - po juo originalas „Įkvėpti …“, po nuotrauka - tik kaina. Eilučių aukščiai bendri visai karuselei
+// (subgrid, 05-products.css) - nuotraukos ir kainos visose kortelėse vienoje linijoje
+const cardHeadHTML = p => `<div class="cardHead"><span class="cardName">${esc(p.name)}</span>${cardInspHTML(p)}</div>`;
 function cardHTML(p, opts = {}) {
   const sample = !!opts.sample;
   const sold = !inStock(p);
@@ -40,7 +43,7 @@ function cardHTML(p, opts = {}) {
 <div class="art${p.images?.length ? ` hasPhoto${isPerfume(p) ? " isPerf" : ""}` : ""}" style="--tint:${p.look.tint}">${artImg(p)}${SET.cards?.badges !== false ? badgePill(p) : ""}${
     opts.heart !== false && SET.cards?.heart !== false ? heartBtn(p) : ""
   }</div>
-<div class="cardTxt">${top ? "" : `<span class="cardName">${esc(p.name)}</span>`}<span class="cardInsp">${inspiredHTML(p) || `<span class="cardTag">${esc(p.tagline || keyNotes(p).join(" · "))}</span>`}</span><span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
+<div class="cardTxt">${top ? "" : `<span class="cardName">${esc(p.name)}</span>${cardInspHTML(p)}`}<span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
     rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""
   }</div>
 <a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}${inspiredOf(p) ? `, įkvėpti ${esc(inspiredOf(p))}` : ""}, ${esc(cardSub(p))}"></a>
