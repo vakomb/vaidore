@@ -28,13 +28,9 @@ function cardPriceHTML(p, sample) {
     ? `<s class="money">${eur(c.was)}</s><span class="money sale">${from}${eur(c.price)}</span>`
     : `<span class="money">${from}${eur(c.price)}</span>`;
 }
-// Pavadinimas virš nuotraukos (pradžios karuselės, v31f): viršuje rūšis (Eau de Parfum, Kvapni žvakė…), po ja - kvapo vardas be rūšies
-const NAME_PREFIX = /^(kvapni žvakė|aromatinis aliejus|elektrinis difuzorius|namų kvapų difuzorius|difuzorius|žvakė|aliejus)\s+/i;
-function cardHeadHTML(p) {
-  const kick = kindName(p) || "Kvepalai";
-  const main = String(p.name || "").replace(NAME_PREFIX, "").trim() || p.name;
-  return `<div class="cardHead"><span class="cardKick">${esc(kick)}</span><span class="cardName">${esc(main)}</span></div>`;
-}
+// Pavadinimas virš nuotraukos (pradžios karuselės, v31g): visas prekės pavadinimas vienodu stiliumi („Aromatinis aliejus JADORE“),
+// iki 2 eilučių, rezervuotas vienodas aukštis - kortelės lygios
+const cardHeadHTML = p => `<div class="cardHead"><span class="cardName">${esc(p.name)}</span></div>`;
 function cardHTML(p, opts = {}) {
   const sample = !!opts.sample;
   const sold = !inStock(p);
