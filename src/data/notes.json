@@ -132,5 +132,10 @@
   { "name": "Juzu", "image": "img/natos/juzu.webp" },
   { "name": "Irisas", "image": "img/natos/irisas.webp" },
   { "name": "Irisai", "image": "img/natos/irisas.webp" },
-  { "name": "Irisų šaknys", "image": "img/natos/irisas.webp" }
+  { "name": "Irisų šaknys", "image": "img/natos/irisas.webp" },
+  { "name": "Citrina", "image": "img/natos/citrina.webp" },
+  { "name": "Citrinos", "image": "img/natos/citrina.webp" },
+  { "name": "Citrinų žievelės", "image": "img/natos/citrina.webp" },
+  { "name": "Sičuano pipirai", "image": "img/natos/sicuano-pipirai.webp" },
+  { "name": "Baltasis gintaras", "image": "img/natos/gintaras.webp" }
 ]
