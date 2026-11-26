@@ -88,6 +88,15 @@ function openTaxo(kind, item) {
 <label class="field axField"><span>Eilė</span><input name="sort" type="number" inputmode="numeric" value="${esc(x.sort ?? 0)}" /></label>
 <label class="axField axSwitchRow"><span>Rodoma</span><input type="checkbox" name="visible" class="admSwitchInp"${attr(x.visible !== false, "checked")} /></label>
 </div>
+${
+  "i18n" in x || (isNew && taxoState[kind].some(y => "i18n" in y))
+    ? `<h2 class="igHead">Anglų kalba (EN)</h2><div class="ig"><label class="field axField"><span>Pavadinimas</span><input name="en_name" maxlength="60" value="${esc(x.i18n?.en?.name || "")}" placeholder="Tuščias - kaip lietuviškai" /></label><label class="field axField stack"><span>${T.text[1]}</span>${
+        kind === "categories"
+          ? `<textarea name="en_text" rows="3" maxlength="300">${esc(x.i18n?.en?.[T.text[0]] || "")}</textarea>`
+          : `<input name="en_text" maxlength="120" value="${esc(x.i18n?.en?.[T.text[0]] || "")}" />`
+      }</label></div>`
+    : ""
+}
 <p class="igFoot">${kind === "categories" ? "vaidore.com/kategorija/" : "Filtro reikšmė: "}<span data-id-prev>${esc(x.id || "…")}</span>${isNew ? "" : " - nebekeičiamas"}</p>
 ${
   T.image
@@ -150,6 +159,15 @@ ${isNew ? "" : `<button class="btn ghost block axDangerBtn" type="button" data-t
       const err = $(".formErr", form);
       const row = { id: f.id.value.trim(), name: f.name.value.trim(), sort: Math.round(Number(f.sort.value) || 0), visible: f.visible.checked, [T.text[0]]: f.text.value.trim() };
       if (T.image) row.image = image;
+      // v33d: vertimai (kitos kalbos ir laukai išlieka)
+      if (f.en_name) {
+        const en = { ...(x.i18n?.en || {}) };
+        const put = (k, v) => (v ? (en[k] = v) : delete en[k]);
+        put("name", f.en_name.value.trim());
+        put(T.text[0], f.en_text.value.trim());
+        row.i18n = { ...(x.i18n || {}), en };
+        if (!Object.keys(en).length) delete row.i18n.en;
+      }
       const problems = [
         !row.name && "Įrašykite pavadinimą",
         !/^[a-z0-9-]+$/.test(row.id) && "Adresas - tik mažosios raidės, skaičiai ir „-“",

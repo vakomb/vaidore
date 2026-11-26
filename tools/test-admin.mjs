@@ -236,6 +236,15 @@ check(JSON.stringify(vanor.sizes) === JSON.stringify([{ ml: 33, price: 29.9 }, {
 const rasaCats = () => sb.db.product_categories.filter(l => l.product_id === "vanor").map(l => l.category_id);
 check(await until(() => rasaCats().sort().join() === "vasaros-gaiva,ziemos-kolekcija"), "kolekcijos atnaujintos");
 check(await toastHas(page, "Atnaujinti svetainę"), "po išsaugojimo - pasiūlymas atnaujinti svetainę");
+// v33d: produktas → Anglų kalba (EN)
+await push(page, "anglu");
+check((await page.locator('#prodForm textarea[name="en_description"]').inputValue()).includes("Tobacco leaf"), "produktas → „Anglų kalba (EN)“: esamas vertimas");
+await page.fill('#prodForm textarea[name="en_description"]', "");
+await page.click("#prodForm [data-en-auto]");
+check(/Top notes of tobacco leaf/i.test(await page.locator('#prodForm textarea[name="en_description"]').inputValue()), "„Užpildyti automatiškai“ - EN aprašymas iš natų ir tipo šablono");
+await pop(page);
+await page.click('.axSave[form="prodForm"]');
+check(await until(() => /Top notes of tobacco leaf/i.test(sb.db.products.find(x => x.id === "vanor").i18n?.en?.description || "") && sb.db.products.find(x => x.id === "vanor").i18n.en.tagline), "EN vertimas išsaugotas (products.i18n.en)");
 // Neišsaugoti pakeitimai
 await push(page, "aprasymas");
 await page.fill('#prodForm input[name="tagline"]', "neišsaugota");
@@ -771,11 +780,23 @@ if (candle) {
 
 // Nustatymai - grupėmis (kaip iOS)
 await go(page, "admin/daugiau");
-check((await page.locator('#admMain a.axRow[href^="admin/nustatymai/"]').count()) === 5 && (await page.locator('#admMain [data-logout]').count()) === 1, "Daugiau: 5 nustatymų grupės, atsijungimas");
+check((await page.locator('#admMain a.axRow[href^="admin/nustatymai/"]').count()) === 6 && (await page.locator('#admMain [data-logout]').count()) === 1, "Daugiau: 6 nustatymų grupės (su „Anglų kalba (EN)“), atsijungimas");
 await go(page, "admin/nustatymai/parduotuve");
 await page.fill('#setForm input[name="freeShippingFrom"]', "70");
 await page.click('.axSave[form="setForm"]');
 check(await until(() => sb.db.settings[0].data.freeShippingFrom === 70), "nustatymai: parduotuvė išsaugota");
+// v33d: Nustatymai → Anglų kalba (EN) - visi parduotuvės tekstai, lietuviškas tekstas - po pavadinimu
+await go(page, "admin/nustatymai/vertimai");
+await page.waitForSelector('#setForm [name="en__tagline"]');
+const enRows = await page.locator('#setForm [name^="en__"]').count();
+check(enRows >= 10 && (await page.locator('#setForm [name="en__tagline"]').inputValue()).startsWith("Vaidore perfumes") && (await page.locator("#setForm .axEnLt").first().textContent()).length > 3, `anglų kalba: ${enRows} laukai, esami vertimai ir lietuviški tekstai`);
+await page.fill('#setForm [name="en__hero.eyebrow"]', "New season");
+await page.fill('#setForm [name="en__dispatch"]', "");
+await page.click('.axSave[form="setForm"]');
+check(
+  await until(() => sb.db.settings[0].data.i18n?.en?.hero?.eyebrow === "New season" && sb.db.settings[0].data.i18n.en.dispatch == null && sb.db.settings[0].data.i18n.en.tagline?.startsWith("Vaidore") && sb.db.settings[0].data.freeShippingFrom === 70),
+  "anglų kalba: išsaugota (pakeista, išvalyta, kiti tekstai ir nustatymai nepaliesti)"
+);
 await go(page, "admin/nustatymai/imone");
 await page.fill('#setForm input[name="coName"]', "UAB „Vaidore“");
 await page.fill('#setForm input[name="coEmail"]', "blogas");

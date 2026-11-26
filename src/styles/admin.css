@@ -2827,3 +2827,14 @@ button.axRow:active {
   outline: 2px solid var(--focus);
   outline-offset: 0;
 }
+
+/* v33d: anglų kalbos laukai - po pavadinimu rodomas lietuviškas tekstas */
+.axEnLt {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink3);
+  white-space: normal;
+}

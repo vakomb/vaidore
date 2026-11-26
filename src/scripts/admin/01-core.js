@@ -65,7 +65,8 @@ const SET_GROUPS = [
   ["pristatymas", "Pristatymas ir grąžinimas", "truck"],
   ["meginukai", "Mėginukai ir pakavimas", "gift"],
   ["imone", "Įmonės rekvizitai", "doc"],
-  ["matavimas", "Lankytojų matavimas", "chart"]
+  ["matavimas", "Lankytojų matavimas", "chart"],
+  ["vertimai", "Anglų kalba (EN)", "globe"]
 ];
 const SIDE = [
   { name: "Šiandien", ico: "chart", href: "admin" },

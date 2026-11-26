@@ -110,7 +110,9 @@ export function buildAdmin() {
     .readdirSync(path.join(src, dir))
     .filter(f => f.endsWith(".js"))
     .sort();
-  const js = `(() => {\n"use strict";\n${files.map(f => `// ── ${f}\n${read(`${dir}/${f}`)}`).join("\n")}\n})();\n`;
+  // v33d: natų žodynas EN (automatiniam EN užpildymui, 16-i18n.js)
+  const notesEn = fs.existsSync(path.join(src, "i18n/notes.en.json")) ? read("i18n/notes.en.json") : "{}";
+  const js = `(() => {\n"use strict";\nconst NOTES_EN = ${JSON.stringify(JSON.parse(notesEn))};\n${files.map(f => `// ── ${f}\n${read(`${dir}/${f}`)}`).join("\n")}\n})();\n`;
   return { js, css: minCss(read("styles/admin.css")) };
 }
 

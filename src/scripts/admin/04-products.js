@@ -17,7 +17,9 @@ const PROD_FACETS = [
   ["inspired", "Originalas", p => [(p.inspired || "").trim()], id => id || "Be originalo"],
   ["gender", "Kam", p => ((p.type || "kvepalai") === "kvepalai" ? [p.gender || ""] : []), id => VD.GENDER_NAME[id] || id],
   ["family", "Kvapo šeima", p => (p.family ? [p.family] : []), id => famName(id)],
-  ["cat", "Kolekcija", p => prodState.pcats.get(p.id) || [], id => prodState.cats.find(c => c.id === id)?.name || id]
+  ["cat", "Kolekcija", p => prodState.pcats.get(p.id) || [], id => prodState.cats.find(c => c.id === id)?.name || id],
+  // v33d: vertimas į anglų kalbą (16-i18n.js - enMissing)
+  ["en", "Vertimas", p => ("i18n" in p ? [enMissing(p) ? "truksta" : "yra"] : []), id => (id === "truksta" ? "Trūksta EN" : "Išversta")]
 ];
 const facetOk = (p, skip = "") => PROD_FACETS.every(([k, , vals]) => k === skip || !(k in prodState.f) || vals(p).includes(prodState.f[k]));
 const facetCount = () => Object.keys(prodState.f).length;
@@ -176,7 +178,7 @@ function paintProducts() {
   box.innerHTML = `<div class="ig axList admProducts">${rows
     .slice(0, prodState.shown)
     .map(p => {
-      const pills = [p.visible === false && pillHTML("paslėptas"), p.stock === 0 ? pillHTML("išparduota", "red") : p.stock != null && p.stock <= 3 ? pillHTML(`liko ${p.stock}`, "amber") : ""].filter(Boolean).join("");
+      const pills = [p.visible === false && pillHTML("paslėptas"), "i18n" in p && enMissing(p) && pillHTML("be EN", "amber"), p.stock === 0 ? pillHTML("išparduota", "red") : p.stock != null && p.stock <= 3 ? pillHTML(`liko ${p.stock}`, "amber") : ""].filter(Boolean).join("");
       return `<div class="axCell${p.visible === false ? " off" : ""}" data-pid="${esc(p.id)}" data-title="${esc(p.name)}"><a class="axRow axRow2" href="admin/kvapai/${esc(p.id)}" data-nav${cur === p.id ? ' aria-current="page"' : ""}>${thumb(
         p
       )}<span class="axRowTxt"><b>${esc(p.name)}</b><small>${esc(productLine(p))}${p.badge ? ` · ${esc(p.badge)}` : ""}</small></span><span class="axVal axValCol"><span class="money">${priceFrom(p)}</span>${pills ? `<span class="axPills">${pills}</span>` : ""}</span><span class="axChev">${glyph(
@@ -335,7 +337,9 @@ const blankProduct = () => ({
   subtitle: "",
   mood_image: "",
   mood_title: "",
-  mood_line: ""
+  mood_line: "",
+  // v33d: vertimai (migracija 20261126120000)
+  i18n: {}
 });
 // Laukas eilutėje: pavadinimas kairėje, reikšmė dešinėje; stack - pavadinimas virš (ilgam tekstui)
 const fieldHTML = (label, input, { cls = "", stack = false, attrs = "" } = {}) => `<label class="field axField${stack ? " stack" : ""}${cls ? ` ${cls}` : ""}" ${attrs}><span>${label}</span>${input}</label>`;
@@ -356,7 +360,7 @@ async function renderProductEdit(main, id, seq) {
           if (r?.[0] && !("ingredients" in r[0])) delete b.ingredients;
           if (r?.[0] && !("type" in r[0])) delete b.type;
           // v15: attrs, scent_id - tik po migracijos 20261120120000
-          for (const k of ["attrs", "scent_id", "subtitle", "mood_image", "mood_title", "mood_line"]) if (r?.[0] && !(k in r[0])) delete b[k];
+          for (const k of ["attrs", "scent_id", "subtitle", "mood_image", "mood_title", "mood_line", "i18n"]) if (r?.[0] && !(k in r[0])) delete b[k];
           if (r?.[0] && "inspired_image" in r[0]) b.inspired_image = "";
           return [b];
         })
@@ -422,7 +426,7 @@ ${groupHTML(
 )}
 <div class="ig">${sumRow("aprasymas", "Aprašymas")}${sumRow("natos", esc(tf.notes), "scentOnly")}${"attrs" in p ? sumRow("savybes", "Savybės", "", 'id="attrsRow"') : ""}${sumRow("spalvos", "Spalvos")}${
     cats.length ? sumRow("kolekcijos", "Kolekcijos", "scentOnly") : ""
-  }${"subtitle" in p ? sumRow("puslapis", "Puslapio turinys") : ""}${sumRow("isamiau", "Išsamiau")}</div>
+  }${"subtitle" in p ? sumRow("puslapis", "Puslapio turinys") : ""}${"i18n" in p ? sumRow("anglu", "Anglų kalba (EN)") : ""}${sumRow("isamiau", "Išsamiau")}</div>
 ${
   isNew
     ? ""
@@ -483,6 +487,7 @@ ${"mood_image" in p ? moodGroupHTML(ed, { cls: "scentOnly" }) : ""}
 </div>`
     : ""
 }
+${"i18n" in p ? enPaneHTML(p) : ""}
 <div data-pane="isamiau" data-title="Išsamiau" data-focus="no" hidden>
 ${groupHTML(
   `${fieldHTML("Eilė", `<input name="rank" type="number" inputmode="numeric" value="${esc(p.rank)}" />`)}${fieldHTML("Pridėta", `<input name="added" type="date" value="${esc(p.added || "")}" />`)}${fieldHTML(
@@ -523,6 +528,7 @@ ${isNew ? afPaneHTML(ed, opt) : ""}
   paintSums(form);
   paintProdInsp(ed, form);
   if ("mood_image" in p) bindMood(form, ed, () => form.elements.id.value.trim());
+  if ("i18n" in p) bindEnAuto(form, () => (A.dirty = true));
   sortable($("#imgsBox", form), {
     item: ".admImg",
     handle: ".admImg img",
@@ -618,6 +624,7 @@ function paintSums(form) {
   const cats = $$('input[name="cats"]:checked', form).map(c => c.closest("label").textContent.trim());
   set("kolekcijos", cats.length ? esc(short(cats.join(", "))) : `<span class="axMuted2">Nėra</span>`);
   set("isamiau", `Eilė ${esc(f.rank.value || "100")}`);
+  set("anglu", enSumHTML(form, {}));
   // Paantraštė (v29): numatyta - pagal kategoriją (kvepalams - koncentracija ir lytis)
   if (f.subtitle) {
     const def = VD.subtitleOf({ type: formType(form), conc: f.conc.value, gender: f.gender.value });
@@ -755,6 +762,7 @@ function readProduct(ed, form) {
     ...("attrs" in ed.p ? { attrs: readAttrs(form) } : {}),
     ...("subtitle" in ed.p ? { subtitle: f.subtitle.value.trim() } : {}),
     ...("mood_image" in ed.p ? readMood(form, ed) : {}),
+    ...("i18n" in ed.p ? { i18n: readEnFields(form, ed.p) } : {}),
     ...("scent_id" in ed.p ? { scent_id: AF_SCENTED.has(f.type?.value || "kvepalai") ? (ed.isNew ? ed.scentId : ed.p.scent_id) || null : null } : {}),
     sample: Math.round(num(f.sample.value) * 100) / 100,
     stock: stockRaw === "" ? null : Math.round(Number(stockRaw)),
