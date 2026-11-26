@@ -19,6 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildApp, buildAdmin } from "./build.mjs";
 import { dbCatalog, plain, plainDeep } from "./db-catalog.mjs";
+import { EN_PUBLIC, routeFor } from "./i18n.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "src");
@@ -122,24 +123,46 @@ const ogFile = id => (fs.existsSync(path.join(src, "public", "og", `${id}.jpg`))
 const products = catalog.products.filter(visible);
 const categories = (catalog.categories || []).filter(visible);
 const sitemap = [];
-function page(file, { route, title, desc, image = `${SITE}/og/home.jpg`, type = "website", noindex = false, extra = [], noscript = "" }) {
-  const canonical = `${SITE}/${route}`;
+// v33: kiekvienas puslapis - dviem kalbomis: LT (kaip iki šiol) ir EN (en/…, angliški adresai - src/i18n/routes.json).
+// Kol angliška versija neparengta (src/i18n/config.json „enPublic“: false) - EN puslapiai noindex, be hreflang ir sitemap.
+const OG_LOCALE = { lt: "lt_LT", en: "en_GB" };
+const urlOf = route => `${SITE}/${route}`;
+const enFile = (file, route) => {
+  const r = routeFor("en", route);
+  return r === route ? null : file.endsWith("index.html") ? `${r}/index.html` : `${r}.html`;
+};
+function page(file, opts) {
+  const html = pageLang(file, opts, "lt");
+  // Administravimas - tik lietuviškai; 404.html - viena abiem kalboms (programėlė kalbą pasirenka pagal adresą)
+  const ef = opts.route != null && enFile(file, opts.route);
+  if (ef) pageLang(ef, opts, "en");
+  return html;
+}
+function pageLang(file, { route, title, desc, image = `${SITE}/og/home.jpg`, type = "website", noindex = false, extra = [], noscript = "" }, lang) {
+  const lr = route != null ? routeFor(lang, route) : null;
+  const canonical = lr != null ? urlOf(lr) : null;
+  const hidden = lang === "en" && !EN_PUBLIC;
+  const alt = route != null && EN_PUBLIC && routeFor("en", route) !== route;
   const head = [
-    route != null ? `<link rel="canonical" href="${esc(canonical)}" />` : "",
-    route != null ? `<meta property="og:url" content="${esc(canonical)}" />` : "",
+    lr != null ? `<link rel="canonical" href="${esc(canonical)}" />` : "",
+    lr != null ? `<meta property="og:url" content="${esc(canonical)}" />` : "",
+    alt ? `<link rel="alternate" hreflang="lt" href="${esc(urlOf(route))}" />` : "",
+    alt ? `<link rel="alternate" hreflang="en" href="${esc(urlOf(routeFor("en", route)))}" />` : "",
+    alt ? `<link rel="alternate" hreflang="x-default" href="${esc(urlOf(routeFor("en", route)))}" />` : "",
     `<meta property="og:image" content="${esc(image)}" />`,
     `<meta property="og:image:width" content="1200" />`,
     `<meta property="og:image:height" content="630" />`,
     `<meta property="og:site_name" content="${esc(S.shop)}" />`,
-    `<meta property="og:locale" content="lt_LT" />`,
+    `<meta property="og:locale" content="${OG_LOCALE[lang]}" />`,
+    alt ? `<meta property="og:locale:alternate" content="${OG_LOCALE[lang === "lt" ? "en" : "lt"]}" />` : "",
     `<meta name="twitter:card" content="summary_large_image" />`,
-    noindex && !NOINDEX ? `<meta name="robots" content="noindex" />` : robotsMeta,
+    (noindex || hidden) && !NOINDEX ? `<meta name="robots" content="noindex" />` : robotsMeta,
     analyticsHead,
     ...extra
   ]
     .filter(Boolean)
     .join("\n    ");
-  let html = buildApp({ lockers, catalog, base: BASE, built: BUILT, head });
+  let html = buildApp({ lockers, catalog, base: BASE, built: BUILT, head, lang, dicts: route == null ? ["lt", "en"] : [lang] });
   if (title)
     html = html
       .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
@@ -153,7 +176,7 @@ function page(file, { route, title, desc, image = `${SITE}/og/home.jpg`, type = 
   const out = path.join(site, file);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, html);
-  if (!noindex && route != null) sitemap.push(canonical);
+  if (!noindex && !hidden && lr != null) sitemap.push(canonical);
   return html;
 }
 const app = page("index.html", {

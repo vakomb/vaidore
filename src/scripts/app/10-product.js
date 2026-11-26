@@ -215,7 +215,7 @@ function renderProduct(id, params) {
   if (!p || p.visible === false) return false;
   const ml = Number(params?.get("ml")) === SAMPLE_ML && hasSample(p) ? SAMPLE_ML : defaultMl(p);
   // Senas adresas (kvepalai/<difuzoriaus id>) - pataisomas į tikrąjį be naujo įrašo istorijoje
-  const want = absUrl(productUrl(p) + location.search);
+  const want = absUrl(productUrl(p) + (urlParams().toString() ? `?${urlParams()}` : ""));
   if (currentPath() !== productUrl(p) && want !== location.href) history.replaceState(history.state, "", want);
   pdState.id = id;
   pdState.ml = ml;

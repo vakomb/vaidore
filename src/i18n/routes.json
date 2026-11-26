@@ -1,0 +1,49 @@
+{
+  "paths": {
+    "kvepalai": "perfumes",
+    "zvakes": "candles",
+    "aliejai": "fragrance-oils",
+    "difuzoriai": "reed-diffusers",
+    "elektriniai-difuzoriai": "electric-diffusers",
+    "moterims": "women",
+    "vyrams": "men",
+    "unisex": "unisex",
+    "meginukai": "samples",
+    "bestselleriai": "bestsellers",
+    "nuolaidos": "sale",
+    "visos-prekes": "all-products",
+    "kategorija": "collections",
+    "krepselis": "cart",
+    "megstami": "favourites",
+    "paskyra": "account",
+    "pagalba": "help",
+    "apie-mus": "about",
+    "atsiliepimai": "reviews",
+    "verslui": "business",
+    "naujienlaiskis": "newsletter",
+    "testas": "fragrance-quiz",
+    "rinkinys": "discovery-set",
+    "salygos": "terms",
+    "privatumas": "privacy",
+    "aciu": "thank-you"
+  },
+  "sub": {
+    "paskyra": { "uzsakymai": "orders", "profilis": "profile", "adresai": "addresses", "nustatymai": "settings" }
+  },
+  "params": {
+    "tipas": "type",
+    "seima": "family",
+    "natos": "notes",
+    "originalas": "inspired",
+    "konc": "conc",
+    "formatas": "format",
+    "kaina": "price",
+    "likutis": "stock",
+    "rikiuoti": "sort",
+    "atsisakyti": "unsubscribe"
+  },
+  "paramValues": { "tipas": "paths" },
+  "hash": { "pristatymas": "delivery", "grazinimas": "returns", "apmokejimas": "payment", "duk": "faq", "kontaktai": "contact" },
+  "static": ["salygos", "privatumas", "aciu"],
+  "ltOnly": ["admin"]
+}

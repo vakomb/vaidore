@@ -99,6 +99,8 @@
   --heroH: 420px; /* skaidrės aukštis nuo 700 px (≥ 1024 px - 462 px, 09-desktop.css) */
   --r-photo: 5px; /* v10: prekės paveikslo kampai (karuselėse) */
   --r-tileArt: 16px; /* v10: kategorijų plytelių paveikslo kampai */
+  --r-pill: 999px; /* v33: segmentai (kalbos perjungiklis LT | EN) */
+  --seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); /* v33: pasirinktas segmentas */
   --sale-bg: #ffe6e6; /* v10: „Akcija“ ženkliukas - švelniai rožinis, juodas tekstas (kaip parfumada.lt) */
   --ftrBg: #f6f5f3; /* poraštė - šviesi, šilta pilka */
   --ftrLine: rgba(0, 0, 0, 0.09);

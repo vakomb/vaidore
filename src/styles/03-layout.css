@@ -1090,3 +1090,67 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* v33: kalbos perjungiklis LT | EN (iOS segmentas): kompiuteryje - header'yje prieš „Paskyra“, telefone - ☰ meniu
+   eilutė „Kalba“ (.mLang), poraštėje - apačioje (.ftrLang). Pasirinkta kalba - baltas segmentas su šešėliu. */
+.langSw[hidden] {
+  display: none;
+}
+.langSw,
+.langSeg,
+.ftrLang {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: var(--bg-soft);
+}
+.langSw a,
+.langSeg a,
+.ftrLang a {
+  min-width: 42px;
+  padding: 6px 10px;
+  border-radius: var(--r-pill);
+  color: var(--ink3);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-align: center;
+  transition: background-color var(--ease), color var(--ease);
+}
+.langSw a[aria-current],
+.langSeg a[aria-current],
+.ftrLang a[aria-current] {
+  background: #fff;
+  color: #000;
+  box-shadow: var(--seg-shadow);
+}
+.langSw a:not([aria-current]):hover,
+.langSeg a:not([aria-current]):hover,
+.ftrLang a:not([aria-current]):hover {
+  color: #000;
+}
+.langSw {
+  margin-right: 8px;
+}
+.mLang {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 54px;
+  margin: -8px 0 22px;
+  padding: 4px 18px 4px 20px;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+.ftrLang {
+  align-self: flex-start;
+  margin-top: 10px;
+}
+@media (max-width: 1023.98px) {
+  .langSw {
+    display: none;
+  }
+}

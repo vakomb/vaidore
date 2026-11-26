@@ -4,15 +4,15 @@
     <meta charset="utf-8" />
     <!-- @base -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Vaidore - kvepalai</title>
-    <meta name="description" content="Vaidore - Šiaurės įkvėpti nišiniai kvepalai. Rinkitės pagal kvapo šeimą, natas ir nuotaiką, išbandykite mėginuką." />
+    <title>{{t:meta.title}}</title>
+    <meta name="description" content="{{t:meta.description}}" />
     <meta name="theme-color" content="#FFFFFF" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Vaidore" />
-    <meta property="og:title" content="Vaidore - kvepalai" />
-    <meta property="og:description" content="Šiaurės įkvėpti nišiniai kvepalai. Mėginukai, nemokamas pristatymas nuo 60 €." />
+    <meta property="og:title" content="{{t:meta.title}}" />
+    <meta property="og:description" content="{{t:meta.ogDescription}}" />
     <meta property="og:type" content="website" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -33,7 +33,7 @@
     <!-- @inline <style id="desktop"> styles/09-desktop.css -->
   </head>
   <body>
-    <a class="skip" href="#main">Pereiti prie turinio</a>
+    <a class="skip" href="#main">{{t:a11y.skip}}</a>
     <!-- @partial partials/header.html -->
     <main class="main" id="main" tabindex="-1">
       <!-- @partial partials/view-home.html -->

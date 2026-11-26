@@ -294,7 +294,7 @@ function applyFilterInput(input) {
     return true;
   }
   if (input.dataset.fGo) {
-    const keep = new URLSearchParams(location.search);
+    const keep = urlParams();
     navigate(input.dataset.fGo + (keep.toString() ? `?${keep}` : ""), { replace: true, keepScroll: true });
     return true;
   }

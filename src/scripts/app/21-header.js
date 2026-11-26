@@ -211,6 +211,7 @@ ${cats.length ? `<p class="mHead">Kolekcijos</p><ul class="mGroup">${cats.map(c 
     "Susisiekite",
     "mail"
   )}${auth.isAdmin ? row("admin", "Administravimas", "gear") : ""}</ul>
+${langRowHTML()}
 </div>
 <footer class="drawerFoot"><p class="navShip">${glyph("truck")}<span>${
     !state.cart.length ? `Nemokamas pristatymas nuo <b>${eurShort(SET.freeShippingFrom)}</b>` : left > 0 ? `Iki nemokamo pristatymo liko <b>${eur(left)}</b>` : "<b>Pristatymas nemokamas</b>"
@@ -376,7 +377,7 @@ ${grp("Vaidore", [a("apie-mus", "Mūsų istorija"), a("atsiliepimai", "Atsiliepi
   }<li>${glyph("truck")}<span>Išsiunčiame per ${esc(nb(SET.dispatch || "1-2 d. d."))} · nemokamai nuo ${eurShort(SET.freeShippingFrom)}</span></li></ul></div>
 </div>
 <div class="ftrPay" aria-label="Mokėjimo būdai">${PAY_MARKS}</div>
-<div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", "Pirkimo sąlygos", false)}${a("privatumas", "Privatumo politika", false)}</small></div>`;
+<div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", "Pirkimo sąlygos", false)}${a("privatumas", "Privatumo politika", false)}</small>${langFooterHTML()}</div>`;
   syncFooterGroups();
 }
 // Kompiuteryje grupės visada atskleistos (stulpeliai), telefone - suskleistos, atsidaro paspaudus

@@ -53,13 +53,13 @@ document.addEventListener("submit", async e => {
 
 // /naujienlaiskis - prenumerata arba atsisakymas (?atsisakyti=<raktas> iš laiško)
 function infoNewsletterHTML() {
-  const token = new URLSearchParams(location.search).get("atsisakyti");
+  const token = urlParams().get("atsisakyti");
   return token
     ? `<header class="pageHead"><h1>Naujienlaiškis</h1></header><div class="empty" id="newsUnsub"><h3>Atsisakoma…</h3></div>`
     : `<header class="pageHead"><h1>Naujienlaiškis</h1></header><div class="newsPage">${newsletterFormHTML("page")}</div>`;
 }
 async function newsletterUnsubscribe() {
-  const token = new URLSearchParams(location.search).get("atsisakyti");
+  const token = urlParams().get("atsisakyti");
   const box = $("#newsUnsub");
   if (!token || !box) return;
   const done = ok =>

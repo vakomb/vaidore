@@ -86,6 +86,36 @@ for (const f of fs.readdirSync(path.join(root, "src/styles")).filter(f => f.ends
   for (const f of fs.readdirSync(path.join(root, "src/public/img/natos"))) if (!used.has(f)) fail(`img/natos/${f}: nenaudojamas notes.json`);
 }
 
+// 1b. v33: kalbos - žodynų raktai ir kintamieji sutampa, anglų žodyne nėra lietuviškų raidžių, adresų žemėlapis
+// abipusis ir apima visus prekių tipus, LT ↔ EN vertimas grįžta į tą patį adresą, angliška versija surenkama
+{
+  const { DICTS, ROUTES, L10N, LANGS } = await import("./i18n.mjs");
+  const keys = l => new Set(Object.keys(DICTS[l]));
+  const vars = s => [...String(s).matchAll(/\{(\w+)\}/g)].map(m => m[1]).sort().join(",");
+  for (const l of LANGS.filter(l => l !== "lt")) {
+    for (const k of keys("lt")) if (!keys(l).has(k)) fail(`i18n/${l}.json: trūksta rakto „${k}“`);
+    for (const k of keys(l)) if (!keys("lt").has(k)) fail(`i18n/${l}.json: nereikalingas raktas „${k}“ (nėra lt.json)`);
+    for (const k of keys(l)) if (keys("lt").has(k) && vars(DICTS.lt[k]) !== vars(DICTS[l][k])) fail(`i18n/${l}.json: „${k}“ - kintamieji {…} nesutampa su lt.json`);
+  }
+  const LT_OK = new Set(["lang.lt"]); // kalbos pavadinimas savo kalba
+  for (const [k, v] of Object.entries(DICTS.en)) if (!LT_OK.has(k) && /[ąčęėįšųūžĄČĘĖĮŠŲŪŽ]/.test(v)) fail(`i18n/en.json: „${k}“ - lietuviškos raidės: ${v}`);
+  for (const [l, d] of Object.entries(DICTS)) for (const [k, v] of Object.entries(d)) if (/[\u2012-\u2015\u2212]/.test(v)) fail(`i18n/${l}.json: „${k}“ - tik paprastas „-“ brūkšnys`);
+  const en = Object.values(ROUTES.paths);
+  if (new Set(en).size !== en.length) fail("i18n/routes.json: pasikartoja angliškas adresas");
+  for (const tp of ["kvepalai", "zvakes", "aliejai", "difuzoriai", "elektriniai-difuzoriai"]) if (!ROUTES.paths[tp]) fail(`i18n/routes.json: nėra prekių tipo „${tp}“`);
+  for (const rel of ["", "kvepalai", "kvepalai/rasa?ml=2", "visos-prekes?tipas=zvakes&rikiuoti=new", "pagalba#pristatymas", "paskyra/uzsakymai", "kategorija/vakarui", "naujienlaiskis?atsisakyti=x"]) {
+    const back = L10N.ltRel(L10N.enRel(rel));
+    if (back !== rel) fail(`i18n: „${rel}“ → „${L10N.enRel(rel)}“ → „${back}“ (turi grįžti tas pats)`);
+  }
+  if (L10N.enRel("admin/kvapai") !== "admin/kvapai") fail("i18n: administravimas turi likti be „en/“");
+  try {
+    const enHtml = buildApp({ lang: "en" });
+    if (!enHtml.includes('<html lang="en"') || /\{\{t:/.test(enHtml)) fail("i18n: anglų versija surinkta netinkamai (lang / {{t:…}})");
+  } catch (e) {
+    fail(`i18n: anglų versija nesurenkama - ${e.message}`);
+  }
+}
+
 // 2. JS sintaksė (programėlė kaip vienas scope)
 const html = buildApp();
 const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
@@ -105,4 +135,4 @@ if (errors.length) {
   console.error("✗ " + errors.join("\n✗ "));
   process.exit(1);
 }
-console.log(`✓ katalogas: ${cat.products.length} kvapai, ${cat.families.length} šeimos · JS sintaksė gera`);
+console.log(`✓ katalogas: ${cat.products.length} kvapai, ${cat.families.length} šeimos · JS sintaksė gera · kalbos: žodynai ir adresai sutampa`);

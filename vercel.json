@@ -63,6 +63,22 @@
     {
       "source": "/paskyra/:path*",
       "destination": "/paskyra"
+    },
+    {
+      "source": "/en/account/:path*",
+      "destination": "/en/account"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/en/admin/:path*",
+      "destination": "/admin/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/en/admin",
+      "destination": "/admin",
+      "permanent": false
     }
   ]
 }

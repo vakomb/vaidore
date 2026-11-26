@@ -5,10 +5,12 @@
 //   <!-- @catalog -->                                       - katalogas kaip window.VAIDORE_CATALOG (+ prekių puslapių tekstai
 //                                                             window.VAIDORE_PDP iš data/pdp.json, Supabase adresas, surinkimo laikas)
 //   <!-- @base -->                                          - <base href> (svetainės šaknis: „/“ arba GitHub Pages „/vaidore/“)
-// Naudojimas: node tools/build.mjs [--out kelias] [--pretty]
+//   {{t:raktas}}                                            - v33: tekstas iš src/i18n/<kalba>.json (ir atributuose); <html lang>
+// Naudojimas: node tools/build.mjs [--out kelias] [--pretty] [--lang en]
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { DICTS, ROUTES, CONFIG, EN_PUBLIC, URL_SRC, t } from "./i18n.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "src");
@@ -33,7 +35,12 @@ const minCss = css =>
 
 // opts.lockers - kiek Omniva paštomatų parsiųsta (tools/build-site.mjs); opts.head - papildomos <head> eilutės;
 // opts.catalog - katalogo objektas (testams; numatyta - src/data/catalog.json)
+// v33: opts.lang - puslapio kalba („lt“ / „en“); opts.dicts - kurių kalbų žodynus įdėti (numatyta - tik puslapio;
+// 404.html - abiejų, nes ji aptarnauja nežinomus abiejų kalbų adresus)
+const escAttr = v => String(v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 export function buildApp(opts = {}) {
+  const lang = opts.lang || "lt";
+  const dicts = opts.dicts || [lang];
   let html = read("index.html");
   html = html.replace(/<!-- @inline <style id="([\w-]+)"> ([\w./-]+) -->/g, (_, id, rel) => {
     return `<style id="${id}">${minCss(guard(rel, read(rel)))}</style>`;
@@ -41,6 +48,11 @@ export function buildApp(opts = {}) {
   // @partial gali būti ir dalies viduje (pvz. partials/header.html → partials/logo.svg)
   const partials = s => s.replace(/<!-- @partial ([\w./-]+) -->/g, (_, rel) => partials(guard(rel, read(rel)).trim()));
   html = partials(html);
+  html = html.replace(/<html lang="[a-z]+"/, `<html lang="${lang}"`);
+  html = html.replace(/\{\{t:([\w.-]+)\}\}/g, (_, key) => {
+    if (DICTS.lt[key] == null) throw new Error(`Žodyne nėra rakto: ${key}`);
+    return escAttr(t(lang, key));
+  });
   html = html.replace(/<!-- @base -->/, () => `<base href="${opts.base || "/"}" />`);
   html = html.replace(/<!-- @catalog -->/, () => {
     const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));
@@ -49,7 +61,11 @@ export function buildApp(opts = {}) {
     const pdp = JSON.stringify(JSON.parse(read("data/pdp.json")));
     // Numatytoji natų biblioteka - ingredientai, iškirpti iš tikrų Vaidore produktų nuotraukų (img/natos/; bazėje - note_media)
     const notes = JSON.stringify(JSON.parse(read("data/notes.json")));
-    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_PDP=${pdp.replace(/</g, "\\u003c")};window.VAIDORE_NOTES=${notes.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};</script>`;
+    // v33: kalba - tik reikiamų kalbų žodynai, adresų žemėlapis ir jo vertimas (src/i18n/url.js)
+    const i18n = JSON.stringify(Object.fromEntries(dicts.map(l => [l, DICTS[l]])));
+    const pub = opts.enPublic ?? EN_PUBLIC;
+    const l10n = `window.VAIDORE_ROUTES=${JSON.stringify(ROUTES)};window.VAIDORE_I18N=${i18n.replace(/</g, "\\u003c")};window.VAIDORE_I18N_PUBLIC=${pub ? "true" : "false"};window.VAIDORE_L10N=(function(){${guard("i18n/url.js", URL_SRC)}\nreturn makeL10n(Object.assign({},window.VAIDORE_ROUTES,{enStatic:${CONFIG.enStaticPages ? "true" : "false"}}));})();`;
+    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_PDP=${pdp.replace(/</g, "\\u003c")};window.VAIDORE_NOTES=${notes.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};${l10n}</script>`;
   });
   html = html.replace(/<!-- @lockers -->/, () => `<script>window.VAIDORE_LOCKERS=${Number(opts.lockers) || 0};</script>`);
   html = html.replace(/<!-- @app ([\w./-]+) -->/, (_, dir) => {
@@ -78,7 +94,7 @@ export function buildAdmin() {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  const html = buildApp();
+  const html = buildApp({ lang: args.includes("--lang") ? args[args.indexOf("--lang") + 1] : "lt" });
   const out = outArg ? path.resolve(outArg) : path.join(root, "dist", "index.html");
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, html);

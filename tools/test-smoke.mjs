@@ -984,6 +984,84 @@ async function run(viewport) {
 await run({ width: 430, height: 932 });
 await run({ width: 360, height: 780 });
 await run({ width: 1440, height: 900 });
+
+// v33: dvi kalbos - angliška versija (en/…), perjungiklis, adresai, kalbos įsiminimas; LT nepakitusi
+{
+  console.log("\n- kalbos (v33) -");
+  const rd = f => fs.readFileSync(path.join(siteA, f), "utf8");
+  const enP = rd("en/perfumes/vanor.html");
+  const ltP = rd("kvepalai/vanor.html");
+  check(
+    enP.includes('<html lang="en"') && enP.includes('<link rel="canonical" href="https://vaidore.com/en/perfumes/vanor"') && enP.includes('content="en_GB"') && /window\.VAIDORE_I18N=\{"en":\{/.test(enP) && !/"lt":\{"meta/.test(enP),
+    "EN: en/perfumes/vanor.html - lang, kanoninis adresas, og:locale, tik anglų žodynas"
+  );
+  check(ltP.includes('<html lang="lt"') && /window\.VAIDORE_I18N=\{"lt":\{/.test(ltP) && !/"en":\{"meta/.test(ltP), "LT: kvepalai/vanor.html - lang lt, tik lietuvių žodynas");
+  check(/"lt":\{"meta/.test(rd("404.html")) && /"en":\{"meta/.test(rd("404.html")), "404.html - abiejų kalbų žodynai (nežinomi abiejų kalbų adresai)");
+  check(
+    ["en/index.html", "en/perfumes/index.html", `en/reed-diffusers/${DIF.id}.html`, "en/cart.html", "en/help.html", "en/account.html", "en/all-products.html"].every(f => fs.existsSync(path.join(siteA, f))) && !fs.existsSync(path.join(siteA, "en/admin.html")),
+    "EN puslapiai surinkti angliškais adresais; administravimas - tik LT"
+  );
+  // Kol angliška versija neparengta (enPublic: false) - noindex, be hreflang, ne sitemap'e
+  check(enP.includes('<meta name="robots" content="noindex" />') && !ltP.includes('rel="alternate" hreflang') && !fs.readFileSync(path.join(siteA, "sitemap.xml"), "utf8").includes("/en/"), "EN kol neparengta: noindex, be hreflang, ne sitemap.xml");
+  // Paskelbus (I18N_EN_PUBLIC=1): hreflang lt / en / x-default abiejose versijose, sitemap su EN
+  const siteP = path.join(verify, "site-en-public");
+  build(siteP, { CATALOG: shopFile, I18N_EN_PUBLIC: "1" });
+  const pl = fs.readFileSync(path.join(siteP, "kvepalai/vanor.html"), "utf8");
+  const pe = fs.readFileSync(path.join(siteP, "en/perfumes/vanor.html"), "utf8");
+  const alts = h => ['hreflang="lt" href="https://vaidore.com/kvepalai/vanor"', 'hreflang="en" href="https://vaidore.com/en/perfumes/vanor"', 'hreflang="x-default" href="https://vaidore.com/en/perfumes/vanor"'].every(x => h.includes(x));
+  check(alts(pl) && alts(pe) && !pe.includes('content="noindex"') && fs.readFileSync(path.join(siteP, "sitemap.xml"), "utf8").includes("/en/perfumes/vanor<"), "EN paskelbus: hreflang (lt, en, x-default), indeksuojama, sitemap");
+  const serverP = await startServer(siteP, 4183);
+
+  for (const viewport of [{ width: 430, height: 932 }, { width: 1440, height: 900 }]) {
+    const mobile = viewport.width < 800;
+    const tag = mobile ? "telefonas" : "kompiuteris";
+    const { page } = await newPage(siteA, viewport, shopCat);
+    await open(page, `${A}en`);
+    const st = await page.evaluate(() => ({
+      lang: document.documentElement.lang,
+      view: document.querySelector(".view.active")?.dataset.view,
+      sw: !document.querySelector("#langSw").hidden && getComputedStyle(document.querySelector("#langSw")).display !== "none",
+      bad: [...document.querySelectorAll("a[href]")]
+        .map(a => a.getAttribute("href"))
+        .filter(h => !/^(https?:|mailto:|tel:|#)/.test(h) && !/^en(\/|$|\?)/.test(h) && !/^(admin|salygos|privatumas)(\/|$)/.test(h))
+    }));
+    check(st.lang === "en" && st.view === "home" && st.sw === !mobile && !st.bad.length, `EN ${tag}: /en - pradžia, lang en, perjungiklis ${mobile ? "☰ meniu" : "header'yje"}, visos vidinės nuorodos angliškos${st.bad.length ? ` (${st.bad.slice(0, 4).join(", ")})` : ""}`);
+    await page.locator('#homeRails a.cardLink[href^="en/perfumes/"]').first().evaluate(a => a.click());
+    await until(async () => (await view(page)) === "product");
+    check(/\/en\/perfumes\/[a-z0-9-]+$/.test(page.url()) && (await view(page)) === "product", `EN ${tag}: kortelė → en/perfumes/<id> (be perkrovimo)`);
+    await open(page, `${A}en/all-products?type=reed-diffusers`);
+    const dif = await page.evaluate(() => [document.querySelector(".view.active")?.dataset.view, document.querySelectorAll("#shopGrid .card").length, location.search]);
+    check(dif[0] === "shop" && dif[1] === 1 && dif[2] === "?type=reed-diffusers", `EN ${tag}: filtras ?type=reed-diffusers (vidinis „tipas=difuzoriai“) - ${dif[1]} prekė`);
+    await open(page, `${A}en/account/orders`);
+    check((await view(page)) === "account", `EN ${tag}: en/account/orders → paskyra`);
+    await open(page, `${A}en/perfumes/vanor?ml=2`);
+    await page.locator("#productRoot [data-add]").first().click();
+    await until(async () => (await cartBadge(page)) === "1");
+    await page.keyboard.press("Escape").catch(() => {});
+    if (mobile) {
+      await page.locator("#menuBtn").click();
+      await page.waitForSelector(".mLang a[data-lang-link='lt']");
+      await page.locator(".mLang a[data-lang-link='lt']").click();
+    } else await page.locator("#langSw a[data-lang-link='lt']").click();
+    await page.waitForURL(/\/kvepalai\/vanor\?ml=2$/);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    const sw = await page.evaluate(() => [document.documentElement.lang, localStorage.getItem("vaidore_lang_v1"), document.cookie.includes("vaidore_lang=lt"), document.querySelector('#cartBtn [data-badge="cart"]').textContent, document.querySelector("#langSw").hidden]);
+    check(sw[0] === "lt" && sw[1] === '"lt"' && sw[2] && sw[3] === "1" && sw[4], `LT ↔ EN ${tag}: tas pats produktas ir parametrai, kalba įsiminta (localStorage + slapukas), krepšelis bendras, LT kol neparengta - be perjungiklio`);
+    await open(page, `${A}en/perfumes/nera-tokio`);
+    check((await view(page)) === "404" && (await page.evaluate(() => document.documentElement.lang)) === "en", `EN ${tag}: nežinomas adresas - 404 angliškai`);
+    await page.context().close();
+    // Paskelbus - perjungiklis matomas ir lietuviškoje versijoje
+    const { page: pp } = await newPage(siteP, viewport, shopCat);
+    await open(pp, "http://localhost:4183/kvepalai");
+    if (mobile) {
+      await pp.locator("#menuBtn").click();
+      check(await pp.locator(".mLang a[data-lang-link='en']").isVisible(), `LT ${tag} (paskelbus): ☰ meniu - eilutė „Kalba“ LT | EN`);
+    } else check(await pp.locator("#langSw").isVisible(), `LT ${tag} (paskelbus): perjungiklis header'yje`);
+    check((await pp.locator(".ftrLang a").count()) === 2, `LT ${tag} (paskelbus): kalbos poraštėje`);
+    await pp.context().close();
+  }
+  serverP.close();
+}
 await browser.close();
 serverA.close();
 serverB.close();

@@ -8,10 +8,10 @@ const ui = { view: null, path: null };
 const STATIC_PAGES = new Set(["salygos", "privatumas", "aciu"]);
 const OLD_HASH = { "#/": "", "#/katalogas": "kvepalai", "#/megstami": "megstami", "#/krepselis": "krepselis", "#/info": "pagalba", "#/testas": "testas", "#/rinkinys": "rinkinys" };
 
+// Vidinis (lietuviškas) kelias: anglų versijoje „en/perfumes/rasa“ → „kvepalai/rasa“ (v33)
 function currentPath() {
-  let p = decodeURIComponent(location.pathname);
-  p = p.startsWith(BASE_PATH) ? p.slice(BASE_PATH.length) : p.replace(/^\//, "");
-  return p.replace(/\.html$/, "").replace(/\/+$/, "").replace(/^index$/, "");
+  const p = pathRel().replace(/\.html$/, "").replace(/\/+$/, "").replace(/^index$/, "");
+  return LANG === "en" ? L10N.ltRel(p).replace(/[?#].*$/, "") : p;
 }
 function matchRoute(path) {
   if (path === "") return { view: "home" };
@@ -36,7 +36,7 @@ function showView(name) {
 const TITLES = { home: null, cart: "Krepšelis", fav: "Mėgstami", account: "Paskyra", admin: "Administravimas", 404: "Puslapis nerastas" };
 function route({ restoreY = null } = {}) {
   const path = currentPath();
-  const params = new URLSearchParams(location.search);
+  const params = urlParams();
   let r = matchRoute(path);
   if (r.view === "product" && !renderProduct(r.id, params)) r = { view: "404" };
   ui.path = path;
@@ -48,13 +48,14 @@ function route({ restoreY = null } = {}) {
   if (r.view === "home") renderHome();
   if (r.view === "cart") renderCart();
   if (r.view === "fav") renderFav();
-  if (r.view === "info") renderInfo(r.kind, location.hash.slice(1));
+  if (r.view === "info") renderInfo(r.kind, urlHash());
   if (r.view === "account") renderAccount(r.sub);
   if (r.view === "admin") openAdmin(r.sub);
   if (r.view !== "admin") document.documentElement.classList.remove("isAdmin");
   showView(r.view);
   if (TITLES[r.view] !== undefined) document.title = TITLES[r.view] ? `${TITLES[r.view]} | ${SET.shop}` : `${SET.shop} - kvepalai`;
   updateNavCurrent(path);
+  updateLangSwitch();
   if (restoreY != null) requestAnimationFrame(() => window.scrollTo(0, restoreY));
   if (r.open === "testas") openQuiz();
   if (r.open === "rinkinys") openDiscovery();
@@ -86,7 +87,11 @@ document.addEventListener("click", e => {
   if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === "_blank") return;
   const url = new URL(a.href);
   if (url.origin !== location.origin || !url.pathname.startsWith(BASE_PATH)) return;
-  const rel = url.pathname.slice(BASE_PATH.length) + url.search + url.hash;
+  let rel = url.pathname.slice(BASE_PATH.length) + url.search + url.hash;
+  // Kitos kalbos puslapis (ir administravimas iš anglų versijos) - įprastas perėjimas: kitas žodynas (v33)
+  const ltOnly = /^admin(\/|$)/.test(rel);
+  if (langOfRel(rel) !== LANG || (LANG === "en" && ltOnly) || a.hasAttribute("data-lang-link")) return;
+  if (LANG === "en") rel = L10N.ltRel(rel);
   if (STATIC_PAGES.has(rel.replace(/[?#].*$/, ""))) return;
   e.preventDefault();
   navigate(rel);
