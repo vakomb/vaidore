@@ -2,5 +2,5 @@
   "langs": ["lt", "en"],
   "default": "lt",
   "enPublic": false,
-  "enStaticPages": false
+  "enStaticPages": true
 }

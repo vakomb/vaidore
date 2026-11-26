@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="lt">
+<html lang="{{lang}}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -15,15 +15,15 @@
   </head>
   <body class="page">
     <header class="pgTop">
-      <a class="pgBack" href="./" aria-label="Į parduotuvę"
-        ><svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5" /></svg>Parduotuvė</a
+      <a class="pgBack" href="{{homeHref}}" aria-label="{{backAria}}"
+        ><svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5" /></svg>{{backLbl}}</a
       >
-      <a class="pgLogo" href="./" aria-label="Vaidore">{{logo}}</a>
+      <a class="pgLogo" href="{{homeHref}}" aria-label="Vaidore">{{logo}}</a>
       <span></span>
     </header>
     <main class="pgMain">{{body}}</main>
     <footer class="pgFoot">
-      <a href="salygos">Pirkimo sąlygos</a><a href="privatumas">Privatumas</a
+      <a href="{{termsHref}}">{{termsLbl}}</a><a href="{{privacyHref}}">{{privacyLbl}}</a
       ><a href="mailto:{{company.email}}">{{company.email}}</a>
       <span>{{companyLine}}</span>
     </footer>

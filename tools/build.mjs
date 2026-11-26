@@ -57,6 +57,8 @@ export function buildApp(opts = {}) {
   const partials = s => s.replace(/<!-- @partial ([\w./-]+) -->/g, (_, rel) => partials(guard(rel, read(rel)).trim()));
   html = partials(html);
   // Puslapis su keliais žodynais (404.html - abiem kalboms): programėlė statinius tekstus išverčia pati (29-lang.js)
+  // v33f: anglų kalbos puslapiams - savas manifestas (pavadinimas, aprašymas, pradžia en)
+  if (lang !== "lt") html = html.replace('href="manifest.webmanifest"', `href="manifest.${lang}.webmanifest"`);
   html = html.replace(/<html lang="[a-z]+"/, `<html lang="${lang}"${dicts.length > 1 ? ` data-build-lang="${lang}"` : ""}`);
   html = html.replace(/\{\{t:([\w.-]+)\}\}/g, (_, key) => {
     if (DICTS.lt[key] == null) throw new Error(`Žodyne nėra rakto: ${key}`);

@@ -1,0 +1,66 @@
+<!-- title: Thank you for your order -->
+<section class="pgCard pgDone">
+  <div class="pgCheck" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5.5 12.5 4 4 9-9.5" /></svg></div>
+  <h1>Thank you for your order!</h1>
+  <p>Payment received. We've emailed you a confirmation and receipt, and we'll send you a tracking link once your parcel is on its way.</p>
+  <p class="pgMuted" id="orderRef"></p>
+  <div class="pgCredit" id="credit" hidden>
+    <p>We're refunding the price of your samples. Enter this code when you buy a full bottle:</p>
+    <button class="pgCode" type="button" id="creditCode" aria-label="Copy code"></button>
+    <p class="pgMuted" id="creditInfo"></p>
+  </div>
+  <div class="pgActs"><a class="pgBtn" href="en">Back to the shop</a><a class="pgBtn ghost" href="en/account/orders">My orders</a></div>
+</section>
+<script>
+  // EN (v33f). Užsakymas apmokėtas - išvalome krepšelį (raktai - src/scripts/app/05-state.js).
+  // Supabase funkcija „order“ grąžina mėginukų kainos grąžinimo kodą (jei pirkta mėginukų) ir sumą matavimui („Apmokėjo“),
+  // o užsakymą įrašo į duomenų bazę, jei Stripe webhook dar neatėjo.
+  var SB = {{supabase}};
+  (function () {
+    var s = null;
+    try {
+      localStorage.removeItem("vaidore_cart_v1");
+      localStorage.removeItem("vaidore_pending_v1");
+      localStorage.removeItem("vaidore_gift_v1");
+      s = new URLSearchParams(location.search).get("s");
+    } catch (e) {}
+    if (!s) return;
+    document.getElementById("orderRef").textContent = "Order no. " + s.slice(-8).toUpperCase();
+    var tracked = false;
+    function track(total) {
+      if (tracked) return;
+      tracked = true;
+      try {
+        var key = "vaidore_paid_" + s.slice(-8);
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, "1");
+        var props = total ? { suma: Math.round(total) } : {};
+        if (window.plausible) window.plausible("Apmokėjo", { props: props, revenue: total ? { currency: "EUR", amount: total } : undefined });
+        if (window.va) window.va("event", { name: "Apmokėjo", data: props });
+      } catch (e) {}
+    }
+    if (!SB || !SB.url) return track(0);
+    fetch(SB.url + "/functions/v1/shop/order?s=" + encodeURIComponent(s), { headers: { apikey: SB.key } })
+      .then(function (r) {
+        return r.ok ? r.json() : null;
+      })
+      .then(function (d) {
+        track(d && d.total);
+        if (!d || !d.credit) return;
+        var c = d.credit;
+        var code = document.getElementById("creditCode");
+        code.textContent = c.code;
+        document.getElementById("creditInfo").textContent =
+          "€" + (c.amount / 100).toFixed(2) + " off · valid until " + new Date(c.expires * 1000).toLocaleDateString("en-GB");
+        document.getElementById("credit").hidden = false;
+        code.addEventListener("click", function () {
+          if (navigator.clipboard) navigator.clipboard.writeText(c.code).then(function () {
+            code.classList.add("copied");
+          });
+        });
+      })
+      .catch(function () {
+        track(0);
+      });
+  })();
+</script>

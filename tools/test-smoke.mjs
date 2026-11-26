@@ -1010,6 +1010,19 @@ await run({ width: 1440, height: 900 });
   const pe = fs.readFileSync(path.join(siteP, "en/perfumes/vanor.html"), "utf8");
   const alts = h => ['hreflang="lt" href="https://vaidore.com/kvepalai/vanor"', 'hreflang="en" href="https://vaidore.com/en/perfumes/vanor"', 'hreflang="x-default" href="https://vaidore.com/en/perfumes/vanor"'].every(x => h.includes(x));
   check(!pl.includes('"i18n":') && pe.includes('"i18n":'), "vertimai (i18n) - tik angliškuose puslapiuose, lietuviški nepadidėja");
+  // v33f: SEO ir statiniai puslapiai angliškai
+  const terms = fs.readFileSync(path.join(siteP, "en/terms.html"), "utf8");
+  const thanks = fs.readFileSync(path.join(siteP, "en/thank-you.html"), "utf8");
+  const sm = fs.readFileSync(path.join(siteP, "sitemap.xml"), "utf8");
+  check(
+    terms.includes('<html lang="en"') && /Terms of sale/.test(terms) && !/[ąčęėįšųūž]/i.test(terms.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->|\[[^\]]*\]/g, "")) && /hreflang="lt" href="[^"]*\/salygos"/.test(terms) && sm.includes("/en/terms<"),
+    "EN: pirkimo sąlygos (en/terms) - angliškai, hreflang, sitemap"
+  );
+  check(/href="en\/account\/orders"/.test(thanks) && /Thank you for your order/.test(thanks) && /noindex/.test(thanks), "EN: padėkos puslapis (en/thank-you) - angliškai, noindex");
+  check(
+    /<title>Vanor - Eau de Parfum \| /.test(pe) && /<meta name="description" content="Inspired by Tom Ford/.test(pe) && /<noscript><h1>[^<]*<\/h1><p>Inspired by/.test(pe) && /"inLanguage":"en"/.test(pe) && /manifest\.en\.webmanifest/.test(pe),
+    "EN prekės SEO puslapis: aprašas, noscript tekstas, JSON-LD inLanguage, manifestas - angliškai"
+  );
   check(alts(pl) && alts(pe) && !pe.includes('content="noindex"') && fs.readFileSync(path.join(siteP, "sitemap.xml"), "utf8").includes("/en/perfumes/vanor<"), "EN paskelbus: hreflang (lt, en, x-default), indeksuojama, sitemap");
   const serverP = await startServer(siteP, 4183);
 

@@ -34,27 +34,53 @@ const fromDb = !!dbCat;
 // v30: tekstai be ilgų brūkšnių (kaip programėlėje - plainDeep, 01-util.js)
 const catalog = plainDeep(dbCat || fileCatalog);
 const S = catalog.settings;
-// Prekių puslapių tekstai pagal tipą (v29): numatytieji + administravimo pakeitimai - SEO puslapiuose natos ir naudojimas tekstu
+// Prekių puslapių tekstai pagal tipą (v29): numatytieji + administravimo pakeitimai - SEO puslapiuose natos ir naudojimas tekstu.
+// v33f: anglų kalba - src/i18n/pdp.en.json + settings.i18n.en.pdp, natos - src/i18n/notes.en.json
 const PDP_DEF = JSON.parse(fs.readFileSync(path.join(src, "data", "pdp.json"), "utf8"));
-const pdpOf = t => {
-  const d = PDP_DEF[t] || {};
-  const o = S.pdp?.[t] || {};
-  const out = { ...d, ...o };
-  for (const k of Object.keys(d)) if (d[k] && typeof d[k] === "object") out[k] = { ...d[k], ...(o[k] || {}) };
+const readI18n = f => (fs.existsSync(path.join(src, "i18n", f)) ? JSON.parse(fs.readFileSync(path.join(src, "i18n", f), "utf8")) : {});
+const PDP_I18N = { en: readI18n("pdp.en.json") };
+const foldKey = v => String(v || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+const NOTES_I18N = { en: Object.fromEntries(Object.entries(readI18n("notes.en.json")).map(([k, v]) => [foldKey(k), v])) };
+const noteName = (lang, n) => (lang === "lt" ? n : NOTES_I18N[lang]?.[foldKey(n)] || n);
+const deepMerge = (a, b) => {
+  if (!b || typeof b !== "object" || Array.isArray(b)) return b === undefined ? a : b;
+  const out = { ...(a && typeof a === "object" && !Array.isArray(a) ? a : {}) };
+  for (const [k, v] of Object.entries(b)) out[k] = Array.isArray(v) ? v : deepMerge(out[k], v);
   return out;
 };
-function storyText(p, ty) {
-  const c = pdpOf(ty);
+const pdpOf = (t, lang = "lt") => {
+  const d = lang === "lt" ? PDP_DEF[t] || {} : deepMerge(PDP_DEF[t] || {}, PDP_I18N[lang]?.[t] || {});
+  const o = lang === "lt" ? S.pdp?.[t] || {} : S.i18n?.[lang]?.pdp?.[t] || {};
+  return deepMerge(d, o);
+};
+function storyText(p, ty, lang = "lt") {
+  const c = pdpOf(ty, lang);
   const out = [];
-  const all = [...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])];
-  if (c.notes?.on !== false && all.length) out.push(`<p><b>${esc(c.notes?.title || "Natos")}:</b> ${esc(all.join(", "))}.</p>`);
+  const all = [...(p.notes?.top || []), ...(p.notes?.heart || []), ...(p.notes?.base || [])].map(n => noteName(lang, n));
+  if (c.notes?.on !== false && all.length) out.push(`<p><b>${esc(c.notes?.title || TX[lang].notes)}:</b> ${esc(all.join(", "))}.</p>`);
   const steps = (c.steps?.items || []).filter(x => x?.title || x?.text);
   if (c.steps?.on !== false && steps.length)
-    out.push(`<h2>${esc(c.steps.title || "Kaip naudoti")}</h2><ol>${steps.map(x => `<li>${x.title ? `<b>${esc(x.title)}.</b> ` : ""}${esc(x.text || "")}</li>`).join("")}</ol>`);
+    out.push(`<h2>${esc(c.steps.title || TX[lang].how)}</h2><ol>${steps.map(x => `<li>${x.title ? `<b>${esc(x.title)}.</b> ` : ""}${esc(x.text || "")}</li>`).join("")}</ol>`);
   const where = (c.where?.items || []).filter(x => x?.label);
-  if (c.where?.on !== false && where.length) out.push(`<p><b>${esc(c.where.title || "Kur naudoti")}:</b> ${esc(where.map(x => x.label).join(", "))}.${c.where.text ? ` ${esc(c.where.text)}` : ""}</p>`);
+  if (c.where?.on !== false && where.length) out.push(`<p><b>${esc(c.where.title || TX[lang].where)}:</b> ${esc(where.map(x => x.label).join(", "))}.${c.where.text ? ` ${esc(c.where.text)}` : ""}</p>`);
   if (c.note?.on !== false && c.note?.text) out.push(`<p>${esc(c.note.text)}</p>`);
   return out.join("");
+}
+// Katalogas kalba (kaip programėlės localizeCatalog, 03-catalog.js): prekės, šeimos, kolekcijos, nustatymai
+function localizeCatalog(c, lang) {
+  if (lang === "lt") return c;
+  c = JSON.parse(JSON.stringify(c));
+  const over = o => {
+    const tr = o?.i18n?.[lang];
+    if (tr) for (const [k, v] of Object.entries(tr)) if (typeof v === "string" ? v.trim() : v != null && typeof v !== "object") o[k] = v;
+  };
+  for (const k of ["products", "families", "categories"]) (c[k] || []).forEach(over);
+  const tr = c.settings?.i18n?.[lang] || {};
+  const S2 = c.settings;
+  for (const k of ["hero", "story", "inspired", "discovery", "business"]) if (tr[k] && S2[k]) S2[k] = { ...S2[k], ...tr[k] };
+  for (const k of ["tagline", "dispatch"]) if (typeof tr[k] === "string" && tr[k].trim()) S2[k] = tr[k];
+  if (Array.isArray(S2.shipping)) S2.shipping = S2.shipping.map(o => ({ ...o, ...(tr.shipping?.[o.id] || {}) }));
+  return c;
 }
 const SITE = (process.env.SITE_URL || `https://${S.domain}`).replace(/\/$/, "");
 const NOINDEX = process.env.NOINDEX === "1";
@@ -131,11 +157,14 @@ const enFile = (file, route) => {
   const r = routeFor("en", route);
   return r === route ? null : file.endsWith("index.html") ? `${r}/index.html` : `${r}.html`;
 };
-function page(file, opts) {
-  const html = pageLang(file, opts, "lt");
+// v33f: puslapio duomenys kiekvienai kalbai - mk(kalba, katalogas kalba, tekstai) arba vienas objektas abiem kalboms
+function page(file, mk) {
+  const opts = lang => (typeof mk === "function" ? mk(lang, CAT[lang], TX[lang]) : mk);
+  const o = opts("lt");
+  const html = pageLang(file, o, "lt");
   // Administravimas - tik lietuviškai; 404.html - viena abiem kalboms (programėlė kalbą pasirenka pagal adresą)
-  const ef = opts.route != null && enFile(file, opts.route);
-  if (ef) pageLang(ef, opts, "en");
+  const ef = o.route != null && enFile(file, o.route);
+  if (ef) pageLang(ef, opts("en"), "en");
   return html;
 }
 function pageLang(file, { route, title, desc, image = `${SITE}/og/home.jpg`, type = "website", noindex = false, extra = [], noscript = "" }, lang) {
@@ -179,151 +208,223 @@ function pageLang(file, { route, title, desc, image = `${SITE}/og/home.jpg`, typ
   if (!noindex && !hidden && lr != null) sitemap.push(canonical);
   return html;
 }
-const app = page("index.html", {
+// SEO tekstai kalba
+const TX = {
+  lt: {
+    home: shop => `${shop} - kvepalai`,
+    fragrances: "kvapai",
+    andMore: " ir kiti",
+    listTail: () => `Mėginukai 2 ml, nemokamas pristatymas nuo ${S.freeShippingFrom} €.`,
+    perfumes: "Kvepalai",
+    gender: { moterims: "Kvepalai moterims", vyrams: "Kvepalai vyrams", unisex: "Unisex kvepalai" },
+    samplesTitle: "Kvepalų mėginukai 2 ml",
+    samplesDesc: n => `Išbandykite kvapą prieš pirkdami: ${n} kvapų mėginukai po 2 ml.`,
+    insp: x => `Įkvėpti ${x}. `,
+    scent: (fam, notes) => `${fam} kvapas: ${notes}. `,
+    from: "nuo",
+    sample: x => `, mėginukas 2 ml - ${x}`,
+    home1: "Pradžia",
+    help: () => [`Pagalba: pristatymas, grąžinimas, DUK`, `Pristatymas per ${S.dispatch || "1-2 d. d."}, nemokamai nuo ${S.freeShippingFrom} €, grąžinimas per ${S.returnDays || 14} d.`],
+    about: "Apie mus",
+    all: "Visos prekės - kvepalai ir namų kvapai",
+    best: "Bestselleriai - populiariausi kvepalai",
+    sale: "Didžiausios nuolaidos",
+    saleNone: () => `Kvepalų nuolaidos ${S.shop}. Nuolaidas skelbiame naujienlaiškyje.`,
+    reviews: "Atsiliepimai",
+    reviewsDesc: () => `Tikri ${S.shop} pirkėjų atsiliepimai - rašo tik pirkę.`,
+    biz: "Verslui - kvepalai įmonių dovanoms",
+    bizDesc: "Kvepalai ir mėginukų rinkiniai įmonių dovanoms, renginiams ir partneriams. Pasiūlymas per 1 d. d.",
+    news: "Naujienlaiškis",
+    misc: { krepselis: "Krepšelis", megstami: "Mėgstami", paskyra: "Paskyra", admin: "Administravimas", testas: "Rask savo kvapą" },
+    discovery: "Atradimų rinkinys",
+    nf: "Puslapis nerastas",
+    notes: "Natos",
+    how: "Kaip naudoti",
+    where: "Kur naudoti",
+    type: {
+      kvepalai: { name: "Kvepalai", one: "Kvepalai", what: "kvapai" },
+      difuzoriai: { name: "Namų kvapų difuzoriai", one: "Namų kvapų difuzorius", what: "difuzoriai" },
+      zvakes: { name: "Kvapnios žvakės", one: "Kvapni žvakė", what: "žvakės" },
+      aliejai: { name: "Aromatiniai aliejai difuzoriams", one: "Aromatinis aliejus", what: "aliejai" },
+      "elektriniai-difuzoriai": { name: "Elektriniai difuzoriai", one: "Elektrinis difuzorius", what: "difuzoriai" }
+    },
+    money: n => n.toFixed(2).replace(".", ",") + " €"
+  },
+  en: {
+    home: shop => `${shop} - perfume`,
+    fragrances: "fragrances",
+    andMore: " and more",
+    listTail: () => `2 ml samples, free delivery over €${S.freeShippingFrom}.`,
+    perfumes: "Perfume",
+    gender: { moterims: "Perfume for women", vyrams: "Perfume for men", unisex: "Unisex perfume" },
+    samplesTitle: "Perfume samples 2 ml",
+    samplesDesc: n => `Try a fragrance before you buy: ${n} fragrances as 2 ml samples.`,
+    insp: x => `Inspired by ${x}. `,
+    scent: (fam, notes) => `${fam} fragrance: ${notes}. `,
+    from: "from",
+    sample: x => `, 2 ml sample - ${x}`,
+    home1: "Home",
+    help: () => [`Help: delivery, returns, FAQ`, `Dispatched within ${CAT.en.settings.dispatch || "1-2 business days"}, free delivery over €${S.freeShippingFrom}, ${S.returnDays || 14}-day returns.`],
+    about: "About us",
+    all: "All products - perfume and home fragrance",
+    best: "Bestsellers - our most popular perfumes",
+    sale: "Best offers",
+    saleNone: () => `Perfume offers at ${S.shop}. We announce offers in our newsletter.`,
+    reviews: "Reviews",
+    reviewsDesc: () => `Genuine ${S.shop} customer reviews - written only by verified buyers.`,
+    biz: "Business - perfume for corporate gifts",
+    bizDesc: "Perfume and sample sets for corporate gifts, events and partners. A quote within 1 business day.",
+    news: "Newsletter",
+    misc: { krepselis: "Bag", megstami: "Favourites", paskyra: "Account", admin: "Administravimas", testas: "Find your fragrance" },
+    discovery: "Discovery set",
+    nf: "Page not found",
+    notes: "Notes",
+    how: "How to use",
+    where: "Where to use",
+    type: {
+      kvepalai: { name: "Perfume", one: "Perfume", what: "fragrances" },
+      difuzoriai: { name: "Reed diffusers", one: "Reed diffuser", what: "diffusers" },
+      zvakes: { name: "Scented candles", one: "Scented candle", what: "candles" },
+      aliejai: { name: "Fragrance oils for diffusers", one: "Fragrance oil", what: "oils" },
+      "elektriniai-difuzoriai": { name: "Electric diffusers", one: "Electric diffuser", what: "diffusers" }
+    },
+    money: n => `€${n.toFixed(2)}`
+  }
+};
+const CAT = { lt: catalog, en: localizeCatalog(catalog, "en") };
+const famOf = (lang, id) => CAT[lang].families.find(f => f.id === id)?.name || "";
+const listOf = (lang, ids) => ids.map(id => CAT[lang].products.find(p => p.id === id)).filter(Boolean);
+const app = page("index.html", (lang, C) => ({
   route: "",
-  title: `${S.shop} - kvepalai`,
-  desc: S.tagline,
-  extra: [ld({ "@context": "https://schema.org", "@type": "OnlineStore", name: S.shop, url: `${SITE}/`, description: S.tagline, email: S.company.email })]
-});
-const listDesc = list =>
-  `${list.length} kvapai: ${list
+  title: TX[lang].home(S.shop),
+  desc: C.settings.tagline,
+  extra: [ld({ "@context": "https://schema.org", "@type": "OnlineStore", name: S.shop, url: `${SITE}/${routeFor(lang, "")}`, description: C.settings.tagline, email: S.company.email, inLanguage: lang })]
+}));
+const listDesc = (lang, list) =>
+  `${list.length} ${TX[lang].fragrances}: ${list
     .slice(0, 5)
     .map(p => p.name)
-    .join(", ")}${list.length > 5 ? " ir kiti" : ""}. Mėginukai 2 ml, nemokamas pristatymas nuo ${S.freeShippingFrom} €.`;
+    .join(", ")}${list.length > 5 ? TX[lang].andMore : ""}. ${TX[lang].listTail()}`;
 // Prekių tipai (v13, v15 - 5 tipai; tie patys kaip TYPES, 03-catalog.js) - sąrašo puslapis tik tipui, kuriame yra prekių
-const TYPE_PAGE = {
-  kvepalai: { name: "Kvepalai", one: "Kvepalai", what: "kvapai" },
-  difuzoriai: { name: "Namų kvapų difuzoriai", one: "Namų kvapų difuzorius", what: "difuzoriai" },
-  zvakes: { name: "Kvapnios žvakės", one: "Kvapni žvakė", what: "žvakės" },
-  aliejai: { name: "Aromatiniai aliejai difuzoriams", one: "Aromatinis aliejus", what: "aliejai" },
-  "elektriniai-difuzoriai": { name: "Elektriniai difuzoriai", one: "Elektrinis difuzorius", what: "difuzoriai" }
-};
+const TYPE_PAGE = TX.lt.type;
 const typeOf = p => (TYPE_PAGE[p.type] ? p.type : "kvepalai");
 const perfumes = products.filter(p => typeOf(p) === "kvepalai");
-const productList = (list, what = "kvapai") =>
+const ids = list => list.map(p => p.id);
+const productList = (lang, list, what) =>
   `${list.length} ${what}: ${list
     .slice(0, 5)
     .map(p => p.name)
-    .join(", ")}${list.length > 5 ? " ir kiti" : ""}.`;
-page("kvepalai/index.html", { route: "kvepalai", title: `Kvepalai | ${S.shop}`, desc: listDesc(perfumes) });
-for (const t of Object.keys(TYPE_PAGE).filter(t => t !== "kvepalai")) {
-  const list = products.filter(p => typeOf(p) === t);
-  if (list.length) page(`${t}/index.html`, { route: t, title: `${TYPE_PAGE[t].name} | ${S.shop}`, desc: productList(list, TYPE_PAGE[t].what) });
+    .join(", ")}${list.length > 5 ? TX[lang].andMore : ""}.`;
+page("kvepalai/index.html", (lang, C, X) => ({ route: "kvepalai", title: `${X.perfumes} | ${S.shop}`, desc: listDesc(lang, listOf(lang, ids(perfumes))) }));
+for (const tp of Object.keys(TYPE_PAGE).filter(tp => tp !== "kvepalai")) {
+  const list = products.filter(p => typeOf(p) === tp);
+  if (list.length) page(`${tp}/index.html`, (lang, C, X) => ({ route: tp, title: `${X.type[tp].name} | ${S.shop}`, desc: productList(lang, listOf(lang, ids(list)), X.type[tp].what) }));
 }
-for (const [g, t] of [
-  ["moterims", "Kvepalai moterims"],
-  ["vyrams", "Kvepalai vyrams"],
-  ["unisex", "Unisex kvepalai"]
-])
-  page(`${g}.html`, { route: g, title: `${t} | ${S.shop}`, desc: listDesc(perfumes.filter(p => p.gender === g || (p.gender === "unisex" && g !== "unisex"))) });
-page("meginukai.html", {
-  route: "meginukai",
-  title: `Kvepalų mėginukai 2 ml | ${S.shop}`,
-  desc: `Išbandykite kvapą prieš pirkdami: ${perfumes.filter(p => Number(p.sample) > 0).length} kvapų mėginukai po 2 ml.`
-});
+for (const g of ["moterims", "vyrams", "unisex"])
+  page(`${g}.html`, (lang, C, X) => ({
+    route: g,
+    title: `${X.gender[g]} | ${S.shop}`,
+    desc: listDesc(lang, listOf(lang, ids(perfumes.filter(p => p.gender === g || (p.gender === "unisex" && g !== "unisex")))))
+  }));
+page("meginukai.html", (lang, C, X) => ({ route: "meginukai", title: `${X.samplesTitle} | ${S.shop}`, desc: X.samplesDesc(perfumes.filter(p => Number(p.sample) > 0).length) }));
 for (const c of categories)
-  page(`kategorija/${c.id}.html`, {
-    route: `kategorija/${c.id}`,
-    title: `${c.name} | ${S.shop}`,
-    desc: c.description || listDesc(products.filter(p => (p.categories || []).includes(c.id)))
+  page(`kategorija/${c.id}.html`, (lang, C) => {
+    const cl = C.categories.find(x => x.id === c.id) || c;
+    return { route: `kategorija/${c.id}`, title: `${cl.name} | ${S.shop}`, desc: cl.description || listDesc(lang, listOf(lang, ids(products.filter(p => (p.categories || []).includes(c.id))))) };
   });
-for (const p of products) {
-  const ty = typeOf(p);
-  const perf = ty === "kvepalai";
-  const kind = perf ? CONC[p.conc] || p.conc : TYPE_PAGE[ty].one;
-  const url = `${SITE}/${ty}/${p.id}`;
-  const prices = p.sizes.map(s => s.price);
-  const notes = [...p.notes.top, ...p.notes.heart, ...p.notes.base].slice(0, 5).join(", ");
-  const insp = S.inspired?.show !== false && p.inspired ? `Įkvėpti ${p.inspired}. ` : "";
-  const sizeTxt = s => (s.unit === "vnt" ? "" : `${s.ml} ${s.unit || "ml"}`);
-  const scentTxt = notes ? `${FAM[p.family]} kvapas: ${notes}. ` : "";
-  const desc = `${insp}${p.tagline ? `${p.tagline}. ` : ""}${scentTxt}${p.sizes.map(sizeTxt).filter(Boolean).join(" / ")}${p.sizes.some(sizeTxt) ? " " : ""}nuo ${money(Math.min(...prices))}${
-    perf && Number(p.sample) > 0 ? `, mėginukas 2 ml - ${money(p.sample)}` : ""
-  }.`.slice(0, 300);
-  const image = p.images?.length ? p.images.map(i => new URL(i, `${SITE}/`).href) : [`${SITE}/${ogFile(p.id)}`];
-  const reviews = (p.reviews || []).filter(r => r?.name && r?.text);
-  const rated = reviews.filter(r => r.rating);
-  const product = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: perf ? `${p.name} ${kind}` : p.name,
-    description: p.desc,
-    image,
-    sku: p.id,
-    category: perf ? "Kvepalai" : TYPE_PAGE[ty].name,
-    brand: { "@type": "Brand", name: S.shop },
-    offers: {
-      "@type": "AggregateOffer",
-      priceCurrency: (S.currency || "eur").toUpperCase(),
-      lowPrice: Math.min(...prices),
-      highPrice: Math.max(...prices),
-      offerCount: p.sizes.length,
-      availability: inStock(p) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      url
-    }
-  };
-  if (reviews.length)
-    product.review = reviews.slice(0, 10).map(r => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: r.name },
-      reviewBody: r.text,
-      ...(r.date ? { datePublished: r.date } : {}),
-      ...(r.rating ? { reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 } } : {})
-    }));
-  if (rated.length)
-    product.aggregateRating = {
-      "@type": "AggregateRating",
-      ratingValue: Math.round((rated.reduce((s, r) => s + r.rating, 0) / rated.length) * 10) / 10,
-      reviewCount: rated.length
+for (const p0 of products)
+  page(`${typeOf(p0)}/${p0.id}.html`, (lang, C, X) => {
+    const p = C.products.find(x => x.id === p0.id) || p0;
+    const ty = typeOf(p);
+    const perf = ty === "kvepalai";
+    const kind = perf ? CONC[p.conc] || p.conc : X.type[ty].one;
+    const route = `${ty}/${p.id}`;
+    const url = `${SITE}/${routeFor(lang, route)}`;
+    const prices = p.sizes.map(s => s.price);
+    const notes = [...p.notes.top, ...p.notes.heart, ...p.notes.base].slice(0, 5).map(n => noteName(lang, n)).join(", ");
+    const insp = S.inspired?.show !== false && p.inspired ? X.insp(p.inspired) : "";
+    const sizeTxt = s => (s.unit === "vnt" ? "" : `${s.ml} ${s.unit || "ml"}`);
+    const scentTxt = notes ? X.scent(famOf(lang, p.family), notes) : "";
+    const desc = `${insp}${p.tagline ? `${p.tagline}. ` : ""}${scentTxt}${p.sizes.map(sizeTxt).filter(Boolean).join(" / ")}${p.sizes.some(sizeTxt) ? " " : ""}${X.from} ${X.money(Math.min(...prices))}${
+      perf && Number(p.sample) > 0 ? X.sample(X.money(Number(p.sample))) : ""
+    }.`.slice(0, 300);
+    const image = p.images?.length ? p.images.map(i => new URL(i, `${SITE}/`).href) : [`${SITE}/${ogFile(p.id)}`];
+    const reviews = (p.reviews || []).filter(r => r?.name && r?.text);
+    const rated = reviews.filter(r => r.rating);
+    const product = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: perf ? `${p.name} ${kind}` : p.name,
+      description: p.desc,
+      image,
+      sku: p.id,
+      category: X.type[ty].name,
+      brand: { "@type": "Brand", name: S.shop },
+      inLanguage: lang,
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: (S.currency || "eur").toUpperCase(),
+        lowPrice: Math.min(...prices),
+        highPrice: Math.max(...prices),
+        offerCount: p.sizes.length,
+        availability: inStock(p) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        url
+      }
     };
-  const crumbs = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Pradžia", item: `${SITE}/` },
-      { "@type": "ListItem", position: 2, name: perf ? "Kvepalai" : TYPE_PAGE[ty].name, item: `${SITE}/${ty}` },
-      { "@type": "ListItem", position: 3, name: p.name, item: url }
-    ]
-  };
-  page(`${ty}/${p.id}.html`, {
-    route: `${ty}/${p.id}`,
-    title: `${p.name} - ${kind} | ${S.shop}`,
-    desc,
-    image: fs.existsSync(path.join(src, "public", "og", `${p.id}.jpg`)) ? `${SITE}/og/${p.id}.jpg` : image[0],
-    type: "product",
-    extra: [ld(product), ld(crumbs)],
-    noscript: `<h1>${esc(p.name)} - ${esc(kind)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>${storyText(p, ty)}`
+    if (reviews.length)
+      product.review = reviews.slice(0, 10).map(r => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.name },
+        reviewBody: r.text,
+        ...(r.date ? { datePublished: r.date } : {}),
+        ...(r.rating ? { reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 } } : {})
+      }));
+    if (rated.length)
+      product.aggregateRating = {
+        "@type": "AggregateRating",
+        ratingValue: Math.round((rated.reduce((sum, r) => sum + r.rating, 0) / rated.length) * 10) / 10,
+        reviewCount: rated.length
+      };
+    const crumbs = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: X.home1, item: `${SITE}/${routeFor(lang, "")}` },
+        { "@type": "ListItem", position: 2, name: X.type[ty].name, item: `${SITE}/${routeFor(lang, ty)}` },
+        { "@type": "ListItem", position: 3, name: p.name, item: url }
+      ]
+    };
+    return {
+      route,
+      title: `${p.name} - ${kind} | ${S.shop}`,
+      desc,
+      image: fs.existsSync(path.join(src, "public", "og", `${p.id}.jpg`)) ? `${SITE}/og/${p.id}.jpg` : image[0],
+      type: "product",
+      extra: [ld(product), ld(crumbs)],
+      noscript: `<h1>${esc(p.name)} - ${esc(kind)}</h1>${insp ? `<p>${esc(insp.trim())}</p>` : ""}<p>${esc(p.desc)}</p><p>${esc(desc)}</p>${storyText(p, ty, lang)}`
+    };
   });
-}
-page("pagalba.html", {
-  route: "pagalba",
-  title: `Pagalba: pristatymas, grąžinimas, DUK | ${S.shop}`,
-  desc: `Pristatymas per ${S.dispatch || "1-2 d. d."}, nemokamai nuo ${S.freeShippingFrom} €, grąžinimas per ${S.returnDays || 14} d.`
+page("pagalba.html", (lang, C, X) => {
+  const [title, desc] = X.help();
+  return { route: "pagalba", title: `${title} | ${S.shop}`, desc };
 });
-page("apie-mus.html", { route: "apie-mus", title: `Apie mus | ${S.shop}`, desc: S.story?.text || S.tagline });
+page("apie-mus.html", (lang, C, X) => ({ route: "apie-mus", title: `${X.about} | ${S.shop}`, desc: C.settings.story?.text || C.settings.tagline }));
 const ranked = [...products].sort((a, b) => a.rank - b.rank);
-page("visos-prekes.html", { route: "visos-prekes", title: `Visos prekės - kvepalai ir namų kvapai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
-page("bestselleriai.html", { route: "bestselleriai", title: `Bestselleriai - populiariausi kvepalai | ${S.shop}`, desc: listDesc(ranked.slice(0, 8)) });
-const onSaleList = products.filter(p => p.sizes.some(s => s.was > s.price));
-page("nuolaidos.html", {
+page("visos-prekes.html", (lang, C, X) => ({ route: "visos-prekes", title: `${X.all} | ${S.shop}`, desc: listDesc(lang, listOf(lang, ids(ranked.slice(0, 8)))) }));
+page("bestselleriai.html", (lang, C, X) => ({ route: "bestselleriai", title: `${X.best} | ${S.shop}`, desc: listDesc(lang, listOf(lang, ids(ranked.slice(0, 8)))) }));
+const onSaleList = products.filter(p => p.sizes.some(sz => sz.was > sz.price));
+page("nuolaidos.html", (lang, C, X) => ({
   route: "nuolaidos",
-  title: `Didžiausios nuolaidos | ${S.shop}`,
-  desc: onSaleList.length ? listDesc(onSaleList) : `Kvepalų nuolaidos ${S.shop}. Nuolaidas skelbiame naujienlaiškyje.`,
+  title: `${X.sale} | ${S.shop}`,
+  desc: onSaleList.length ? listDesc(lang, listOf(lang, ids(onSaleList))) : X.saleNone(),
   noindex: !onSaleList.length
-});
-page("atsiliepimai.html", { route: "atsiliepimai", title: `Atsiliepimai | ${S.shop}`, desc: `Tikri ${S.shop} pirkėjų atsiliepimai - rašo tik pirkę.` });
-page("verslui.html", { route: "verslui", title: `Verslui - kvepalai įmonių dovanoms | ${S.shop}`, desc: S.business?.text || `Kvepalai ir mėginukų rinkiniai įmonių dovanoms, renginiams ir partneriams. Pasiūlymas per 1 d. d.` });
-page("naujienlaiskis.html", { route: "naujienlaiskis", title: `Naujienlaiškis | ${S.shop}`, noindex: true });
-for (const [f, t] of [
-  ["krepselis", "Krepšelis"],
-  ["megstami", "Mėgstami"],
-  ["paskyra", "Paskyra"],
-  ["admin", "Administravimas"],
-  ["testas", "Rask savo kvapą"],
-  ["rinkinys", S.discovery?.name || "Atradimų rinkinys"]
-])
-  page(`${f}.html`, { route: f, title: `${t} | ${S.shop}`, noindex: true });
-page("404.html", { route: null, title: `Puslapis nerastas | ${S.shop}`, noindex: true });
+}));
+page("atsiliepimai.html", (lang, C, X) => ({ route: "atsiliepimai", title: `${X.reviews} | ${S.shop}`, desc: X.reviewsDesc() }));
+page("verslui.html", (lang, C, X) => ({ route: "verslui", title: `${X.biz} | ${S.shop}`, desc: C.settings.business?.text || X.bizDesc }));
+page("naujienlaiskis.html", (lang, C, X) => ({ route: "naujienlaiskis", title: `${X.news} | ${S.shop}`, noindex: true }));
+for (const f of ["krepselis", "megstami", "paskyra", "admin", "testas", "rinkinys"])
+  page(`${f}.html`, (lang, C, X) => ({ route: f, title: `${f === "rinkinys" ? C.settings.discovery?.name || X.discovery : X.misc[f]} | ${S.shop}`, noindex: true }));
+page("404.html", { route: null, title: `${TX.lt.nf} | ${S.shop}`, noindex: true });
 
 // 4. Administravimo skydelis, vieši failai
 const admin = buildAdmin();
@@ -342,38 +443,75 @@ const css = ["styles/01-tokens.css", "styles/02-base.css", "styles/08-pages.css"
 const layout = fs.readFileSync(path.join(src, "pages", "_layout.html"), "utf8");
 const c = S.company;
 const filled = v => v && !/^\[.*\]$/.test(String(v).trim());
-const companyLine = `© ${new Date().getFullYear()} ${[
-  filled(c.name) ? c.name : S.shop,
-  filled(c.code) && `įm. k. ${c.code}`,
-  filled(c.vat) && `PVM k. ${c.vat}`,
-  filled(c.address) && c.address,
-  filled(c.phone) && c.phone
-]
-  .filter(Boolean)
-  .map(esc)
-  .join(" · ")}`;
-const fill = s =>
-  s
+// v33f: statiniai puslapiai abiem kalbomis - src/pages/*.html (LT) ir src/pages/en/*.html (EN, adresai en/terms, en/privacy,
+// en/thank-you - src/i18n/routes.json); maketas tas pats, tekstai - PAGE_TX
+const PAGE_TX = {
+  lt: { code: "įm. k.", vat: "PVM k.", backAria: "Į parduotuvę", backLbl: "Parduotuvė", termsLbl: "Pirkimo sąlygos", privacyLbl: "Privatumas", locale: "lt-LT" },
+  en: { code: "Company no.", vat: "VAT no.", backAria: "Back to the shop", backLbl: "Shop", termsLbl: "Terms of sale", privacyLbl: "Privacy", locale: "en-GB" }
+};
+const companyLine = lang =>
+  `© ${new Date().getFullYear()} ${[
+    filled(c.name) ? c.name : S.shop,
+    filled(c.code) && `${PAGE_TX[lang].code} ${c.code}`,
+    filled(c.vat) && `${PAGE_TX[lang].vat} ${c.vat}`,
+    filled(c.address) && c.address,
+    filled(c.phone) && c.phone
+  ]
+    .filter(Boolean)
+    .map(esc)
+    .join(" · ")}`;
+const countryNames = lang => {
+  const dn = new Intl.DisplayNames([PAGE_TX[lang].locale], { type: "region" });
+  return (S.countries || ["LT"]).map(cc => dn.of(cc) || cc).join(", ");
+};
+const fill = (str, lang) => {
+  const C = CAT[lang].settings;
+  return str
     .replace(/\{\{company\.(\w+)\}\}/g, (_, k) => esc(c[k] ?? ""))
-    .replace(/\{\{companyLine\}\}/g, () => companyLine)
+    .replace(/\{\{companyLine\}\}/g, () => companyLine(lang))
     .replace(/\{\{freeShippingFrom\}\}/g, String(S.freeShippingFrom))
     .replace(/\{\{returnDays\}\}/g, String(S.returnDays || 14))
-    .replace(/\{\{dispatch\}\}/g, esc(nb(S.dispatch || "1-2 d. d.")))
-    .replace(/\{\{shipping\}\}/g, () => S.shipping.map(o => `<li>${esc(o.name)} - ${money(o.price)} (${esc(nb(o.days))})</li>`).join(""))
+    .replace(/\{\{dispatch\}\}/g, esc(nb(C.dispatch || (lang === "en" ? "1-2 business days" : "1-2 d. d."))))
+    .replace(/\{\{countries\}\}/g, () => esc(countryNames(lang)))
+    .replace(/\{\{shipping\}\}/g, () => (C.shipping || []).map(o => `<li>${esc(o.name)} - ${TX[lang].money(Number(o.price))} (${esc(nb(o.days))})</li>`).join(""))
     .replace(/\{\{supabase\}\}/g, () => JSON.stringify(sb))
     .replace(/\{\{year\}\}/g, String(new Date().getFullYear()))
+    .replace(/\{\{lang\}\}/g, lang)
+    .replace(/\{\{homeHref\}\}/g, lang === "en" ? "en" : "./")
+    .replace(/\{\{termsHref\}\}/g, routeFor(lang, "salygos"))
+    .replace(/\{\{privacyHref\}\}/g, routeFor(lang, "privatumas"))
+    .replace(/\{\{(backAria|backLbl|termsLbl|privacyLbl)\}\}/g, (_, k) => PAGE_TX[lang][k])
     .replace(/\{\{logo\}\}/g, () => fs.readFileSync(path.join(src, "partials", "logo.svg"), "utf8").trim());
+};
 for (const f of fs.readdirSync(path.join(src, "pages")).filter(f => !f.startsWith("_") && f.endsWith(".html"))) {
-  const pg = fs.readFileSync(path.join(src, "pages", f), "utf8");
-  const title = (pg.match(/<!-- title: (.*?) -->/) || [])[1] || S.shop;
   const slug = f.replace(/\.html$/, "");
   const noindex = slug === "aciu";
-  if (!noindex) sitemap.push(`${SITE}/${slug}`);
-  const head = [`<base href="${BASE}" />`, `<link rel="canonical" href="${SITE}/${slug}" />`, noindex && !NOINDEX ? `<meta name="robots" content="noindex" />` : "", robotsMeta, analyticsHead]
-    .filter(Boolean)
-    .join("\n    ");
-  const html = fill(layout.replace("{{title}}", esc(title)).replace("{{css}}", css).replace("{{head}}", head).replace("{{body}}", pg));
-  fs.writeFileSync(path.join(site, f), html);
+  const enSrc = path.join(src, "pages", "en", f);
+  const langs = ["lt", ...(fs.existsSync(enSrc) && routeFor("en", slug) !== slug ? ["en"] : [])];
+  for (const lang of langs) {
+    const pg = fs.readFileSync(lang === "lt" ? path.join(src, "pages", f) : enSrc, "utf8");
+    const title = (pg.match(/<!-- title: (.*?) -->/) || [])[1] || S.shop;
+    const route = routeFor(lang, slug);
+    const hidden = lang === "en" && !EN_PUBLIC;
+    const alt = EN_PUBLIC && langs.length > 1 && !noindex;
+    if (!noindex && !hidden) sitemap.push(`${SITE}/${route}`);
+    const head = [
+      `<base href="${BASE}" />`,
+      `<link rel="canonical" href="${SITE}/${route}" />`,
+      alt ? `<link rel="alternate" hreflang="lt" href="${SITE}/${slug}" />` : "",
+      alt ? `<link rel="alternate" hreflang="en" href="${SITE}/${routeFor("en", slug)}" />` : "",
+      alt ? `<link rel="alternate" hreflang="x-default" href="${SITE}/${routeFor("en", slug)}" />` : "",
+      (noindex || hidden) && !NOINDEX ? `<meta name="robots" content="noindex" />` : "",
+      robotsMeta,
+      analyticsHead
+    ]
+      .filter(Boolean)
+      .join("\n    ");
+    const html = fill(layout.replace("{{title}}", esc(title)).replace("{{css}}", css).replace("{{head}}", head).replace("{{body}}", pg), lang);
+    const out = path.join(site, `${route}.html`);
+    fs.mkdirSync(path.dirname(out), { recursive: true });
+    fs.writeFileSync(out, html);
+  }
 }
 
 // 6. sitemap.xml ir robots.txt
@@ -384,7 +522,7 @@ fs.writeFileSync(
 );
 fs.writeFileSync(
   path.join(site, "robots.txt"),
-  NOINDEX ? "User-agent: *\nDisallow: /\n" : `User-agent: *\nDisallow: /admin\nDisallow: /paskyra\nDisallow: /krepselis\nDisallow: /aciu\n\nSitemap: ${SITE}/sitemap.xml\n`
+  NOINDEX ? "User-agent: *\nDisallow: /\n" : `User-agent: *\nDisallow: /admin\nDisallow: /paskyra\nDisallow: /krepselis\nDisallow: /aciu\nDisallow: /en/account\nDisallow: /en/cart\nDisallow: /en/thank-you\n\nSitemap: ${SITE}/sitemap.xml\n`
 );
 
 const files = fs.readdirSync(site, { recursive: true }).filter(f => fs.statSync(path.join(site, f)).isFile());
