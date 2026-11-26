@@ -192,10 +192,10 @@ function catalogFromDb(rows) {
     revOf.set(r.product_id, [...(revOf.get(r.product_id) || []), { name: r.name, text: r.text, rating: r.rating, date: String(r.created_at).slice(0, 10), verified: r.verified }]);
   return {
     settings: { ...CAT.settings, ...(settings?.[0]?.data || {}) },
-    families: families.map(f => ({ id: f.id, name: f.name, hint: f.hint, sort: f.sort, visible: f.visible })),
-    categories: categories.map(c => ({ id: c.id, name: c.name, description: c.description, image: c.image, sort: c.sort, visible: c.visible })),
+    families: families.map(f => ({ id: f.id, name: f.name, hint: f.hint, sort: f.sort, visible: f.visible, ...dbI18n(f.i18n) })),
+    categories: categories.map(c => ({ id: c.id, name: c.name, description: c.description, image: c.image, sort: c.sort, visible: c.visible, ...dbI18n(c.i18n) })),
     // v29: nuotaikos juosta - bendro kvapo lygiu; natų biblioteka (natos vardas → nuotrauka)
-    scents: scents.filter(s => s.mood_image).map(s => ({ id: s.id, moodImage: s.mood_image, moodTitle: s.mood_title || "", moodLine: s.mood_line || "" })),
+    scents: scents.filter(s => s.mood_image).map(s => ({ id: s.id, moodImage: s.mood_image, moodTitle: s.mood_title || "", moodLine: s.mood_line || "", ...dbI18n(s.i18n) })),
     noteMedia: notes.filter(n => n.name && n.image).map(n => ({ name: n.name, image: n.image })),
     products: products.map(p => ({
       id: p.id,
@@ -227,9 +227,21 @@ function catalogFromDb(rows) {
       images: p.images || [],
       visible: p.visible,
       categories: catsOf.get(p.id) || [],
-      reviews: revOf.get(p.id) || []
+      reviews: revOf.get(p.id) || [],
+      ...dbI18n(p.i18n)
     }))
   };
+}
+// v33: vertimai (stulpelis i18n, migracija 20261126120000) - tik kitos kalbos ir tik užpildyti laukai; lietuviškame puslapyje
+// nereikalingi (neįdedami). Bazės laukų vardai → katalogo („description“ → „desc“, „mood_title“ → „moodTitle“)
+const I18N_KEYS = { description: "desc", mood_title: "moodTitle", mood_line: "moodLine" };
+function dbI18n(raw) {
+  if (LANG === "lt" || !raw || typeof raw !== "object") return {};
+  const out = {};
+  for (const [lang, o] of Object.entries(raw))
+    if (lang !== "lt" && o && typeof o === "object")
+      for (const [k, v] of Object.entries(o)) if (typeof v === "string" ? v.trim() : v != null) ((out[lang] ??= {})[I18N_KEYS[k] || k] = v);
+  return Object.keys(out).length ? { i18n: out } : {};
 }
 // Prekės puslapio laukai (v29, migracija 20261122090000): įrašomi tik užpildyti - katalogas nedidėja
 function pageFields(p) {

@@ -27,6 +27,10 @@ for (const p of d.products) {
   );
   for (const c of p.categories || []) out.push(`insert into public.product_categories values (${q(p.id)}, ${q(c)}) on conflict do nothing;`);
 }
+// v33: vertimai (stulpelis i18n, migracija 20261126120000; katalogo „desc“ → bazės „description“)
+const dbI18n = i18n => Object.fromEntries(Object.entries(i18n || {}).map(([l, o]) => [l, Object.fromEntries(Object.entries(o).map(([k, v]) => [k === "desc" ? "description" : k, v]))]));
+for (const [table, list] of [["products", d.products], ["families", d.families], ["categories", d.categories || []]])
+  for (const x of list) if (x.i18n) out.push(`update public.${table} set i18n = ${J(dbI18n(x.i18n))} where id = ${q(x.id)};`);
 out.push(`insert into public.settings (id, data) values (1, ${J(d.settings)}) on conflict (id) do nothing;`, "commit;");
 fs.writeFileSync(path.join(root, "supabase/seed.sql"), out.join("\n") + "\n");
 console.log(`supabase/seed.sql - ${d.products.length} kvapai, ${d.families.length} šeimos, ${(d.categories || []).length} kategorijos`);

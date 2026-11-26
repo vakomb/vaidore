@@ -9,6 +9,17 @@ export const plainDeep = v => {
   else if (v && typeof v === "object") for (const k of Object.keys(v)) v[k] = plainDeep(v[k]);
   return v;
 };
+// v33: vertimai (stulpelis i18n) - katalogo laukų vardais („description“ → „desc“); lietuviškiems puslapiams jie
+// pašalinami surinkimo metu (tools/build.mjs - catalogForLang)
+const I18N_KEYS = { description: "desc", mood_title: "moodTitle", mood_line: "moodLine" };
+export function dbI18n(raw) {
+  if (!raw || typeof raw !== "object") return {};
+  const out = {};
+  for (const [lang, o] of Object.entries(raw))
+    if (lang !== "lt" && o && typeof o === "object")
+      for (const [k, v] of Object.entries(o)) if (typeof v === "string" ? v.trim() : v != null) ((out[lang] ??= {})[I18N_KEYS[k] || k] = v);
+  return Object.keys(out).length ? { i18n: out } : {};
+}
 export async function dbCatalog(sb, fallback) {
   if (!sb?.url || !sb?.key) return null;
   const get = async path => {
@@ -43,9 +54,9 @@ export async function dbCatalog(sb, fallback) {
       revOf.set(r.product_id, [...(revOf.get(r.product_id) || []), { name: r.name, text: r.text, rating: r.rating, date: String(r.created_at).slice(0, 10), verified: r.verified }]);
     return {
       settings: { ...fallback.settings, ...(settings?.[0]?.data || {}) },
-      families: families.map(f => ({ id: f.id, name: f.name, hint: f.hint, sort: f.sort, visible: f.visible })),
-      categories: categories.map(c => ({ id: c.id, name: c.name, description: c.description, image: c.image, sort: c.sort, visible: c.visible })),
-      scents: scents.filter(s => s.mood_image).map(s => ({ id: s.id, moodImage: s.mood_image, moodTitle: s.mood_title || "", moodLine: s.mood_line || "" })),
+      families: families.map(f => ({ id: f.id, name: f.name, hint: f.hint, sort: f.sort, visible: f.visible, ...dbI18n(f.i18n) })),
+      categories: categories.map(c => ({ id: c.id, name: c.name, description: c.description, image: c.image, sort: c.sort, visible: c.visible, ...dbI18n(c.i18n) })),
+      scents: scents.filter(s => s.mood_image).map(s => ({ id: s.id, moodImage: s.mood_image, moodTitle: s.mood_title || "", moodLine: s.mood_line || "", ...dbI18n(s.i18n) })),
       noteMedia: notes.filter(n => n.name && n.image).map(n => ({ name: n.name, image: n.image })),
       products: products.map(p => ({
         id: p.id,
@@ -77,7 +88,8 @@ export async function dbCatalog(sb, fallback) {
         images: p.images || [],
         visible: p.visible,
         categories: catsOf.get(p.id) || [],
-        reviews: revOf.get(p.id) || []
+        reviews: revOf.get(p.id) || [],
+        ...dbI18n(p.i18n)
       }))
     };
   } catch (err) {

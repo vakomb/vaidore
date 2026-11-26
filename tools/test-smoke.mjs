@@ -1009,6 +1009,7 @@ await run({ width: 1440, height: 900 });
   const pl = fs.readFileSync(path.join(siteP, "kvepalai/vanor.html"), "utf8");
   const pe = fs.readFileSync(path.join(siteP, "en/perfumes/vanor.html"), "utf8");
   const alts = h => ['hreflang="lt" href="https://vaidore.com/kvepalai/vanor"', 'hreflang="en" href="https://vaidore.com/en/perfumes/vanor"', 'hreflang="x-default" href="https://vaidore.com/en/perfumes/vanor"'].every(x => h.includes(x));
+  check(!pl.includes('"i18n":') && pe.includes('"i18n":'), "vertimai (i18n) - tik angliškuose puslapiuose, lietuviški nepadidėja");
   check(alts(pl) && alts(pe) && !pe.includes('content="noindex"') && fs.readFileSync(path.join(siteP, "sitemap.xml"), "utf8").includes("/en/perfumes/vanor<"), "EN paskelbus: hreflang (lt, en, x-default), indeksuojama, sitemap");
   const serverP = await startServer(siteP, 4183);
 
@@ -1064,7 +1065,9 @@ await run({ width: 1440, height: 900 });
       ["en/help", ".pageHead, .infoToc, .infoSec h2, .faq summary, .steps .rowTxt"],
       ["en/account", ".pageHead, .authForm label > span, .authForm button, .authLinks, .authGuest"],
       ["en/perfumes", ".fGroup summary, #shopCount, .pageHead h1"],
-      ["en/perfumes/vanor", ".addMain, .addEta, .pdLabel, .pdActs, .acc summary"],
+      ["en/perfumes/vanor", ".addMain, .addEta, .pdLabel, .pdActs, .acc summary, .pdBlock h2, .pdText, .pdSub, h1"],
+      ["en/all-products", ".card, .fGroup summary, #shopCount"],
+      ["en", "#homeRails, #homeTiles, .hero"],
       ["en/fragrance-quiz", ".qzQ"]
     ];
     for (const [u, sel] of pages) {
@@ -1072,6 +1075,9 @@ await run({ width: 1440, height: 900 });
       const bad = await leaks(`${UI}, ${sel}`);
       check(!bad.length, `EN ${tag}: ${u} - sąsaja be lietuviškų tekstų${bad.length ? ` (${bad.slice(0, 4).join(" | ")})` : ""}`);
     }
+    await open(page, `${A}en/perfumes/vanor`);
+    const pdEn = await page.evaluate(() => [document.querySelector(".pdText")?.textContent || "", document.querySelector(".pdNotes, .ntGrid")?.textContent || ""]);
+    check(/Tobacco leaf and spices open into creamy vanilla/.test(pdEn[0]) && /Vanilla|Tobacco/.test(pdEn[1]), `EN ${tag}: prekės aprašymas ir natos - angliškai (vertimai iš i18n)`);
     const cartH = await page.evaluate(() => [document.querySelector("#cartBtn .iconLbl")?.textContent, document.querySelector(".ftrLegal a")?.textContent]);
     check(cartH[0] === "Bag" && cartH[1] === "Terms of sale", `EN ${tag}: header'is ir poraštė angliškai (${cartH.join(", ")})`);
     await page.context().close();

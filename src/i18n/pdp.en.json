@@ -1,0 +1,89 @@
+{
+  "kvepalai": {
+    "notes": { "title": "Fragrance notes" },
+    "traits": { "title": "Character" },
+    "where": {
+      "title": "Where to spray",
+      "text": "Spray from 15-20 cm and don't rub - the notes will unfold evenly.",
+      "items": [
+        { "ico": "wrist", "label": "Wrists" },
+        { "ico": "neck", "label": "Neck" },
+        { "ico": "ear", "label": "Behind the ears" },
+        { "ico": "clothes", "label": "Clothes" }
+      ]
+    },
+    "note": { "text": "Store in a cool, dark place - the fragrance will stay true for longer." }
+  },
+  "difuzoriai": {
+    "sub": "Home fragrance with reeds",
+    "notes": { "title": "Fragrance notes" },
+    "steps": {
+      "title": "How to use",
+      "items": [
+        { "ico": "cap", "title": "Open", "text": "Unscrew the cap and remove the stopper." },
+        { "ico": "reeds", "title": "Add the reeds", "text": "Place the reeds in the bottle and fan them out." },
+        { "ico": "flip", "title": "Turn them weekly", "text": "Turned reeds soak up the oil again - and the scent grows stronger." }
+      ]
+    },
+    "where": {
+      "title": "Where to place it",
+      "text": "Works best in a smaller room, away from draughts and direct sunlight.",
+      "items": [
+        { "ico": "sofa", "label": "Living room" },
+        { "ico": "bed", "label": "Bedroom" },
+        { "ico": "bath", "label": "Bathroom" },
+        { "ico": "door", "label": "Hallway" },
+        { "ico": "laptop", "label": "Study" },
+        { "ico": "office", "label": "Office" }
+      ]
+    },
+    "note": { "text": "Keep out of reach of children and pets. The oil can damage varnished surfaces - place it on a coaster." }
+  },
+  "zvakes": {
+    "sub": "Scented candle for your home",
+    "notes": { "title": "Fragrance notes" },
+    "steps": {
+      "title": "First burn and care",
+      "items": [
+        { "ico": "candle", "title": "Longer the first time", "text": "Let it burn until the whole surface has melted - so the candle burns evenly." },
+        { "ico": "scissors", "title": "Trim the wick", "text": "Before each burn - to 5 mm. The flame will be calm and smoke-free." },
+        { "ico": "clock", "title": "Up to 4 hours", "text": "Burn for no more than 4 hours at a time and let the wax cool." }
+      ]
+    },
+    "note": { "text": "Never leave a burning candle unattended. Keep away from curtains, children and pets." }
+  },
+  "aliejai": {
+    "sub": "Fragrance oil for diffusers",
+    "notes": { "title": "Fragrance notes" },
+    "steps": {
+      "title": "How to use",
+      "items": [
+        { "ico": "water", "title": "Add water", "text": "Fill the diffuser tank up to the line." },
+        { "ico": "drops", "title": "Add the oil", "text": "A few drops are enough - adjust the intensity with the number of drops." },
+        { "ico": "power", "title": "Switch on", "text": "A soft fragrant mist will spread through the whole room." }
+      ]
+    },
+    "note": { "text": "For diffusers only: do not ingest or apply to skin. Keep out of reach of children." }
+  },
+  "elektriniai-difuzoriai": {
+    "sub": "Aroma diffuser for your home",
+    "steps": {
+      "title": "How it works",
+      "items": [
+        { "ico": "water", "title": "Add water", "text": "Fill the tank with water up to the line." },
+        { "ico": "drops", "title": "Add the oil", "text": "A few drops of your favourite fragrance oil." },
+        { "ico": "power", "title": "Switch on", "text": "The diffuser turns water and oil into a soft fragrant mist." }
+      ]
+    },
+    "where": {
+      "title": "Where to use",
+      "items": [
+        { "ico": "sofa", "label": "Living room" },
+        { "ico": "bed", "label": "Bedroom" },
+        { "ico": "laptop", "label": "Study" },
+        { "ico": "office", "label": "Office" }
+      ]
+    },
+    "note": { "title": "Care", "text": "Every few uses, rinse the tank with warm water and dry it. Unplug before cleaning." }
+  }
+}

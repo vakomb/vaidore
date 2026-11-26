@@ -60,8 +60,52 @@ const attrList = p =>
 const LEVEL = ["", t("level.1"), t("level.2"), t("level.3"), t("level.4"), t("level.5")];
 const LASTS = ["", "2-3", "3-5", "5-7", "7-9", "9+"].map(x => (x ? `${x} ${t("unit.h")}` : ""));
 
+// v33: kita kalba - vertimai (i18n.<kalba>) uždedami ant kopijos: prekės, šeimos, kolekcijos, kvapai, nustatymai.
+// Lietuviški tekstai lieka o.lt (paieškai); originalas (telefono atmintyje, bazėje) nekeičiamas.
+const LT_PREFIX_TYPE = { "kvapni žvakė": "zvakes", "aromatinis aliejus": "aliejai", "namų kvapų difuzorius": "difuzoriai", difuzorius: "difuzoriai", "elektrinis difuzorius": "elektriniai-difuzoriai" };
+const LT_NAME_PREFIX = /^(kvapni žvakė|aromatinis aliejus|namų kvapų difuzorius|elektrinis difuzorius|difuzorius)(?=\s)/i;
+function localizeCatalog(c) {
+  c = JSON.parse(JSON.stringify(c));
+  const over = o => {
+    const tr = o?.i18n?.[LANG];
+    if (tr && typeof tr === "object")
+      for (const [k, v] of Object.entries(tr))
+        if (typeof v === "string" ? v.trim() : v != null && typeof v !== "object") {
+          (o.lt ??= {})[k] = o[k];
+          o[k] = v;
+        }
+    return o;
+  };
+  for (const k of ["products", "families", "categories", "scents"]) (c[k] || []).forEach(over);
+  // Neišverstas pavadinimas su lietuvišku tipo priešdėliu („Kvapni žvakė X“) - tipas verčiamas automatiškai („Scented candle X“)
+  for (const p of c.products || [])
+    if (!p.i18n?.[LANG]?.name) {
+      const m = String(p.name || "").match(LT_NAME_PREFIX);
+      if (m) p.name = `${t(`type.${LT_PREFIX_TYPE[m[1].toLowerCase()]}.single`)}${p.name.slice(m[1].length)}`;
+    }
+  c.settings = localizeSettings(c.settings || {});
+  return c;
+}
+// Nustatymų vertimai (settings.i18n.<kalba>) - pagal stabilius raktus: objektai (hero, story, inspired, discovery, business)
+// sujungiami, tekstai (tagline, dispatch) pakeičiami, sąrašai - pagal id (rails, shipping, slides, topbar.items) ar key (tiles)
+function localizeSettings(S) {
+  const tr = S?.i18n?.[LANG];
+  if (!tr || typeof tr !== "object") return S;
+  const byId = (list, map, key = "id") => (Array.isArray(list) ? list.map(x => (x && map?.[x[key]] ? { ...x, ...clean(map[x[key]]) } : x)) : list);
+  const clean = o => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => (typeof v === "string" ? v.trim() : v != null)));
+  const out = { ...S };
+  for (const k of ["hero", "story", "inspired", "discovery", "business", "gift"]) if (tr[k] && S[k]) out[k] = { ...S[k], ...clean(tr[k]) };
+  for (const k of ["tagline", "dispatch"]) if (typeof tr[k] === "string" && tr[k].trim()) out[k] = tr[k];
+  out.rails = byId(S.rails, tr.rails);
+  out.shipping = byId(S.shipping, tr.shipping);
+  out.slides = byId(S.slides, tr.slides);
+  out.tiles = byId(S.tiles, tr.tiles, "key");
+  if (S.topbar?.items) out.topbar = { ...S.topbar, items: byId(S.topbar.items, tr.topbar) };
+  return out;
+}
 function setCatalog(c) {
   plainDeep(c); // v30: įdėtas, išsaugotas telefone ar iš bazės - be ilgų brūkšnių
+  if (LANG !== "lt") c = localizeCatalog(c);
   CAT = c;
   for (const p of c.products) {
     if (!TYPE.has(p.type)) p.type = "kvepalai";
@@ -97,8 +141,10 @@ function setCatalog(c) {
       fold(
         [
           p.name,
+          p.lt?.name || "",
           (SET.inspired?.show !== false && p.inspired) || "",
           p.tagline,
+          p.lt?.tagline || "",
           familyName(p.family),
           GENDER_NAME[p.gender],
           p.conc,
@@ -107,6 +153,7 @@ function setCatalog(c) {
           ...p.notes.top,
           ...p.notes.heart,
           ...p.notes.base,
+          ...(LANG === "lt" ? [] : [...p.notes.top, ...p.notes.heart, ...p.notes.base].map(noteName)),
           TYPE.get(p.type)?.one || ""
         ].join(" ")
       )
@@ -136,7 +183,7 @@ const saleList = () => PRODUCTS.filter(p => inStock(p) && onSale(p)).sort((a, b)
 const BEST_N = 8;
 const bestList = () => [...PRODUCTS].sort((a, b) => a.rank - b.rank).slice(0, BEST_N);
 // Trys būdingiausios natos (po vieną iš viršutinių, širdies, bazinių) - kortelėse ir kvapo puslapyje
-const keyNotes = p => [p.notes.top[0], p.notes.heart[0], p.notes.base[0]].filter(Boolean);
+const keyNotes = p => [p.notes.top[0], p.notes.heart[0], p.notes.base[0]].filter(Boolean).map(noteName);
 // Vidutinis įvertinimas iš tikrų atsiliepimų (be įvertinimo - null)
 function ratingOf(p) {
   const r = (p.reviews || []).filter(x => x?.rating);

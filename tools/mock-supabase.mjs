@@ -2,6 +2,9 @@
 // Auth (prisijungimas, vartotojas), Storage (nuotraukų įkėlimas), Edge Function shop (checkout, order, admin).
 // Naudojimas: const sb = mockSupabase({ url, catalog }); await page.route(`${url}/**`, sb.handle);
 // sb.db - lentelės (tikrinti pakeitimus), sb.calls - funkcijų kvietimai, sb.users - prisijungimo duomenys.
+// v33: katalogo vertimai (laukų vardai kaip kataloge: desc, moodTitle) → bazės stulpelis i18n (description, mood_title)
+const toDbI18n = i18n =>
+  Object.fromEntries(Object.entries(i18n || {}).map(([l, o]) => [l, Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [{ desc: "description", moodTitle: "mood_title", moodLine: "mood_line" }[k] || k, v]))]));
 
 export const ADMIN = { id: "00000000-0000-4000-8000-00000000a001", email: "vakomb@gmail.com", password: "slaptas-123", token: "eyJ.admin.token" };
 export const BUYER = { id: "00000000-0000-4000-8000-00000000b001", email: "ona@example.com", password: "pirkeja-123", token: "eyJ.buyer.token" };
@@ -38,12 +41,13 @@ export function dbFromCatalog(cat) {
     images: p.images || [],
     visible: p.visible !== false,
     created_at: "2026-11-01T10:00:00Z",
-    updated_at: "2026-11-01T10:00:00Z"
+    updated_at: "2026-11-01T10:00:00Z",
+    i18n: toDbI18n(p.i18n)
   }));
   return {
     products,
-    families: cat.families.map((f, i) => ({ id: f.id, name: f.name, hint: f.hint, sort: i + 1, visible: true })),
-    categories: (cat.categories || []).map((c, i) => ({ id: c.id, name: c.name, description: c.description || "", image: c.image || "", sort: c.sort ?? i + 1, visible: true })),
+    families: cat.families.map((f, i) => ({ id: f.id, name: f.name, hint: f.hint, sort: i + 1, visible: true, i18n: f.i18n || {} })),
+    categories: (cat.categories || []).map((c, i) => ({ id: c.id, name: c.name, description: c.description || "", image: c.image || "", sort: c.sort ?? i + 1, visible: true, i18n: c.i18n || {} })),
     product_categories: cat.products.flatMap(p => (p.categories || []).map(c => ({ product_id: p.id, category_id: c }))),
     settings: [{ id: 1, data: structuredClone(cat.settings) }],
     // Katalogo atsiliepimai (testams) - kaip paskelbti duomenų bazėje

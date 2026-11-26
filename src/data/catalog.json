@@ -69,33 +69,149 @@
     "inspired": {
       "show": true,
       "note": "Prekių ženklai priklauso jų savininkams. Vaidore su jais nesusijusi - pavadinimas nurodo tik kvapo kryptį."
+    },
+    "i18n": {
+      "en": {
+        "hero": {
+          "eyebrow": "Winter collection",
+          "text": "Tobacco, vanilla and cocoa - the warmest scent of the season."
+        },
+        "story": {
+          "title": "Our story",
+          "text": "Vaidore was born from a simple idea: you should get to know a fragrance before you buy it. That's why every fragrance also comes as a 2 ml sample, and we describe the notes so that you don't need a perfumer's vocabulary to understand them."
+        },
+        "tagline": "Vaidore perfumes inspired by iconic luxury fragrances. Try a 2 ml sample first.",
+        "dispatch": "1-2 business days",
+        "inspired": {
+          "note": "Trademarks belong to their respective owners. Vaidore is not affiliated with them - the name only indicates the direction of the fragrance."
+        },
+        "discovery": {
+          "name": "Discovery set",
+          "text": "Any 5 fragrances in 2 ml - try them at home, at your own pace."
+        },
+        "shipping": {
+          "omniva": {
+            "name": "Omniva parcel locker",
+            "days": "1-2 business days"
+          },
+          "dpd": {
+            "name": "DPD courier to your door",
+            "days": "1-2 business days"
+          }
+        },
+        "rails": {
+          "naujienos": {
+            "title": "New in"
+          },
+          "moterims": {
+            "title": "Perfume",
+            "line": "Inspired by the world's most famous brands"
+          },
+          "q1m9ne": {
+            "title": "Scented candles",
+            "line": "A cosy evening with a scented candle"
+          },
+          "unisex": {
+            "title": "Fragrance oils",
+            "line": "For electric diffusers"
+          },
+          "vyrams": {
+            "title": "Reed diffusers",
+            "line": "The easiest way to keep your home smelling good for longer"
+          },
+          "nuolaidos": {
+            "title": "SALE",
+            "line": "Offers for a limited time only"
+          }
+        },
+        "tiles": {
+          "zvakes": {
+            "title": "Candles"
+          },
+          "elektriniai-difuzoriai": {
+            "title": "Electric diffusers"
+          }
+        },
+        "topbar": {
+          "free": {
+            "text": "Free delivery over *€60*",
+            "short": "Free over *€60*"
+          },
+          "samples": {
+            "text": "Every fragrance as a *2 ml sample* from €3.90",
+            "short": "*2 ml samples* from €3.90"
+          },
+          "dispatch": {
+            "text": "Delivery in 2 days",
+            "short": "Dispatched within *1-2 business days*"
+          },
+          "credit": {
+            "text": "Sample price *refunded* when you buy the bottle",
+            "short": "Sample price *refunded*"
+          },
+          "returns": {
+            "text": "*14-day* returns · Secure payment",
+            "short": "*14-day* returns"
+          }
+        }
+      }
     }
   },
   "families": [
     {
       "id": "geliu",
       "name": "Gėlių",
-      "hint": "Rožė, jazminas, bijūnas"
+      "hint": "Rožė, jazminas, bijūnas",
+      "i18n": {
+        "en": {
+          "name": "Floral",
+          "hint": "Rose, jasmine, peony"
+        }
+      }
     },
     {
       "id": "sviezi",
       "name": "Švieži",
-      "hint": "Citrusai, jūra, žaluma"
+      "hint": "Citrusai, jūra, žaluma",
+      "i18n": {
+        "en": {
+          "name": "Fresh",
+          "hint": "Citrus, marine, green notes"
+        }
+      }
     },
     {
       "id": "medienos",
       "name": "Medienos",
-      "hint": "Kedras, santalas, vetiveris"
+      "hint": "Kedras, santalas, vetiveris",
+      "i18n": {
+        "en": {
+          "name": "Woody",
+          "hint": "Cedar, sandalwood, vetiver"
+        }
+      }
     },
     {
       "id": "ambros",
       "name": "Ambros",
-      "hint": "Gintaras, smilkalai, prieskoniai"
+      "hint": "Gintaras, smilkalai, prieskoniai",
+      "i18n": {
+        "en": {
+          "name": "Amber",
+          "hint": "Amber, incense, spices"
+        }
+      }
     },
     {
       "id": "gurmaniski",
       "name": "Gurmaniški",
-      "hint": "Vanilė, medus, kakava"
+      "hint": "Vanilė, medus, kakava",
+      "i18n": {
+        "en": {
+          "name": "Gourmand",
+          "hint": "Vanilla, honey, cocoa"
+        }
+      }
     }
   ],
   "categories": [
@@ -104,21 +220,39 @@
       "name": "Žiemos kolekcija",
       "description": "Šilti, gilūs kvapai šaltiems vakarams.",
       "image": "",
-      "sort": 1
+      "sort": 1,
+      "i18n": {
+        "en": {
+          "name": "Winter collection",
+          "description": "Warm, deep fragrances for cold evenings."
+        }
+      }
     },
     {
       "id": "vasaros-gaiva",
       "name": "Vasaros gaiva",
       "description": "Lengvi, gaivūs kvapai šiltoms dienoms.",
       "image": "",
-      "sort": 2
+      "sort": 2,
+      "i18n": {
+        "en": {
+          "name": "Summer freshness",
+          "description": "Light, fresh fragrances for warm days."
+        }
+      }
     },
     {
       "id": "vakarui",
       "name": "Vakarui",
       "description": "Ryškesni kvapai vakarui ir šventėms.",
       "image": "",
-      "sort": 3
+      "sort": 3,
+      "i18n": {
+        "en": {
+          "name": "For the evening",
+          "description": "Bolder fragrances for evenings and celebrations."
+        }
+      }
     }
   ],
   "products": [
@@ -177,7 +311,13 @@
       "categories": [
         "ziemos-kolekcija",
         "vakarui"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Tobacco, vanilla and cocoa",
+          "desc": "A rich, warm and luxurious fragrance. Tobacco leaf and spices open into creamy vanilla, cocoa and tonka bean, while dried fruits and woods leave a long, cosy trail. A fragrance for cold evenings and special occasions."
+        }
+      }
     },
     {
       "id": "safrane",
@@ -231,7 +371,14 @@
       "categories": [
         "vakarui",
         "ziemos-kolekcija"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Saffron, jasmine and amber",
+          "badge": "New",
+          "desc": "A radiant amber-woody fragrance. Saffron and jasmine blend with amberwood and amber, while fir resin and cedar give it air, light and a distinctive, long-lasting trail. A fragrance others notice."
+        }
+      }
     },
     {
       "id": "arven",
@@ -287,7 +434,13 @@
       "reviews": [],
       "categories": [
         "vasaros-gaiva"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Bergamot, pepper and ambroxan",
+          "desc": "A fresh and powerful masculine fragrance. Juicy Calabrian bergamot and pepper open into lavender and Sichuan pepper, while ambroxan and cedar leave a bold, long-lasting trail. Versatile - for work, leisure and evenings."
+        }
+      }
     },
     {
       "id": "noirelle",
@@ -346,7 +499,13 @@
       "categories": [
         "vakarui",
         "ziemos-kolekcija"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Tuberose, coffee and cocoa",
+          "desc": "A bold fragrance of contrasts. Almond and coffee meet white flowers - tuberose and jasmine sambac - while tonka bean, cocoa and vanilla add depth and sensuality. A light and a dark side in one bottle."
+        }
+      }
     },
     {
       "id": "bellara",
@@ -402,7 +561,13 @@
       "reviews": [],
       "categories": [
         "ziemos-kolekcija"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Iris, praline and vanilla",
+          "desc": "A sweet, radiant fragrance. Blackcurrant and pear open into iris, jasmine and orange blossom, while praline, vanilla, patchouli and tonka bean create a soft, cosy and long-lasting trail. A fragrance for everyday joy."
+        }
+      }
     },
     {
       "id": "ventor",
@@ -461,7 +626,13 @@
       "reviews": [],
       "categories": [
         "vakarui"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Pineapple, birch smoke and musk",
+          "desc": "A fruity, smoky woody fragrance. Juicy pineapple, bergamot, blackcurrant and apple open into birch, patchouli and jasmine, while musk, oakmoss, amber and vanilla leave a confident, rich trail. The scent of self-confidence."
+        }
+      }
     },
     {
       "id": "lavelle",
@@ -515,7 +686,13 @@
         "img/kvapai/lavelle-1.webp"
       ],
       "reviews": [],
-      "categories": []
+      "categories": [],
+      "i18n": {
+        "en": {
+          "tagline": "Lavender, orange blossom and vanilla",
+          "desc": "The scent of freedom. French lavender and mandarin intertwine with orange blossom and jasmine, while Madagascar vanilla, cedar and amber leave a bold, warm and elegant trail. A feminine fragrance with character."
+        }
+      }
     },
     {
       "id": "aurum",
@@ -573,7 +750,13 @@
       "categories": [
         "vakarui",
         "ziemos-kolekcija"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Grapefruit, cinnamon and leather",
+          "desc": "A vivid, sweet-spicy fragrance. Grapefruit, mint and blood mandarin bring energy, rose and cinnamon add warmth, while leather, amber and woods leave an expressive, memorable trail. For evenings when you want to be noticed."
+        }
+      }
     },
     {
       "id": "azurin",
@@ -631,7 +814,14 @@
       "reviews": [],
       "categories": [
         "vasaros-gaiva"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Citrus, incense and cedar",
+          "badge": "New",
+          "desc": "An elegant, fresh woody fragrance. Grapefruit, lemon and mint open into ginger, nutmeg and jasmine, while incense, cedar and sandalwood add classic, refined depth. For the office, meetings and evenings."
+        }
+      }
     },
     {
       "id": "vialune",
@@ -685,7 +875,14 @@
       "reviews": [],
       "categories": [
         "vasaros-gaiva"
-      ]
+      ],
+      "i18n": {
+        "en": {
+          "tagline": "Orange blossom and white tuberose",
+          "badge": "New",
+          "desc": "A radiant white-floral fragrance. Bergamot and orange blossom open a bouquet of tuberose and Indian jasmine, wrapped in Madagascar vanilla, white musk and cedar. Elegant, bright and feminine - for every day and special moments."
+        }
+      }
     }
   ]
 }

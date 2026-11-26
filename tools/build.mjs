@@ -38,6 +38,14 @@ const minCss = css =>
 // v33: opts.lang - puslapio kalba („lt“ / „en“); opts.dicts - kurių kalbų žodynus įdėti (numatyta - tik puslapio;
 // 404.html - abiejų, nes ji aptarnauja nežinomus abiejų kalbų adresus)
 const escAttr = v => String(v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+// Natos raktas - kaip programėlės fold() (01-util.js): mažosios raidės, be diakritikų
+const foldKey = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+// Lietuviškam puslapiui vertimai nereikalingi: i18n laukai pašalinami (katalogas nedidėja)
+export function stripI18n(c) {
+  for (const k of ["products", "families", "categories", "scents"]) for (const o of c[k] || []) delete o.i18n;
+  if (c.settings) delete c.settings.i18n;
+  return c;
+}
 export function buildApp(opts = {}) {
   const lang = opts.lang || "lt";
   const dicts = opts.dicts || [lang];
@@ -56,7 +64,9 @@ export function buildApp(opts = {}) {
   });
   html = html.replace(/<!-- @base -->/, () => `<base href="${opts.base || "/"}" />`);
   html = html.replace(/<!-- @catalog -->/, () => {
-    const json = JSON.stringify(opts.catalog || JSON.parse(read("data/catalog.json")));
+    // v33: vertimai (i18n) įdedami tik į puslapius, kuriems reikia kitos kalbos (EN ir 404); lietuviškiems - pašalinami
+    const foreign = dicts.some(l => l !== "lt");
+    const json = JSON.stringify(foreign ? opts.catalog || JSON.parse(read("data/catalog.json")) : stripI18n(structuredClone(opts.catalog || JSON.parse(read("data/catalog.json")))));
     const sb = opts.supabase === undefined ? JSON.parse(read("data/supabase.json")) : opts.supabase;
     // Prekių puslapių turinio blokų numatytieji tekstai pagal tipą (v29; administravime keičiami - settings.pdp)
     const pdp = JSON.stringify(JSON.parse(read("data/pdp.json")));
@@ -66,7 +76,17 @@ export function buildApp(opts = {}) {
     const i18n = JSON.stringify(Object.fromEntries(dicts.map(l => [l, DICTS[l]])));
     const pub = opts.enPublic ?? EN_PUBLIC;
     const l10n = `window.VAIDORE_ROUTES=${JSON.stringify(ROUTES)};window.VAIDORE_I18N=${i18n.replace(/</g, "\\u003c")};window.VAIDORE_I18N_PUBLIC=${pub ? "true" : "false"};window.VAIDORE_L10N=(function(){${guard("i18n/url.js", URL_SRC)}\nreturn makeL10n(Object.assign({},window.VAIDORE_ROUTES,{enStatic:${CONFIG.enStaticPages ? "true" : "false"}}));})();`;
-    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_PDP=${pdp.replace(/</g, "\\u003c")};window.VAIDORE_NOTES=${notes.replace(/</g, "\\u003c")};window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};${l10n}</script>`;
+    // Prekių puslapių tekstai ir natų pavadinimai kitomis kalbomis (src/i18n/pdp.<kalba>.json, notes.<kalba>.json)
+    const extra = dicts
+      .filter(l => l !== "lt")
+      .map(l => {
+        const pdpL = fs.existsSync(path.join(src, `i18n/pdp.${l}.json`)) ? read(`i18n/pdp.${l}.json`) : "{}";
+        const notesL = fs.existsSync(path.join(src, `i18n/notes.${l}.json`)) ? JSON.parse(read(`i18n/notes.${l}.json`)) : {};
+        const folded = Object.fromEntries(Object.entries(notesL).map(([k, v]) => [foldKey(k), v]));
+        return `window.VAIDORE_PDP_I18N=Object.assign(window.VAIDORE_PDP_I18N||{},{${l}:${JSON.stringify(JSON.parse(pdpL)).replace(/</g, "\\u003c")}});window.VAIDORE_NOTES_${l.toUpperCase()}=${JSON.stringify(folded).replace(/</g, "\\u003c")};`;
+      })
+      .join("");
+    return `<script>window.VAIDORE_CATALOG=${json.replace(/</g, "\\u003c")};window.VAIDORE_PDP=${pdp.replace(/</g, "\\u003c")};window.VAIDORE_NOTES=${notes.replace(/</g, "\\u003c")};${extra}window.VAIDORE_SB=${JSON.stringify(sb)};window.VAIDORE_BUILT=${opts.built || Date.now()};${l10n}</script>`;
   });
   html = html.replace(/<!-- @lockers -->/, () => `<script>window.VAIDORE_LOCKERS=${Number(opts.lockers) || 0};</script>`);
   html = html.replace(/<!-- @app ([\w./-]+) -->/, (_, dir) => {

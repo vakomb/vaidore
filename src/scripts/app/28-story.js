@@ -56,10 +56,20 @@ const STORY_ICO_NAMES = {
 const storyIco = k => `<svg class="sIco" viewBox="0 0 24 24" aria-hidden="true">${STORY_ICO[k] || GLYPH[k] || GLYPH.info}</svg>`;
 
 // ── Tekstai pagal tipą: numatytieji (data/pdp.json) + administravimo pakeitimai (settings.pdp[tipas]) ──
-const PDP_DEF = window.VAIDORE_PDP || {};
+// v33: kita kalba - numatytieji tekstai iš src/i18n/pdp.<kalba>.json, administravimo pakeitimai - settings.i18n.<kalba>.pdp
+// (lietuviški administravimo tekstai kitoje kalboje nenaudojami - lieka tik įjungimo / piktogramų nustatymai)
+const pdpMerge = (a, b) => {
+  if (!b || typeof b !== "object" || Array.isArray(b)) return b === undefined ? a : b;
+  const out = { ...(a && typeof a === "object" && !Array.isArray(a) ? a : {}) };
+  for (const [k, v] of Object.entries(b)) out[k] = Array.isArray(v) ? v : pdpMerge(out[k], v);
+  return out;
+};
+const PDP_DEF = LANG === "lt" ? window.VAIDORE_PDP || {} : pdpMerge(window.VAIDORE_PDP || {}, window.VAIDORE_PDP_I18N?.[LANG] || {});
+const pdpFlags = o =>
+  Object.fromEntries(Object.entries(o || {}).flatMap(([k, v]) => (v && typeof v === "object" && !Array.isArray(v) ? [[k, Object.fromEntries(Object.entries(v).filter(([kk]) => kk === "on"))]] : [])));
 function pdpOf(type) {
   const d = PDP_DEF[type] || {};
-  const o = SET.pdp?.[type] || {};
+  const o = LANG === "lt" ? SET.pdp?.[type] || {} : pdpMerge(pdpFlags(SET.pdp?.[type]), SET.i18n?.[LANG]?.pdp?.[type] || {});
   const out = { ...d, ...o };
   for (const k of Object.keys(d)) if (d[k] && typeof d[k] === "object" && !Array.isArray(d[k])) out[k] = { ...d[k], ...(o[k] && typeof o[k] === "object" ? o[k] : {}) };
   return out;
@@ -142,7 +152,7 @@ function boldify(segs, regs) {
   return segs;
 }
 function descHTML(p) {
-  const notes = [...new Set([...p.notes.top, ...p.notes.heart, ...p.notes.base].filter(Boolean))].sort((a, b) => b.length - a.length);
+  const notes = [...new Set([...p.notes.top, ...p.notes.heart, ...p.notes.base].filter(Boolean).map(noteName))].sort((a, b) => b.length - a.length);
   const regs = [...notes.map(termRe), VOLUME_RE].filter(Boolean);
   // Pirma pastraipa: „PAVADINIMAS - šūkis.“ (be šūkio - pavadinimas prieš pirmą aprašymo pastraipą). Jei aprašymas pats
   // prasideda pavadinimu („Difuzorius CREEDORE - lengvas…“) - jis neištęsiamas: pavadinimas paryškinamas aprašyme, be šūkio
@@ -181,8 +191,8 @@ const noteImg = name => noteMedia(name)?.image || "";
 const noteTileHTML = n => {
   const img = noteImg(n);
   return `<li class="nt"><span class="ntArt${img ? " hasImg" : ""}">${
-    img ? `<img src="${esc(img)}" alt="" loading="lazy" decoding="async" />` : `<i aria-hidden="true">${esc(n.trim().charAt(0).toUpperCase())}</i>`
-  }</span><b>${esc(n)}</b></li>`;
+    img ? `<img src="${esc(img)}" alt="" loading="lazy" decoding="async" />` : `<i aria-hidden="true">${esc(noteName(n).trim().charAt(0).toUpperCase())}</i>`
+  }</span><b>${esc(noteName(n))}</b></li>`;
 };
 const noteGridHTML = list => `<ul class="ntGrid" data-n="${Math.min(list.length, 6)}">${list.map(noteTileHTML).join("")}</ul>`;
 // Pagrindinės natos (ne kvepalams): po vieną iš viršutinių, širdies ir bazinių; pirmiausia - natos su skirtingomis tikromis
