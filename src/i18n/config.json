@@ -1,6 +1,6 @@
 {
   "langs": ["lt", "en"],
   "default": "lt",
-  "enPublic": false,
+  "enPublic": true,
   "enStaticPages": true
 }
