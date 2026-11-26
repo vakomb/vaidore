@@ -16,6 +16,7 @@ async function startCheckout(btn) {
     const res = await sbFn("shop/checkout", {
       method: "POST",
       body: JSON.stringify({
+        lang: LANG,
         items: state.cart.map(l => (l.picks ? { id: l.id, qty: l.qty, picks: l.picks } : { id: l.id, ml: l.ml, qty: l.qty })),
         shipping: { method: state.ship.method, locker: state.ship.method === "omniva" ? state.ship.locker : null },
         gift: state.gift.on ? { on: true, note: state.gift.note.trim() } : null,

@@ -31,7 +31,7 @@ function openNotify(id) {
       const btn = $("button[type=submit]", form);
       btn.disabled = true;
       try {
-        await sbRest("restock_requests", { method: "POST", body: { product_id: p.id, email }, anon: true, prefer: "return=minimal" });
+        await sbRest("restock_requests", { method: "POST", body: { product_id: p.id, email, ...(LANG !== "lt" ? { lang: LANG } : {}) }, anon: true, prefer: "return=minimal" });
       } catch (ex) {
         if (ex.code !== "23505") {
           logError("restock", ex);

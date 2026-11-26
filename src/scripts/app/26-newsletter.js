@@ -34,7 +34,7 @@ document.addEventListener("submit", async e => {
   }
   btn.disabled = true;
   try {
-    await sbRest("newsletter", { method: "POST", body: { email, source: form.dataset.news || "" }, anon: true, prefer: "return=minimal" });
+    await sbRest("newsletter", { method: "POST", body: { email, source: form.dataset.news || "", ...(LANG !== "lt" ? { lang: LANG } : {}) }, anon: true, prefer: "return=minimal" });
   } catch (ex) {
     if (ex.code !== "23505") {
       logError("newsletter", ex);

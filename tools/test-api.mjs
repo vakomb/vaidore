@@ -6,7 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createShop, verifySignature } from "../supabase/functions/_shared/shop.js";
+import { createShop, verifySignature, EN_PATHS, tx } from "../supabase/functions/_shared/shop.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cat = JSON.parse(fs.readFileSync(path.join(root, "src/data/catalog.json"), "utf8"));
@@ -195,6 +195,26 @@ cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(cb.get("metadata[user_id]") === "u1" && cb.get("customer") === "cus_1" && db.profiles[0].stripe_customer === "cus_1", "checkout: prisijungęs - susieta su paskyra, Stripe klientas sukurtas ir išsaugotas");
 check(calls.find(c => c.url === "https://api.stripe.com/v1/customers")?.body.get("shipping[address][line1]") === "Gedimino pr. 1", "checkout: išsaugotas adresas perduodamas Stripe");
 
+// ── v33e: anglų kalba - Stripe langas, grįžimo adresai, pavadinimai ir klaidos pirkėjo kalba ──
+calls.length = 0;
+db.products.find(p => p.id === "arven").i18n = { en: { name: "Arven", tagline: "Bergamot, pepper and ambroxan" } };
+await shop.checkout(req(`${F}/checkout`, { body: { lang: "en", items: [{ id: "arven", ml: 33, qty: 1 }], shipping: { method: "dpd" }, gift: { on: true }, site: "https://vakomb.github.io/vaidore" } }));
+cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
+check(
+  cb.get("locale") === "en-GB" && cb.get("success_url") === "https://vakomb.github.io/vaidore/en/thank-you?s={CHECKOUT_SESSION_ID}" && cb.get("cancel_url") === "https://vakomb.github.io/vaidore/en/cart" && cb.get("metadata[lang]") === "en",
+  "checkout EN: Stripe angliškai (en-GB), grįžimas į en/thank-you ir en/cart, kalba metaduomenyse"
+);
+check(
+  /Bergamot, pepper and ambroxan/.test(cb.get("line_items[0][price_data][product_data][description]")) && cb.get("line_items[1][price_data][product_data][name]") === "Gift wrapping" && cb.get("shipping_options[0][shipping_rate_data][display_name]") === "DPD courier to your door",
+  "checkout EN: prekė, pakavimas ir pristatymo būdas - angliškai"
+);
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { lang: "en", items: [{ id: "arven", ml: 33, qty: 99 }] } })));
+check(r.status === 400 && r.body.code === "bad_qty" && r.body.error === "Invalid quantity", "checkout EN: klaida - kodas ir tekstas angliškai");
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "arven", ml: 33, qty: 99 }] } })));
+check(r.body.code === "bad_qty" && r.body.error === "Neteisingas kiekis" && tx("en", "low_stock", { name: "X", n: 2 }) === "X: only 2 left", "checkout LT: klaida lietuviškai (numatyta)");
+const routesEn = JSON.parse(fs.readFileSync(path.join(root, "src/i18n/routes.json"), "utf8")).paths;
+check(Object.entries(EN_PATHS).every(([lt, en]) => routesEn[lt] === en), "serverio angliški prekių adresai sutampa su src/i18n/routes.json");
+
 // ── order (padėkos puslapis) ──
 calls.length = 0;
 r = await res(await shop.orderInfo(req(`${F}/order?s=${session.id}`, { method: "GET" })));
@@ -246,6 +266,11 @@ r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { a
 check(r.status === 409, "admin: antrą kartą grąžinti negalima");
 r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "restock-notify", product_id: "arven" } })));
 check(r.status === 200 && r.body.sent === 1 && db.restock[0].notified, "admin: „Pranešti, kai bus“ laiškai išsiųsti ir pažymėti");
+db.restock.push({ id: "r2", product_id: "arven", email: "waiting@example.com", notified: false, lang: "en" });
+calls.length = 0;
+r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "restock-notify", product_id: "arven" } })));
+const enMail = calls.find(c => c.url.includes("resend"))?.body;
+check(r.body.sent === 1 && enMail?.subject === "Arven - back in stock" && /en\/perfumes\/arven/.test(enMail.html) && /lang="en"/.test(enMail.html), "admin: „Back in stock“ laiškas angliškai su en/perfumes nuoroda");
 
 // ── Kvapo importas pašalintas - veiksmo nebėra ──
 r = await res(await shop.admin(req(`${F}/admin`, { token: "eyJ.admin", body: { action: "import", url: "https://allegro.pl/oferta/x" } })));

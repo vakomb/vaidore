@@ -22,8 +22,12 @@ async function renderNewsletter(main, _param, seq) {
     body: `<form class="admForm" id="newsForm" novalidate>
 <h2 class="igHead">Laiškas prenumeratoriams</h2>
 <div class="ig"><label class="field axField"><span>Tema</span><input name="subject" maxlength="150" required placeholder="Naujas kvapas - Vanor" /></label>
-<label class="field axField stack"><span>Tekstas</span><textarea name="text" rows="8" maxlength="20000" required placeholder="Sveiki!&#10;&#10;…"></textarea></label></div>
-<p class="igFoot">Tuščia eilutė - nauja pastraipa. Apačioje automatiškai - nuoroda į parduotuvę ir „Atsisakyti“.</p>
+${
+  rows.some(r => "lang" in r)
+    ? `<label class="field axField"><span>Kam</span><select name="lang"><option value="">Visiems (${active.length})</option><option value="lt">Lietuviškai (${active.filter(r => (r.lang || "lt") === "lt").length})</option><option value="en">Angliškai - EN (${active.filter(r => r.lang === "en").length})</option></select></label>`
+    : ""
+}<label class="field axField stack"><span>Tekstas</span><textarea name="text" rows="8" maxlength="20000" required placeholder="Sveiki!&#10;&#10;…"></textarea></label></div>
+<p class="igFoot">Tuščia eilutė - nauja pastraipa. Apačioje automatiškai - nuoroda į parduotuvę ir „Atsisakyti“ (gavėjo kalba). Angliškiems prenumeratoriams laišką rašykite angliškai ir siųskite pasirinkę „Angliškai - EN“.</p>
 <div class="axActRow"><button class="btn ghost" type="button" data-news-test>${glyph("mail")}Bandomasis man</button><button class="btn primary" type="submit"${attr(!active.length, "disabled")}>${glyph("mail")}Siųsti ${plural(
       active.length,
       "prenumeratoriui",
@@ -37,7 +41,7 @@ ${
         .slice(0, 500)
         .map(
           r =>
-            `<li data-nl="${esc(r.id)}"><span>${esc(r.email)}</span><small>${fmtDate(r.created_at)}${r.unsubscribed_at ? " · atsisakė" : r.welcomed_at ? " · patvirtinta laišku" : ""}</small><button class="roundBtn" type="button" data-nl-del aria-label="Ištrinti ${esc(r.email)}">${glyph("trash")}</button></li>`
+            `<li data-nl="${esc(r.id)}"><span>${esc(r.email)}</span><small>${fmtDate(r.created_at)}${r.lang === "en" ? " · EN" : ""}${r.unsubscribed_at ? " · atsisakė" : r.welcomed_at ? " · patvirtinta laišku" : ""}</small><button class="roundBtn" type="button" data-nl-del aria-label="Ištrinti ${esc(r.email)}">${glyph("trash")}</button></li>`
         )
         .join("")}</ul></div>${rows.length > 500 ? `<p class="igFoot">Rodomi 500 naujausių - visus rasite CSV.</p>` : ""}`
     : emptyBox("Prenumeratorių dar nėra", "Kai pirkėjai įrašys el. paštą poraštėje, jie atsiras čia.")
@@ -49,9 +53,11 @@ ${
     const subject = form.elements.subject.value.trim();
     const text = form.elements.text.value;
     if (!subject || !text.trim()) return toast("Įrašykite temą ir tekstą", { icon: "info" });
-    if (!test && !(await askConfirm(`Laiškas „${subject}“ bus išsiųstas ${plural(active.length, "prenumeratoriui", "prenumeratoriams", "prenumeratorių")}. Atšaukti nebus galima.`, { title: "Siųsti visiems?", ok: "Siųsti" })))
+    const only = form.elements.lang?.value || "";
+    const n = only ? active.filter(r => (r.lang || "lt") === only).length : active.length;
+    if (!test && !(await askConfirm(`Laiškas „${subject}“ bus išsiųstas ${plural(n, "prenumeratoriui", "prenumeratoriams", "prenumeratorių")}. Atšaukti nebus galima.`, { title: only ? "Siųsti?" : "Siųsti visiems?", ok: "Siųsti" })))
       return;
-    const d = await shopAdmin({ action: "newsletter-send", subject, text, test });
+    const d = await shopAdmin({ action: "newsletter-send", subject, text, test, ...(only ? { lang: only } : {}) });
     toast(test ? "Bandomasis laiškas išsiųstas jums" : `Išsiųsta ${d.sent} iš ${d.total}`, { icon: "mail", ms: 4000 });
   };
   form.addEventListener("submit", e => {

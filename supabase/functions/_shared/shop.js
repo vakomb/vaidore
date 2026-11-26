@@ -15,15 +15,104 @@ const SAMPLE_ML = 2;
 // Prekių tipai (v15) - tie patys kaip TYPES (src/scripts/app/03-catalog.js): Stripe aprašymui ir nuorodoms
 const TYPE_ONE = { difuzoriai: "Namų kvapų difuzorius", zvakes: "Kvapni žvakė", aliejai: "Aromatinis aliejus", "elektriniai-difuzoriai": "Elektrinis difuzorius" };
 const typePath = p => (TYPE_ONE[p.type] ? p.type : "kvepalai");
+// v33e: pirkėjo kalba (lt / en) - Stripe langas, nuorodos, laiškai pirkėjui, klaidos. Savininkui - visada lietuviškai.
+// Angliški adresai - kaip src/i18n/routes.json (test-api.mjs tikrina, kad sutampa)
+export const LANGS = ["lt", "en"];
+export const langOf = v => (v === "en" ? "en" : "lt");
+export const EN_PATHS = { kvepalai: "perfumes", zvakes: "candles", aliejai: "fragrance-oils", difuzoriai: "reed-diffusers", "elektriniai-difuzoriai": "electric-diffusers" };
+const pathFor = (lang, lt) =>
+  lang === "en"
+    ? `en/${{ aciu: "thank-you", krepselis: "cart", "paskyra/uzsakymai": "account/orders", naujienlaiskis: "newsletter", "": "" }[lt] ?? lt}`.replace(/\/$/, "")
+    : lt;
+const productPath = (lang, p) => (lang === "en" ? `en/${EN_PATHS[typePath(p)]}/${p.id}` : `${typePath(p)}/${p.id}`);
+const TYPE_ONE_EN = { difuzoriai: "Reed diffuser", zvakes: "Scented candle", aliejai: "Fragrance oil", "elektriniai-difuzoriai": "Electric diffuser" };
+export const TXT = {
+  lt: {
+    sample: "mėginukas 2 ml",
+    pcs: "1 vnt.",
+    gift: "Dovanų pakavimas",
+    free: "{name} - nemokamai",
+    lockerMsg: "Siunta - į Omniva paštomatą: {name}.",
+    locker: "Omniva paštomatas",
+    bad_qty: "Neteisingas kiekis",
+    disc_invalid: "Atradimų rinkinyje turi būti skirtingi kvapai - atnaujinkite puslapį",
+    disc_out: "{name} laikinai išparduotas - pakeiskite rinkinį",
+    stale_item: "Krepšelyje yra nebegaliojanti prekė - atnaujinkite puslapį",
+    out_of_stock: "{name} laikinai išparduotas - pašalinkite jį iš krepšelio",
+    low_stock: "{name}: liko tik {n} vnt.",
+    empty_cart: "Krepšelis tuščias",
+    payments_off: "Apmokėjimas dar neįjungtas",
+    stripe_error: "Stripe klaida",
+    stripe_unreachable: "Stripe nepasiekiamas",
+    hello: "Sveiki",
+    creditSubject: "{shop}: mėginukų kaina grąžinta - kodas {code}",
+    creditBody: "<p>Ačiū, kad renkatės {shop}!</p><p>Mėginukų kainą grąžiname: įveskite kodą <b style=\"font-size:18px\">{code}</b> apmokėdami buteliuką - nuolaida {amount}, galioja iki {until}.</p>",
+    toShop: "Į parduotuvę",
+    shipSubject: "{shop}: užsakymas {ref} išsiųstas",
+    shipBody: "Jūsų užsakymas <b>{ref}</b> išsiųstas",
+    tracking: "Siuntos numeris",
+    myOrders: "Mano užsakymai",
+    restockSubject: "{name} - vėl turime",
+    restockBody: "Kvapas <b>{name}</b>, kurio laukėte, vėl prekyboje.",
+    view: "Peržiūrėti",
+    welcomeSubject: "Sveiki prisijungę prie {shop}!",
+    welcomeBody: "Ačiū, kad užsiprenumeravote. Pirmi sužinosite apie naujus kvapus ir nuolaidas - laiškų siunčiame retai.",
+    browse: "Peržiūrėti kvapus",
+    visit: "Apsilankyti {shop}",
+    newsFoot: "Gavote šį laišką, nes užsiprenumeravote {shop} naujienlaiškį.",
+    unsubscribe: "Atsisakyti"
+  },
+  en: {
+    sample: "2 ml sample",
+    pcs: "1 pc",
+    gift: "Gift wrapping",
+    free: "{name} - free",
+    lockerMsg: "Delivery to Omniva parcel locker: {name}.",
+    locker: "Omniva parcel locker",
+    bad_qty: "Invalid quantity",
+    disc_invalid: "The discovery set must contain different fragrances - please refresh the page",
+    disc_out: "{name} is temporarily sold out - please change your set",
+    stale_item: "Your bag contains an item that is no longer available - please refresh the page",
+    out_of_stock: "{name} is temporarily sold out - please remove it from your bag",
+    low_stock: "{name}: only {n} left",
+    empty_cart: "Your bag is empty",
+    payments_off: "Payments are not enabled yet",
+    stripe_error: "Payment error",
+    stripe_unreachable: "Payment service unavailable",
+    hello: "Hello",
+    creditSubject: "{shop}: your sample refund code {code}",
+    creditBody: "<p>Thank you for choosing {shop}!</p><p>We're refunding the price of your samples: enter the code <b style=\"font-size:18px\">{code}</b> when you buy a full bottle - {amount} off, valid until {until}.</p>",
+    toShop: "Visit the shop",
+    shipSubject: "{shop}: order {ref} has been shipped",
+    shipBody: "Your order <b>{ref}</b> has been shipped",
+    tracking: "Tracking number",
+    myOrders: "My orders",
+    restockSubject: "{name} - back in stock",
+    restockBody: "<b>{name}</b>, which you were waiting for, is back in stock.",
+    view: "View",
+    welcomeSubject: "Welcome to {shop}!",
+    welcomeBody: "Thank you for subscribing. You'll be the first to hear about new fragrances and offers - we email rarely.",
+    browse: "Explore our fragrances",
+    visit: "Visit {shop}",
+    newsFoot: "You're receiving this email because you subscribed to the {shop} newsletter.",
+    unsubscribe: "Unsubscribe"
+  }
+};
+export const tx = (lang, key, vars) => String(TXT[langOf(lang)][key] ?? TXT.lt[key] ?? key).replace(/\{(\w+)\}/g, (m, k) => (vars?.[k] ?? m));
+// Klaida pirkėjui: kodas (programėlei) + tekstas jo kalba
+const fail = (status, lang, code, vars) => json(status, { error: tx(lang, code, vars), code });
+// Bazės įrašo tekstas kalba (products.i18n.en.name …), nėra - lietuviškas
+const loc = (lang, o, k) => (lang !== "lt" && String(o?.i18n?.[lang]?.[k] || "").trim()) || o?.[k] || "";
+const setLoc = (lang, S, path, fallback) => (lang !== "lt" && String(path.reduce((x, k) => x?.[k], S?.i18n?.[lang]) || "").trim()) || fallback;
 // Talpos pavadinimas (v15): sizes[].unit - "g" (žvakės), "vnt" (elektrinis difuzorius), kitaip ml
-const sizeName = (p, ml) => {
-  if (ml === SAMPLE_ML && !TYPE_ONE[p.type]) return "mėginukas 2 ml";
+const sizeName = (p, ml, lang = "lt") => {
+  if (ml === SAMPLE_ML && !TYPE_ONE[p.type]) return tx(lang, "sample");
   const unit = (p.sizes || []).find(s => Number(s.ml) === ml)?.unit || "ml";
-  return unit === "vnt" ? "1 vnt." : `${ml} ${unit}`;
+  return unit === "vnt" ? tx(lang, "pcs") : `${ml} ${unit}`;
 };
 const cents = v => Math.round(Number(v) * 100);
 const inStock = p => p.stock == null || p.stock > 0;
-export const eurTxt = c => `${(c / 100).toFixed(2).replace(".", ",")} €`;
+export const eurTxt = (c, lang = "lt") => (lang === "en" ? `€${(c / 100).toFixed(2)}` : `${(c / 100).toFixed(2).replace(".", ",")} €`);
 export const orderRef = id => String(id || "").slice(-8).toUpperCase();
 // v30: ilgi brūkšniai (U+2012-2015) ir minuso ženklas (U+2212) - visur paprastas „-“ (ir bazės tekstuose)
 export const plain = v => String(v ?? "").replace(/[\u2012-\u2015\u2212]/g, "-");
@@ -123,8 +212,9 @@ export function createShop(env) {
 
   // ── Apmokėjimas: krepšelis → Stripe Checkout ──────────
   async function checkout(req) {
-    if (!env.STRIPE_SECRET_KEY) return json(503, { error: "Apmokėjimas dar neįjungtas" });
     const body = await req.json().catch(() => null);
+    const lang = langOf(body?.lang);
+    if (!env.STRIPE_SECRET_KEY) return fail(503, lang, "payments_off");
     const { S, BY_ID } = await loadShop();
     const DISC = S.discovery || null;
     const currency = S.currency || "eur";
@@ -135,13 +225,13 @@ export function createShop(env) {
     let sampleCredit = 0;
     for (const it of items) {
       const qty = Math.round(Number(it?.qty));
-      if (!(qty >= 1 && qty <= maxQty)) return json(400, { error: "Neteisingas kiekis" });
+      if (!(qty >= 1 && qty <= maxQty)) return fail(400, lang, "bad_qty");
       if (DISC && it?.id === DISC.id) {
         const picks = Array.isArray(it.picks) ? it.picks.map(String) : [];
         if (!(picks.length === DISC.count && new Set(picks).size === picks.length && picks.every(id => BY_ID.has(id) && Number(BY_ID.get(id).sample) > 0)))
-          return json(400, { error: "Atradimų rinkinyje turi būti skirtingi kvapai - atnaujinkite puslapį" });
+          return fail(400, lang, "disc_invalid");
         const out = picks.map(id => BY_ID.get(id)).find(p => !inStock(p));
-        if (out) return json(409, { error: `${out.name} laikinai išparduotas - pakeiskite rinkinį` });
+        if (out) return fail(409, lang, "disc_out", { name: loc(lang, out, "name") });
         subtotal += DISC.price * qty;
         sampleCredit += cents(DISC.price) * qty;
         lines.push({
@@ -150,8 +240,8 @@ export function createShop(env) {
             currency,
             unit_amount: cents(DISC.price),
             product_data: {
-              name: plain(`${S.shop || "Vaidore"} ${DISC.name} · ${DISC.count} × 2 ml`),
-              description: plain(picks.map(id => BY_ID.get(id).name).join(", ")),
+              name: plain(`${S.shop || "Vaidore"} ${setLoc(lang, S, ["discovery", "name"], DISC.name)} · ${DISC.count} × 2 ml`),
+              description: plain(picks.map(id => loc(lang, BY_ID.get(id), "name")).join(", ")),
               metadata: { product_id: DISC.id, picks: picks.join(",") }
             }
           }
@@ -161,9 +251,9 @@ export function createShop(env) {
       const p = BY_ID.get(String(it?.id || ""));
       const ml = Number(it?.ml);
       const price = p && (ml === SAMPLE_ML ? Number(p.sample) : Number((p.sizes || []).find(s => Number(s.ml) === ml)?.price));
-      if (!p || !price) return json(400, { error: "Krepšelyje yra nebegaliojanti prekė - atnaujinkite puslapį" });
-      if (!inStock(p)) return json(409, { error: `${p.name} laikinai išparduotas - pašalinkite jį iš krepšelio` });
-      if (p.stock != null && ml !== SAMPLE_ML && qty > p.stock) return json(409, { error: `${p.name}: liko tik ${p.stock} vnt.` });
+      if (!p || !price) return fail(400, lang, "stale_item");
+      if (!inStock(p)) return fail(409, lang, "out_of_stock", { name: loc(lang, p, "name") });
+      if (p.stock != null && ml !== SAMPLE_ML && qty > p.stock) return fail(409, lang, "low_stock", { name: loc(lang, p, "name"), n: p.stock });
       subtotal += price * qty;
       if (ml === SAMPLE_ML) sampleCredit += cents(price) * qty;
       lines.push({
@@ -172,18 +262,18 @@ export function createShop(env) {
           currency,
           unit_amount: cents(price),
           product_data: {
-            name: plain(`${S.shop || "Vaidore"} ${p.name} · ${sizeName(p, ml)}`),
-            description: plain(`${TYPE_ONE[p.type] || p.conc}${p.tagline ? ` · ${p.tagline}` : ""}`).slice(0, 250),
+            name: plain(`${S.shop || "Vaidore"} ${loc(lang, p, "name")} · ${sizeName(p, ml, lang)}`),
+            description: plain(`${(lang === "en" ? TYPE_ONE_EN : TYPE_ONE)[p.type] || p.conc}${loc(lang, p, "tagline") ? ` · ${loc(lang, p, "tagline")}` : ""}`).slice(0, 250),
             metadata: { product_id: p.id, ml: String(ml) }
           }
         }
       });
     }
-    if (!lines.length) return json(400, { error: "Krepšelis tuščias" });
+    if (!lines.length) return fail(400, lang, "empty_cart");
 
-    const metadata = { shop: S.shop || "Vaidore" };
+    const metadata = { shop: S.shop || "Vaidore", lang };
     if (body?.gift?.on && S.gift) {
-      lines.push({ quantity: 1, price_data: { currency, unit_amount: cents(S.gift.price), product_data: { name: "Dovanų pakavimas" } } });
+      lines.push({ quantity: 1, price_data: { currency, unit_amount: cents(S.gift.price), product_data: { name: tx(lang, "gift") } } });
       metadata.gift = "taip";
       const note = clean(body.gift.note, Math.min(S.gift.noteMax || 200, 490));
       if (note) metadata.gift_note = note;
@@ -200,7 +290,7 @@ export function createShop(env) {
     const rate = o => ({
       shipping_rate_data: {
         type: "fixed_amount",
-        display_name: free ? `${o.name} - nemokamai` : o.name,
+        display_name: free ? tx(lang, "free", { name: setLoc(lang, S, ["shipping", o.id, "name"], o.name) }) : setLoc(lang, S, ["shipping", o.id, "name"], o.name),
         fixed_amount: { amount: free ? 0 : cents(o.price), currency },
         delivery_estimate: { minimum: { unit: "business_day", value: 1 }, maximum: { unit: "business_day", value: 3 } },
         metadata: { method: o.id }
@@ -209,20 +299,20 @@ export function createShop(env) {
     const site = pickSite(body?.site);
     const params = {
       mode: "payment",
-      locale: "lt",
+      locale: lang === "en" ? "en-GB" : "lt",
       line_items: lines,
       shipping_options: (method ? [method] : S.shipping).map(rate),
       phone_number_collection: { enabled: true },
       billing_address_collection: "auto",
       allow_promotion_codes: true,
-      success_url: `${site}/aciu?s={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${site}/krepselis`,
+      success_url: `${site}/${pathFor(lang, "aciu")}?s={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${site}/${pathFor(lang, "krepselis")}`,
       metadata
     };
     if (method) metadata.ship_method = method.id;
     if (locker) {
       metadata.locker = `${locker.zip} · ${locker.name} · ${[locker.addr, locker.city].filter(Boolean).join(", ")}`.slice(0, 490);
-      params.custom_text = { submit: { message: `Siunta - į Omniva paštomatą: ${locker.name}, ${[locker.addr, locker.city].filter(Boolean).join(", ")}.` } };
+      params.custom_text = { submit: { message: tx(lang, "lockerMsg", { name: [locker.name, locker.addr, locker.city].filter(Boolean).join(", ") }) } };
     } else {
       params.shipping_address_collection = { allowed_countries: S.countries || ["LT"] };
     }
@@ -261,7 +351,7 @@ export function createShop(env) {
       return json(200, { id: data.id, url: data.url });
     } catch (err) {
       console.error("Stripe", err.status, err.message);
-      return json(502, { error: err.status ? "Stripe klaida" : "Stripe nepasiekiamas" });
+      return fail(502, lang, err.status ? "stripe_error" : "stripe_unreachable");
     }
   }
 
@@ -331,7 +421,8 @@ export function createShop(env) {
         ...(a ? { address: [sd.name, a.line1, a.line2, `${a.postal_code || ""} ${a.city || ""}`.trim(), a.country].filter(Boolean).join(", ") } : {})
       },
       gift: m.gift ? { note: m.gift_note || "" } : null,
-      credit_code: credit?.code || null
+      credit_code: credit?.code || null,
+      lang: langOf(m.lang)
     };
     const inserted = await db("rpc/vd_record_order", { method: "POST", body: { o: order } });
     return { inserted: inserted === true, order };
@@ -370,11 +461,11 @@ export function createShop(env) {
     if (!r.ok) console.error("Resend", r.status, await r.text().catch(() => ""));
     return r.ok;
   }
-  const wrapMail = inner => `<div style="font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.5;color:#0F172A">${inner}</div>`;
+  const wrapMail = (inner, lang = "lt") => `<div lang="${langOf(lang)}" style="font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.5;color:#0F172A">${inner}</div>`;
   function ownerMail(o, credit) {
     const rows = o.items.map(i => `<tr><td>${escHtml(i.name)}</td><td align="right">${i.qty}</td><td align="right">${eurTxt(i.total)}</td></tr>`).join("");
     return wrapMail(`<h2 style="margin:0 0 8px">Naujas užsakymas ${o.ref} - ${eurTxt(o.amount_total)}</h2>
-<p><b>Pirkėjas:</b> ${escHtml(o.name)} · ${escHtml(o.email)} · ${escHtml(o.phone)}</p>
+<p><b>Pirkėjas:</b> ${escHtml(o.name)} · ${escHtml(o.email)} · ${escHtml(o.phone)}${o.lang === "en" ? " · kalba: anglų (EN)" : ""}</p>
 <p><b>Pristatymas:</b> ${escHtml(o.shipping.method)} - ${escHtml(o.shipping.locker ? `Omniva paštomatas: ${o.shipping.locker}` : o.shipping.address || "-")} (${eurTxt(o.amount_shipping)})</p>
 ${o.gift ? `<p><b>Dovanų pakavimas.</b> Rašteliukas: ${escHtml(o.gift.note || "-")}</p>` : ""}
 <table cellpadding="6" style="border-collapse:collapse;min-width:360px">${rows}</table>
@@ -405,11 +496,16 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
         await db(`orders?id=eq.${row.id}`, { method: "PATCH", body: { mailed: true } });
         await sendMail({ to: env.ORDER_EMAIL_TO || S.company?.email, subject: `Užsakymas ${order.ref} - ${eurTxt(order.amount_total)}`, html: ownerMail(order, credit), idem: `vd-owner-${s.id}` });
         if (credit && order.email) {
-          const until = new Date(credit.expires * 1000).toLocaleDateString("lt-LT");
+          const lang = order.lang;
+          const until = new Date(credit.expires * 1000).toLocaleDateString(lang === "en" ? "en-GB" : "lt-LT");
+          const shop = S.shop || "Vaidore";
           await sendMail({
             to: order.email,
-            subject: `${S.shop || "Vaidore"}: mėginukų kaina grąžinta - kodas ${credit.code}`,
-            html: wrapMail(`<p>Ačiū, kad renkatės ${escHtml(S.shop || "Vaidore")}!</p><p>Mėginukų kainą grąžiname: įveskite kodą <b style="font-size:18px">${credit.code}</b> apmokėdami buteliuką - nuolaida ${eurTxt(credit.amount)}, galioja iki ${until}.</p><p><a href="${siteUrl()}/" style="color:#284CA2;font-weight:700">Į parduotuvę</a></p>`),
+            subject: tx(lang, "creditSubject", { shop, code: credit.code }),
+            html: wrapMail(
+              `${tx(lang, "creditBody", { shop: escHtml(shop), code: credit.code, amount: eurTxt(credit.amount, lang), until })}<p><a href="${siteUrl()}/${pathFor(lang, "")}" style="color:#000;font-weight:700">${tx(lang, "toShop")}</a></p>`,
+              lang
+            ),
             idem: `vd-credit-${s.id}`
           });
         }
@@ -433,11 +529,17 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
       if (!o) return json(404, { error: "Užsakymas nerastas" });
       const tracking = clean(body.tracking, 80);
       await db(`orders?id=eq.${o.id}`, { method: "PATCH", body: { status: "shipped", tracking: tracking || null, shipped_at: new Date().toISOString() } });
+      const lang = langOf(o.lang);
       const mailed = o.email
         ? await sendMail({
             to: o.email,
-            subject: `${S.shop || "Vaidore"}: užsakymas ${o.ref} išsiųstas`,
-            html: wrapMail(`<p>Sveiki${o.name ? `, ${escHtml(o.name.split(" ")[0])}` : ""}!</p><p>Jūsų užsakymas <b>${o.ref}</b> išsiųstas${tracking ? `. Siuntos numeris: <b>${escHtml(tracking)}</b>` : ""}.</p><p>${escHtml(o.shipping?.locker ? `Omniva paštomatas: ${o.shipping.locker}` : o.shipping?.address || "")}</p><p><a href="${siteUrl()}/paskyra/uzsakymai" style="color:#284CA2;font-weight:700">Mano užsakymai</a></p>`),
+            subject: tx(lang, "shipSubject", { shop: S.shop || "Vaidore", ref: o.ref }),
+            html: wrapMail(
+              `<p>${tx(lang, "hello")}${o.name ? `, ${escHtml(o.name.split(" ")[0])}` : ""}!</p><p>${tx(lang, "shipBody", { ref: o.ref })}${tracking ? `. ${tx(lang, "tracking")}: <b>${escHtml(tracking)}</b>` : ""}.</p><p>${escHtml(
+                o.shipping?.locker ? `${tx(lang, "locker")}: ${o.shipping.locker}` : o.shipping?.address || ""
+              )}</p><p><a href="${siteUrl()}/${pathFor(lang, "paskyra/uzsakymai")}" style="color:#000;font-weight:700">${tx(lang, "myOrders")}</a></p>`,
+              lang
+            ),
             idem: `vd-ship-${o.id}-${tracking}`
           })
         : false;
@@ -455,13 +557,18 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
     if (body.action === "restock-notify") {
       const p = (await db(`products?id=eq.${encodeURIComponent(body.product_id)}&select=*`))?.[0];
       if (!p) return json(404, { error: "Kvapas nerastas" });
-      const list = (await db(`restock_requests?product_id=eq.${encodeURIComponent(p.id)}&notified=eq.false&select=id,email`)) || [];
+      const list = (await db(`restock_requests?product_id=eq.${encodeURIComponent(p.id)}&notified=eq.false&select=*`)) || [];
       let sent = 0;
       for (const r of list) {
+        const lang = langOf(r.lang);
+        const name = loc(lang, p, "name");
         const ok = await sendMail({
           to: r.email,
-          subject: `${p.name} - vėl turime`,
-          html: wrapMail(`<p>Sveiki!</p><p>Kvapas <b>${escHtml(p.name)}</b>, kurio laukėte, vėl prekyboje.</p><p><a href="${siteUrl()}/${typePath(p)}/${p.id}" style="color:#284CA2;font-weight:700">Peržiūrėti</a></p>`),
+          subject: tx(lang, "restockSubject", { name }),
+          html: wrapMail(
+            `<p>${tx(lang, "hello")}!</p><p>${tx(lang, "restockBody", { name: escHtml(name) })}</p><p><a href="${siteUrl()}/${productPath(lang, p)}" style="color:#000;font-weight:700">${tx(lang, "view")}</a></p>`,
+            lang
+          ),
           idem: `vd-restock-${r.id}`
         });
         if (ok) {
@@ -493,21 +600,26 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
   }
 
   // ── Naujienlaiškis: sveikinimo laiškas (vieną kartą) ir atsisakymas pagal raktą iš laiško ──
-  const unsubUrl = token => `${siteUrl()}/naujienlaiskis?atsisakyti=${encodeURIComponent(token)}`;
-  const newsFooter = (S, token) =>
-    `<p style="margin-top:28px;font-size:12px;color:#6b6b6b">Gavote šį laišką, nes užsiprenumeravote ${escHtml(S.shop || "Vaidore")} naujienlaiškį. <a href="${unsubUrl(token)}" style="color:#6b6b6b">Atsisakyti</a></p>`;
+  const unsubUrl = (token, lang = "lt") =>
+    lang === "en" ? `${siteUrl()}/en/newsletter?unsubscribe=${encodeURIComponent(token)}` : `${siteUrl()}/naujienlaiskis?atsisakyti=${encodeURIComponent(token)}`;
+  const newsFooter = (S, token, lang = "lt") =>
+    `<p style="margin-top:28px;font-size:12px;color:#6b6b6b">${tx(lang, "newsFoot", { shop: escHtml(S.shop || "Vaidore") })} <a href="${unsubUrl(token, lang)}" style="color:#6b6b6b">${tx(lang, "unsubscribe")}</a></p>`;
   async function newsletter(req) {
     const body = (await req.json().catch(() => null)) || {};
     if (body.action === "welcome") {
       const email = clean(body.email, 254).toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return json(400, { error: "Blogas el. paštas" });
-      const row = (await db(`newsletter?email=ilike.${encodeURIComponent(email)}&select=id,email,token,welcomed_at,unsubscribed_at`))?.[0];
+      const row = (await db(`newsletter?email=ilike.${encodeURIComponent(email)}&select=*`))?.[0];
       if (!row || row.welcomed_at || row.unsubscribed_at) return json(200, { ok: true });
       const { S } = await loadShop();
+      const lang = langOf(row.lang);
       const ok = await sendMail({
         to: row.email,
-        subject: `Sveiki prisijungę prie ${S.shop || "Vaidore"}!`,
-        html: wrapMail(`<p>Sveiki!</p><p>Ačiū, kad užsiprenumeravote. Pirmi sužinosite apie naujus kvapus ir nuolaidas - laiškų siunčiame retai.</p><p><a href="${siteUrl()}/kvepalai" style="color:#000;font-weight:700">Peržiūrėti kvapus</a></p>${newsFooter(S, row.token)}`),
+        subject: tx(lang, "welcomeSubject", { shop: S.shop || "Vaidore" }),
+        html: wrapMail(
+          `<p>${tx(lang, "hello")}!</p><p>${tx(lang, "welcomeBody")}</p><p><a href="${siteUrl()}/${lang === "en" ? "en/perfumes" : "kvepalai"}" style="color:#000;font-weight:700">${tx(lang, "browse")}</a></p>${newsFooter(S, row.token, lang)}`,
+          lang
+        ),
         idem: `vd-news-welcome-${row.id}`
       });
       if (ok) await db(`newsletter?id=eq.${row.id}`, { method: "PATCH", body: { welcomed_at: new Date().toISOString() } });
@@ -522,21 +634,24 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
     return json(400, { error: "Nežinomas veiksmas" });
   }
   // Laiškas visiems prenumeratoriams (administratorius): Resend „batch“ - po 100 laiškų viename užklausime
-  async function sendNewsletter(S, { subject, text, test, to }) {
+  // v33e: lang - „lt“ / „en“ (tik tos kalbos prenumeratoriams), kitaip - visiems; nuorodos ir poraštė - gavėjo kalba
+  async function sendNewsletter(S, { subject, text, test, to, lang: only }) {
     subject = clean(subject, 150);
     text = String(text || "").slice(0, 20000);
     if (!subject || !text.trim()) return json(400, { error: "Įrašykite temą ir tekstą" });
     if (!env.RESEND_API_KEY) return json(409, { error: "Laiškų siuntimas neprijungtas (RESEND_API_KEY)" });
-    const html = token =>
+    const html = (token, lang) =>
       wrapMail(
         `${text
           .split(/\n{2,}/)
           .map(p => `<p>${escHtml(p).replace(/\n/g, "<br />")}</p>`)
-          .join("")}<p><a href="${siteUrl()}/kvepalai" style="color:#000;font-weight:700">Apsilankyti ${escHtml(S.shop || "Vaidore")}</a></p>${newsFooter(S, token)}`
+          .join("")}<p><a href="${siteUrl()}/${lang === "en" ? "en/perfumes" : "kvepalai"}" style="color:#000;font-weight:700">${tx(lang, "visit", { shop: escHtml(S.shop || "Vaidore") })}</a></p>${newsFooter(S, token, lang)}`,
+        lang
       );
+    const filter = LANGS.includes(only) ? `&lang=eq.${only}` : "";
     const list = test
-      ? [{ email: to, token: "00000000-0000-4000-8000-000000000000" }]
-      : (await db("newsletter?unsubscribed_at=is.null&select=email,token&order=created_at.asc")) || [];
+      ? [{ email: to, token: "00000000-0000-4000-8000-000000000000", lang: LANGS.includes(only) ? only : "lt" }]
+      : (await db(`newsletter?unsubscribed_at=is.null${filter}&select=*&order=created_at.asc`)) || [];
     let sent = 0;
     for (let i = 0; i < list.length; i += 100) {
       const chunk = list.slice(i, i + 100);
@@ -548,8 +663,8 @@ ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurT
             from: env.MAIL_FROM || "Vaidore <onboarding@resend.dev>",
             to: [x.email],
             subject,
-            html: html(x.token),
-            headers: { "List-Unsubscribe": `<${unsubUrl(x.token)}>` }
+            html: html(x.token, langOf(x.lang)),
+            headers: { "List-Unsubscribe": `<${unsubUrl(x.token, langOf(x.lang))}>` }
           }))
         )
       });
