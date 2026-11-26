@@ -72,7 +72,7 @@ function finishOverlay() {
 }
 
 function sheetHeadHTML(title) {
-  return `<header class="sheetHead"><span></span><h2 id="sheetTitle">${esc(title)}</h2><button class="roundBtn" type="button" data-sheet-close aria-label="Uždaryti">${glyph("x")}</button></header>`;
+  return `<header class="sheetHead"><span></span><h2 id="sheetTitle">${esc(title)}</h2><button class="roundBtn" type="button" data-sheet-close aria-label="${t("common.close")}">${glyph("x")}</button></header>`;
 }
 // openSheet({ title?, html, wide?, onClose? }) - html be antraštės, jei title nenurodytas
 function openSheet({ title, html, wide = false, onClose = null }) {
@@ -93,12 +93,12 @@ function sheetOpen() {
 }
 
 // Patvirtinimas (ištrinti, grąžinti pinigus…): Promise<boolean>
-function askConfirm(text, { title = "Patvirtinkite", ok = "Taip", danger = false } = {}) {
+function askConfirm(text, { title = t("common.confirm"), ok = t("common.yes"), danger = false } = {}) {
   return new Promise(resolve => {
     let answer = false;
     openSheet({
       title,
-      html: `<div class="sheetPad"><p class="confirmTxt">${esc(text)}</p><div class="confirmActs"><button class="btn ghost" type="button" data-sheet-close>Atšaukti</button><button class="btn ${danger ? "danger" : "primary"}" type="button" data-confirm-ok>${esc(ok)}</button></div></div>`,
+      html: `<div class="sheetPad"><p class="confirmTxt">${esc(text)}</p><div class="confirmActs"><button class="btn ghost" type="button" data-sheet-close>${t("common.cancel")}</button><button class="btn ${danger ? "danger" : "primary"}" type="button" data-confirm-ok>${esc(ok)}</button></div></div>`,
       onClose: () => resolve(answer)
     });
     $("#sheetBody").addEventListener("click", e => {
@@ -113,8 +113,8 @@ function askConfirm(text, { title = "Patvirtinkite", ok = "Taip", danger = false
 function bindOverlays() {
   for (const kind of Object.keys(OVL)) {
     OVL[kind].wrap().addEventListener("click", e => {
-      const t = e.target instanceof Element ? e.target : null;
-      if (e.target === OVL[kind].wrap() || t?.closest("[data-sheet-close]")) closeOverlay();
+      const tx = e.target instanceof Element ? e.target : null;
+      if (e.target === OVL[kind].wrap() || tx?.closest("[data-sheet-close]")) closeOverlay();
     });
   }
   document.addEventListener("keydown", e => {
@@ -155,9 +155,9 @@ function bindSwipe(panel, dir, canStart = () => true) {
     "touchstart",
     e => {
       if (e.touches.length !== 1 || (axis === "y" && isDesktop())) return;
-      const t = e.target instanceof Element ? e.target : null;
-      if (t?.closest("input, textarea, select, .rail, .gal, .discGrid, button.sizeOpt")) return;
-      if (axis === "y" && !canStart() && !t?.closest(".grabber, .sheetHead")) return;
+      const tx = e.target instanceof Element ? e.target : null;
+      if (tx?.closest("input, textarea, select, .rail, .gal, .discGrid, button.sizeOpt")) return;
+      if (axis === "y" && !canStart() && !tx?.closest(".grabber, .sheetHead")) return;
       s0 = axis === "y" ? e.touches[0].clientY : e.touches[0].clientX;
       other0 = axis === "y" ? e.touches[0].clientX : e.touches[0].clientY;
       t0 = performance.now();

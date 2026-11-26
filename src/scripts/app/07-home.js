@@ -10,17 +10,17 @@ const slideBg = (x, i) => (x.image ? photoHTML(x, { eager: !i, cls: "heroStage" 
 function heroHTML() {
   const slides = homeSlides();
   if (!slides.length) return "";
-  return `<section class="hero" aria-roledescription="carousel" aria-label="Pasiūlymai"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
+  return `<section class="hero" aria-roledescription="carousel" aria-label="${t("home.heroAria")}"><div class="railWrap heroWrap"><div class="rail heroRail">${slides
     .map((x, i) => {
       const H = i ? "h2" : "h1";
       // Tik nuotrauka: su nuoroda - visa skaidrė paspaudžiama, be nuorodos - tiesiog paveikslas; pavadinimas - skaitytuvams
       if (x.textless) {
         const tag = x.href ? "a" : "div";
-        return `<${tag} class="slide hasPhoto textless"${x.href ? ` href="${esc(x.href)}" data-nav` : ""} aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(
+        return `<${tag} class="slide hasPhoto textless"${x.href ? ` href="${esc(x.href)}" data-nav` : ""} aria-roledescription="slide" aria-label="${t("common.nOfM", { i: i + 1, n: slides.length })}: ${esc(
           x.title
         )}">${slideBg(x, i)}<${H} class="sr">${esc(x.title)}</${H}></${tag}>`;
       }
-      return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}${/\n\s*\S/.test(x.text || "") ? " claims" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${i + 1} iš ${slides.length}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
+      return `<a class="slide${x.dark ? " onDark" : ""}${x.image ? " hasPhoto" : ""}${/\n\s*\S/.test(x.text || "") ? " claims" : ""}" href="${esc(x.href)}" data-nav aria-roledescription="slide" aria-label="${t("common.nOfM", { i: i + 1, n: slides.length })}: ${esc(x.title)}">${slideBg(x, i)}<div class="slideIn">
 <div class="heroTxt">${x.eyebrow ? `<p class="eyebrow">${esc(x.eyebrow)}</p>` : ""}<${H} class="heroTitle">${esc(x.title)}</${H}>
 ${heroTextHTML(x.text)}
 ${x.cta ? `<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span>` : ""}</div>
@@ -28,7 +28,7 @@ ${x.cta ? `<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span>` : "
     })
     .join("")}</div></div>${
     slides.length > 1
-      ? `<div class="heroDots" role="tablist" aria-label="Skaidrės">${slides
+      ? `<div class="heroDots" role="tablist" aria-label="${t("home.slides")}">${slides
           .map((x, i) => `<button type="button" role="tab" data-hero-go="${i}" aria-label="${esc(x.title)}" aria-selected="${!i}"></button>`)
           .join("")}</div>`
       : ""
@@ -38,10 +38,10 @@ ${x.cta ? `<span class="heroCta">${esc(x.cta)}${glyph("chev-right")}</span>` : "
 function heroTextHTML(text) {
   const lines = String(text || "")
     .split(/\n+/)
-    .map(t => t.trim())
+    .map(tx => tx.trim())
     .filter(Boolean);
   if (!lines.length) return "";
-  return lines.length === 1 ? `<p class="heroLine">${esc(lines[0])}</p>` : `<ul class="heroClaims">${lines.map(t => `<li>${esc(t)}</li>`).join("")}</ul>`;
+  return lines.length === 1 ? `<p class="heroLine">${esc(lines[0])}</p>` : `<ul class="heroClaims">${lines.map(tx => `<li>${esc(tx)}</li>`).join("")}</ul>`;
 }
 // Taškai po skaidrėmis: rodo aktyvią, paspaudus - pereina
 function syncHeroDots() {
@@ -85,14 +85,14 @@ function tileHTML({ name, href, list, stage, image, focus, dark }) {
 }
 // Skyrius su juosta ir karusele (rodyklės ir „1/3“, kaip parfumada.lt)
 function railHTML(cards) {
-  return `<div class="railWrap"><div class="rail">${cards}</div><div class="railNav" hidden><button class="railBtn" type="button" data-rail-step="-1" aria-label="Atgal">${glyph(
+  return `<div class="railWrap"><div class="rail">${cards}</div><div class="railNav" hidden><button class="railBtn" type="button" data-rail-step="-1" aria-label="${t("common.prev")}">${glyph(
     "chev-left"
-  )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="Pirmyn">${glyph("chev-right")}</button></div></div>`;
+  )}</button><span class="railPage" aria-live="polite"></span><button class="railBtn" type="button" data-rail-step="1" aria-label="${t("common.next")}">${glyph("chev-right")}</button></div></div>`;
 }
 // Skyriaus antraštė (v31f, kaip parfumada.lt): pavadinimas - juodoje juostoje, po ja baltame fone tarp plonų linijų -
 // paantraštė ir „Peržiūrėti viską“ su judančiu pabraukimu (.bandMore)
 function bandHTML(title, line, href) {
-  const more = href ? `<a class="bandMore" href="${esc(href)}" data-nav><span>Peržiūrėti viską</span>${glyph("chev-right")}</a>` : "";
+  const more = href ? `<a class="bandMore" href="${esc(href)}" data-nav><span>${t("home.viewAll")}</span>${glyph("chev-right")}</a>` : "";
   const sub = line || href ? `<div class="bandSub">${line ? `<p class="bandLine">${esc(line)}</p>` : ""}${more}</div>` : "";
   return `<div class="bandBox"><h2 class="band">${esc(title)}</h2>${sub}</div>`;
 }
@@ -118,7 +118,7 @@ function syncRail(wrap) {
   const end = rail.scrollLeft >= max - 4;
   const cur = end ? pages : Math.min(pages, Math.round(rail.scrollLeft / step) + 1);
   $(".railPage", nav).textContent = `${cur}/${pages}`;
-  $(".railPage", nav).setAttribute("aria-label", `${cur} iš ${pages}`);
+  $(".railPage", nav).setAttribute("aria-label", t("common.nOfM", { i: cur, n: pages }));
   $('[data-rail-step="-1"]', nav).disabled = cur <= 1;
   $('[data-rail-step="1"]', nav).disabled = cur >= pages;
 }
@@ -127,12 +127,12 @@ function bindRails(root = document) {
     syncRail(w);
     if (w.dataset.bound) return;
     w.dataset.bound = "1";
-    let t = 0;
+    let tx = 0;
     $(".rail", w).addEventListener(
       "scroll",
       () => {
-        cancelAnimationFrame(t);
-        t = requestAnimationFrame(() => syncRail(w));
+        cancelAnimationFrame(tx);
+        tx = requestAnimationFrame(() => syncRail(w));
       },
       { passive: true }
     );
@@ -165,7 +165,7 @@ function renderHome() {
   $("#homeRailsMore").innerHTML = "";
   bindRails($("#view-home"));
 
-  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: "Leiskime pirkėjams kalbėti už mus", line: "Tikri atsiliepimai - rašo tik pirkę" });
+  renderReviews($("#homeReviews"), PRODUCTS, { band: true, title: t("reviews.homeTitle"), line: t("reviews.homeLine") });
   startHeroAuto();
 }
 // Pardavėjo rekvizitai (settings.company) - neužpildyti laukai „[…]“ nerodomi
@@ -174,8 +174,8 @@ function companyParts() {
   const c = SET.company;
   return [
     filled(c.name) ? c.name : SET.shop,
-    filled(c.code) && `įm. k. ${c.code}`,
-    filled(c.vat) && `PVM k. ${c.vat}`,
+    filled(c.code) && t("company.code", { code: c.code }),
+    filled(c.vat) && t("company.vat", { code: c.vat }),
     filled(c.address) && c.address,
     filled(c.phone) && c.phone
   ].filter(Boolean);
@@ -187,9 +187,9 @@ function reviewsOf(list) {
 }
 function starsHTML(n) {
   const r = Math.max(0, Math.min(5, Math.round(n)));
-  return `<span class="stars" role="img" aria-label="Įvertinimas ${r} iš 5">${"★".repeat(r)}<i>${"★".repeat(5 - r)}</i></span>`;
+  return `<span class="stars" role="img" aria-label="${t("reviews.stars", { r })}">${"★".repeat(r)}<i>${"★".repeat(5 - r)}</i></span>`;
 }
-function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct = true, band = false, line = "" } = {}) {
+function renderReviews(el, list, { title = t("reviews.title"), showProduct = true, band = false, line = "" } = {}) {
   if (!el) return;
   const all = reviewsOf(list).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
   el.hidden = !all.length;
@@ -203,7 +203,7 @@ function renderReviews(el, list, { title = "Pirkėjų atsiliepimai", showProduct
       r =>
         `<figure class="review">${showProduct ? `<a class="art revArt" href="${productUrl(r.p)}" data-nav tabindex="-1" aria-hidden="true" style="--tint:${r.p.look.tint}">${artImg(r.p)}</a>` : ""}${r.rating ? starsHTML(r.rating) : ""}<blockquote>${esc(r.text)}</blockquote><figcaption>${esc(r.name)}${
           showProduct ? ` · <a href="${productUrl(r.p)}" data-nav>${esc(r.p.name)}</a>` : ""
-        }${r.verified ? ` · <span class="verified">Patvirtintas pirkėjas</span>` : ""}</figcaption></figure>`
+        }${r.verified ? ` · <span class="verified">${t("reviews.verified")}</span>` : ""}${(r.lang || "lt") !== LANG ? ` · <span class="revLang">${t(`reviews.lang.${r.lang === "en" ? "en" : "lt"}`)}</span>` : ""}</figcaption></figure>`
     )
     .join("")}</div>${band ? "</div>" : ""}`;
 }

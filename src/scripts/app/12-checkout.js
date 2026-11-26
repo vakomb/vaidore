@@ -6,12 +6,12 @@
 async function startCheckout(btn) {
   if (!state.cart.length) return;
   if (needLocker() && !state.ship.locker) {
-    toast("Pasirinkite paštomatą", { icon: "info" });
+    toast(t("locker.choose"), { icon: "info" });
     return openLockerPicker();
   }
   const label = btn.innerHTML;
   btn.classList.add("loading");
-  btn.innerHTML = `<span class="spin"></span>Jungiamasi prie Stripe…`;
+  btn.innerHTML = `<span class="spin"></span>${t("checkout.connecting")}`;
   try {
     const res = await sbFn("shop/checkout", {
       method: "POST",
@@ -36,11 +36,11 @@ async function startCheckout(btn) {
     btn.innerHTML = label;
     const offline = !navigator.onLine;
     if (err.user) return toast(err.user, { icon: "info", ms: 5000 });
-    toast(offline ? "Nėra interneto ryšio" : "Apmokėjimas laikinai nepasiekiamas", {
+    toast(offline ? t("errors.offline") : t("checkout.unavailable"), {
       icon: "info",
       ms: 4200,
-      action: offline ? null : "Parašyti",
-      onAction: () => (location.href = `mailto:${SET.company.email}?subject=${encodeURIComponent("Užsakymas Vaidore")}`)
+      action: offline ? null : t("checkout.write"),
+      onAction: () => (location.href = `mailto:${SET.company.email}?subject=${encodeURIComponent(t("checkout.mailSubject"))}`)
     });
   }
 }

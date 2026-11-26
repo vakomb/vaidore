@@ -33,7 +33,7 @@ async function sbError(r) {
 }
 // sbRest("products?select=*", { method, body, prefer }) - su prisijungusio vartotojo teisėmis (jei prisijungęs)
 async function sbRest(path, { method = "GET", body, prefer, anon = false } = {}) {
-  if (!SB) throw new Error("Duomenų bazė neprijungta");
+  if (!SB) throw new Error(t("errors.noDb"));
   const token = anon ? null : await getToken();
   const headers = sbHeaders(token, body !== undefined ? { "Content-Type": "application/json" } : {});
   if (prefer) headers.Prefer = prefer;
@@ -44,7 +44,7 @@ async function sbRest(path, { method = "GET", body, prefer, anon = false } = {})
   return r.status === 204 ? null : r.json().then(plainDeep, () => null);
 }
 async function sbFn(name, init = {}) {
-  if (!SB) throw new Error("Duomenų bazė neprijungta");
+  if (!SB) throw new Error(t("errors.noDb"));
   const token = await getToken();
   return fetch(`${SB.url}/functions/v1/${name}`, {
     ...init,
@@ -95,14 +95,14 @@ function setSession(d) {
 }
 const redirectTo = () => encodeURIComponent(absUrl("paskyra"));
 const AUTH_ERRORS = {
-  invalid_credentials: "Neteisingas el. paštas arba slaptažodis",
-  email_not_confirmed: "Patvirtinkite el. paštą - nuorodą išsiuntėme laišku",
-  user_already_exists: "Paskyra su šiuo el. paštu jau yra - prisijunkite",
-  weak_password: "Slaptažodis per silpnas - bent 8 simboliai",
-  over_email_send_rate_limit: "Per daug bandymų - pabandykite po kelių minučių",
-  same_password: "Naujas slaptažodis turi skirtis nuo seno"
+  invalid_credentials: t("auth.err.invalid"),
+  email_not_confirmed: t("auth.err.notConfirmed"),
+  user_already_exists: t("auth.err.exists"),
+  weak_password: t("auth.err.weak"),
+  over_email_send_rate_limit: t("auth.err.rate"),
+  same_password: t("auth.err.same")
 };
-const authMsg = err => AUTH_ERRORS[err?.code] || (/invalid login/i.test(err?.message) ? AUTH_ERRORS.invalid_credentials : err?.message || "Nepavyko");
+const authMsg = err => AUTH_ERRORS[err?.code] || (/invalid login/i.test(err?.message) ? AUTH_ERRORS.invalid_credentials : err?.message || t("errors.failed"));
 async function signUp(email, password, name) {
   return authRequest(`signup?redirect_to=${redirectTo()}`, { email, password, data: { name } });
 }
@@ -134,7 +134,7 @@ function handleAuthRedirect() {
   const type = h.get("type");
   auth.recovery = type === "recovery";
   history.replaceState(null, "", location.pathname + location.search);
-  if (type === "signup" || type === "email_change") setTimeout(() => toast("El. paštas patvirtintas - sveiki!", { icon: "check" }), 400);
+  if (type === "signup" || type === "email_change") setTimeout(() => toast(t("auth.confirmed"), { icon: "check" }), 400);
 }
 // Prisijungusio vartotojo duomenys: paskyra, profilis, administratoriaus teisė; mėgstami sujungiami
 async function loadMe() {

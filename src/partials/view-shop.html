@@ -3,23 +3,23 @@
     <header class="pageHead" id="shopHead">
       <span class="shopStageBox" id="shopStage"></span>
       <div class="shopHeadTxt">
-        <h1 id="shopTitle">Kvepalai</h1>
+        <h1 id="shopTitle">{{t:type.kvepalai.name}}</h1>
         <p class="pageSub" id="shopSub"></p>
       </div>
     </header>
     <div class="shopLayout">
-      <aside class="filters" id="shopFilters" aria-label="Filtrai"></aside>
+      <aside class="filters" id="shopFilters" aria-label="{{t:shop.filters}}"></aside>
       <div class="shopMain">
         <div class="toolbar">
           <label class="search shopSearch">
             <span data-glyph="search" aria-hidden="true"></span>
-            <input id="shopQ" type="search" inputmode="search" placeholder="Kvapas, nata ar nuotaika" autocomplete="off" enterkeyhint="search" aria-label="Paieška kataloge" />
-            <button class="searchClear" id="shopQClear" type="button" aria-label="Išvalyti" hidden><span data-glyph="x"></span></button>
+            <input id="shopQ" type="search" inputmode="search" placeholder="{{t:search.ph}}" autocomplete="off" enterkeyhint="search" aria-label="{{t:shop.searchAria}}" />
+            <button class="searchClear" id="shopQClear" type="button" aria-label="{{t:shop.clear}}" hidden><span data-glyph="x"></span></button>
           </label>
-          <button class="filterBtn" id="shopFilterBtn"><span data-glyph="filter"></span>Filtruoti ir rūšiuoti<b class="countBadge" id="shopFilterCount" hidden></b></button>
+          <button class="filterBtn" id="shopFilterBtn"><span data-glyph="filter"></span>{{t:shop.filterSort}}<b class="countBadge" id="shopFilterCount" hidden></b></button>
           <span class="count" id="shopCount" aria-live="polite"></span>
           <label class="sortSel">
-            <span class="sortLab">Rūšiuoti pagal:</span>
+            <span class="sortLab">{{t:shop.sortBy}}</span>
             <select id="shopSort"></select>
             <span data-glyph="chev-down" aria-hidden="true"></span>
           </label>

@@ -28,7 +28,13 @@
     "aciu": "thank-you"
   },
   "sub": {
-    "paskyra": { "uzsakymai": "orders", "profilis": "profile", "adresai": "addresses", "nustatymai": "settings" }
+    "paskyra": {
+      "uzsakymai": "orders",
+      "profilis": "profile",
+      "adresai": "addresses",
+      "nustatymai": "settings",
+      "kodai": "codes"
+    }
   },
   "params": {
     "tipas": "type",
@@ -42,8 +48,22 @@
     "rikiuoti": "sort",
     "atsisakyti": "unsubscribe"
   },
-  "paramValues": { "tipas": "paths" },
-  "hash": { "pristatymas": "delivery", "grazinimas": "returns", "apmokejimas": "payment", "duk": "faq", "kontaktai": "contact" },
-  "static": ["salygos", "privatumas", "aciu"],
-  "ltOnly": ["admin"]
+  "paramValues": {
+    "tipas": "paths"
+  },
+  "hash": {
+    "pristatymas": "delivery",
+    "grazinimas": "returns",
+    "apmokejimas": "payment",
+    "duk": "faq",
+    "kontaktai": "contact"
+  },
+  "static": [
+    "salygos",
+    "privatumas",
+    "aciu"
+  ],
+  "ltOnly": [
+    "admin"
+  ]
 }

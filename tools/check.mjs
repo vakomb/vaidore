@@ -92,11 +92,19 @@ for (const f of fs.readdirSync(path.join(root, "src/styles")).filter(f => f.ends
   const { DICTS, ROUTES, L10N, LANGS } = await import("./i18n.mjs");
   const keys = l => new Set(Object.keys(DICTS[l]));
   const vars = s => [...String(s).matchAll(/\{(\w+)\}/g)].map(m => m[1]).sort().join(",");
+  // Daugiskaita (tn): „….one“ / „….few“ / „….many“ / „….other“ - formų rinkinys priklauso nuo kalbos, privaloma „….other“
+  const PL = /\.(one|few|many|other)$/;
+  const need = (l, k) => !PL.test(k) || k.endsWith(".other") || (l !== "lt" && k.endsWith(".one"));
+  for (const l of LANGS) for (const k of keys(l)) if (PL.test(k) && !keys(l).has(k.replace(PL, ".other"))) fail(`i18n/${l}.json: „${k}“ - nėra „.other“ formos`);
   for (const l of LANGS.filter(l => l !== "lt")) {
-    for (const k of keys("lt")) if (!keys(l).has(k)) fail(`i18n/${l}.json: trūksta rakto „${k}“`);
+    for (const k of keys("lt")) if (!keys(l).has(k) && need(l, k)) fail(`i18n/${l}.json: trūksta rakto „${k}“`);
     for (const k of keys(l)) if (!keys("lt").has(k)) fail(`i18n/${l}.json: nereikalingas raktas „${k}“ (nėra lt.json)`);
     for (const k of keys(l)) if (keys("lt").has(k) && vars(DICTS.lt[k]) !== vars(DICTS[l][k])) fail(`i18n/${l}.json: „${k}“ - kintamieji {…} nesutampa su lt.json`);
   }
+  // Kode naudojami raktai (t("…"), tn("…"), {{t:…}}) turi būti žodyne
+  const appSrc = fs.readdirSync(path.join(root, "src/scripts/app")).map(f => fs.readFileSync(path.join(root, "src/scripts/app", f), "utf8")).join("\n");
+  for (const m of appSrc.matchAll(/\bt\("([\w.-]+)"/g)) if (DICTS.lt[m[1]] == null) fail(`i18n: kode naudojamo rakto „${m[1]}“ nėra lt.json`);
+  for (const m of appSrc.matchAll(/\btn\("([\w.-]+)"/g)) if (DICTS.lt[`${m[1]}.other`] == null) fail(`i18n: daugiskaitos rakto „${m[1]}.other“ nėra lt.json`);
   const LT_OK = new Set(["lang.lt"]); // kalbos pavadinimas savo kalba
   for (const [k, v] of Object.entries(DICTS.en)) if (!LT_OK.has(k) && /[ąčęėįšųūžĄČĘĖĮŠŲŪŽ]/.test(v)) fail(`i18n/en.json: „${k}“ - lietuviškos raidės: ${v}`);
   for (const [l, d] of Object.entries(DICTS)) for (const [k, v] of Object.entries(d)) if (/[\u2012-\u2015\u2212]/.test(v)) fail(`i18n/${l}.json: „${k}“ - tik paprastas „-“ brūkšnys`);

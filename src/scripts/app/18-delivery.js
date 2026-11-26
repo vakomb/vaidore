@@ -23,11 +23,11 @@ function lockerRowHTML(l, on = false) {
 }
 async function openLockerPicker() {
   openSheet({
-    title: "Omniva paštomatas",
+    title: t("locker.title"),
     html: `<div class="sheetPad lockerPick">
-<label class="search"><span aria-hidden="true">${glyph("search")}</span><input id="lkQ" type="search" placeholder="Miestas, gatvė ar parduotuvė" autocomplete="off" enterkeyhint="search" /></label>
-<button class="btn ghost block" data-lk-near>${glyph("pin")}Rasti artimiausius</button>
-<div class="lkList" aria-live="polite"><p class="qzHint">Įkeliamas sąrašas…</p></div>
+<label class="search"><span aria-hidden="true">${glyph("search")}</span><input id="lkQ" type="search" placeholder="${t("locker.ph")}" autocomplete="off" enterkeyhint="search" /></label>
+<button class="btn ghost block" data-lk-near>${glyph("pin")}${t("locker.near")}</button>
+<div class="lkList" aria-live="polite"><p class="qzHint">${t("locker.loading")}</p></div>
 </div>`
   });
   const root = $("#sheetBody");
@@ -39,22 +39,22 @@ async function openLockerPicker() {
     const words = fold(q.value.trim()).split(/\s+/).filter(Boolean).map(stem);
     let list = words.length ? all.filter(l => words.every(w => l.ix.includes(w))) : near || [];
     const cur = state.ship.locker;
-    const head = !words.length && !near && cur ? `<p class="groupTitle">Pasirinktas</p><div class="group">${lockerRowHTML(cur, true)}</div>` : "";
+    const head = !words.length && !near && cur ? `<p class="groupTitle">${t("locker.selected")}</p><div class="group">${lockerRowHTML(cur, true)}</div>` : "";
     if (!words.length && !near) {
-      listEl.innerHTML = `${head}<p class="qzHint">${plural(all.length, "paštomatas", "paštomatai", "paštomatų")} Lietuvoje, Latvijoje ir Estijoje. Įveskite miestą arba spauskite „Rasti artimiausius“.</p>`;
+      listEl.innerHTML = `${head}<p class="qzHint">${tn("locker.count", all.length)}</p>`;
       return;
     }
     const total = list.length;
     list = list.slice(0, 60);
     listEl.innerHTML = total
-      ? `<div class="group">${list.map(l => lockerRowHTML(l, cur?.zip === l.zip)).join("")}</div>${total > 60 ? `<p class="qzHint">Rodomi 60 iš ${total} - patikslinkite paiešką.</p>` : ""}`
-      : `<p class="qzHint">Nieko neradome. Pabandykite miesto pavadinimą be galūnės, pvz. „Kaun“.</p>`;
+      ? `<div class="group">${list.map(l => lockerRowHTML(l, cur?.zip === l.zip)).join("")}</div>${total > 60 ? `<p class="qzHint">${t("locker.shown", { n: total })}</p>` : ""}`
+      : `<p class="qzHint">${t("locker.none")}</p>`;
   };
   try {
     all = await loadLockers();
   } catch (err) {
     logError("lockers", err);
-    listEl.innerHTML = `<p class="qzHint">Paštomatų sąrašas nepasiekiamas. Adresą galėsite nurodyti apmokėdami.</p>`;
+    listEl.innerHTML = `<p class="qzHint">${t("locker.unavailable")}</p>`;
     return;
   }
   if (!root.isConnected) return;
@@ -63,17 +63,17 @@ async function openLockerPicker() {
     draw();
   });
   root.addEventListener("click", e => {
-    const t = e.target instanceof Element ? e.target : null;
-    const row = t?.closest("[data-locker]");
+    const tx = e.target instanceof Element ? e.target : null;
+    const row = tx?.closest("[data-locker]");
     if (row) {
       const l = all.find(x => x.zip === row.dataset.locker) || state.ship.locker;
       setShip("omniva", { zip: l.zip, name: l.name, addr: l.addr, city: l.city, cc: l.cc });
       closeSheet();
       return;
     }
-    if (t?.closest("[data-lk-near]")) {
-      if (!navigator.geolocation) return toast("Šiame įrenginyje vietos nustatyti negalima", { icon: "info" });
-      const btn = t.closest("[data-lk-near]");
+    if (tx?.closest("[data-lk-near]")) {
+      if (!navigator.geolocation) return toast(t("locker.noGeo"), { icon: "info" });
+      const btn = tx.closest("[data-lk-near]");
       btn.disabled = true;
       navigator.geolocation.getCurrentPosition(
         pos => {
@@ -86,7 +86,7 @@ async function openLockerPicker() {
         },
         () => {
           btn.disabled = false;
-          toast("Vietos nustatyti nepavyko - įveskite miestą", { icon: "info" });
+          toast(t("locker.geoFail"), { icon: "info" });
           q.focus();
         },
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }

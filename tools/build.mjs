@@ -48,7 +48,8 @@ export function buildApp(opts = {}) {
   // @partial gali būti ir dalies viduje (pvz. partials/header.html → partials/logo.svg)
   const partials = s => s.replace(/<!-- @partial ([\w./-]+) -->/g, (_, rel) => partials(guard(rel, read(rel)).trim()));
   html = partials(html);
-  html = html.replace(/<html lang="[a-z]+"/, `<html lang="${lang}"`);
+  // Puslapis su keliais žodynais (404.html - abiem kalboms): programėlė statinius tekstus išverčia pati (29-lang.js)
+  html = html.replace(/<html lang="[a-z]+"/, `<html lang="${lang}"${dicts.length > 1 ? ` data-build-lang="${lang}"` : ""}`);
   html = html.replace(/\{\{t:([\w.-]+)\}\}/g, (_, key) => {
     if (DICTS.lt[key] == null) throw new Error(`Žodyne nėra rakto: ${key}`);
     return escAttr(t(lang, key));

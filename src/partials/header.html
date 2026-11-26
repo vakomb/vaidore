@@ -1,32 +1,32 @@
-<div class="topNote" id="topNote" role="region" aria-label="Parduotuvės naujienos">
-  <button class="noteArrow" type="button" data-note-step="-1" aria-label="Ankstesnė žinutė"><span data-glyph="chev-left"></span></button>
+<div class="topNote" id="topNote" role="region" aria-label="{{t:hdr.notes}}">
+  <button class="noteArrow" type="button" data-note-step="-1" aria-label="{{t:hdr.prevNote}}"><span data-glyph="chev-left"></span></button>
   <p class="noteTrack" id="topNoteTxt" aria-live="polite"></p>
-  <button class="noteArrow" type="button" data-note-step="1" aria-label="Kita žinutė"><span data-glyph="chev-right"></span></button>
+  <button class="noteArrow" type="button" data-note-step="1" aria-label="{{t:hdr.nextNote}}"><span data-glyph="chev-right"></span></button>
 </div>
 <header class="hdr" id="hdr">
   <div class="hdrIn">
     <div class="hdrL">
-      <button class="iconBtn menuBtn" id="menuBtn" aria-label="Meniu" aria-controls="drawer" aria-expanded="false">
+      <button class="iconBtn menuBtn" id="menuBtn" aria-label="{{t:nav.menu}}" aria-controls="drawer" aria-expanded="false">
         <span data-glyph="menu"></span>
       </button>
       <form class="hdrSearch" id="hdrSearch" role="search" action="kvepalai">
         <span data-glyph="search" aria-hidden="true"></span>
-        <input id="hdrQ" name="q" type="search" placeholder="Ieškoti kvapo ar natos" autocomplete="off" enterkeyhint="search" aria-label="Paieška" />
+        <input id="hdrQ" name="q" type="search" placeholder="{{t:search.drawer}}" autocomplete="off" enterkeyhint="search" aria-label="{{t:search.title}}" />
         <div class="searchPop" id="searchPop" hidden></div>
       </form>
     </div>
-    <a class="logo" href="./" data-nav aria-label="Vaidore - pradžia"><span data-logo><!-- @partial partials/logo.svg --></span></a>
+    <a class="logo" href="./" data-nav aria-label="{{t:nav.homeAriaV}}"><span data-logo><!-- @partial partials/logo.svg --></span></a>
     <div class="hdrTools">
       <nav class="langSw" id="langSw" aria-label="{{t:lang.aria}}" hidden>
         <a href="./" data-lang-link="lt" hreflang="lt" lang="lt" title="{{t:lang.lt}}">{{t:lang.ltShort}}</a>
         <a href="en" data-lang-link="en" hreflang="en" lang="en" title="{{t:lang.en}}">{{t:lang.enShort}}</a>
       </nav>
-      <button class="iconBtn searchBtn" id="searchBtn" aria-label="Paieška" aria-controls="hdrSearch" aria-expanded="false"><span data-glyph="search"></span></button>
-      <a class="iconBtn accBtn" href="paskyra" data-nav aria-label="Paskyra"><span data-glyph="user"></span><i class="accDot" id="accDot" hidden></i><span class="iconLbl" aria-hidden="true">Paskyra</span></a>
-      <a class="iconBtn favBtn" href="megstami" data-nav aria-label="Mėgstami"><span data-glyph="heart"></span><b class="countBadge soft" data-badge="fav" hidden></b><span class="iconLbl" aria-hidden="true">Mėgstami</span></a>
-      <button class="iconBtn cartBtn" id="cartBtn" aria-label="Krepšelis"><span data-glyph="bag"></span><b class="countBadge" data-badge="cart" hidden></b><span class="iconLbl" aria-hidden="true">Krepšelis</span></button>
+      <button class="iconBtn searchBtn" id="searchBtn" aria-label="{{t:search.title}}" aria-controls="hdrSearch" aria-expanded="false"><span data-glyph="search"></span></button>
+      <a class="iconBtn accBtn" href="paskyra" data-nav aria-label="{{t:acc.title}}"><span data-glyph="user"></span><i class="accDot" id="accDot" hidden></i><span class="iconLbl" aria-hidden="true">{{t:acc.title}}</span></a>
+      <a class="iconBtn favBtn" href="megstami" data-nav aria-label="{{t:fav.title}}"><span data-glyph="heart"></span><b class="countBadge soft" data-badge="fav" hidden></b><span class="iconLbl" aria-hidden="true">{{t:fav.title}}</span></a>
+      <button class="iconBtn cartBtn" id="cartBtn" aria-label="{{t:cart.title}}"><span data-glyph="bag"></span><b class="countBadge" data-badge="cart" hidden></b><span class="iconLbl" aria-hidden="true">{{t:cart.title}}</span></button>
     </div>
   </div>
-  <nav class="hdrNav" id="hdrNav" aria-label="Pagrindinė navigacija"></nav>
+  <nav class="hdrNav" id="hdrNav" aria-label="{{t:hdr.mainNav}}"></nav>
   <div class="mega" id="mega" hidden></div>
 </header>

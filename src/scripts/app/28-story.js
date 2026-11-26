@@ -160,7 +160,7 @@ function descHTML(p) {
   const len = paras.join(" ").length;
   const long = paras.length > 3 || len > 560;
   return `<div class="pdText${long ? " clamp" : ""}" data-pd-text><div class="pdTextIn">${html.map((h, i) => `<p class="${i ? "pdDesc" : "pdTag"}">${h}</p>`).join("")}</div>${
-    long ? `<button class="pdMore" type="button" data-pd-more aria-expanded="false">Skaityti daugiau${glyph("chev-down")}</button>` : ""
+    long ? `<button class="pdMore" type="button" data-pd-more aria-expanded="false">${t("story.more")}${glyph("chev-down")}</button>` : ""
   }</div>`;
 }
 
@@ -188,9 +188,9 @@ const noteGridHTML = list => `<ul class="ntGrid" data-n="${Math.min(list.length,
 // Pagrindinės natos (ne kvepalams): po vieną iš viršutinių, širdies ir bazinių; pirmiausia - natos su skirtingomis tikromis
 // nuotraukomis (natų biblioteka), tada - kitos eilės tvarka
 function mainNotes(p, n = 3) {
-  const tiers = [p.notes.top, p.notes.heart, p.notes.base].map(t => (t || []).filter(Boolean));
+  const tiers = [p.notes.top, p.notes.heart, p.notes.base].map(tx => (tx || []).filter(Boolean));
   const order = [];
-  for (let i = 0; tiers.some(t => t[i]); i++) for (const t of tiers) if (t[i] && !order.includes(t[i])) order.push(t[i]);
+  for (let i = 0; tiers.some(tx => tx[i]); i++) for (const tx of tiers) if (tx[i] && !order.includes(tx[i])) order.push(tx[i]);
   const seen = new Set();
   const withImg = order.filter(x => {
     const img = noteImg(x);
@@ -201,18 +201,18 @@ function mainNotes(p, n = 3) {
   return [...withImg, ...order.filter(x => !withImg.includes(x))].slice(0, n);
 }
 const TIERS = [
-  ["top", "Viršutinės", "Pirmasis įspūdis"],
-  ["heart", "Širdies", "Kvapo širdis"],
-  ["base", "Bazinės", "Ilgiausiai išlieka"]
+      ["top", t("story.top"), t("story.topSub")],
+    ["heart", t("story.heart"), t("story.heartSub")],
+    ["base", t("story.base"), t("story.baseSub")]
 ];
 function notesBlockHTML(p, cfg) {
   if (!blockOn(cfg.notes) || !TYPE.get(typeOf(p)).scented) return "";
   // v30c: visoms kvapnioms prekėms - visos natos (viršutinės, širdies, bazinės)
   const tiers = TIERS.filter(([k]) => p.notes[k]?.length);
   if (!tiers.length) return "";
-  if (tiers.length === 1) return blockHTML("pbNotes", cfg.notes.title || "Kvapo natos", noteGridHTML(p.notes[tiers[0][0]]));
+  if (tiers.length === 1) return blockHTML("pbNotes", cfg.notes.title || t("pd.scentNotes"), noteGridHTML(p.notes[tiers[0][0]]));
   const uid = `nt-${p.id}`;
-  const seg = `<div class="ntSeg" role="tablist" aria-label="Natų lygiai" style="--n:${tiers.length};--i:0">${tiers
+  const seg = `<div class="ntSeg" role="tablist" aria-label="${t("story.tiers")}" style="--n:${tiers.length};--i:0">${tiers
     .map(
       ([k, name], i) =>
         `<button class="ntSegBtn" type="button" role="tab" id="${uid}-${k}-t" aria-controls="${uid}-${k}" aria-selected="${!i}" tabindex="${i ? -1 : 0}" data-seg="${i}">${esc(name)}</button>`
@@ -224,7 +224,7 @@ function notesBlockHTML(p, cfg) {
         `<div class="ntPanel${i ? "" : " on"}" role="tabpanel" id="${uid}-${k}" aria-labelledby="${uid}-${k}-t"${i ? ' aria-hidden="true"' : ""}><p class="ntCap">${esc(cap)}</p>${noteGridHTML(p.notes[k])}</div>`
     )
     .join("")}</div>`;
-  return blockHTML("pbNotes pbPyramid", cfg.notes.title || "Kvapo natos", seg + panels);
+  return blockHTML("pbNotes pbPyramid", cfg.notes.title || t("pd.scentNotes"), seg + panels);
 }
 // Kvapo charakteris (kvepalams): ilgaamžiškumas ir sklaida 1-5 - tik jei nustatyti (numatytos „3“ nerodomos)
 function traitsBlockHTML(p, cfg) {
@@ -234,22 +234,22 @@ function traitsBlockHTML(p, cfg) {
   if (!(l >= 1 && l <= 5 && s >= 1 && s <= 5) || (l === 3 && s === 3)) return "";
   const row = (label, v, val) =>
     `<div class="tr"><dt>${esc(label)}</dt><dd><span class="trBar" aria-hidden="true">${[0, 1, 2, 3, 4].map(k => `<i${k < v ? ` class="on" style="--k:${k}"` : ""}></i>`).join("")}</span><span class="trVal">${esc(nb(val))}</span></dd></div>`;
-  return blockHTML("pbTraits", cfg.traits.title || "Kvapo charakteris", `<dl class="traits">${row("Ilgaamžiškumas", l, LASTS[l])}${row("Sklaida", s, LEVEL[s])}</dl>`);
+  return blockHTML("pbTraits", cfg.traits.title || t("story.traits"), `<dl class="traits">${row(t("story.longevity"), l, LASTS[l])}${row(t("story.sillage"), s, LEVEL[s])}</dl>`);
 }
 // Kvapo linija (be įkeltos nuotaikos nuotraukos): tikros to paties kvapo produktų nuotraukos vienoje eilėje - kvepalai, aliejus,
 // žvakė, difuzorius (kaip parduotuvės nuotraukose: produktas su ingredientais baltame fone). Tik tikros nuotraukos, nieko savo.
-const FORM_SHORT = { kvepalai: "Kvepalai", difuzoriai: "Difuzorius", zvakes: "Žvakė", aliejai: "Aliejus" };
+const FORM_SHORT = { kvepalai: t("form.kvepalai"), difuzoriai: t("form.difuzoriai"), zvakes: t("form.zvakes"), aliejai: t("form.aliejai") };
 function scentLine(p) {
   const kin = p.scent ? PRODUCTS.filter(x => x.scent === p.scent && x.id !== p.id && TYPE.get(typeOf(x)).scented && x.images?.[0]) : [];
   if (!kin.length || !p.images?.[0]) return null;
-  const forms = [p, ...kin.sort((a, b) => TYPES.findIndex(t => t.id === typeOf(a)) - TYPES.findIndex(t => t.id === typeOf(b)))].slice(0, 4);
-  const pic = x => `<img src="${esc(x.images[0])}" alt="${esc(x.name)}" loading="lazy" decoding="async" />`;
+  const forms = [p, ...kin.sort((a, b) => TYPES.findIndex(tx => tx.id === typeOf(a)) - TYPES.findIndex(tx => tx.id === typeOf(b)))].slice(0, 4);
+  const pic = x => `<img src="${esc(x.images[0])}" alt="${esc(L(x, "name"))}" loading="lazy" decoding="async" />`;
   const perfume = forms.find(isPerfume);
   return {
     html: `<span class="mlStrip" data-n="${forms.length}">${forms
       .map(x => (x.id === p.id ? `<span class="mlItem" aria-current="page">${pic(x)}</span>` : `<a class="mlItem" href="${productUrl(x)}" data-nav>${pic(x)}</a>`))
       .join("")}</span>`,
-    title: (perfume || p).name,
+    title: L(perfume || p, "name"),
     line: forms.map(x => FORM_SHORT[typeOf(x)]).join(" · ")
   };
 }
@@ -270,7 +270,7 @@ function stepsBlockHTML(cfg) {
   if (!blockOn(b) || !items.length) return "";
   return blockHTML(
     "pbSteps",
-    b.title || "Kaip naudoti",
+    b.title || t("story.how"),
     `<ol class="useSteps" data-n="${items.length}">${items
       .map((x, i) => `<li class="useStep"><span class="useIco">${storyIco(x.ico)}</span><b class="useT"><i>${i + 1}</i>${esc(x.title || "")}</b>${x.text ? `<p>${esc(nb(x.text))}</p>` : ""}</li>`)
       .join("")}</ol>`
@@ -282,7 +282,7 @@ function whereBlockHTML(cfg) {
   if (!blockOn(b) || !items.length) return "";
   return blockHTML(
     "pbWhere",
-    b.title || "Kur naudoti",
+    b.title || t("story.where"),
     `<ul class="icoGrid" data-n="${items.length}">${items.map(x => `<li><span class="icoC">${storyIco(x.ico)}</span><span class="icoL">${esc(x.label)}</span></li>`).join("")}</ul>`,
     { lead: b.text || "" }
   );
@@ -290,9 +290,9 @@ function whereBlockHTML(cfg) {
 // Mėginuko kortelė (kvepalams su 2 ml mėginuku): „Rinktis mėginuką“ - pasirenka 2 ml ir grąžina prie pirkimo
 function sampleBlockHTML(p, cfg) {
   if (!isPerfume(p) || !blockOn(cfg.sample) || !hasSample(p) || !inStock(p)) return "";
-  return `<section class="pdBlock pdTry" data-rv><div class="tryCard"><span class="tryIco">${storyIco("vial")}</span><div class="tryTxt"><b>Išbandykite 2 ml mėginuką</b><p>${esc(
+  return `<section class="pdBlock pdTry" data-rv><div class="tryCard"><span class="tryIco">${storyIco("vial")}</span><div class="tryTxt"><b>${nb(t("story.try"))}</b><p>${esc(
     nb(creditText())
-  )}</p></div><button class="btn ghost tryBtn" type="button" data-try-sample>Rinktis mėginuką · ${eur(p.sample)}</button></div></section>`;
+  )}</p></div><button class="btn ghost tryBtn" type="button" data-try-sample>${t("story.tryCta", { price: eur(p.sample) })}</button></div></section>`;
 }
 function noticeHTML(cfg) {
   const b = cfg.note;
@@ -328,10 +328,10 @@ function selectSeg(seg, i, focus = false) {
   const tabs = $$("[role=tab]", seg);
   i = (i + tabs.length) % tabs.length;
   seg.style.setProperty("--i", i);
-  tabs.forEach((t, k) => {
-    t.setAttribute("aria-selected", String(k === i));
-    t.tabIndex = k === i ? 0 : -1;
-    const panel = document.getElementById(t.getAttribute("aria-controls"));
+  tabs.forEach((tx, k) => {
+    tx.setAttribute("aria-selected", String(k === i));
+    tx.tabIndex = k === i ? 0 : -1;
+    const panel = document.getElementById(tx.getAttribute("aria-controls"));
     panel?.classList.toggle("on", k === i);
     if (k === i) panel?.removeAttribute("aria-hidden");
     else panel?.setAttribute("aria-hidden", "true");
@@ -339,11 +339,11 @@ function selectSeg(seg, i, focus = false) {
   if (focus) tabs[i].focus();
 }
 document.addEventListener("click", e => {
-  const t = e.target instanceof Element ? e.target : null;
-  if (!t?.closest("#productRoot")) return;
-  const tab = t.closest(".ntSeg [role=tab]");
+  const tx = e.target instanceof Element ? e.target : null;
+  if (!tx?.closest("#productRoot")) return;
+  const tab = tx.closest(".ntSeg [role=tab]");
   if (tab) return selectSeg(tab.closest(".ntSeg"), Number(tab.dataset.seg));
-  const more = t.closest("[data-pd-more]");
+  const more = tx.closest("[data-pd-more]");
   if (more) {
     const box = more.closest("[data-pd-text]");
     const inner = $(".pdTextIn", box);
@@ -360,7 +360,7 @@ document.addEventListener("click", e => {
     inner.addEventListener("transitionend", () => inner.removeAttribute("style"), { once: true });
     return;
   }
-  if (t.closest("[data-try-sample]")) {
+  if (tx.closest("[data-try-sample]")) {
     const root = $("#productRoot");
     $(`.sizeOpt[data-ml="${SAMPLE_ML}"]`, root)?.click();
     $(".pdBuy", root)?.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "center" });

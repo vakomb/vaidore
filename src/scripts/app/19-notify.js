@@ -4,13 +4,13 @@ function openNotify(id) {
   const p = BY_ID.get(id);
   if (!p) return;
   openSheet({
-    title: "Pranešti, kai bus",
+    title: t("notify.cta"),
     html: `<form class="sheetPad notify" novalidate>
-<p class="notifyLead"><b>${esc(p.name)}</b> laikinai išparduotas. Parašysime vieną laišką, kai vėl turėsime - daugiau nieko nesiųsime.</p>
-<label class="field"><span>El. paštas</span><input type="email" name="email" autocomplete="email" inputmode="email" required placeholder="vardas@pastas.lt" value="${esc(auth.user?.email || "")}" /></label>
+<p class="notifyLead">${t("notify.lead", { name: `<b>${esc(L(p, "name"))}</b>` })}</p>
+<label class="field"><span>${t("form.email")}</span><input type="email" name="email" autocomplete="email" inputmode="email" required placeholder="${t("form.emailPh")}" value="${esc(auth.user?.email || "")}" /></label>
 <p class="formErr" role="alert" hidden></p>
-<button class="btn primary block" type="submit">${glyph("bell")}Pranešti man</button>
-<p class="qzHint">El. paštą naudosime tik šiam pranešimui (žr. <a href="privatumas">privatumo politiką</a>).</p>
+<button class="btn primary block" type="submit">${glyph("bell")}${t("notify.submit")}</button>
+<p class="qzHint">${t("notify.privacy", { link: `<a href="privatumas">${t("notify.privacyLink")}</a>` })}</p>
 </form>`
   });
   const form = $("#sheetBody form");
@@ -22,7 +22,7 @@ function openNotify(id) {
     const email = input.value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       err.hidden = false;
-      err.textContent = "Patikrinkite el. pašto adresą";
+      err.textContent = t("form.emailBad");
       input.focus();
       return;
     }
@@ -37,13 +37,13 @@ function openNotify(id) {
           logError("restock", ex);
           btn.disabled = false;
           err.hidden = false;
-          err.textContent = "Nepavyko išsiųsti - bandykite dar kartą";
+          err.textContent = t("errors.sendFail");
           return;
         }
       }
       track("Pranešti, kai bus", { kvapas: p.name });
       closeSheet();
-      toast("Pranešime, kai turėsime", { icon: "bell" });
+      toast(t("notify.done"), { icon: "bell" });
       return;
     }
     if (!SET.notifyForm) {
@@ -61,12 +61,12 @@ function openNotify(id) {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       track("Pranešti, kai bus", { kvapas: p.name });
       closeSheet();
-      toast("Pranešime, kai turėsime", { icon: "bell" });
+      toast(t("notify.done"), { icon: "bell" });
     } catch (ex) {
       logError("notify", ex);
       btn.disabled = false;
       err.hidden = false;
-      err.textContent = "Nepavyko išsiųsti - bandykite dar kartą";
+      err.textContent = t("errors.sendFail");
     }
   });
 }

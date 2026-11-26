@@ -84,3 +84,27 @@ document.addEventListener("click", e => {
 });
 // Atidarius adresą su kalba (pvz. iš nuorodos), kai pasirinkimo dar nėra - jis įsimenamas tik kalbai pasirinkus pačiam;
 // automatinį parinkimą pagal šalį atlieka serveris (8 etapas)
+
+// 404.html - vienas abiem kalboms (GitHub Pages, Vercel): statiniai tekstai (partials) surinkti lietuviškai, todėl anglų
+// adrese jie išverčiami čia pagal žodynus (LT reikšmė → raktas → EN). Kituose puslapiuose nieko nedaroma.
+(function retranslateStatic() {
+  const built = document.documentElement.dataset.buildLang;
+  if (!built || built === LANG || !document.body) return;
+  const rev = new Map(Object.entries(I18N_ALL[built] || {}).map(([k, v]) => [v, k]));
+  const tr = s => {
+    const k = rev.get(s.trim());
+    return k && DICT[k] != null ? s.replace(s.trim(), DICT[k]) : s;
+  };
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (w.nextNode()) {
+    const n = w.currentNode;
+    const v = tr(n.nodeValue);
+    if (v !== n.nodeValue) n.nodeValue = v;
+  }
+  for (const el of document.querySelectorAll("[aria-label], [placeholder], [title]"))
+    for (const a of ["aria-label", "placeholder", "title"]) {
+      const v = el.getAttribute(a);
+      const x = v && tr(v);
+      if (x && x !== v) el.setAttribute(a, x);
+    }
+})();

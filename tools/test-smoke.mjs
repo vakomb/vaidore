@@ -1049,6 +1049,31 @@ await run({ width: 1440, height: 900 });
     check(sw[0] === "lt" && sw[1] === '"lt"' && sw[2] && sw[3] === "1" && sw[4], `LT ↔ EN ${tag}: tas pats produktas ir parametrai, kalba įsiminta (localStorage + slapukas), krepšelis bendras, LT kol neparengta - be perjungiklio`);
     await open(page, `${A}en/perfumes/nera-tokio`);
     check((await view(page)) === "404" && (await page.evaluate(() => document.documentElement.lang)) === "en", `EN ${tag}: nežinomas adresas - 404 angliškai`);
+    // v33b: sąsaja angliškai - jokių lietuviškų raidžių sąsajos elementuose (turinys iš duomenų bazės - 3 etapas)
+    const UI = "#nfTitle, .iconLbl, .ftrLegal, .ftrGrp summary, .newsTitle, .newsLead, .filterBtn, .sortLab";
+    const leaks = async sel =>
+      page.evaluate(
+        s => [...document.querySelectorAll(s)].flatMap(e => [e.textContent, e.getAttribute("aria-label"), e.getAttribute("placeholder")]).filter(v => v && /[ąčęėįšųūžĄČĘĖĮŠŲŪŽ]/.test(v)),
+        sel
+      );
+    const nf = await page.evaluate(() => [document.querySelector("#nfTitle").textContent, document.querySelector("#hdrQ").placeholder, document.querySelector("#cartBtn").getAttribute("aria-label")]);
+    const l404 = await leaks(`${UI}, #hdr [aria-label]:not(#hdrNav), #hdrQ`);
+    check(nf[0] === "Page not found" && nf[1] === "Search fragrances or notes" && /^Bag/.test(nf[2]) && !l404.length, `EN ${tag}: 404 (vienas failas abiem kalboms) - visa sąsaja angliškai${l404.length ? ` (${l404.slice(0, 4).join(", ")})` : ""}`);
+    const pages = [
+      ["en/cart", ".pageHead, .sumRow span, .sumNote, .payBox, .groupTitle, [data-gift] .rowTxt"],
+      ["en/help", ".pageHead, .infoToc, .infoSec h2, .faq summary, .steps .rowTxt"],
+      ["en/account", ".pageHead, .authForm label > span, .authForm button, .authLinks, .authGuest"],
+      ["en/perfumes", ".fGroup summary, #shopCount, .pageHead h1"],
+      ["en/perfumes/vanor", ".addMain, .addEta, .pdLabel, .pdActs, .acc summary"],
+      ["en/fragrance-quiz", ".qzQ"]
+    ];
+    for (const [u, sel] of pages) {
+      await open(page, `${A}${u}`);
+      const bad = await leaks(`${UI}, ${sel}`);
+      check(!bad.length, `EN ${tag}: ${u} - sąsaja be lietuviškų tekstų${bad.length ? ` (${bad.slice(0, 4).join(" | ")})` : ""}`);
+    }
+    const cartH = await page.evaluate(() => [document.querySelector("#cartBtn .iconLbl")?.textContent, document.querySelector(".ftrLegal a")?.textContent]);
+    check(cartH[0] === "Bag" && cartH[1] === "Terms of sale", `EN ${tag}: header'is ir poraštė angliškai (${cartH.join(", ")})`);
     await page.context().close();
     // Paskelbus - perjungiklis matomas ir lietuviškoje versijoje
     const { page: pp } = await newPage(siteP, viewport, shopCat);

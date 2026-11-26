@@ -15,13 +15,13 @@ const I18N_ALL = window.VAIDORE_I18N || {};
 const DICT = I18N_ALL[LANG] || {};
 const DICT_LT = I18N_ALL.lt || {};
 const EN_PUBLIC = !!window.VAIDORE_I18N_PUBLIC;
-// t("cart.title"), t("cart.left", { sum }) - tekstas; trūkstamas - lietuviškas, tada raktas
+// t("cart.title"), t("cart.freeLeft", { sum }) - tekstas; trūkstamas - lietuviškas, tada raktas
 function t(key, vars) {
   let s = DICT[key] ?? DICT_LT[key] ?? key;
   if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m));
   return s;
 }
-// tn("cart.items", 3) → „3 prekės“ / „3 items“: raktai „….one“, „….few“, „….many“, „….other“ (Intl.PluralRules)
+// tn("shop.count.items", 3) → „3 prekės“ / „3 products“: raktai „….one“, „….few“, „….many“, „….other“ (Intl.PluralRules)
 const PLURAL = new Intl.PluralRules(LOCALE);
 function tn(key, n, vars) {
   const form = PLURAL.select(n);
@@ -45,7 +45,7 @@ const plainDeep = v => {
 const esc = v =>
   plain(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 // Nelaužomi tarpai: „1-2 d. d.“, „30 d.“, „2 ml“, „5 val.“ niekada nelūžta per eilutę
-const nb = t => plain(t).replace(/(\d) (?=d\.|ml\b|val\.|vnt\.)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)-(\d)/g, "$1\u2060-\u2060$2");
+const nb = tx => plain(tx).replace(/(\d) (?=d\.|ml\b|val\.|vnt\.|g\b|h\b|pcs\b|weeks?\b|days?\b|business\b|working\b)/g, "$1\u00a0").replace(/d\. d\./g, "d.\u00a0d.").replace(/(\d)-(\d)/g, "$1\u2060-\u2060$2");
 const fold = s =>
   String(s || "")
     .toLowerCase()
@@ -56,9 +56,9 @@ const eur = n => plain(eurFmt.format(Math.round(Number(n || 0) * 100) / 100)); /
 const eurShort = n => (Number.isInteger(n) ? (LANG === "en" ? `€${n}` : `${n} €`) : eur(n));
 const plural = (n, one, few, many) => {
   const d = n % 10,
-    t = n % 100;
-  if (d === 1 && t !== 11) return `${n} ${one}`;
-  if (d >= 2 && d <= 9 && (t < 11 || t > 19)) return `${n} ${few}`;
+    tx = n % 100;
+  if (d === 1 && tx !== 11) return `${n} ${one}`;
+  if (d >= 2 && d <= 9 && (tx < 11 || tx > 19)) return `${n} ${few}`;
   return `${n} ${many}`;
 };
 const store = {
@@ -94,6 +94,15 @@ function altUrl(lang, internal) {
 }
 const dateFmt = new Intl.DateTimeFormat(LOCALE, { year: "numeric", month: "2-digit", day: "2-digit" });
 const dateTimeFmt = new Intl.DateTimeFormat(LOCALE, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+// Šalies pavadinimas kalba („LV“ → „Latvija“ / „Latvia“)
+const regionNames = (() => {
+  try {
+    return new Intl.DisplayNames([LOCALE], { type: "region" });
+  } catch {
+    return null;
+  }
+})();
+const regionName = c => regionNames?.of(c) || c;
 const fmtDate = v => (v ? dateFmt.format(new Date(v)) : "");
 const fmtDateTime = v => (v ? dateTimeFmt.format(new Date(v)) : "");
 const slugify = s =>

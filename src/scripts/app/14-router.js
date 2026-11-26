@@ -33,12 +33,14 @@ function showView(name) {
   $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === name));
   ui.view = name;
 }
-const TITLES = { home: null, cart: "Krepšelis", fav: "Mėgstami", account: "Paskyra", admin: "Administravimas", 404: "Puslapis nerastas" };
+const TITLES = { home: null, cart: t("cart.title"), fav: t("fav.title"), account: t("acc.title"), admin: "Administravimas", 404: t("nf.title") };
 function route({ restoreY = null } = {}) {
   const path = currentPath();
   const params = urlParams();
   let r = matchRoute(path);
   if (r.view === "product" && !renderProduct(r.id, params)) r = { view: "404" };
+  // 404.html - vienas abiem kalboms (GitHub Pages): tekstai kalba nustatomi čia
+  if (r.view === "404") [["nfTitle", "nf.title"], ["nfText", "nf.text"], ["nfBtn", "cart.continue"]].forEach(([id, k]) => document.getElementById(id) && (document.getElementById(id).textContent = t(k)));
   ui.path = path;
   if (r.view === "shop") {
     shopFromRoute(r.base, params);
@@ -53,7 +55,7 @@ function route({ restoreY = null } = {}) {
   if (r.view === "admin") openAdmin(r.sub);
   if (r.view !== "admin") document.documentElement.classList.remove("isAdmin");
   showView(r.view);
-  if (TITLES[r.view] !== undefined) document.title = TITLES[r.view] ? `${TITLES[r.view]} | ${SET.shop}` : `${SET.shop} - kvepalai`;
+  if (TITLES[r.view] !== undefined) document.title = TITLES[r.view] ? `${TITLES[r.view]} | ${SET.shop}` : t("meta.homeTitle", { shop: SET.shop });
   updateNavCurrent(path);
   updateLangSwitch();
   if (restoreY != null) requestAnimationFrame(() => window.scrollTo(0, restoreY));
@@ -98,12 +100,12 @@ document.addEventListener("click", e => {
 });
 function renderFav() {
   const list = PRODUCTS.filter(p => state.fav.has(p.id));
-  $("#favSub").textContent = list.length ? plural(list.length, "kvapas", "kvapai", "kvapų") : "";
+  $("#favSub").textContent = list.length ? tn("fav.count", list.length) : "";
   $("#favGrid").innerHTML = list.length
     ? list.map(p => cardHTML(p)).join("")
-    : `<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 84 84" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M42 68S16 53 16 34a13.5 13.5 0 0 1 26-5 13.5 13.5 0 0 1 26 5c0 19-26 34-26 34z"/></svg><h3>Dar nieko nepažymėjote</h3><p>Kvapo puslapyje paspauskite „Į\u00a0mėgstamus“ - jis atsiras čia${
-        auth.user ? "" : ". Prisijungę matysite mėgstamus visuose įrenginiuose"
-      }.</p><a class="btn primary" href="kvepalai" data-nav>Į katalogą</a></div>`;
+    : `<div class="empty" style="grid-column:1/-1"><svg viewBox="0 0 84 84" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M42 68S16 53 16 34a13.5 13.5 0 0 1 26-5 13.5 13.5 0 0 1 26 5c0 19-26 34-26 34z"/></svg><h3>${t("fav.empty")}</h3><p>${t(auth.user ? "fav.emptyText" : "fav.emptyTextGuest")}${
+        ""
+      }</p><a class="btn primary" href="kvepalai" data-nav>${t("fav.toCatalog")}</a></div>`;
 }
 function updateBadges() {
   const n = cartCount();
@@ -122,7 +124,7 @@ function updateBadges() {
     b.hidden = !f;
     b.textContent = String(f);
   });
-  $("#cartBtn").setAttribute("aria-label", n ? `Krepšelis, ${plural(n, "prekė", "prekės", "prekių")}` : "Krepšelis");
+  $("#cartBtn").setAttribute("aria-label", n ? `${t("cart.title")}, ${tn("shop.count.items", n)}` : t("cart.title"));
 }
 // Seni #/… adresai → nauji (vieną kartą paleidžiant)
 function redirectOldHash() {

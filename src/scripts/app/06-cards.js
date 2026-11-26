@@ -2,11 +2,11 @@
 // širdelė. v10 (kaip parfumada.lt): kortelėje tik PAVADINIMAS · natos · kaina („Įkvėpti …“ - kvapo puslapyje).
 function heartBtn(p, cls = "heart") {
   const on = state.fav.has(p.id);
-  return `<button class="${cls}" type="button" data-fav="${p.id}" aria-pressed="${on}" aria-label="${on ? "Pašalinti iš mėgstamų" : "Į mėgstamus"}"><svg viewBox="0 0 24 24">${GLYPH.heart}</svg></button>`;
+  return `<button class="${cls}" type="button" data-fav="${p.id}" aria-pressed="${on}" aria-label="${on ? t("fav.remove") : t("fav.add")}" data-label="${on ? t("fav.saved") : t("fav.add")}"><svg viewBox="0 0 24 24">${GLYPH.heart}</svg></button>`;
 }
 function badgePill(p) {
-  if (!inStock(p)) return `<span class="pill glass soldPill">Išparduota</span>`;
-  if (onSale(p)) return `<span class="pill glass salePill">Akcija</span>`;
+  if (!inStock(p)) return `<span class="pill glass soldPill">${t("common.soldOut")}</span>`;
+  if (onSale(p)) return `<span class="pill glass salePill">${t("common.sale")}</span>`;
   if (!p.badge) return "";
   return `<span class="pill glass">${esc(p.badge)}</span>`;
 }
@@ -46,7 +46,7 @@ function cardHTML(p, opts = {}) {
 <div class="cardTxt">${top ? "" : `<span class="cardName">${esc(p.name)}</span>${cardInspHTML(p)}`}<span class="cardPrice">${cardPriceHTML(p, sample)}</span>${
     rate ? `<span class="cardRate">${starsHTML(rate.avg)}<small>(${rate.n})</small></span>` : ""
   }</div>
-<a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}${inspiredOf(p) ? `, įkvėpti ${esc(inspiredOf(p))}` : ""}, ${esc(cardSub(p))}"></a>
+<a class="cardLink" href="${productUrl(p)}${sample ? "?ml=2" : ""}" data-nav aria-label="${esc(p.name)}${inspiredOf(p) ? `, ${t("insp.lower", { name: esc(inspiredOf(p)) })}` : ""}, ${esc(cardSub(p))}"></a>
 </article>`;
 }
 function syncHearts(root = document) {
@@ -54,14 +54,15 @@ function syncHearts(root = document) {
     const on = state.fav.has(b.dataset.fav);
     if (b.getAttribute("aria-pressed") !== String(on)) {
       b.setAttribute("aria-pressed", String(on));
-      b.setAttribute("aria-label", on ? "Pašalinti iš mėgstamų" : "Į mėgstamus");
+      b.setAttribute("aria-label", on ? t("fav.remove") : t("fav.add"));
+      b.dataset.label = on ? t("fav.saved") : t("fav.add");
     }
   });
 }
 // Vienas klausytojas visoms širdelėms
 document.addEventListener("click", e => {
-  const t = e.target instanceof Element ? e.target : null;
-  const fav = t?.closest("[data-fav]");
+  const tx = e.target instanceof Element ? e.target : null;
+  const fav = tx?.closest("[data-fav]");
   if (fav) {
     e.preventDefault();
     const on = toggleFav(fav.dataset.fav);
@@ -70,7 +71,7 @@ document.addEventListener("click", e => {
       void b.offsetWidth;
       if (on) b.classList.add("pop");
     });
-    toast(on ? "Įdėta į mėgstamus" : "Pašalinta iš mėgstamų", { icon: "heart" });
+    toast(on ? t("fav.added") : t("fav.removed"), { icon: "heart" });
     return;
   }
 });

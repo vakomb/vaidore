@@ -27,11 +27,11 @@ const DEFAULT_SLIDES = [
 const DEFAULT_TILES = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"].map(key => ({ key, on: true }));
 // Numatytieji skyriai - tokie pat kaip iki v15 (naujienos, moterims, vyrams, unisex, nuolaidos)
 const DEFAULT_RAILS = [
-  { id: "naujienos", on: true, title: "Kvapnios naujienos", line: "", mode: "auto", rule: { type: "kvepalai", sort: "new" }, limit: 8 },
-  { id: "moterims", on: true, title: "Populiariausi moterims", line: "Kvapai, kuriuos dažniausiai renkasi moterys", mode: "auto", rule: { type: "kvepalai", gender: "moterims", sort: "rank" }, limit: 12 },
-  { id: "vyrams", on: true, title: "Populiariausi vyrams", line: "Kvapai, kuriuos dažniausiai renkasi vyrai", mode: "auto", rule: { type: "kvepalai", gender: "vyrams", sort: "rank" }, limit: 12 },
-  { id: "unisex", on: true, title: "Unisex kvapai", line: "Tinka visiems - be taisyklių", mode: "auto", rule: { type: "kvepalai", gender: "unisex", sort: "rank" }, limit: 12 },
-  { id: "nuolaidos", on: true, title: "Didžiausios nuolaidos", line: "Kvapai, kuriems dabar taikoma nuolaida", mode: "auto", rule: { sale: true, sort: "sale" }, limit: 12 }
+  { id: "naujienos", on: true, title: t("rail.new"), line: "", mode: "auto", rule: { type: "kvepalai", sort: "new" }, limit: 8 },
+  { id: "moterims", on: true, title: t("rail.women"), line: t("rail.womenLine"), mode: "auto", rule: { type: "kvepalai", gender: "moterims", sort: "rank" }, limit: 12 },
+  { id: "vyrams", on: true, title: t("rail.men"), line: t("rail.menLine"), mode: "auto", rule: { type: "kvepalai", gender: "vyrams", sort: "rank" }, limit: 12 },
+  { id: "unisex", on: true, title: t("rail.unisex"), line: t("rail.unisexLine"), mode: "auto", rule: { type: "kvepalai", gender: "unisex", sort: "rank" }, limit: 12 },
+  { id: "nuolaidos", on: true, title: t("shop.sale.title"), line: t("rail.saleLine"), mode: "auto", rule: { sale: true, sort: "sale" }, limit: 12 }
 ];
 const RAIL_SORTS = [
   ["rank", "Populiariausi"],
@@ -73,21 +73,21 @@ function railMatches(r) {
 }
 // Paantraštė, kai administratorius jos neįrašė (v22) - pagal taisyklę; pakeičiama Vitrina → Skyriai → „Paantraštė“
 const RAIL_LINES = {
-  zvakes: "Jaukiems namams",
-  difuzoriai: "Kvapūs namai be ugnies",
-  aliejai: "Mėgstamas kvapas jūsų difuzoriui",
-  "elektriniai-difuzoriai": "Tyliai ir tolygiai po visus namus",
-  moterims: "Kvapai, kuriuos renkasi moterys",
-  vyrams: "Kvapai, kuriuos renkasi vyrai",
-  unisex: "Tinka ir jai, ir jam",
-  kvepalai: "Įkvėpti garsiausių kvapų"
+  zvakes: t("railLine.zvakes"),
+  difuzoriai: t("railLine.difuzoriai"),
+  aliejai: t("railLine.aliejai"),
+  "elektriniai-difuzoriai": t("railLine.elektriniai-difuzoriai"),
+  moterims: t("railLine.moterims"),
+  vyrams: t("railLine.vyrams"),
+  unisex: t("railLine.unisex"),
+  kvepalai: t("railLine.kvepalai")
 };
 function railLine(r) {
   const q = r.rule || {};
-  if (r.mode === "manual") return "Mūsų atrinkti kvapai";
-  if (q.sale) return "Kvapai, kuriems dabar taikoma nuolaida";
-  if (q.sort === "new") return "Naujausi kvapai";
-  if (q.category) return CATEGORY.get(q.category)?.description?.split(/[.!?]/)[0] || "Kolekcija";
+  if (r.mode === "manual") return t("railLine.manual");
+  if (q.sale) return t("rail.saleLine");
+  if (q.sort === "new") return t("railLine.new");
+  if (q.category) return L(CATEGORY.get(q.category), "description")?.split(/[.!?]/)[0] || t("nav.collection");
   return RAIL_LINES[q.type && q.type !== "kvepalai" ? q.type : q.gender || q.type || "kvepalai"] || "";
 }
 // „Peržiūrėti“ nuoroda: nustatyta ranka arba sudaroma iš taisyklės (tie patys filtrai kaip katalogo puslapyje);
@@ -123,7 +123,7 @@ const SLIDE_PRESETS = {
     name: "Kolekcija (kvapas)",
     make(p) {
       const h = SET.hero || {};
-      return { scene: "collection", eyebrow: h.eyebrow || "Kolekcija", title: p.name, text: p.tagline, cta: `Atrasti ${p.name}`, href: productUrl(p) };
+      return { scene: "collection", eyebrow: L(h, "eyebrow") || t("nav.collection"), title: L(p, "name"), text: L(p, "tagline"), cta: t("slide.discover", { name: L(p, "name") }), href: productUrl(p) };
     }
   },
   // Teiginiai su auksinėmis linijomis (kaip antroji parfumada.lt skaidrė): kiekviena teksto eilutė - atskiras teiginys.
@@ -136,12 +136,12 @@ const SLIDE_PRESETS = {
         eyebrow: "",
         title: SET.shop || "Vaidore",
         text: [
-          `Kiekvienas kvapas - ir 2 ml mėginuku`,
-          `Išsiunčiame per ${nb(SET.dispatch || "1-2 d. d.")}`,
-          `Nemokamas pristatymas nuo ${eurShort(SET.freeShippingFrom)}`,
-          `Grąžinimas per ${SET.returnDays || 14} d.`
+          nb(t("slide.c1")),
+          t("pd.dispatch", { d: nb(dispatchText()) }),
+          t("nav.freeFrom", { price: eurShort(SET.freeShippingFrom) }),
+          nb(t("pd.returns", { n: SET.returnDays || 14 }))
         ].join("\n"),
-        cta: "Visi kvepalai",
+        cta: t("type.kvepalai.title"),
         href: "kvepalai"
       };
     }
@@ -151,10 +151,10 @@ const SLIDE_PRESETS = {
     make() {
       return {
         scene: "samples",
-        eyebrow: "Mėginukai 2 ml",
-        title: "Pirma išbandykite",
-        text: SET.sampleCredit ? `Mėginukas nuo ${eur(sampleFrom())} - kainą grąžinsime perkant buteliuką.` : `Kiekvienas kvapas - ir 2 ml mėginuku nuo ${eur(sampleFrom())}.`,
-        cta: "Rinktis mėginukus",
+        eyebrow: nb(t("shop.samples.title")),
+        title: t("slide.sTitle"),
+        text: nb(SET.sampleCredit ? t("slide.sCredit", { price: eur(sampleFrom()) }) : t("slide.sText", { price: eur(sampleFrom()) })),
+        cta: t("slide.sCta"),
         href: "meginukai"
       };
     }
@@ -163,14 +163,14 @@ const SLIDE_PRESETS = {
     name: "Dovana / rinkinys",
     make() {
       return DISC
-        ? { scene: "gift", eyebrow: "Dovanai", title: DISC.name, text: `Bet kurie ${DISC.count} kvapai po 2 ml už ${eurShort(DISC.price)} - raskite savo kvapą.`, cta: "Susidaryti rinkinį", href: "rinkinys" }
-        : { scene: "gift", eyebrow: "Dovanai", title: "Kvapas dovanų", text: "Raskite kvapą, kuris tiks būtent jam ar jai.", cta: "Rinktis dovaną", href: "kvepalai" };
+        ? { scene: "gift", eyebrow: t("slide.gEyebrow"), title: L(DISC, "name"), text: nb(t("slide.gDisc", { n: DISC.count, price: eurShort(DISC.price) })), cta: t("slide.gDiscCta"), href: "rinkinys" }
+        : { scene: "gift", eyebrow: t("slide.gEyebrow"), title: t("slide.gTitle"), text: t("slide.gText"), cta: t("slide.gCta"), href: "kvepalai" };
     }
   },
   custom: {
     name: "Sava skaidrė",
     make(p) {
-      return { scene: "collection", eyebrow: "", title: p.name, text: "", cta: "Peržiūrėti", href: "kvepalai" };
+      return { scene: "collection", eyebrow: "", title: L(p, "name"), text: "", cta: t("slide.view"), href: "kvepalai" };
     }
   }
 };
@@ -238,11 +238,11 @@ function tilePreset(key) {
     const st = { moterims: "women", vyrams: "men", unisex: "unisex" }[key];
     return { name: GENDER_NAME[key], href: key, stage: st, list: of(key) };
   }
-  if (key === "meginukai") return { name: "Mėginukai", href: "meginukai", stage: "vials", list: byRank.slice(3) };
-  if (key === "rinkinys") return DISC ? { name: "Rinkiniai", href: "rinkinys", stage: "set", list: byRank.slice(6) } : null;
+  if (key === "meginukai") return { name: t("nav.samples"), href: "meginukai", stage: "vials", list: byRank.slice(3) };
+  if (key === "rinkinys") return DISC ? { name: t("nav.sets"), href: "rinkinys", stage: "set", list: byRank.slice(6) } : null;
   if (key === "naujienos") {
     const fresh = [...PRODUCTS].sort((a, b) => String(b.added).localeCompare(String(a.added)));
-    return { name: "Naujienos", href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh };
+    return { name: t("nav.new"), href: "kvepalai?rikiuoti=new", stage: "fresh", list: fresh };
   }
   if (key.startsWith("kat-")) {
     const c = CATEGORY.get(key.slice(4));
@@ -257,27 +257,27 @@ function tilePreset(key) {
 function tileList() {
   if (!Array.isArray(SET.tiles)) return DEFAULT_TILES;
   const raw = [...SET.tiles];
-  const last = raw.findLastIndex(t => TYPE.has(t?.key));
+  const last = raw.findLastIndex(tx => TYPE.has(tx?.key));
   if (last < 0) return raw;
-  const missing = TYPES.filter(t => !raw.some(x => x?.key === t.id)).map(t => ({ key: t.id, on: true }));
+  const missing = TYPES.filter(tx => !raw.some(x => x?.key === tx.id)).map(tx => ({ key: tx.id, on: true }));
   raw.splice(last + 1, 0, ...missing);
   return raw;
 }
 function homeTiles() {
   const raw = tileList();
   return raw
-    .filter(t => t && t.on !== false)
-    .map(t => {
-      const p = tilePreset(t.key);
+    .filter(tx => tx && tx.on !== false)
+    .map(tx => {
+      const p = tilePreset(tx.key);
       if (!p || !p.list.length) return null;
-      return { ...p, key: t.key, name: t.title || p.name, image: t.image || p.image || "", focus: t.focus || "50% 50%", dark: !!t.dark };
+      return { ...p, key: tx.key, name: tx.title || p.name, image: tx.image || p.image || "", focus: tx.focus || "50% 50%", dark: !!tx.dark };
     })
     .filter(Boolean);
 }
 // Katalogo puslapio antraštės nuotrauka (ta pati kaip plytelės): lytis / mėginukai / kategorija
 function groupPhoto(key) {
-  const t = (Array.isArray(SET.tiles) ? SET.tiles : []).find(x => x.key === key);
-  if (t?.image) return { image: t.image, focus: t.focus || "50% 50%", dark: !!t.dark };
+  const tx = (Array.isArray(SET.tiles) ? SET.tiles : []).find(x => x.key === key);
+  if (tx?.image) return { image: tx.image, focus: tx.focus || "50% 50%", dark: !!tx.dark };
   if (key.startsWith("kat-")) {
     const c = CATEGORY.get(key.slice(4));
     if (c?.image) return { image: c.image, focus: "50% 50%", dark: false };
