@@ -135,9 +135,9 @@
 .hsec {
   margin-top: 18px;
 }
-/* Iškart po pagrindine nuotrauka - be tarpo (pirmas skyrius: „Produktai“, o jei jo nėra - „Kvapnios naujienos“) */
+/* Iškart po pagrindine nuotrauka - be tarpo (pirmas prekių skyrius; v33j: kategorijų plytelės - apačioje, po skyriais) */
 #homeHero + .hsec,
-#homeHero + .hsec[hidden] + #homeRails > .hsec:first-child {
+#homeHero + #homeRails > .hsec:first-child {
   margin-top: 0;
 }
 .hsec[hidden] {
@@ -237,7 +237,7 @@
 .hsec > .wrap > .catTiles:first-child {
   margin-top: 0;
 }
-/* Kategorijos iškart po pagrindine nuotrauka (be antraštės „Produktai“) - nedidelis tarpas viršuje (v32) */
+/* Kategorijų plytelės (v33j - po prekių skyriais, be antraštės) - nedidelis tarpas viršuje */
 #homeTilesSec {
   padding-top: 14px;
 }

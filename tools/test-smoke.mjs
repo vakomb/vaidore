@@ -244,17 +244,18 @@ async function run(viewport) {
     await page.evaluate(() => {
       const rails = document.querySelector("#homeRails");
       const tiles = document.querySelector("#homeTiles").closest(".hsec");
-      return !!(tiles.compareDocumentPosition(rails) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return !!(tiles.compareDocumentPosition(rails) & Node.DOCUMENT_POSITION_PRECEDING);
     }),
-    "pradžia: „Produktai“ plytelės - virš „Kvapnios naujienos“"
+    "pradžia (v33j): kategorijų plytelės - po prekių skyriais (apačioje)"
   );
   check(
     await page.evaluate(() => {
       const sec = document.querySelector("#homeTilesSec");
-      const gap = sec.getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom;
+      const first = document.querySelector("#homeRails > .hsec");
+      const gap = first.getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom;
       return !sec.querySelector(".band") && Math.abs(gap) < 1;
     }),
-    "pradžia: kategorijos iškart po pagrindine nuotrauka, be antraštės „Produktai“"
+    "pradžia: pirmas prekių skyrius iškart po pagrindine nuotrauka, kategorijos - be antraštės"
   );
   if (mobile && viewport.width < 700) {
     const tl = await page.evaluate(() => {
