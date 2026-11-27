@@ -459,8 +459,8 @@ async function run(viewport) {
     (await page.locator("#productRoot .pdSub").textContent()) === "Namų kvapas su lazdelėmis" &&
       (await page.locator("#productRoot .pbNotes .pbT").textContent()) === "Kvapo natos" &&
       (await page.locator("#productRoot .pbNotes .ntPanel.on .nt").count()) >= 1 &&
-      (await page.locator("#productRoot .pbSteps .useStep").count()) === 3 &&
-      (await page.locator("#productRoot .pbSteps .pbT").textContent()) === "Kaip naudoti" &&
+      (await page.locator('#productRoot .pbDemo [data-demo][data-kind="difuzoriai"] .demoStep').count()) === 3 &&
+      (await page.locator("#productRoot .pbDemo .pbT").textContent()) === "Kaip naudoti" &&
       (await page.locator("#productRoot .pbWhere .pbT").textContent()) === "Kur pastatyti" &&
       (await page.locator("#productRoot .pbWhere .icoGrid li").count()) === 6 &&
       (await page.locator("#productRoot .pdNotice").count()) === 1 &&
@@ -470,13 +470,13 @@ async function run(viewport) {
   // v30b: natos - tikros ingredientų nuotraukos (iškirptos iš Vaidore produktų nuotraukų), visos skirtingos
   const mainSrc = await page.locator("#productRoot .pbNotes .ntArt img").evaluateAll(a => a.map(i => i.getAttribute("src")));
   check(mainSrc.length >= 2 && new Set(mainSrc).size === mainSrc.length && mainSrc.every(x => x.startsWith("img/natos/")), "v30b: natos - su skirtingomis tikromis nuotraukomis");
+  // v34e: interaktyvi pamoka - žingsnio paspaudimas keičia sceną ir paaiškinimą, be horizontalaus slinkimo
+  await page.locator('#productRoot [data-demo-step="2"]').click();
   check(
-    await page.evaluate(() => {
-      const st = document.querySelector("#productRoot .useSteps");
-      const wide = innerWidth >= 700;
-      return wide ? st.scrollWidth <= st.clientWidth + 1 : getComputedStyle(st).overflowX === "auto" && st.scrollWidth > st.clientWidth && document.documentElement.scrollWidth <= innerWidth;
-    }),
-    "žingsniai: telefone - slenkama eilė (be puslapio horizontalaus slinkimo), plačiau - stulpeliais"
+    (await page.locator("#productRoot [data-demo]").getAttribute("data-step")) === "2" &&
+      ((await page.locator("#productRoot .demoCap").textContent()) || "").length > 10 &&
+      (await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)),
+    "v34e: difuzoriaus pamoka - žingsnis 2, paaiškinimas, be horizontalaus slinkimo"
   );
   // v15: žvakė - svoris g ir savybės; elektrinis difuzorius - be talpos ir kvapo, savybės atskleistos
   // v27: „Visos prekės“ - visi tipai viename sąraše, filtras „Kategorija“ (?tipas=)

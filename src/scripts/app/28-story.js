@@ -329,7 +329,7 @@ function noticeHTML(cfg, p) {
 // Visi turinio blokai + išskleidžiamos dalys (pabaigoje). details - jau paruoštos dalys (10-product.js)
 function storyHTML(p, details = "") {
   const cfg = pdpOf(typeOf(p));
-  // v34d: aromalempai ir kaitinamam vaškui - interaktyvus „Kaip tai veikia“ (30-burner.js) vietoj įprastų žingsnių
+  // v34d: aromalempai ir kaitinamam vaškui - interaktyvus „Kaip tai veikia“ (30-demo.js; v34e - ir kitiems namų kvapams) vietoj įprastų žingsnių
   const demo = demoBlockHTML(p, cfg);
   const blocks = [notesBlockHTML(p, cfg), traitsBlockHTML(p, cfg), moodBlockHTML(p, cfg), demo || stepsBlockHTML(cfg), whereBlockHTML(cfg), sampleBlockHTML(p, cfg), noticeHTML(cfg, p)].filter(Boolean);
   return `<div class="pdStory">${blocks.join("")}${details ? `<div class="accs pdAccs">${details}</div>` : ""}</div>`;
