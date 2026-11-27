@@ -129,7 +129,7 @@ function stageHTML(name, list, { eager = false, cls = "" } = {}) {
       if (t === "b") {
         const p = ps.length ? ps[b % ps.length] : null;
         if (!p) return "";
-        const art = p.images?.[0] ? `<img${flatImg(p.images[0]) ? ' class="flat"' : ""} src="${esc(p.images[0])}" alt="" ${load} />` : bottleSVG(p);
+        const art = p.images?.[0] ? `<img${flatImg(p.images[0]) ? ' class="flat"' : ""} src="${esc(p.images[0])}" alt="" ${load} />` : artSVG(p);
         return `<span class="sb" style="${pos(x, y)};--s:${a}">${art}</span>`;
       }
       if (t === "v") return `<span class="sv" style="${pos(x, y)};--s:${a}"><img src="img/meginukas.webp" alt="" ${load} /></span>`;

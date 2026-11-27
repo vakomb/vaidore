@@ -17,7 +17,7 @@ function artImg(p, { eager = false } = {}) {
   const src = p.images?.[0];
   return src
     ? `<img class="photo${flatImg(src) ? " flat" : ""}" src="${esc(src)}" alt="${esc(p.name)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />`
-    : bottleSVG(p);
+    : artSVG(p);
 }
 const defaultMl = p => (p.sizes.find(s => s.ml === BOTTLE_ML[0]) || p.sizes[0]).ml;
 function cardPriceHTML(p, sample) {

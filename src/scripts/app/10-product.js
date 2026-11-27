@@ -5,7 +5,7 @@
 // kai mygtuko nesimato (nuotrauka, pavadinimas, kaina, kiekis, mygtukas - kaip parfumada.lt). Išparduotam - „Pranešti, kai bus“.
 function galleryHTML(p) {
   const imgs = (p.images || []).filter(Boolean);
-  if (!imgs.length) return bottleSVG(p);
+  if (!imgs.length) return artSVG(p);
   return `<div class="gal" tabindex="0" aria-label="${esc(p.name)} nuotraukos">${imgs
     .map(
       (src, i) =>
@@ -74,7 +74,8 @@ const SPEC_FMT = {
   weeks: v => [`${v} ${t("unit.weeks")}`, t("spec.weeks")],
   sticks: v => [`${v} ${t("unit.pcs")}`, t("spec.sticks")],
   burn: v => [`${v} ${t("unit.h")}`, t("spec.burn")],
-  wax: v => [attrVal(v), t("spec.wax")],
+  // „Sojų vaškas“ → Sojų / vaškas (be pasikartojimo)
+  wax: v => [String(attrVal(v)).replace(/\s+(vaškas|wax)$/i, ""), t("spec.wax")],
   wick: v => [attrVal(v), t("spec.wick")],
   pieces: v => [`${v} ${t("unit.pcs")}`, t("spec.pieces")],
   material: v => [attrVal(v), t("spec.material")],

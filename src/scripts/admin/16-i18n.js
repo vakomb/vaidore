@@ -28,7 +28,7 @@ const EN_TPL = {
   edp: "concentration - long-lasting on the skin.",
   skin: "Every fragrance develops differently on each person's skin, so it's worth starting with a 2 ml sample.",
   spray: "One or two sprays are enough - into the air or onto curtains, bedding and upholstery from about 30 cm.",
-  melt: "Place one or two cubes in the bowl of a wax burner and light a tealight underneath - the wax melts and releases its fragrance for hours, with no wick and no smoke."
+  melt: "Place one or two cubes in the bowl of a wax burner and light a tealight underneath - the wax slowly melts and releases its fragrance for a long time."
 };
 // Ar produktui trūksta vertimo: aprašymas ar trumpas aprašymas be EN; ne kvepalams - ir pavadinimas
 function enMissing(p) {

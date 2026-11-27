@@ -456,7 +456,7 @@ function afDescribe(f) {
     } else if (f.type === "purskikliai") {
       S.push("Užtenka 1-2 purškimų į orą arba ant užuolaidų, patalynės ir minkštų baldų iš maždaug 30 cm atstumo - kvapas ilgai išlieka ore ir audiniuose.");
     } else if (f.type === "vaskai") {
-      S.push(`Įdėkite 1-2 kubelius į aromalempos dubenėlį ir uždekite arbatinę žvakutę - vaškas ištirpsta ir valandų valandas skleidžia kvapą be dagties ir be dūmų.${a.wax === "Sojų vaškas" ? " Pagamintas iš sojų vaško." : ""}`);
+      S.push(`Įdėkite 1-2 kubelius į aromalempos dubenėlį ir uždekite arbatinę žvakutę - vaškas pamažu ištirpsta ir ilgai skleidžia kvapą.${a.wax === "Sojų vaškas" ? " Pagamintas iš sojų vaško." : ""}`);
       if (a.pieces) S.push(`Pakuotėje - ${a.pieces} ${afPlural(a.pieces, "kubelis", "kubeliai", "kubelių")}.`);
     } else if (f.type === "aliejai") {
       S.push("Užtenka kelių lašų į difuzoriaus vandenį - kvapas tolygiai pasklinda po visą patalpą.");

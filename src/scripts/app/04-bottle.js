@@ -70,3 +70,33 @@ function bottleSVG(p, cls = "") {
 <rect x="${cx}" y="${cy + ch - 3}" width="${cw}" height="3" rx="1.5" fill="#000" fill-opacity=".12"/>
 </svg>`;
 }
+
+// v34: kaitinamo vaško plokštelė (kol nėra nuotraukos) - permatoma pakuotė su 2 × 3 kubeliais pagal look.liquid ir juoda
+// VAIDORE etikete; tas pats viewBox kaip buteliuko, todėl tinka tie patys stiliai (.bottle)
+function waxSVG(p, cls = "") {
+  const id = `vw${++bottleSeq}`;
+  const liq = p.look?.liquid || "#e8d9c4";
+  const name = String(p.name || "")
+    .replace(/^(kaitinamas vaškas|wax melt)\s+/i, "")
+    .toUpperCase();
+  const fit = name.length * 5.4 > 72 ? ` textLength="72" lengthAdjust="spacingAndGlyphs"` : "";
+  const cubes = [0, 1, 2]
+    .flatMap(r => [0, 1].map(c => [23 + c * 38, 90 + r * 32]))
+    .map(
+      ([x, y]) =>
+        `<rect x="${x}" y="${y}" width="36" height="29" rx="4" fill="url(#${id}w)"/><rect x="${x + 3}" y="${y + 3}" width="30" height="4" rx="2" fill="#fff" fill-opacity=".38"/><rect x="${x}" y="${y + 25}" width="36" height="4" rx="2" fill="#000" fill-opacity=".07"/>`
+    )
+    .join("");
+  return `<svg class="bottle wax ${cls}" viewBox="0 0 120 200" role="img" aria-label="${esc(p.name)}">
+<defs><linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(liq, 0.35)}"/><stop offset="1" stop-color="${shade(liq, -0.08)}"/></linearGradient></defs>
+<ellipse cx="60" cy="192" rx="44" ry="4" fill="#0F172A" fill-opacity=".1"/>
+<rect x="17" y="40" width="86" height="149" rx="9" fill="#fff" fill-opacity=".7" stroke="#0F172A" stroke-opacity=".12"/>
+${cubes}
+<path d="M26 40h68a9 9 0 0 1 9 9v31H17V49a9 9 0 0 1 9-9z" fill="#111"/>
+<rect x="21.5" y="44.5" width="77" height="31" rx="2.5" fill="none" stroke="#C9A35A" stroke-width=".6"/>
+<text x="60" y="56" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="6.2" letter-spacing="1.6" fill="#D9B86A">VAIDORE</text>
+<text x="60" y="69.5" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="8.6" letter-spacing=".6" fill="#D9B86A"${fit}>${esc(name)}</text>
+</svg>`;
+}
+// Paveikslas be nuotraukos: vaškui - plokštelė, kitiems - buteliukas
+const artSVG = p => (typeOf(p) === "vaskai" ? waxSVG(p) : bottleSVG(p));
