@@ -43,10 +43,7 @@ const AF_ATTRS = {
     ["runtime", "Veikimo laikas", "val."],
     ["light", "Apšvietimas", ""]
   ],
-  purskikliai: [
-    ["sprays", "Kvapo kiekis", ""],
-    ["forTextile", "Tinka tekstilei", ""]
-  ],
+  purskikliai: [["forTextile", "Tinka tekstilei", ""]],
   vaskai: [
     ["pieces", "Kubelių", "vnt."],
     ["wax", "Vaškas", ""],

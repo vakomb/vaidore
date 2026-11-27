@@ -864,8 +864,8 @@ const typeName = p => VD.TYPES.find(t => t.id === (p.type || "kvepalai"))?.one |
 // ── Tipo savybės (products.attrs, v15) - laukai pagal AF_ATTRS (13-autofill.js) ──
 // Taip / ne savybės - jungikliai; tekstinės - laisvas tekstas; kitos - skaičiai (v34: + purškikliai, vaškai, aromalempos)
 const ATTR_BOOL = new Set(["forDiffuser", "forTextile", "forBurner"]);
-const ATTR_TEXT = new Set(["wax", "wick", "power", "light", "material", "dims", "heat", "sprays"]);
-const ATTR_PH = { sprays: "1-2 purškimai", material: "Keramika", dims: "10 × 12", heat: "Arbatinė žvakutė", wax: "Sojų vaškas", pieces: "6" };
+const ATTR_TEXT = new Set(["wax", "wick", "power", "light", "material", "dims", "heat"]);
+const ATTR_PH = { material: "Keramika", dims: "10 × 12", heat: "Arbatinė žvakutė", wax: "Sojų vaškas", pieces: "6" };
 function paintAttrs(form, attrs) {
   const box = $("#attrsBox", form);
   if (!box) return;

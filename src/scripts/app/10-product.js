@@ -76,7 +76,6 @@ const SPEC_FMT = {
   burn: v => [`${v} ${t("unit.h")}`, t("spec.burn")],
   wax: v => [attrVal(v), t("spec.wax")],
   wick: v => [attrVal(v), t("spec.wick")],
-  sprays: v => [attrVal(v), t("spec.sprays")],
   pieces: v => [`${v} ${t("unit.pcs")}`, t("spec.pieces")],
   material: v => [attrVal(v), t("spec.material")],
   dims: v => [`${v} cm`, t("spec.dims")],

@@ -60,10 +60,7 @@ const ATTR_DEFS = {
     ["runtime", t("attr.runtime"), t("unit.h")],
     ["light", t("attr.light"), ""]
   ],
-  purskikliai: [
-    ["sprays", t("attr.sprays"), ""],
-    ["forTextile", t("attr.forTextile"), ""]
-  ],
+  purskikliai: [["forTextile", t("attr.forTextile"), ""]],
   vaskai: [
     ["pieces", t("attr.pieces"), t("unit.pcs")],
     ["wax", t("attr.wax"), ""],
