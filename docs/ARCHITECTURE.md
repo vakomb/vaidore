@@ -202,8 +202,8 @@ Po katalogo pakeitimo – `refreshCatalog()` ir pranešimas su „Atnaujinti sve
 ## Sąmoningai nedaryta
 
 - Iššokantys langai, laiko atskaitos, „liko 2 vnt.“, netikri atsiliepimai – griauna pasitikėjimą.
-- Slapukų juosta – nereikalinga: localStorage – krepšeliui, mėgstamiems, prisijungimui, kalbai; vienintelis slapukas (v33) –
-  funkcinis `vaidore_lang` (kalbos pasirinkimas, 1 metai; paminėtas privatumo politikoje), sutikimo nereikia.
+- Slapukų juosta – nereikalinga: localStorage – krepšeliui, mėgstamiems, prisijungimui, kalbai; slapukai (v33) – tik
+  funkciniai: `vaidore_lang` (kalbos pasirinkimas, 1 metai) ir `vaidore_country` (šalis iš IP, 30 d., numatyta pristatymo šalis; v33h); abu paminėti privatumo politikoje, sutikimo nereikia.
 - Kodas „tik to paties kvapo buteliukui“ – Checkout eilutės kuriamos `price_data`, Stripe `applies_to` jų nemato.
 - Pirkėjų sąrašas skydelyje – užsakymuose matyti visi pirkėjo duomenys; atskiro CRM nereikia.
 

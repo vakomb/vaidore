@@ -108,3 +108,20 @@ document.addEventListener("click", e => {
       if (x && x !== v) el.setAttribute(a, x);
     }
 })();
+
+// v33h: pirmas apsilankymas pradžios puslapyje be pasirinktos kalbos (GitHub Pages - be Vercel serverio): naršyklės kalba ne
+// lietuvių - nukreipiama į /en (vieną kartą sesijoje). Pasirinkus kalbą perjungikliu (slapukas) - daugiau nenukreipiama.
+// Robotams - ne (abi versijos indeksuojamos, hreflang).
+(function autoLang() {
+  try {
+    if (LANG !== "lt" || pathRel() !== "" || !EN_PUBLIC) return;
+    if (/(?:^|; )vaidore_lang=/.test(document.cookie) || store.get(LANG_KEY, null) || sessionStorage.getItem("vaidore_auto_lang")) return;
+    if (navigator.webdriver || /bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent)) return;
+    const langs = (navigator.languages || [navigator.language || ""]).map(l => String(l).toLowerCase());
+    if (!langs.length || langs.some(l => l.startsWith("lt"))) return;
+    sessionStorage.setItem("vaidore_auto_lang", "1");
+    location.replace(absUrl("en"));
+  } catch {
+    /* nieko */
+  }
+})();
