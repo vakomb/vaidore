@@ -11,19 +11,27 @@ const FAQ = () => [
 ];
 function infoHelpHTML() {
   const days = SET.returnDays || 14;
-  const ship = SET.shipping
-    .map(
-      o =>
-        `<div class="row"><span class="rowIco">${glyph(o.id === "omniva" ? "locker" : "truck")}</span><span class="rowTxt">${esc(o.name)}<small>${esc(nb(o.days))}</small></span><b class="money">${eur(o.price)}</b></div>`
-    )
+  // v33g: pristatymas pagal šalis - kiekviena zona: šalys, būdai (kaina, trukmė), nemokamai nuo
+  const zones = ZONES()
+    .map(z => {
+      const names = (z.countries || []).map(regionName).sort((a, b) => a.localeCompare(b, LOCALE)).join(", ");
+      const rows = (z.methods || [])
+        .filter(m => m.on !== false)
+        .map(
+          m =>
+            `<div class="row"><span class="rowIco">${glyph(isLocker(m) ? "locker" : "truck")}</span><span class="rowTxt">${esc(methodName(m))}<small>${esc(methodDays(m))}${m.perfume === false ? ` · ${t("ship.noPerfume")}` : ""}</small></span><b class="money">${eur(Number(m.price))}</b></div>`
+        )
+        .join("");
+      return `<p class="groupTitle">${esc(names)}</p><div class="group">${rows}<div class="row"><span class="rowIco" style="background:var(--green)">${glyph("check")}</span><span class="rowTxt">${t("common.free")}<small>${t("help.freeFrom", { price: eurShort(Number(z.freeFrom ?? SET.freeShippingFrom)) })}</small></span></div></div>`;
+    })
     .join("");
   return `<header class="pageHead"><h1>${t("help.title")}</h1><p class="pageSub">${t("help.sub")}</p></header>
 <div class="infoGrid">
 <nav class="infoToc" aria-label="${t("help.toc")}"><a href="pagalba#pristatymas">${t("help.delivery")}</a><a href="pagalba#grazinimas">${t("help.returns")}</a><a href="pagalba#apmokejimas">${t("help.payment")}</a><a href="pagalba#duk">${t("help.faqShort")}</a><a href="pagalba#kontaktai">${t("help.contact")}</a></nav>
 <div class="infoBody">
 <section id="pristatymas" class="infoSec"><h2>${t("help.delivery")}</h2>
-<div class="group">${ship}<div class="row"><span class="rowIco" style="background:var(--green)">${glyph("check")}</span><span class="rowTxt">${t("common.free")}<small>${t("help.freeFrom", { price: eurShort(SET.freeShippingFrom) })}</small></span></div></div>
-<p class="infoTxt">${t("help.shipTo", { countries: SET.countries.map(c => (LANG === "lt" ? { LT: "Lietuvą", LV: "Latviją", EE: "Estiją" }[c] : regionName(c)) || c).join(", "), d: esc(nb(dispatchText()).replace(/\.$/, "")) })}</p></section>
+<p class="infoTxt">${t("help.shipIntro", { d: esc(nb(dispatchText()).replace(/\.$/, "")) })}</p>${zones}
+<p class="infoTxt">${t("help.alcohol")}</p></section>
 <section id="grazinimas" class="infoSec"><h2>${nb(t("help.returnsIn", { n: days }))}</h2>
 <ol class="group steps">
 <li class="row"><span class="stepNo">1</span><span class="rowTxt">${t("help.ret1")}<small>${t("help.ret1Sub", { email: esc(SET.company.email) })}</small></span></li>

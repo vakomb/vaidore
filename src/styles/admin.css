@@ -2838,3 +2838,8 @@ button.axRow:active {
   color: var(--ink3);
   white-space: normal;
 }
+
+/* v33g: pristatymo zonos - kiekvienas būdas atskirtas plona linija */
+.axZoneM {
+  border-top: 1px solid var(--line);
+}

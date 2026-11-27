@@ -304,15 +304,17 @@ function sampleBlockHTML(p, cfg) {
     nb(creditText())
   )}</p></div><button class="btn ghost tryBtn" type="button" data-try-sample>${t("story.tryCta", { price: eur(p.sample) })}</button></div></section>`;
 }
-function noticeHTML(cfg) {
+// v33g: kvepalams - visada ir įspėjimas apie alkoholį (degus skystis; siunčiama tik antžeminiu transportu)
+function noticeHTML(cfg, p) {
   const b = cfg.note;
-  if (!blockOn(b) || !b.text) return "";
-  return `<aside class="pdNotice" data-rv>${glyph("info")}<p>${b.title ? `<b>${esc(b.title)}.</b> ` : ""}${esc(nb(b.text))}</p></aside>`;
+  const alc = p && isPerfume(p) ? `<p>${esc(t("pd.alcohol"))}</p>` : "";
+  if ((!blockOn(b) || !b.text) && !alc) return "";
+  return `<aside class="pdNotice" data-rv>${glyph("info")}<div>${blockOn(b) && b.text ? `<p>${b.title ? `<b>${esc(b.title)}.</b> ` : ""}${esc(nb(b.text))}</p>` : ""}${alc}</div></aside>`;
 }
 // Visi turinio blokai + išskleidžiamos dalys (pabaigoje). details - jau paruoštos dalys (10-product.js)
 function storyHTML(p, details = "") {
   const cfg = pdpOf(typeOf(p));
-  const blocks = [notesBlockHTML(p, cfg), traitsBlockHTML(p, cfg), moodBlockHTML(p, cfg), stepsBlockHTML(cfg), whereBlockHTML(cfg), sampleBlockHTML(p, cfg), noticeHTML(cfg)].filter(Boolean);
+  const blocks = [notesBlockHTML(p, cfg), traitsBlockHTML(p, cfg), moodBlockHTML(p, cfg), stepsBlockHTML(cfg), whereBlockHTML(cfg), sampleBlockHTML(p, cfg), noticeHTML(cfg, p)].filter(Boolean);
   return `<div class="pdStory">${blocks.join("")}${details ? `<div class="accs pdAccs">${details}</div>` : ""}</div>`;
 }
 

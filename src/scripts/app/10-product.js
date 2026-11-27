@@ -21,7 +21,9 @@ function deliveryEta() {
     return m ? [Number(m[1]), Number(m[2] || m[1])] : null;
   };
   const d = rng(dispatchText());
-  const ship = (SET.shipping || []).map(o => rng(o.days)).filter(Boolean).sort((a, b) => a[1] - b[1] || a[0] - b[0])[0];
+  // v33g: pirkėjo šalies būdai (nežinoma šalis - Lietuva)
+  const ms = state.ship.country ? shipMethods() : zoneOf("LT")?.methods || [];
+  const ship = ms.map(o => rng(o.days)).filter(Boolean).sort((a, b) => a[1] - b[1] || a[0] - b[0])[0];
   if (!d || !ship) return t("pd.dispatch", { d: dispatchText() });
   const lo = d[0] + ship[0],
     hi = d[1] + ship[1];
@@ -144,7 +146,9 @@ function productPageHTML(p, ml) {
   // Išskleidžiamos dalys - turinio blokų pabaigoje (28-story.js). Natos - tik jei natų blokas išjungtas administravime.
   const cfg = pdpOf(typeOf(p));
   const notesInStory = blockOn(cfg.notes) && T.scented;
-  const ship = `<ul class="accList"><li>${SET.shipping.map(o => `${esc(o.name)} - ${eur(o.price)} (${esc(nb(o.days))})`).join("</li><li>")}</li><li>${t("pd.freeFrom", { price: eurShort(SET.freeShippingFrom) })}</li><li>${esc(nb(t("pd.dispatch", { d: dispatchText() })))}</li><li>${nb(t("pd.returns", { n: SET.returnDays || 14 }))} - <a href="pagalba#grazinimas" data-nav>${t("pd.howReturn")}</a></li></ul>`;
+  const cc = state.ship.country || "LT";
+  const ms = (zoneOf(cc)?.methods || []).filter(m => m.on !== false && (m.perfume !== false || !isPerfume(p)));
+  const ship = `<ul class="accList"><li>${esc(regionName(cc))}: ${ms.map(o => `${esc(methodName(o))} - ${eur(Number(o.price))} (${esc(methodDays(o))})`).join("</li><li>")}</li><li>${t("pd.freeFrom", { price: eurShort(freeFrom(cc)) })}</li>${isPerfume(p) ? `<li>${t("pd.alcoholShip")}</li>` : ""}<li><a href="pagalba#pristatymas" data-nav>${t("pd.allCountries")}</a></li><li>${esc(nb(t("pd.dispatch", { d: dispatchText() })))}</li><li>${nb(t("pd.returns", { n: SET.returnDays || 14 }))} - <a href="pagalba#grazinimas" data-nav>${t("pd.howReturn")}</a></li></ul>`;
   const details = [
     isPerfume(p) ? accHTML("user", t("pd.who"), who) : "",
     !notesInStory && keyNotes(p).length ? accHTML("drop", isPerfume(p) ? t("pd.notes") : t("pd.scentNotes"), notes, { id: "pdNotesH" }) : "",

@@ -3,7 +3,7 @@
 // (Omniva - su paštomatu, 18-delivery.js), dovanų pakavimas ir rašteliukas, suvestinė, apmokėjimas.
 function shipBoxHTML() {
   const left = shipLeft();
-  const pct = Math.min(100, (cartSubtotal() / SET.freeShippingFrom) * 100);
+  const pct = Math.min(100, (cartSubtotal() / (freeFrom() || 1)) * 100);
   return left > 0
     ? `<div class="ship"><div class="shipTxt">${glyph("truck")}<span>${t("cart.freeLeft", { sum: `<b class="money">${eur(left)}</b>` })}</span></div><div class="shipBar"><i style="width:${pct}%"></i></div></div>`
     : `<div class="ship done"><div class="shipTxt">${glyph("check")}<span><b>${t("cart.freeDone")}</b></span></div><div class="shipBar"><i style="width:100%"></i></div></div>`;
@@ -25,32 +25,58 @@ function lineHTML(l) {
 ${art}
 <div class="lineName">${name}</div>
 <span class="linePrice money">${eur(unit * l.qty)}</span>
-<div class="stepper"><div class="step"><button class="stepBtn" data-step="-1" aria-label="${t("common.less")}">${glyph(l.qty === 1 ? "x" : "minus")}</button><output aria-live="polite">${l.qty}</output><button class="stepBtn" data-step="1" aria-label="${t("common.more")}"${l.qty >= SET.maxQty ? " disabled" : ""}>${glyph("plus")}</button></div>${l.qty > 1 ? `<span class="unit money">${eur(unit)} ${t("cart.perUnit")}</span>` : ""}${disc ? `<button class="linkBtn" data-disc-edit="${esc(lineKey(l))}">Keisti</button>` : ""}</div>
+<div class="stepper"><div class="step"><button class="stepBtn" data-step="-1" aria-label="${t("common.less")}">${glyph(l.qty === 1 ? "x" : "minus")}</button><output aria-live="polite">${l.qty}</output><button class="stepBtn" data-step="1" aria-label="${t("common.more")}"${l.qty >= SET.maxQty ? " disabled" : ""}>${glyph("plus")}</button></div>${l.qty > 1 ? `<span class="unit money">${eur(unit)} ${t("cart.perUnit")}</span>` : ""}${disc ? `<button class="linkBtn" data-disc-edit="${esc(lineKey(l))}">${t("common.change")}</button>` : ""}</div>
 </div>`;
 }
 function deliveryHTML() {
   const free = shipLeft() <= 0;
-  const rows = SET.shipping
+  const cc = state.ship.country;
+  const ms = shipMethods();
+  const lk = shipLocker();
+  const country = `<button class="row" data-ship-country><span class="rowIco">${glyph("pin")}</span><span class="rowTxt">${t("ship.country")}<small${cc ? "" : ' class="warn"'}>${esc(cc ? regionName(cc) : t("ship.chooseCountry"))}</small></span><span class="chev">${glyph("chev-right")}</span></button>`;
+  const rows = ms
     .map(o => {
       const on = state.ship.method === o.id;
-      const sub =
-        o.id === "omniva" && on && LOCKERS_N
-          ? state.ship.locker
-            ? `${state.ship.locker.name}`
-            : t("locker.choose")
-          : nb(o.days);
-      return `<button class="row" role="radio" aria-checked="${on}" data-ship="${o.id}"><span class="radio" aria-hidden="true"></span><span class="rowTxt">${esc(o.name)}<small${
-        o.id === "omniva" && on && LOCKERS_N && !state.ship.locker ? ' class="warn"' : ""
-      }>${esc(sub)}</small></span><b class="money">${free ? eur(0) : eur(o.price)}</b></button>${
-        o.id === "omniva" && on && LOCKERS_N
-          ? `<button class="row sub" data-pick-locker><span class="rowIco" style="background:#F59E0B">${glyph("locker")}</span><span class="rowTxt">${state.ship.locker ? t("locker.change") : t("locker.pick")}</span><span class="chev">${glyph("chev-right")}</span></button>`
+      const pick = isLocker(o) && on && (o.carrier !== "omniva" || LOCKERS_N);
+      const sub = pick ? (lk ? lk.name : t("locker.choose")) : methodDays(o);
+      return `<button class="row" role="radio" aria-checked="${on}" data-ship="${esc(o.id)}"><span class="radio" aria-hidden="true"></span><span class="rowTxt">${esc(methodName(o))}<small${pick && !lk ? ' class="warn"' : ""}>${esc(sub)}</small></span><b class="money">${free ? eur(0) : eur(Number(o.price))}</b></button>${
+        pick
+          ? `<button class="row sub" data-pick-locker><span class="rowIco" style="background:#F59E0B">${glyph("locker")}</span><span class="rowTxt">${lk ? t("locker.change") : t("locker.pick")}</span><span class="chev">${glyph("chev-right")}</span></button>`
           : ""
       }`;
     })
     .join("");
-  return `<p class="groupTitle">${t("cart.delivery")}</p><div class="group" role="radiogroup" aria-label="${t("cart.deliveryMethod")}">${rows}</div>${
-    state.ship.method === "dpd" || (state.ship.method === "omniva" && !LOCKERS_N) ? `<p class="groupNote">${t("cart.addressLater")}</p>` : ""
-  }`;
+  const m = curMethod();
+  const restricted = cc && cartHasPerfume() && (zoneOf(cc)?.methods || []).some(x => x.on !== false && x.perfume === false);
+  const note = !cc
+    ? t("ship.chooseCountryNote")
+    : !ms.length
+      ? t("ship.noMethods")
+      : [m && (!isLocker(m) || (m.carrier === "omniva" && !LOCKERS_N)) && t("cart.addressLater"), restricted && t("ship.perfumeNote")].filter(Boolean).join(" ");
+  return `<p class="groupTitle">${t("cart.delivery")}</p><div class="group" role="radiogroup" aria-label="${t("cart.deliveryMethod")}">${country}${rows}</div>${note ? `<p class="groupNote">${esc(note)}</p>` : ""}`;
+}
+// Pristatymo šalies pasirinkimas (visos zonų šalys, pagal pavadinimą kalba, su paieška)
+function openCountryPicker() {
+  const list = ALL_COUNTRIES()
+    .map(cc => ({ cc, name: regionName(cc) }))
+    .sort((a, b) => a.name.localeCompare(b.name, LOCALE));
+  openSheet({
+    title: t("ship.countryTitle"),
+    html: `<div class="sheetPad lockerPick"><label class="search"><span aria-hidden="true">${glyph("search")}</span><input id="ccQ" type="search" placeholder="${t("ship.countryPh")}" autocomplete="off" /></label><div class="group ccList" role="radiogroup">${list
+      .map(x => `<button class="row" role="radio" aria-checked="${x.cc === state.ship.country}" data-cc="${x.cc}" data-ix="${esc(fold(`${x.name} ${x.cc}`))}"><span class="rowTxt">${esc(x.name)}</span>${x.cc === state.ship.country ? `<span class="tickIco">${glyph("check")}</span>` : ""}</button>`)
+      .join("")}</div></div>`
+  });
+  const root = $("#sheetBody");
+  $("#ccQ", root).addEventListener("input", e => {
+    const q = fold(e.target.value.trim());
+    root.querySelectorAll("[data-cc]").forEach(b => (b.hidden = q && !b.dataset.ix.includes(q)));
+  });
+  root.addEventListener("click", e => {
+    const b = e.target instanceof Element && e.target.closest("[data-cc]");
+    if (!b) return;
+    setShip(state.ship.method, state.ship.locker, b.dataset.cc);
+    closeSheet();
+  });
 }
 function giftHTML() {
   const g = SET.gift;
@@ -148,10 +174,11 @@ function bindCart() {
     const ship = tx?.closest("[data-ship]");
     if (ship) {
       setShip(ship.dataset.ship);
-      if (needLocker() && !state.ship.locker) openLockerPicker();
+      if (needLocker() && !shipLocker()) openLockerPicker();
       return;
     }
     if (tx?.closest("[data-pick-locker]")) return openLockerPicker();
+    if (tx?.closest("[data-ship-country]")) return openCountryPicker();
     if (tx?.closest("[data-gift]")) {
       setGift({ on: !state.gift.on });
       if (state.gift.on) requestAnimationFrame(() => $("#giftNote")?.focus({ preventScroll: true }));

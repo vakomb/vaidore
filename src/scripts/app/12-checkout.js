@@ -5,7 +5,12 @@
 // Atsakymas { url } - Stripe Checkout puslapis (kortelė, Apple Pay, Google Pay; adresas - jei ne paštomatas).
 async function startCheckout(btn) {
   if (!state.cart.length) return;
-  if (needLocker() && !state.ship.locker) {
+  if (!state.ship.country) {
+    toast(t("ship.chooseCountry"), { icon: "info" });
+    return openCountryPicker();
+  }
+  if (!curMethod()) return toast(t("ship.noMethods"), { icon: "info" });
+  if (needLocker() && !shipLocker()) {
     toast(t("locker.choose"), { icon: "info" });
     return openLockerPicker();
   }
@@ -18,7 +23,7 @@ async function startCheckout(btn) {
       body: JSON.stringify({
         lang: LANG,
         items: state.cart.map(l => (l.picks ? { id: l.id, qty: l.qty, picks: l.picks } : { id: l.id, ml: l.ml, qty: l.qty })),
-        shipping: { method: state.ship.method, locker: state.ship.method === "omniva" ? state.ship.locker : null },
+        shipping: { country: state.ship.country, method: state.ship.method, locker: shipLocker() },
         gift: state.gift.on ? { on: true, note: state.gift.note.trim() } : null,
         site: SITE_ROOT.replace(/\/$/, "")
       })

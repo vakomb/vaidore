@@ -17,11 +17,16 @@ function loadLockers() {
 }
 // Paieška be galūnių: „Vilnius“ randa „Vilniaus“, „Kaunas“ - „Kauno“, „Klaipeda“ - „Klaipėdos“
 const stem = w => (w.length > 5 ? w.replace(/(ius|ias|io|us|as|is|ys|es|os|e|a|ai|iu|u|o)$/, "") : w);
-const needLocker = () => LOCKERS_N > 0 && state.ship.method === "omniva";
+// v33g: paštomatas reikalingas pasirinkus paštomato būdą: Omniva - iš sąrašo (tos šalies), LP Express - įrašomas pavadinimas / adresas
+const needLocker = () => {
+  const m = curMethod();
+  return isLocker(m) && (m.carrier !== "omniva" || LOCKERS_N > 0);
+};
 function lockerRowHTML(l, on = false) {
   return `<button class="row" data-locker="${esc(l.zip)}" role="radio" aria-checked="${on}"><span class="rowIco" style="background:#F59E0B">${glyph("locker")}</span><span class="rowTxt">${esc(l.name)}<small>${esc([l.addr, l.city].filter(Boolean).join(", "))}</small></span>${on ? `<span class="tickIco">${glyph("check")}</span>` : ""}</button>`;
 }
 async function openLockerPicker() {
+  if (curMethod()?.carrier === "lpexpress") return openLpPicker();
   openSheet({
     title: t("locker.title"),
     html: `<div class="sheetPad lockerPick">
@@ -41,7 +46,7 @@ async function openLockerPicker() {
     const cur = state.ship.locker;
     const head = !words.length && !near && cur ? `<p class="groupTitle">${t("locker.selected")}</p><div class="group">${lockerRowHTML(cur, true)}</div>` : "";
     if (!words.length && !near) {
-      listEl.innerHTML = `${head}<p class="qzHint">${tn("locker.count", all.length)}</p>`;
+      listEl.innerHTML = `${head}<p class="qzHint">${tn("locker.count", all.length, { country: regionName(state.ship.country || "LT") })}</p>`;
       return;
     }
     const total = list.length;
@@ -51,7 +56,7 @@ async function openLockerPicker() {
       : `<p class="qzHint">${t("locker.none")}</p>`;
   };
   try {
-    all = await loadLockers();
+    all = (await loadLockers()).filter(l => !state.ship.country || !l.cc || l.cc === state.ship.country);
   } catch (err) {
     logError("lockers", err);
     listEl.innerHTML = `<p class="qzHint">${t("locker.unavailable")}</p>`;
@@ -67,7 +72,7 @@ async function openLockerPicker() {
     const row = tx?.closest("[data-locker]");
     if (row) {
       const l = all.find(x => x.zip === row.dataset.locker) || state.ship.locker;
-      setShip("omniva", { zip: l.zip, name: l.name, addr: l.addr, city: l.city, cc: l.cc });
+      setShip(state.ship.method, { zip: l.zip, name: l.name, addr: l.addr, city: l.city, cc: l.cc, carrier: "omniva" });
       closeSheet();
       return;
     }
@@ -94,4 +99,27 @@ async function openLockerPicker() {
     }
   });
   draw();
+}
+
+// LP Express paštomatas (v33g): viešo sąrašo nėra - pirkėjas įrašo paštomato pavadinimą arba adresą (perduodama Stripe ir užsakymui)
+function openLpPicker() {
+  const cur = shipLocker();
+  openSheet({
+    title: t("locker.lpTitle"),
+    html: `<form class="sheetPad lockerPick" id="lpForm" novalidate><p class="qzHint">${t("locker.lpText")}</p><label class="field"><span>${t("locker.lpLabel")}</span><input name="lp" required minlength="3" maxlength="120" autocomplete="off" placeholder="${t("locker.lpPh")}" value="${esc(cur?.name || "")}" /></label><p class="formErr" role="alert" hidden></p><button class="btn primary block" type="submit">${t("common.save")}</button></form>`
+  });
+  const f = $("#lpForm");
+  f.elements.lp.focus();
+  f.addEventListener("submit", e => {
+    e.preventDefault();
+    const v = f.elements.lp.value.trim();
+    if (v.length < 3) {
+      const err = $(".formErr", f);
+      err.textContent = t("locker.lpShort");
+      err.hidden = false;
+      return;
+    }
+    setShip(state.ship.method, { zip: "", name: v, addr: "", city: "", cc: state.ship.country, carrier: "lpexpress" });
+    closeSheet();
+  });
 }

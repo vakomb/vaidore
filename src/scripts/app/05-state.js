@@ -3,7 +3,7 @@
 // Raktų nepervadinkite - jie saugomi pirkėjų telefonuose.
 const CART_KEY = "vaidore_cart_v1";
 const FAV_KEY = "vaidore_fav_v1";
-const SHIP_KEY = "vaidore_ship_v1"; // { method, locker: { zip, name, addr, city, cc } } - paštomatas prisimenamas ir pasirinkus kurjerį
+const SHIP_KEY = "vaidore_ship_v1"; // { country, method, locker: { zip, name, addr, city, cc, carrier } } - paštomatas prisimenamas ir pasirinkus kurjerį
 const GIFT_KEY = "vaidore_gift_v1"; // { on, note }
 const state = {
   cart: sanitizeCart(store.get(CART_KEY, [])),
@@ -27,15 +27,62 @@ function sanitizeCart(list) {
       return isDisc(l.id) ? { id: l.id, ml: 0, qty, picks: [...l.picks] } : { id: l.id, ml: Number(l.ml), qty };
     });
 }
-function sanitizeShip(v) {
-  const method = SET.shipping.some(o => o.id === v?.method) ? v.method : SET.shipping[0]?.id || null;
-  const lk = v?.locker;
-  const locker =
-    lk && /^\d{4,6}$/.test(String(lk.zip))
-      ? { zip: String(lk.zip), name: String(lk.name || "").slice(0, 120), addr: String(lk.addr || "").slice(0, 120), city: String(lk.city || "").slice(0, 60), cc: String(lk.cc || "").slice(0, 2) }
-      : null;
-  return { method, locker };
+// v33g: pristatymas pagal šalis - settings.zones: [{ id, countries: ["LV", "EE"], freeFrom, methods: [{ id, carrier, kind, price,
+// days: "2-4", perfume, on }] }] (migracija 20261127090000_shipping_zones.sql; administravime - Nustatymai → Pristatymas).
+// carrier: omniva / lpexpress / dpd, kind: locker (paštomatas) / courier (iki durų); perfume: false - kvepalams negalima
+// (kvepaluose yra alkoholio - tik antžeminis transportas). Be zonų (senas nustatymas) - viena zona iš shipping + countries.
+// Funkcijos (ne const) - naudojamos jau kuriant state (sanitizeShip)
+function ZONES() {
+  return Array.isArray(SET.zones) && SET.zones.length
+    ? SET.zones
+    : [
+        {
+          id: "default",
+          countries: SET.countries || ["LT"],
+          freeFrom: SET.freeShippingFrom,
+          methods: (SET.shipping || []).map(o => ({ id: o.id, carrier: o.id === "omniva" ? "omniva" : "dpd", kind: o.id === "omniva" ? "locker" : "courier", price: o.price, days: String(o.days || "").replace(/[^\d-]/g, "") }))
+        }
+      ];
 }
+function ALL_COUNTRIES() {
+  return [...new Set(ZONES().flatMap(z => z.countries || []))];
+}
+function zoneOf(cc) {
+  return ZONES().find(z => (z.countries || []).includes(cc)) || null;
+}
+// Spėjimas: lietuviškai - Lietuva; kitaip - šalis iš slapuko (nustato Vercel, 8 etapas) arba naršyklės kalbos regiono
+function guessCountry() {
+  const ok = cc => (cc && ALL_COUNTRIES().includes(cc) ? cc : null);
+  if (LANG === "lt") return ok("LT");
+  const ck = document.cookie.match(/(?:^|; )vaidore_country=([A-Z]{2})/)?.[1];
+  const nav = (navigator.languages || [navigator.language || ""]).map(l => String(l).split("-")[1]?.toUpperCase()).find(ok);
+  return ok(ck) || nav || null;
+}
+const cartHasPerfume = () => (state?.cart || []).some(l => isDisc(l.id) || isPerfume(BY_ID.get(l.id) || {}));
+const shipMethods = (cc = state.ship.country) => (zoneOf(cc)?.methods || []).filter(m => m.on !== false && (m.perfume !== false || !cartHasPerfume()));
+const isLocker = m => m?.kind === "locker";
+const curMethod = () => shipMethods().find(m => m.id === state.ship.method) || null;
+const methodName = m => (m ? t(`ship.${m.carrier}.${m.kind}`) : "");
+const methodDays = m => (m?.days ? nb(t("ship.days", { d: m.days })) : "");
+function sanitizeShip(v) {
+  const all = ALL_COUNTRIES();
+  const country = all.includes(v?.country) ? v.country : guessCountry();
+  const ms = (zoneOf(country)?.methods || []).filter(m => m.on !== false);
+  const method = ms.some(o => o.id === v?.method) ? v.method : ms[0]?.id || null;
+  const lk = v?.locker;
+  const carrier = lk?.carrier || "omniva";
+  const locker =
+    lk && (carrier === "omniva" ? /^\d{4,6}$/.test(String(lk.zip)) : String(lk.name || "").trim().length >= 3)
+      ? { zip: String(lk.zip || ""), name: String(lk.name || "").slice(0, 120), addr: String(lk.addr || "").slice(0, 120), city: String(lk.city || "").slice(0, 60), cc: String(lk.cc || country || "").slice(0, 2), carrier }
+      : null;
+  return { country, method, locker };
+}
+// Paštomatas tinka tik savo vežėjui ir šaliai
+const shipLocker = () => {
+  const m = curMethod();
+  const l = state.ship.locker;
+  return isLocker(m) && l && l.carrier === m.carrier && (!l.cc || l.cc === state.ship.country) ? l : null;
+};
 function sanitizeGift(v) {
   return { on: !!v?.on && !!SET.gift, note: String(v?.note || "").slice(0, SET.gift?.noteMax || 200) };
 }
@@ -45,12 +92,16 @@ const cartCount = () => state.cart.reduce((n, l) => n + l.qty, 0);
 const cartSubtotal = () => state.cart.reduce((s, l) => s + linePrice(l) * l.qty, 0);
 const giftPrice = () => (state.gift.on && state.cart.length ? SET.gift.price : 0);
 // Nemokamo pristatymo riba skaičiuojama nuo prekių (be pakavimo) - taip pat ir serveryje
-const shipLeft = () => Math.max(0, SET.freeShippingFrom - cartSubtotal());
-const minShipping = () => Math.min(...SET.shipping.map(o => o.price));
+const freeFrom = (cc = state.ship.country) => Number(zoneOf(cc)?.freeFrom ?? SET.freeShippingFrom);
+const shipLeft = () => Math.max(0, freeFrom() - cartSubtotal());
+const minShipping = () => {
+  const p = (shipMethods().length ? shipMethods() : ZONES().flatMap(z => z.methods || [])).map(o => Number(o.price));
+  return p.length ? Math.min(...p) : 0;
+};
 const shipPrice = () => {
   if (shipLeft() <= 0) return 0;
-  const o = SET.shipping.find(x => x.id === state.ship.method);
-  return o ? o.price : null;
+  const o = curMethod();
+  return o ? Number(o.price) : null;
 };
 
 const listeners = new Set();
@@ -93,8 +144,8 @@ function clearCart() {
   state.cart = [];
   saveCart();
 }
-function setShip(method, locker = state.ship.locker) {
-  state.ship = sanitizeShip({ method, locker });
+function setShip(method, locker = state.ship.locker, country = state.ship.country) {
+  state.ship = sanitizeShip({ country, method, locker });
   store.set(SHIP_KEY, state.ship);
   emit("ship");
 }

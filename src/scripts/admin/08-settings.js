@@ -4,6 +4,25 @@
 // tas pats mechanizmas (admin/vitrina/korteles, admin/vitrina/istorija). Saugant sujungiama su naujausia versija
 // duomenų bazėje - kiti laukai neprarandami. Čia pat - „Daugiau“ ekranas (admin/daugiau).
 const COUNTRY_NAME = { LT: "Lietuva", LV: "Latvija", EE: "Estija" };
+// v33g: pristatymo būdai (vežėjas.tipas) ir zonos - kaip parduotuvėje (05-state.js ZONES)
+const ZONE_METHODS = [
+  ["omniva.locker", "Omniva paštomatas"],
+  ["lpexpress.locker", "LP Express paštomatas"],
+  ["omniva.courier", "Omniva kurjeris"],
+  ["lpexpress.courier", "LP Express kurjeris"],
+  ["dpd.courier", "DPD kurjeris"]
+];
+const zonesOf = S =>
+  Array.isArray(S.zones) && S.zones.length
+    ? S.zones
+    : [
+        {
+          id: "lt",
+          countries: S.countries || ["LT"],
+          freeFrom: S.freeShippingFrom,
+          methods: (S.shipping || []).map(o => ({ id: o.id, carrier: o.id === "omniva" ? "omniva" : "dpd", kind: o.id === "omniva" ? "locker" : "courier", price: o.price, days: String(o.days || "").replace(/[^\d-]/g, "") }))
+        }
+      ];
 const unfilled = v => (/^\[.*\]$/.test(String(v || "")) ? "" : v);
 const sfld = (name, label, value, { type = "text", ph = "", mode = "", max = 200 } = {}) =>
   fieldHTML(label, `<input name="${name}" type="${type}"${mode ? ` inputmode="${mode}"` : ""} maxlength="${max}" value="${esc(value ?? "")}"${ph ? ` placeholder="${esc(ph)}"` : ""} />`);
@@ -24,29 +43,81 @@ ${groupHTML(`${sfld("freeShippingFrom", "Nemokamai nuo, €", dec(S.freeShipping
     },
     sum: S => esc(S.shop || "")
   },
+  // v33g: pristatymas pagal šalis (settings.zones). Kiekviena zona - šalys (ISO kodai), nemokamo pristatymo riba ir būdai
+  // (vežėjas, kaina, trukmė d. d., ar galima kvepalams). Tuščia eilutė - naujas būdas / nauja zona. Seni shipping / countries
+  // perrašomi iš Lietuvos zonos ir visų šalių (suderinamumui).
   pristatymas: {
     title: "Pristatymas ir grąžinimas",
-    html: S => `${(S.shipping || [])
-      .map((o, i) =>
-        groupHTML(
-          `${sfld(`ship_name_${i}`, "Pavadinimas", o.name, { max: 60 })}${sfld(`ship_price_${i}`, "Kaina, €", dec(o.price), { mode: "decimal" })}${sfld(`ship_days_${i}`, "Trukmė", o.days, { max: 30 })}`,
-          { head: esc(o.id === "omniva" ? "Omniva paštomatas" : o.id === "dpd" ? "Kurjeris" : o.id) }
-        )
-      )
-      .join("")}
+    html: S => {
+      const zones = [...zonesOf(S), { id: "", countries: [], freeFrom: "", methods: [] }];
+      const ccName = cc => {
+        try {
+          return new Intl.DisplayNames(["lt-LT"], { type: "region" }).of(cc) || cc;
+        } catch {
+          return cc;
+        }
+      };
+      return `${zones
+        .map((z, i) => {
+          const ms = [...z.methods, {}];
+          return groupHTML(
+            `${sfld(`z_cc_${i}`, "Šalys", (z.countries || []).join(", "), { ph: "LV, EE", max: 200 })}${sfld(`z_free_${i}`, "Nemokamai nuo, €", dec(z.freeFrom), { mode: "decimal" })}${ms
+              .map(
+                (m, j) => `<div class="axZoneM">${fieldHTML(
+                  "Būdas",
+                  `<select name="z_m_${i}_${j}"><option value="">-</option>${ZONE_METHODS.map(([v, l]) => `<option value="${v}"${`${m.carrier}.${m.kind}` === v ? " selected" : ""}>${l}</option>`).join("")}</select>`
+                )}${sfld(`z_p_${i}_${j}`, "Kaina, €", m.price != null ? dec(m.price) : "", { mode: "decimal" })}${sfld(`z_d_${i}_${j}`, "Trukmė, d. d.", m.days || "", { ph: "2-4", max: 10 })}<label class="admCheck axCheckRow"><span>Galima siųsti kvepalus</span><input type="checkbox" name="z_k_${i}_${j}"${attr(m.perfume !== false, "checked")} /></label></div>`
+              )
+              .join("")}`,
+            {
+              head: esc(z.id ? (z.countries || []).map(ccName).join(", ") || "Zona" : "Nauja zona"),
+              foot: z.id ? "" : "Įrašykite šalių kodus (pvz. NO, CH) ir bent vieną būdą."
+            }
+          );
+        })
+        .join("")}
 ${groupHTML(`${sfld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1-2 d. d.", max: 30 })}${sfld("returnDays", "Grąžinimas per, d.", S.returnDays, { mode: "numeric" })}`, { head: "Terminai" })}
-<h2 class="igHead">Šalys</h2><div class="ig">${Object.entries(COUNTRY_NAME)
-      .map(([cc, name]) => `<label class="admCheck axCheckRow"><span>${name}</span><input type="checkbox" name="countries" value="${cc}"${attr((S.countries || []).includes(cc), "checked")} /></label>`)
-      .join("")}</div>`,
+<p class="igFoot">Šalių kodai - ISO (LT, LV, DE, GB…). Kvepaluose yra alkoholio: būdams, kurie veža lėktuvu (pvz. į salas), nuimkite „Galima siųsti kvepalus“ - kvepalams jie nebus siūlomi.</p>`;
+    },
     read: (f, S, form) => {
-      const shipping = (S.shipping || []).map((o, i) => ({ ...o, name: f[`ship_name_${i}`].value.trim() || o.name, price: money(f, `ship_price_${i}`), days: f[`ship_days_${i}`].value.trim() }));
-      const countries = new FormData(form).getAll("countries");
-      const next = { shipping, countries, dispatch: f.dispatch.value.trim(), returnDays: int(f, "returnDays") };
-      return { next, errors: [shipping.some(o => !(o.price >= 0)) && "Pristatymo kaina - skaičius", !countries.length && "Pasirinkite bent vieną šalį", !(next.returnDays >= 0) && "Grąžinimo terminas - skaičius"].filter(Boolean) };
+      const errors = [];
+      const seen = new Set();
+      const zones = [];
+      const n = zonesOf(S).length + 1;
+      for (let i = 0; i < n; i++) {
+        const countries = [...new Set(f[`z_cc_${i}`].value.toUpperCase().split(/[^A-Z]+/).filter(c => /^[A-Z]{2}$/.test(c)))];
+        const methods = [];
+        for (let j = 0; f[`z_m_${i}_${j}`]; j++) {
+          const v = f[`z_m_${i}_${j}`].value;
+          if (!v) continue;
+          const [carrier, kind] = v.split(".");
+          const price = money(f, `z_p_${i}_${j}`);
+          if (!(price >= 0)) errors.push("Pristatymo kaina - skaičius");
+          const id = methods.some(m => m.id === carrier) ? `${carrier}-${kind}` : carrier;
+          methods.push({ id, carrier, kind, price, days: f[`z_d_${i}_${j}`].value.replace(/[^\d-]/g, ""), perfume: f[`z_k_${i}_${j}`].checked });
+        }
+        if (!countries.length && !methods.length) continue;
+        if (!countries.length) errors.push("Zonai nurodykite šalis");
+        if (!methods.length) errors.push(`Zonai ${countries.join(", ")} pridėkite bent vieną būdą`);
+        for (const c of countries) {
+          if (seen.has(c)) errors.push(`Šalis ${c} - keliose zonose`);
+          seen.add(c);
+        }
+        const free = money(f, `z_free_${i}`);
+        const old = zonesOf(S)[i];
+        zones.push({ id: old?.id || countries.join("-").toLowerCase(), countries, freeFrom: free >= 0 ? free : S.freeShippingFrom, methods });
+      }
+      if (!zones.length) errors.push("Pridėkite bent vieną zoną");
+      const lt = zones.find(z => z.countries.includes("LT")) || zones[0];
+      const shipping = (lt?.methods || []).map(m => ({ id: m.id, name: ZONE_METHODS.find(x => x[0] === `${m.carrier}.${m.kind}`)?.[1] || m.id, price: m.price, days: m.days ? `${m.days} d. d.` : "" }));
+      const next = { zones, shipping, countries: [...seen], freeShippingFrom: lt?.freeFrom ?? S.freeShippingFrom, dispatch: f.dispatch.value.trim(), returnDays: int(f, "returnDays") };
+      if (!(next.returnDays >= 0)) errors.push("Grąžinimo terminas - skaičius");
+      return { next, errors: [...new Set(errors)] };
     },
     sum: S => {
-      const p = (S.shipping || []).map(o => Number(o.price) || 0);
-      return p.length ? `${plural(p.length, "būdas", "būdai", "būdų")} · nuo ${eur(Math.min(...p))}` : "-";
+      const z = zonesOf(S);
+      const c = z.reduce((k, x) => k + (x.countries || []).length, 0);
+      return z.length ? `${plural(c, "šalis", "šalys", "šalių")} · ${plural(z.length, "zona", "zonos", "zonų")}` : "-";
     }
   },
   meginukai: {

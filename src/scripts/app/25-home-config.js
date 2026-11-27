@@ -138,7 +138,7 @@ const SLIDE_PRESETS = {
         text: [
           nb(t("slide.c1")),
           t("pd.dispatch", { d: nb(dispatchText()) }),
-          t("nav.freeFrom", { price: eurShort(SET.freeShippingFrom) }),
+          t("nav.freeFrom", { price: eurShort(freeFrom()) }),
           nb(t("pd.returns", { n: SET.returnDays || 14 }))
         ].join("\n"),
         cta: t("type.kvepalai.title"),

@@ -531,6 +531,10 @@ a.mlItem:hover img {
   font-weight: 600;
   color: #000;
 }
+/* v33g: kelios pastraipos (kvepalams - ir įspėjimas apie alkoholį) */
+.pdNotice p + p {
+  margin-top: 8px;
+}
 .pdAccs {
   margin-top: 44px;
 }

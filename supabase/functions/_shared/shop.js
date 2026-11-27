@@ -32,8 +32,17 @@ export const TXT = {
     pcs: "1 vnt.",
     gift: "Dovanų pakavimas",
     free: "{name} - nemokamai",
-    lockerMsg: "Siunta - į Omniva paštomatą: {name}.",
-    locker: "Omniva paštomatas",
+    lockerMsg: "Siunta - į paštomatą: {name}.",
+    locker: "Paštomatas",
+    "omniva.locker": "Omniva paštomatas",
+    "lpexpress.locker": "LP Express paštomatas",
+    "omniva.courier": "Omniva kurjeris iki durų",
+    "lpexpress.courier": "LP Express kurjeris iki durų",
+    "dpd.courier": "DPD kurjeris iki durų",
+    no_country: "Pasirinkite pristatymo šalį",
+    bad_method: "Pasirinkite pristatymo būdą",
+    method_perfume: "Šiuo būdu kvepalų siųsti negalime (juose yra alkoholio) - pasirinkite kitą",
+    locker_needed: "Pasirinkite paštomatą",
     bad_qty: "Neteisingas kiekis",
     disc_invalid: "Atradimų rinkinyje turi būti skirtingi kvapai - atnaujinkite puslapį",
     disc_out: "{name} laikinai išparduotas - pakeiskite rinkinį",
@@ -67,8 +76,17 @@ export const TXT = {
     pcs: "1 pc",
     gift: "Gift wrapping",
     free: "{name} - free",
-    lockerMsg: "Delivery to Omniva parcel locker: {name}.",
-    locker: "Omniva parcel locker",
+    lockerMsg: "Delivery to parcel locker: {name}.",
+    locker: "Parcel locker",
+    "omniva.locker": "Omniva parcel locker",
+    "lpexpress.locker": "LP Express parcel locker",
+    "omniva.courier": "Omniva courier to your door",
+    "lpexpress.courier": "LP Express courier to your door",
+    "dpd.courier": "DPD courier to your door",
+    no_country: "Please choose your delivery country",
+    bad_method: "Please choose a delivery method",
+    method_perfume: "We can't ship perfume with this method (it contains alcohol) - please choose another",
+    locker_needed: "Please choose a parcel locker",
     bad_qty: "Invalid quantity",
     disc_invalid: "The discovery set must contain different fragrances - please refresh the page",
     disc_out: "{name} is temporarily sold out - please change your set",
@@ -104,6 +122,19 @@ const fail = (status, lang, code, vars) => json(status, { error: tx(lang, code, 
 // Bazės įrašo tekstas kalba (products.i18n.en.name …), nėra - lietuviškas
 const loc = (lang, o, k) => (lang !== "lt" && String(o?.i18n?.[lang]?.[k] || "").trim()) || o?.[k] || "";
 const setLoc = (lang, S, path, fallback) => (lang !== "lt" && String(path.reduce((x, k) => x?.[k], S?.i18n?.[lang]) || "").trim()) || fallback;
+// v33g: pristatymo zonos (settings.zones); senas nustatymas - viena zona iš shipping + countries
+export function shipZones(S) {
+  if (Array.isArray(S?.zones) && S.zones.length)
+    return S.zones.map(z => ({ ...z, countries: (z.countries || []).map(c => String(c).toUpperCase()), methods: z.methods || [] }));
+  return [
+    {
+      id: "default",
+      countries: S?.countries || ["LT"],
+      freeFrom: S?.freeShippingFrom,
+      methods: (S?.shipping || []).map(o => ({ ...o, name: undefined, carrier: o.id === "omniva" ? "omniva" : "dpd", kind: o.id === "omniva" ? "locker" : "courier" }))
+    }
+  ];
+}
 // Talpos pavadinimas (v15): sizes[].unit - "g" (žvakės), "vnt" (elektrinis difuzorius), kitaip ml
 const sizeName = (p, ml, lang = "lt") => {
   if (ml === SAMPLE_ML && !TYPE_ONE[p.type]) return tx(lang, "sample");
@@ -222,6 +253,7 @@ export function createShop(env) {
     const items = Array.isArray(body?.items) ? body.items.slice(0, 30) : [];
     const lines = [];
     let subtotal = 0;
+    let hasPerfume = false; // v33g: kvepaluose yra alkoholio - būdai su perfume: false negalimi
     let sampleCredit = 0;
     for (const it of items) {
       const qty = Math.round(Number(it?.qty));
@@ -233,6 +265,7 @@ export function createShop(env) {
         const out = picks.map(id => BY_ID.get(id)).find(p => !inStock(p));
         if (out) return fail(409, lang, "disc_out", { name: loc(lang, out, "name") });
         subtotal += DISC.price * qty;
+        hasPerfume = true;
         sampleCredit += cents(DISC.price) * qty;
         lines.push({
           quantity: qty,
@@ -255,6 +288,7 @@ export function createShop(env) {
       if (!inStock(p)) return fail(409, lang, "out_of_stock", { name: loc(lang, p, "name") });
       if (p.stock != null && ml !== SAMPLE_ML && qty > p.stock) return fail(409, lang, "low_stock", { name: loc(lang, p, "name"), n: p.stock });
       subtotal += price * qty;
+      if (!TYPE_ONE[p.type]) hasPerfume = true;
       if (ml === SAMPLE_ML) sampleCredit += cents(price) * qty;
       lines.push({
         quantity: qty,
@@ -280,19 +314,37 @@ export function createShop(env) {
     }
     if (sampleCredit && S.sampleCredit) metadata.sample_credit_cents = String(sampleCredit);
 
-    const free = subtotal >= S.freeShippingFrom;
-    const method = (S.shipping || []).find(o => o.id === body?.shipping?.method) || null;
+    // v33g: pristatymas pagal šalis (settings.zones; be jų - senas shipping + countries kaip viena zona)
+    const zones = shipZones(S);
+    // šalis nenurodyta (senesnė programėlės versija pirkėjo telefone) - Lietuva
+    const cc = String(body?.shipping?.country || (zones.some(z => z.countries.includes("LT")) ? "LT" : zones[0]?.countries[0] || "")).toUpperCase();
+    const zone = zones.find(z => z.countries.includes(cc));
+    if (!zone) return fail(400, lang, "no_country");
+    const allowed = zone.methods.filter(m => m.on !== false && (m.perfume !== false || !hasPerfume));
+    const asked = zone.methods.find(m => m.id === body?.shipping?.method && m.on !== false) || null;
+    if (asked && asked.perfume === false && hasPerfume) return fail(400, lang, "method_perfume");
+    if (!allowed.length) return fail(400, lang, "bad_method");
+    const method = asked && allowed.includes(asked) ? asked : null;
+    const free = subtotal >= Number(zone.freeFrom ?? S.freeShippingFrom);
     const lk = body?.shipping?.locker;
     const locker =
-      method?.id === "omniva" && lk && /^\d{4,6}$/.test(String(lk.zip))
-        ? { zip: String(lk.zip), name: clean(lk.name, 120), addr: clean(lk.addr, 120), city: clean(lk.city, 60) }
+      method?.kind === "locker" && lk
+        ? method.carrier === "omniva"
+          ? /^\d{4,6}$/.test(String(lk.zip)) && { zip: String(lk.zip), name: clean(lk.name, 120), addr: clean(lk.addr, 120), city: clean(lk.city, 60) }
+          : clean(lk.name, 120).length >= 3 && { zip: "", name: clean(lk.name, 120), addr: "", city: "" }
         : null;
+    if (method?.kind === "locker" && method.carrier !== "omniva" && !locker) return fail(400, lang, "locker_needed");
+    const mName = o => o.name?.trim() || tx(lang, `${o.carrier}.${o.kind}`);
+    const dayRange = o => {
+      const m = String(o.days || "").match(/(\d+)(?:\s*-\s*(\d+))?/);
+      return m ? [Number(m[1]), Number(m[2] || m[1])] : [1, 3];
+    };
     const rate = o => ({
       shipping_rate_data: {
         type: "fixed_amount",
-        display_name: free ? tx(lang, "free", { name: setLoc(lang, S, ["shipping", o.id, "name"], o.name) }) : setLoc(lang, S, ["shipping", o.id, "name"], o.name),
+        display_name: free ? tx(lang, "free", { name: mName(o) }) : mName(o),
         fixed_amount: { amount: free ? 0 : cents(o.price), currency },
-        delivery_estimate: { minimum: { unit: "business_day", value: 1 }, maximum: { unit: "business_day", value: 3 } },
+        delivery_estimate: { minimum: { unit: "business_day", value: dayRange(o)[0] }, maximum: { unit: "business_day", value: dayRange(o)[1] } },
         metadata: { method: o.id }
       }
     });
@@ -301,7 +353,7 @@ export function createShop(env) {
       mode: "payment",
       locale: lang === "en" ? "en-GB" : "lt",
       line_items: lines,
-      shipping_options: (method ? [method] : S.shipping).map(rate),
+      shipping_options: (method ? [method] : allowed.filter(m => m.kind !== "locker")).map(rate),
       phone_number_collection: { enabled: true },
       billing_address_collection: "auto",
       allow_promotion_codes: true,
@@ -310,11 +362,13 @@ export function createShop(env) {
       metadata
     };
     if (method) metadata.ship_method = method.id;
+    metadata.country = cc;
+    if (method) metadata.carrier = `${method.carrier}.${method.kind}`;
     if (locker) {
-      metadata.locker = `${locker.zip} · ${locker.name} · ${[locker.addr, locker.city].filter(Boolean).join(", ")}`.slice(0, 490);
+      metadata.locker = `${tx("lt", `${method.carrier}.locker`)} · ${[locker.zip, locker.name, [locker.addr, locker.city].filter(Boolean).join(", ")].filter(Boolean).join(" · ")}`.slice(0, 490);
       params.custom_text = { submit: { message: tx(lang, "lockerMsg", { name: [locker.name, locker.addr, locker.city].filter(Boolean).join(", ") }) } };
     } else {
-      params.shipping_address_collection = { allowed_countries: S.countries || ["LT"] };
+      params.shipping_address_collection = { allowed_countries: [cc] };
     }
     // Prisijungęs pirkėjas: užsakymas susiejamas su paskyra, Stripe įrašo jo el. paštą ir adresą
     const user = await userFrom(req);
@@ -417,6 +471,8 @@ export function createShop(env) {
       amount_shipping: s.shipping_cost?.amount_total || 0,
       shipping: {
         method: m.ship_method || "",
+        ...(m.country ? { country: m.country } : {}),
+        ...(m.carrier ? { carrier: m.carrier } : {}),
         ...(m.locker ? { locker: m.locker } : {}),
         ...(a ? { address: [sd.name, a.line1, a.line2, `${a.postal_code || ""} ${a.city || ""}`.trim(), a.country].filter(Boolean).join(", ") } : {})
       },
@@ -466,7 +522,7 @@ export function createShop(env) {
     const rows = o.items.map(i => `<tr><td>${escHtml(i.name)}</td><td align="right">${i.qty}</td><td align="right">${eurTxt(i.total)}</td></tr>`).join("");
     return wrapMail(`<h2 style="margin:0 0 8px">Naujas užsakymas ${o.ref} - ${eurTxt(o.amount_total)}</h2>
 <p><b>Pirkėjas:</b> ${escHtml(o.name)} · ${escHtml(o.email)} · ${escHtml(o.phone)}${o.lang === "en" ? " · kalba: anglų (EN)" : ""}</p>
-<p><b>Pristatymas:</b> ${escHtml(o.shipping.method)} - ${escHtml(o.shipping.locker ? `Omniva paštomatas: ${o.shipping.locker}` : o.shipping.address || "-")} (${eurTxt(o.amount_shipping)})</p>
+<p><b>Pristatymas:</b> ${escHtml(o.shipping.method)} - ${escHtml(o.shipping.locker ? o.shipping.locker : o.shipping.address || "-")}${o.shipping.country ? ` (${escHtml(o.shipping.country)})` : ""} (${eurTxt(o.amount_shipping)})</p>
 ${o.gift ? `<p><b>Dovanų pakavimas.</b> Rašteliukas: ${escHtml(o.gift.note || "-")}</p>` : ""}
 <table cellpadding="6" style="border-collapse:collapse;min-width:360px">${rows}</table>
 ${credit ? `<p>Pirkėjui sukurtas mėginukų kodas <b>${credit.code}</b> (${eurTxt(credit.amount)}).</p>` : ""}

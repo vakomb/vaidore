@@ -252,7 +252,10 @@ function accAddress(body) {
 <label class="field"><span>${t("form.line1")}</span><input name="line1" autocomplete="address-line1" maxlength="120" value="${esc(a.line1 || "")}" /></label>
 <div class="fieldRow"><label class="field"><span>${t("form.city")}</span><input name="city" autocomplete="address-level2" maxlength="60" value="${esc(a.city || "")}" /></label>
 <label class="field"><span>${t("form.postal")}</span><input name="postal" autocomplete="postal-code" maxlength="12" value="${esc(a.postal || "")}" /></label></div>
-<label class="field"><span>${t("form.country")}</span><select name="country">${SET.countries.map(c => `<option value="${c}"${(a.country || "LT") === c ? " selected" : ""}>${esc(regionName(c))}</option>`).join("")}</select></label>
+<label class="field"><span>${t("form.country")}</span><select name="country">${ALL_COUNTRIES()
+    .sort((x, y) => regionName(x).localeCompare(regionName(y), LOCALE))
+    .map(c => `<option value="${c}"${(a.country || state.ship.country || "LT") === c ? " selected" : ""}>${esc(regionName(c))}</option>`)
+    .join("")}</select></label>
 <small class="formHint">${t("acc.addrHint")}</small>
 <p class="formErr" role="alert" hidden></p><button class="btn primary" type="submit">${t("acc.saveAddr")}</button></form>`;
   bindAccForm(body, f => saveProfile({ address: { name: f.name.trim(), line1: f.line1.trim(), city: f.city.trim(), postal: f.postal.trim(), country: f.country } }));

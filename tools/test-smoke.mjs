@@ -1094,6 +1094,23 @@ await run({ width: 1440, height: 900 });
     await open(page, `${A}en/perfumes/vanor`);
     const pdEn = await page.evaluate(() => [document.querySelector(".pdText")?.textContent || "", document.querySelector(".pdNotes, .ntGrid")?.textContent || ""]);
     check(/Tobacco leaf and spices open into creamy vanilla/.test(pdEn[0]) && /Vanilla|Tobacco/.test(pdEn[1]), `EN ${tag}: prekės aprašymas ir natos - angliškai (vertimai iš i18n)`);
+    // v33g: pristatymas pagal šalis - krepšelyje šalis, jos būdai ir kainos; kvepalų įspėjimas apie alkoholį
+    await page.evaluate(() => {
+      localStorage.setItem("vaidore_cart_v1", JSON.stringify([{ id: "vanor", ml: 33, qty: 1 }]));
+      localStorage.setItem("vaidore_ship_v1", JSON.stringify({ country: null, method: null, locker: null }));
+    });
+    await open(page, `${A}en/cart`);
+    await page.click("[data-ship-country]");
+    await page.waitForSelector('#sheetBody [data-cc="DE"]');
+    await page.fill("#ccQ", "germ");
+    const ccVisible = await page.locator("#sheetBody [data-cc]:visible").count();
+    await page.click('#sheetBody [data-cc="DE"]');
+    await page.waitForTimeout(250);
+    const de = await page.evaluate(() => [...document.querySelectorAll("#cartRoot [data-ship]")].map(b => b.textContent.replace(/\s+/g, " ").trim()));
+    check(ccVisible === 1 && de.length === 1 && /DPD courier to your door/.test(de[0]) && /€9\.99/.test(de[0]) && /3-6 business days/.test(de[0].replace(/\u2060/g, "")), `EN ${tag}: šalis Vokietija (paieška „germ“) - DPD kurjeris €9.99, 3-6 d. d. (${de.join(" | ")})`);
+    await open(page, `${A}en/perfumes/vanor`);
+    check(/Contains alcohol: flammable/.test(await page.locator(".pdNotice").textContent()), `EN ${tag}: kvepalų puslapyje - įspėjimas apie alkoholį`);
+    await page.evaluate(() => localStorage.setItem("vaidore_cart_v1", "[]"));
     const cartH = await page.evaluate(() => [document.querySelector("#cartBtn .iconLbl")?.textContent, document.querySelector(".ftrLegal a")?.textContent]);
     check(cartH[0] === "Bag" && cartH[1] === "Terms of sale", `EN ${tag}: header'is ir poraštė angliškai (${cartH.join(", ")})`);
     await page.context().close();

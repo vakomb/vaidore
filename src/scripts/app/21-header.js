@@ -14,7 +14,7 @@ const note = { i: 0, t: 0, paused: false };
 const fmtNote = tx => esc(tx).replace(/\*([^*]+)\*/g, "<b>$1</b>");
 // Numatytosios žinutės (tikri nustatymai) - tokiu pat formatu kaip administravime
 function autoNoteItems() {
-  const free = eurShort(SET.freeShippingFrom);
+  const free = eurShort(freeFrom());
   const sample = eur(Math.min(...PRODUCTS.filter(hasSample).map(p => p.sample)));
   const days = nb(dispatchText());
   const ret = nb(t("top.days", { n: SET.returnDays || 14 }));
@@ -188,7 +188,7 @@ function drawerHTML() {
   const who = auth.user ? auth.profile?.name || auth.user.email || t("nav.myAccount") : t("nav.signIn");
   const initials = auth.user ? (auth.profile?.name || auth.user.email || "?").trim().slice(0, 1).toUpperCase() : "";
   const left = shipLeft();
-  const free = Number(SET.freeShippingFrom) || 0;
+  const free = freeFrom() || 0;
   const pct = state.cart.length && free ? Math.min(100, Math.round(((free - Math.max(0, left)) / free) * 100)) : 0;
   return `<header class="drawerHead"><a class="logo" href="./" data-nav aria-label="${t("nav.homeAria", { shop: "Vaidore" })}"><span>${logoHTML()}</span></a><button class="iconBtn" type="button" data-sheet-close aria-label="${t("nav.closeMenu")}">${glyph("x")}</button></header>
 <div class="drawerBody">
@@ -215,7 +215,7 @@ ${cats.length ? `<p class="mHead">${t("shop.collections")}</p><ul class="mGroup"
 ${langRowHTML()}
 </div>
 <footer class="drawerFoot"><p class="navShip">${glyph("truck")}<span>${
-    !state.cart.length ? t("nav.freeFrom", { price: `<b>${eurShort(SET.freeShippingFrom)}</b>` }) : left > 0 ? t("cart.freeLeft", { sum: `<b>${eur(left)}</b>` }) : `<b>${t("cart.freeDone")}</b>`
+    !state.cart.length ? t("nav.freeFrom", { price: `<b>${eurShort(freeFrom())}</b>` }) : left > 0 ? t("cart.freeLeft", { sum: `<b>${eur(left)}</b>` }) : `<b>${t("cart.freeDone")}</b>`
   }</span></p>${state.cart.length ? `<span class="mShipBar" aria-hidden="true"><i style="width:${pct}%"></i></span>` : ""}</footer>`;
 }
 function openDrawer() {
@@ -375,7 +375,7 @@ ${grp("Vaidore", [a("apie-mus", t("nav.story")), a("atsiliepimai", t("pd.reviews
 <div class="ftrBrand"><a class="logo" href="./" data-nav aria-label="${esc(t("nav.homeAria", { shop: SET.shop }))}"><span>${logoHTML()}</span></a>
 <ul class="ftrContact"><li>${glyph("mail")}<a href="mailto:${esc(SET.company.email)}">${esc(SET.company.email)}</a></li>${
     ph ? `<li>${glyph("phone")}<a href="tel:${esc(ph.replace(/\s+/g, ""))}">${esc(ph)}</a></li>` : ""
-  }<li>${glyph("truck")}<span>${esc(nb(t("pd.dispatch", { d: dispatchText() })))} · ${t("ftr.freeFrom", { price: eurShort(SET.freeShippingFrom) })}</span></li></ul></div>
+  }<li>${glyph("truck")}<span>${esc(nb(t("pd.dispatch", { d: dispatchText() })))} · ${t("ftr.freeFrom", { price: eurShort(freeFrom()) })}</span></li></ul></div>
 </div>
 <div class="ftrPay" aria-label="${t("ftr.payAria")}">${PAY_MARKS}</div>
 <div class="ftrBottom"><small>${companyLine()}</small><small class="ftrLegal">${a("salygos", t("ftr.terms"), false)}${a("privatumas", t("ftr.privacy"), false)}</small>${langFooterHTML()}</div>`;
