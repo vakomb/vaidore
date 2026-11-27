@@ -499,7 +499,7 @@ async function run(viewport) {
   check(
     (await page.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "180 g" &&
       (await page.locator("#productRoot .pdLabel").first().textContent()) === "Svoris" &&
-      (await page.locator("#productRoot .pdSpecs").textContent()).includes("Sojų vaškas") &&
+      /Sojų\s*vaškas/.test(await page.locator("#productRoot .pdSpecs").textContent()) &&
       /40\s*val\./.test(await page.locator("#productRoot .pdSpecs").textContent()) &&
       !(await accTitles()).includes("Savybės"),
     "žvakės puslapis: svoris 180 g, savybės kortelėmis (degimo trukmė, vaškas)"
