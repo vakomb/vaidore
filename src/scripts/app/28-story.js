@@ -329,7 +329,9 @@ function noticeHTML(cfg, p) {
 // Visi turinio blokai + išskleidžiamos dalys (pabaigoje). details - jau paruoštos dalys (10-product.js)
 function storyHTML(p, details = "") {
   const cfg = pdpOf(typeOf(p));
-  const blocks = [notesBlockHTML(p, cfg), traitsBlockHTML(p, cfg), moodBlockHTML(p, cfg), stepsBlockHTML(cfg), whereBlockHTML(cfg), sampleBlockHTML(p, cfg), noticeHTML(cfg, p)].filter(Boolean);
+  // v34d: aromalempai ir kaitinamam vaškui - interaktyvus „Kaip tai veikia“ (30-burner.js) vietoj įprastų žingsnių
+  const demo = demoBlockHTML(p, cfg);
+  const blocks = [notesBlockHTML(p, cfg), traitsBlockHTML(p, cfg), moodBlockHTML(p, cfg), demo || stepsBlockHTML(cfg), whereBlockHTML(cfg), sampleBlockHTML(p, cfg), noticeHTML(cfg, p)].filter(Boolean);
   return `<div class="pdStory">${blocks.join("")}${details ? `<div class="accs pdAccs">${details}</div>` : ""}</div>`;
 }
 
@@ -337,6 +339,7 @@ function storyHTML(p, details = "") {
 let storyObs = null;
 function bindStory(root) {
   storyObs?.disconnect();
+  bindDemo(root);
   const els = $$("[data-rv]", root);
   if (reduceMotion() || !("IntersectionObserver" in window)) return;
   els.forEach(el => el.classList.add("rv"));

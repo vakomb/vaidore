@@ -1,0 +1,11 @@
+-- v34d: aromalempa MANUS (Allegro: keraminė, blizgios juodos skulptūrinės rankos su auksiniu dubenėliu, 10 × 12 cm, su padėklu;
+-- kaitinama arbatine žvakute, kuri į komplektą neįeina). 14,99 €. Nuotraukos dar nėra - parduotuvė rodo aromalempos piešinį.
+insert into public.products (id, name, type, scent_id, conc, gender, family, tagline, description, notes, longevity, sillage, sizes, sample, look, badge, rank, stock, images, visible, inspired, inspired_image, attrs, i18n)
+values ('aromalempa-manus', 'Aromalempa MANUS', 'aromalempos', null, 'EDP', 'unisex', 'medienos', 'Keraminė aromalempa vaškui ir aliejams',
+  'Aromalempa MANUS - keraminė aromalempa kaitinamam vaškui ir aromatiniams aliejams: blizgios juodos skulptūrinės rankos laiko auksinį dubenėlį. Dydis - 10 × 12 cm. Į dubenėlį įdėkite 1-2 vaško kubelius arba įpilkite vandens su keliais lašais aliejaus, apačioje uždekite arbatinę žvakutę - šiluma lėtai ištirpdo vašką ir kvapas tolygiai pasklinda po kambarį. Kartu - jauki šviesa ir išskirtinis interjero akcentas. Arbatinė žvakutė į komplektą neįeina.',
+  '{"top": [], "heart": [], "base": []}'::jsonb, 3, 3, '[{"ml": 1, "unit": "vnt", "price": 14.99}]'::jsonb, 0,
+  '{"cap": "gold", "tint": "#f3ece4", "shape": "rect", "liquid": "#c9a27a"}'::jsonb, 'Naujiena', 90, null, '{}'::text[], true, '', '',
+  '{"material": "Keramika", "dims": "10 × 12", "heat": "Arbatinė žvakutė"}'::jsonb,
+  '{"en": {"name": "Wax burner MANUS", "tagline": "Ceramic burner for wax melts and oils", "badge": "New", "description": "Wax burner MANUS - a ceramic burner for wax melts and fragrance oils: glossy black sculpted hands hold a gold bowl. Size - 10 × 12 cm. Place 1-2 wax cubes in the bowl or add water with a few drops of oil, then light a tealight underneath - the gentle heat slowly melts the wax and the scent spreads evenly through the room. A warm glow and a striking décor piece in one. Tealight not included."}}'::jsonb)
+on conflict (id) do update set name = excluded.name, type = excluded.type, tagline = excluded.tagline, description = excluded.description, sizes = excluded.sizes,
+  look = excluded.look, badge = excluded.badge, rank = excluded.rank, attrs = excluded.attrs, i18n = excluded.i18n;

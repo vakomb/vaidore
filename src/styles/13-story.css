@@ -700,3 +700,194 @@ a.mlItem:hover img {
     margin-top: 64px;
   }
 }
+
+/* ── v34d: „Kaip tai veikia“ - interaktyvi aromalempos scena (30-burner.js): žingsniai 1-2-3, „Vaškas / Aliejus“ ── */
+.demo {
+  display: grid;
+  gap: 14px;
+}
+.demoStage {
+  display: grid;
+  place-items: center;
+  padding: 10px 12px 6px;
+  border-radius: var(--r-card);
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+.demoSvg {
+  width: min(100%, 300px);
+  height: auto;
+  overflow: visible;
+}
+.demoSvg .dCube,
+.demoSvg .dDrops,
+.demoSvg .dFlame,
+.demoSvg .dGlow,
+.demoSvg .dPool,
+.demoSvg .dWater,
+.demoSvg .dWaves {
+  transform-box: fill-box;
+  transition: transform 0.9s var(--spring), opacity 0.6s ease;
+}
+.demoSvg .dCube {
+  transform-origin: 50% 100%;
+}
+.demoSvg .dFlame,
+.demoSvg .dGlow,
+.demoSvg .dPool,
+.demoSvg .dWater,
+.demoSvg .dWaves,
+.demoSvg .dDrops {
+  opacity: 0;
+}
+.demoSvg .dFlame {
+  transform-origin: 50% 100%;
+}
+/* Vaškas: kubelis nusileidžia į dubenėlį, paskui ištirpsta - lieka skystas paviršius */
+.demo[data-mode="wax"]:not([data-step="0"]) .dCube {
+  transform: translateY(52px);
+}
+.demo[data-mode="wax"][data-step="3"] .dCube {
+  transform: translateY(54px) scaleY(0.12);
+  opacity: 0;
+  transition-duration: 1.6s, 1.4s;
+}
+.demo[data-mode="wax"][data-step="3"] .dPool {
+  opacity: 1;
+  transition-delay: 0.3s;
+}
+/* Aliejus: vanduo dubenėlyje ir lašai */
+.demo[data-mode="oil"] .dCube {
+  opacity: 0;
+}
+.demo[data-mode="oil"]:not([data-step="0"]) .dWater {
+  opacity: 1;
+}
+.demo[data-mode="oil"][data-step="0"] .dDrops {
+  opacity: 1;
+}
+.demo[data-mode="oil"]:not([data-step="0"]) .dDrops {
+  transform: translateY(56px);
+  opacity: 0;
+}
+/* Žvakutė: liepsna ir šilta šviesa (mirga) */
+.demo[data-step="2"] .dFlame,
+.demo[data-step="3"] .dFlame {
+  opacity: 1;
+  animation: demoFlicker 1.6s ease-in-out infinite;
+}
+.demo[data-step="2"] .dGlow,
+.demo[data-step="3"] .dGlow {
+  opacity: 1;
+}
+/* Kvapas kyla */
+.demo[data-step="3"] .dWaves {
+  opacity: 1;
+  animation: demoRise 2.8s ease-in-out infinite;
+}
+@keyframes demoFlicker {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(0.94, 1.06);
+  }
+  70% {
+    transform: scale(1.04, 0.96);
+  }
+}
+@keyframes demoRise {
+  0% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+}
+.demoMode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--bg-soft);
+}
+.demoMode button {
+  min-height: 40px;
+  border-radius: var(--r-pill);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink2);
+  transition: background var(--ease), color var(--ease), box-shadow var(--ease);
+}
+.demoMode button[aria-checked="true"] {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.demoSteps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.demoStep {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 84px;
+  padding: 12px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: #fff;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  color: #000;
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+.demoStep i {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+}
+.demoStep.done i {
+  background: var(--brand);
+  color: #fff;
+}
+.demoStep[aria-pressed="true"] {
+  border-color: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+.demoCap {
+  min-height: 3.1em;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink2);
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo .dFlame,
+  .demo .dWaves {
+    animation: none !important;
+  }
+  .demoSvg * {
+    transition: none !important;
+  }
+}

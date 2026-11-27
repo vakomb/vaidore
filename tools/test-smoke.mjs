@@ -1130,6 +1130,59 @@ await run({ width: 1440, height: 900 });
   }
   serverP.close();
 }
+// ── v34: namų purškiklis, kaitinamas vaškas, aromalempa - poros ir interaktyvus „Kaip tai veikia“ ──
+{
+  const base = cat.products.find(p => p.id === "vanor");
+  const mk = (o) => ({ ...structuredClone(base), inspired: "", images: [], sample: 0, badge: null, reviews: [], scent: null, ...o });
+  const homeCat = structuredClone(cat);
+  homeCat.products.push(
+    mk({ id: "namu-purskiklis-test", name: "Namų purškiklis TEST", type: "purskikliai", sizes: [{ ml: 250, price: 12.99 }], attrs: { forTextile: true }, rank: 300, images: ["img/purskikliai/goodore.jpg"] }),
+    mk({ id: "kaitinamas-vaskas-test", name: "Kaitinamas vaškas TEST", type: "vaskai", sizes: [{ ml: 56, price: 4.99, unit: "g" }], attrs: { forBurner: true, wax: "Sojų vaškas" }, rank: 301 }),
+    mk({ id: "aromalempa-test", name: "Aromalempa TEST", type: "aromalempos", notes: { top: [], heart: [], base: [] }, sizes: [{ ml: 1, price: 14.99, unit: "vnt" }], attrs: { material: "Keramika", dims: "10 × 12", heat: "Arbatinė žvakutė" }, rank: 302 })
+  );
+  const homeFile = path.join(verify, "catalog-home.json");
+  fs.writeFileSync(homeFile, JSON.stringify(homeCat));
+  const siteH = path.join(verify, "site-home");
+  build(siteH, { CATALOG: homeFile });
+  const serverH = await startServer(siteH, 4184);
+  const { page: hp } = await newPage(siteH, { width: 430, height: 932 }, homeCat);
+  await open(hp, "http://localhost:4184/aromalempos/aromalempa-test");
+  await hp.waitForSelector("#productRoot [data-demo]");
+  check(
+    (await hp.locator("#productRoot .sizes").count()) === 0 &&
+      (await hp.locator("#productRoot .pdGal svg.burner").count()) === 1 &&
+      (await hp.locator("#productRoot .pdSpecs").textContent()).includes("Keramika") &&
+      (await hp.locator("#productRoot .pdForms .pdLabel").first().textContent()) === "Kaitinami vaškai šiai aromalempai" &&
+      (await hp.locator("#productRoot .pbDemo .pbT").textContent()) === "Kaip tai veikia",
+    "v34 aromalempa: be talpos, piešinys, savybės, vaškai šiai aromalempai, „Kaip tai veikia“"
+  );
+  await hp.click('#productRoot [data-demo-step="3"]');
+  const d3 = await hp.evaluate(() => [document.querySelector("[data-demo]").dataset.step, document.querySelector(".demoCap").textContent]);
+  await hp.click('#productRoot [data-demo-mode="oil"]');
+  await hp.click('#productRoot [data-demo-step="1"]');
+  const o1 = await hp.evaluate(() => [document.querySelector("[data-demo]").dataset.mode, document.querySelector(".demoCap").textContent]);
+  check(d3[0] === "3" && /ištirpsta/.test(d3[1]) && o1[0] === "oil" && /vandens/.test(o1[1]), "v34 aromalempa: žingsniai ir „Vaškas / Aliejus“ keičia sceną ir paaiškinimą");
+  await open(hp, "http://localhost:4184/vaskai/kaitinamas-vaskas-test");
+  await hp.waitForSelector("#productRoot [data-demo]");
+  check(
+    (await hp.locator("#productRoot .pdGal svg.wax").count()) === 1 &&
+      (await hp.locator("#productRoot [data-demo-mode]").count()) === 0 &&
+      (await hp.locator("#productRoot .pdFit").textContent()).includes("Tinka aromalempoms") &&
+      (await hp.locator("#productRoot .pdForms .pdLabel").first().textContent()) === "Tinkama aromalempa" &&
+      (await hp.locator("#productRoot .sizeOpt").allTextContents()).join().replace(/\u00a0/g, " ") === "56 g",
+    "v34 vaškas: plokštelės piešinys, „Tinka aromalempoms“, tinkama aromalempa, 56 g"
+  );
+  await open(hp, "http://localhost:4184/purskikliai/namu-purskiklis-test");
+  await hp.waitForSelector("#productRoot [data-add]");
+  check(
+    (await hp.locator("#productRoot .pdFit").textContent()).includes("Tinka užuolaidoms") &&
+      (await hp.locator("#productRoot .pbSteps .useStep").count()) === 3 &&
+      /antžeminiu/.test(await hp.locator("#productRoot .accs").textContent()),
+    "v34 purškiklis: tekstilė, 3 žingsniai, siunčiamas tik antžeminiu transportu"
+  );
+  await hp.context().close();
+  serverH.close();
+}
 await browser.close();
 serverA.close();
 serverB.close();

@@ -99,4 +99,4 @@ ${cubes}
 </svg>`;
 }
 // Paveikslas be nuotraukos: vaškui - plokštelė, kitiems - buteliukas
-const artSVG = p => (typeOf(p) === "vaskai" ? waxSVG(p) : bottleSVG(p));
+const artSVG = p => (typeOf(p) === "vaskai" ? waxSVG(p) : typeOf(p) === "aromalempos" ? burnerScene(p) : bottleSVG(p));
