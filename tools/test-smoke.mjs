@@ -1001,8 +1001,11 @@ await run({ width: 1440, height: 900 });
     ["en/index.html", "en/perfumes/index.html", `en/reed-diffusers/${DIF.id}.html`, "en/cart.html", "en/help.html", "en/account.html", "en/all-products.html"].every(f => fs.existsSync(path.join(siteA, f))) && !fs.existsSync(path.join(siteA, "en/admin.html")),
     "EN puslapiai surinkti angliškais adresais; administravimas - tik LT"
   );
-  // Kol angliška versija neparengta (enPublic: false) - noindex, be hreflang, ne sitemap'e
-  check(enP.includes('<meta name="robots" content="noindex" />') && !ltP.includes('rel="alternate" hreflang') && !fs.readFileSync(path.join(siteA, "sitemap.xml"), "utf8").includes("/en/"), "EN kol neparengta: noindex, be hreflang, ne sitemap.xml");
+  // enPublic: false - noindex, be hreflang, ne sitemap'e; true (v33f2 - paskelbta) - indeksuojama, hreflang, sitemap su EN
+  const { EN_PUBLIC: PUB } = await import("./i18n.mjs");
+  const smA = fs.readFileSync(path.join(siteA, "sitemap.xml"), "utf8");
+  if (PUB) check(!enP.includes('content="noindex"') && ltP.includes('rel="alternate" hreflang="en"') && smA.includes("/en/"), "EN paskelbta: indeksuojama, hreflang, sitemap.xml su EN");
+  else check(enP.includes('<meta name="robots" content="noindex" />') && !ltP.includes('rel="alternate" hreflang') && !smA.includes("/en/"), "EN kol neparengta: noindex, be hreflang, ne sitemap.xml");
   // Paskelbus (I18N_EN_PUBLIC=1): hreflang lt / en / x-default abiejose versijose, sitemap su EN
   const siteP = path.join(verify, "site-en-public");
   build(siteP, { CATALOG: shopFile, I18N_EN_PUBLIC: "1" });
@@ -1060,7 +1063,7 @@ await run({ width: 1440, height: 900 });
     await page.waitForURL(/\/kvepalai\/vanor\?ml=2$/);
     await page.waitForLoadState("networkidle").catch(() => {});
     const sw = await page.evaluate(() => [document.documentElement.lang, localStorage.getItem("vaidore_lang_v1"), document.cookie.includes("vaidore_lang=lt"), document.querySelector('#cartBtn [data-badge="cart"]').textContent, document.querySelector("#langSw").hidden]);
-    check(sw[0] === "lt" && sw[1] === '"lt"' && sw[2] && sw[3] === "1" && sw[4], `LT ↔ EN ${tag}: tas pats produktas ir parametrai, kalba įsiminta (localStorage + slapukas), krepšelis bendras, LT kol neparengta - be perjungiklio`);
+    check(sw[0] === "lt" && sw[1] === '"lt"' && sw[2] && sw[3] === "1" && sw[4] === !PUB, `LT ↔ EN ${tag}: tas pats produktas ir parametrai, kalba įsiminta (localStorage + slapukas), krepšelis bendras, perjungiklis LT - ${PUB ? "yra" : "nėra (neparengta)"}`);
     await open(page, `${A}en/perfumes/nera-tokio`);
     check((await view(page)) === "404" && (await page.evaluate(() => document.documentElement.lang)) === "en", `EN ${tag}: nežinomas adresas - 404 angliškai`);
     // v33b: sąsaja angliškai - jokių lietuviškų raidžių sąsajos elementuose (turinys iš duomenų bazės - 3 etapas)
