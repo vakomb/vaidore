@@ -26,7 +26,7 @@ function lockerRowHTML(l, on = false) {
   return `<button class="row" data-locker="${esc(l.zip)}" role="radio" aria-checked="${on}"><span class="rowIco" style="background:#F59E0B">${glyph("locker")}</span><span class="rowTxt">${esc(l.name)}<small>${esc([l.addr, l.city].filter(Boolean).join(", "))}</small></span>${on ? `<span class="tickIco">${glyph("check")}</span>` : ""}</button>`;
 }
 async function openLockerPicker() {
-  if (curMethod()?.carrier === "lpexpress") return openLpPicker();
+  if (curMethod() && curMethod().carrier !== "omniva") return openLpPicker();
   openSheet({
     title: t("locker.title"),
     html: `<div class="sheetPad lockerPick">
@@ -101,12 +101,15 @@ async function openLockerPicker() {
   draw();
 }
 
-// LP Express paštomatas (v33g): viešo sąrašo nėra - pirkėjas įrašo paštomato pavadinimą arba adresą (perduodama Stripe ir užsakymui)
+// LP Express ir DPD Pickup paštomatai (v33g, v33i): viešo sąrašo nėra - pirkėjas įrašo paštomato pavadinimą arba adresą
+// (perduodama Stripe ir užsakymui)
 function openLpPicker() {
   const cur = shipLocker();
+  const m = curMethod();
+  const ph = state.ship.country === "LT" && m?.carrier === "lpexpress" ? t("locker.lpPh") : t("locker.anyPh");
   openSheet({
-    title: t("locker.lpTitle"),
-    html: `<form class="sheetPad lockerPick" id="lpForm" novalidate><p class="qzHint">${t("locker.lpText")}</p><label class="field"><span>${t("locker.lpLabel")}</span><input name="lp" required minlength="3" maxlength="120" autocomplete="off" placeholder="${t("locker.lpPh")}" value="${esc(cur?.name || "")}" /></label><p class="formErr" role="alert" hidden></p><button class="btn primary block" type="submit">${t("common.save")}</button></form>`
+    title: methodName(m) || t("locker.lpTitle"),
+    html: `<form class="sheetPad lockerPick" id="lpForm" novalidate><p class="qzHint">${t("locker.lpText")}</p><label class="field"><span>${t("locker.lpLabel")}</span><input name="lp" required minlength="3" maxlength="120" autocomplete="off" placeholder="${ph}" value="${esc(cur?.name || "")}" /></label><p class="formErr" role="alert" hidden></p><button class="btn primary block" type="submit">${t("common.save")}</button></form>`
   });
   const f = $("#lpForm");
   f.elements.lp.focus();
@@ -119,7 +122,7 @@ function openLpPicker() {
       err.hidden = false;
       return;
     }
-    setShip(state.ship.method, { zip: "", name: v, addr: "", city: "", cc: state.ship.country, carrier: "lpexpress" });
+    setShip(state.ship.method, { zip: "", name: v, addr: "", city: "", cc: state.ship.country, carrier: m?.carrier || "lpexpress" });
     closeSheet();
   });
 }

@@ -31,7 +31,11 @@ const check = (ok, msg) => {
 
 // ── Imituota duomenų bazė ──
 const db = {
-  products: cat.products.map(p => ({ ...p, description: p.desc, visible: true })),
+  products: [
+    ...cat.products.map(p => ({ ...p, description: p.desc, visible: true })),
+    // v33i: ne kvepalai (be alkoholio) - LP Express būdams
+    { id: "zv-test", type: "zvakes", name: "ŽVAKĖ", visible: true, stock: null, sizes: [{ ml: 200, unit: "g", price: 15.9 }] }
+  ],
   profiles: [{ id: "u1", email: "ona@example.com", name: "Ona Onaitė", phone: "+37060000000", address: { name: "Ona", line1: "Gedimino pr. 1", city: "Vilnius", postal: "01103", country: "LT" }, stripe_customer: null }],
   orders: [],
   restock: [{ id: "r1", product_id: "arven", email: "laukia@example.com", notified: false }]
@@ -217,10 +221,10 @@ calls.length = 0;
 r = await res(await shop.checkout(req(`${F}/checkout`, { body: { lang: "en", items: [{ id: "vanor", ml: 33, qty: 1 }], shipping: { country: "DE" } } })));
 cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(
-  r.status === 200 && cb.get("shipping_address_collection[allowed_countries][0]") === "DE" && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "999" && cb.get("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]") === "6" && cb.get("metadata[country]") === "DE" && !cb.has("shipping_options[1][shipping_rate_data][display_name]"),
-  "zonos: Vokietija - tik DPD kurjeris 9,99 €, 3-6 d. d., adresas tik DE"
+  r.status === 200 && cb.get("shipping_address_collection[allowed_countries][0]") === "DE" && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "1899" && cb.get("shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]") === "4" && cb.get("metadata[country]") === "DE" && !cb.has("shipping_options[1][shipping_rate_data][display_name]"),
+  "zonos: Vokietija su kvepalais - tik DPD kurjeris 18,99 €, 3-4 d. d. (LP Express - be kvepalų), adresas tik DE"
 );
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { lang: "en", items: [{ id: "vanor", ml: 33, qty: 1 }], shipping: { country: "CY", method: "dpd" } } })));
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { lang: "en", items: [{ id: "vanor", ml: 33, qty: 1 }], shipping: { country: "CY", method: "lpexpress-courier" } } })));
 check(r.status === 400 && r.body.code === "method_perfume", "zonos: kvepalų (alkoholis) į Kiprą siųsti negalima - aiški klaida");
 r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "vanor", ml: 33, qty: 1 }], shipping: { country: "US" } } })));
 check(r.status === 400 && r.body.code === "no_country", "zonos: šalis ne iš sąrašo - atmetama");
@@ -228,8 +232,19 @@ calls.length = 0;
 r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "vanor", ml: 100, qty: 2 }], shipping: { country: "LV", method: "dpd" } } })));
 cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
 check(r.status === 200 && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "0", "zonos: nemokamo pristatymo riba - pagal šalies zoną");
-r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "vanor", ml: 33, qty: 1 }], shipping: { country: "LT", method: "lpexpress" } } })));
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "zv-test", ml: 200, qty: 1 }], shipping: { country: "LT", method: "lpexpress" } } })));
 check(r.status === 400 && r.body.code === "locker_needed", "zonos: LP Express be paštomato - klaida „Pasirinkite paštomatą“");
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "vanor", ml: 33, qty: 1 }], shipping: { country: "LT", method: "lpexpress" } } })));
+check(r.status === 400 && r.body.code === "method_perfume", "zonos: LP Express kvepalų neveža (alkoholis > 70 %) - aiški klaida");
+calls.length = 0;
+r = await res(await shop.checkout(req(`${F}/checkout`, { body: { items: [{ id: "vanor", ml: 33, qty: 1 }], shipping: { country: "LV", method: "dpd-locker", locker: { name: "Rīga, Galerija Centrs" } } } })));
+cb = calls.find(c => c.url.endsWith("/checkout/sessions"))?.body;
+check(r.status === 200 && /DPD Pickup paštomatas · Rīga, Galerija Centrs/.test(cb.get("metadata[locker]")) && cb.get("metadata[carrier]") === "dpd.locker" && cb.get("shipping_options[0][shipping_rate_data][fixed_amount][amount]") === "599", "zonos: DPD Pickup paštomatas Latvijoje - 5,99 €, pavadinimas užsakyme");
+const Z = S.zones;
+const EU = "AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE".split(" ");
+const zc = Z.flatMap(z => z.countries);
+check(zc.length === 28 && new Set(zc).size === 28 && [...EU, "GB"].every(c => zc.includes(c)), "zonos: visos 27 ES šalys ir Jungtinė Karalystė - kiekviena vienoje zonoje");
+check(Z.every(z => z.methods.every(m => (m.carrier === "lpexpress" ? m.perfume === false : true) && m.price > 0 && /^\d+(-\d+)?$/.test(m.days))) && Z.every(z => z.methods.some(m => m.perfume !== false) || ["CY", "MT"].includes(z.countries[0])), "zonos: LP Express - be kvepalų; kvepalai siunčiami visur, išskyrus Kiprą ir Maltą");
 
 const routesEn = JSON.parse(fs.readFileSync(path.join(root, "src/i18n/routes.json"), "utf8")).paths;
 check(Object.entries(EN_PATHS).every(([lt, en]) => routesEn[lt] === en), "serverio angliški prekių adresai sutampa su src/i18n/routes.json");

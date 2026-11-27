@@ -579,6 +579,7 @@
   "val.medine": "Wooden",
   "ship.omniva.locker": "Omniva parcel locker",
   "ship.lpexpress.locker": "LP Express parcel locker",
+  "ship.dpd.locker": "DPD Pickup parcel locker",
   "ship.omniva.courier": "Omniva courier to your door",
   "ship.lpexpress.courier": "LP Express courier to your door",
   "ship.dpd.courier": "DPD courier to your door",
@@ -591,6 +592,7 @@
   "ship.perfumeNote": "Perfume contains alcohol, so we ship it by road only - some delivery options aren't available for perfume.",
   "ship.noMethods": "We can't currently ship these items to this country - please email us.",
   "ship.noPerfume": "no perfume",
+  "terms.freeFrom": "Free on orders over {sum}.",
   "pd.alcohol": "Contains alcohol: flammable - keep away from heat and open flame. For external use only. Keep out of reach of children.",
   "pd.alcoholShip": "Perfume contains alcohol - we ship it by road only.",
   "pd.allCountries": "Delivery to other countries",
@@ -600,6 +602,7 @@
   "locker.lpText": "Enter the parcel locker name or address - we'll deliver your parcel there.",
   "locker.lpLabel": "Parcel locker",
   "locker.lpPh": "e.g. Vilnius, Akropolis",
+  "locker.anyPh": "e.g. city, parcel locker name",
   "locker.lpShort": "Please enter the parcel locker name or address",
   "common.change": "Change"
 }

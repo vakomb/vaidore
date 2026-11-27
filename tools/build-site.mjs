@@ -19,7 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildApp, buildAdmin } from "./build.mjs";
 import { dbCatalog, plain, plainDeep } from "./db-catalog.mjs";
-import { EN_PUBLIC, routeFor } from "./i18n.mjs";
+import { EN_PUBLIC, routeFor, t as tr } from "./i18n.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const src = path.join(root, "src");
@@ -464,6 +464,22 @@ const countryNames = lang => {
   const dn = new Intl.DisplayNames([PAGE_TX[lang].locale], { type: "region" });
   return (S.countries || ["LT"]).map(cc => dn.of(cc) || cc).join(", ");
 };
+// v33i: pristatymas pagal šalis (settings.zones) - kiekviena zona: šalys, būdai su kaina ir terminu, nemokamai nuo
+const shippingList = lang => {
+  const dn = new Intl.DisplayNames([PAGE_TX[lang].locale], { type: "region" });
+  const zones = Array.isArray(S.zones) && S.zones.length ? S.zones : null;
+  if (!zones) return (CAT[lang].settings.shipping || []).map(o => `<li>${esc(o.name)} - ${TX[lang].money(Number(o.price))} (${esc(nb(o.days))})</li>`).join("");
+  return zones
+    .map(z => {
+      const ms = (z.methods || []).filter(m => m.on !== false);
+      const line = ms
+        .map(m => `${esc(tr(lang, `ship.${m.carrier}.${m.kind}`))} ${TX[lang].money(Number(m.price))}${m.days ? ` (${esc(nb(tr(lang, "ship.days", { d: m.days })))})` : ""}${m.perfume === false ? ` - ${esc(tr(lang, "ship.noPerfume"))}` : ""}`)
+        .join("; ");
+      const free = Number(z.freeFrom ?? S.freeShippingFrom);
+      return `<li><b>${esc((z.countries || []).map(cc => dn.of(cc) || cc).join(", "))}</b>: ${line}.${free > 0 ? ` ${esc(tr(lang, "terms.freeFrom", { sum: TX[lang].money(free) }))}` : ""}</li>`;
+    })
+    .join("");
+};
 const fill = (str, lang) => {
   const C = CAT[lang].settings;
   return str
@@ -473,7 +489,7 @@ const fill = (str, lang) => {
     .replace(/\{\{returnDays\}\}/g, String(S.returnDays || 14))
     .replace(/\{\{dispatch\}\}/g, esc(nb(C.dispatch || (lang === "en" ? "1-2 business days" : "1-2 d. d."))))
     .replace(/\{\{countries\}\}/g, () => esc(countryNames(lang)))
-    .replace(/\{\{shipping\}\}/g, () => (C.shipping || []).map(o => `<li>${esc(o.name)} - ${TX[lang].money(Number(o.price))} (${esc(nb(o.days))})</li>`).join(""))
+    .replace(/\{\{shipping\}\}/g, () => shippingList(lang))
     .replace(/\{\{supabase\}\}/g, () => JSON.stringify(sb))
     .replace(/\{\{year\}\}/g, String(new Date().getFullYear()))
     .replace(/\{\{lang\}\}/g, lang)

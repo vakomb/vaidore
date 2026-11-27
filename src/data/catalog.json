@@ -17,7 +17,32 @@
     "countries": [
       "LT",
       "LV",
-      "EE"
+      "EE",
+      "PL",
+      "DE",
+      "CZ",
+      "SK",
+      "NL",
+      "BE",
+      "LU",
+      "AT",
+      "HU",
+      "DK",
+      "FI",
+      "FR",
+      "IE",
+      "SI",
+      "SE",
+      "IT",
+      "ES",
+      "PT",
+      "HR",
+      "RO",
+      "BG",
+      "GR",
+      "GB",
+      "CY",
+      "MT"
     ],
     "shipping": [
       {
@@ -27,8 +52,20 @@
         "days": "1-2 d. d."
       },
       {
+        "id": "lpexpress",
+        "name": "LP Express paštomatas",
+        "price": 2.49,
+        "days": "1-2 d. d."
+      },
+      {
+        "id": "dpd-locker",
+        "name": "DPD Pickup paštomatas",
+        "price": 2.49,
+        "days": "1-2 d. d."
+      },
+      {
         "id": "dpd",
-        "name": "DPD kurjeris iki durų",
+        "name": "DPD kurjeris",
         "price": 4.99,
         "days": "1-2 d. d."
       }
@@ -176,7 +213,15 @@
             "id": "lpexpress",
             "carrier": "lpexpress",
             "kind": "locker",
-            "price": 2.99,
+            "price": 2.49,
+            "days": "1-2",
+            "perfume": false
+          },
+          {
+            "id": "dpd-locker",
+            "carrier": "dpd",
+            "kind": "locker",
+            "price": 2.49,
             "days": "1-2",
             "perfume": true
           },
@@ -191,9 +236,49 @@
         ]
       },
       {
-        "id": "baltija",
+        "id": "lv",
         "countries": [
-          "LV",
+          "LV"
+        ],
+        "freeFrom": 80,
+        "methods": [
+          {
+            "id": "omniva",
+            "carrier": "omniva",
+            "kind": "locker",
+            "price": 5.99,
+            "days": "1-2",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress",
+            "carrier": "lpexpress",
+            "kind": "locker",
+            "price": 3.49,
+            "days": "1-2",
+            "perfume": false
+          },
+          {
+            "id": "dpd-locker",
+            "carrier": "dpd",
+            "kind": "locker",
+            "price": 5.99,
+            "days": "1-2",
+            "perfume": true
+          },
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 9.99,
+            "days": "1-2",
+            "perfume": true
+          }
+        ]
+      },
+      {
+        "id": "ee",
+        "countries": [
           "EE"
         ],
         "freeFrom": 80,
@@ -202,35 +287,40 @@
             "id": "omniva",
             "carrier": "omniva",
             "kind": "locker",
-            "price": 4.99,
-            "days": "2-4",
+            "price": 8.99,
+            "days": "2-3",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress",
+            "carrier": "lpexpress",
+            "kind": "locker",
+            "price": 3.99,
+            "days": "2-3",
+            "perfume": false
+          },
+          {
+            "id": "dpd-locker",
+            "carrier": "dpd",
+            "kind": "locker",
+            "price": 6.99,
+            "days": "2-3",
             "perfume": true
           },
           {
             "id": "dpd",
             "carrier": "dpd",
             "kind": "courier",
-            "price": 7.99,
-            "days": "2-4",
+            "price": 9.99,
+            "days": "1-2",
             "perfume": true
           }
         ]
       },
       {
-        "id": "es1",
+        "id": "pl",
         "countries": [
-          "PL",
-          "FI",
-          "DE",
-          "DK",
-          "SE",
-          "CZ",
-          "SK",
-          "AT",
-          "NL",
-          "BE",
-          "LU",
-          "FR"
+          "PL"
         ],
         "freeFrom": 100,
         "methods": [
@@ -238,24 +328,355 @@
             "id": "dpd",
             "carrier": "dpd",
             "kind": "courier",
-            "price": 9.99,
-            "days": "3-6",
+            "price": 15.99,
+            "days": "2-3",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 11.99,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "de",
+        "countries": [
+          "DE"
+        ],
+        "freeFrom": 100,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 18.99,
+            "days": "3-4",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 14.49,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "cz",
+        "countries": [
+          "CZ"
+        ],
+        "freeFrom": 100,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 18.99,
+            "days": "3-4",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 18.49,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "sk",
+        "countries": [
+          "SK"
+        ],
+        "freeFrom": 100,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 18.99,
+            "days": "3-4",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 15.99,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "nl",
+        "countries": [
+          "NL"
+        ],
+        "freeFrom": 100,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 18.99,
+            "days": "3-4",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 16.99,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "be-lu",
+        "countries": [
+          "BE",
+          "LU"
+        ],
+        "freeFrom": 100,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 18.99,
+            "days": "3-4",
             "perfume": true
           }
         ]
       },
       {
-        "id": "es2",
+        "id": "at",
         "countries": [
+          "AT"
+        ],
+        "freeFrom": 100,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 19.99,
+            "days": "3-4",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 19.49,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "hu",
+        "countries": [
+          "HU"
+        ],
+        "freeFrom": 100,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 19.99,
+            "days": "3-4",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 16.99,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "dk",
+        "countries": [
+          "DK"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 24.99,
+            "days": "3-4",
+            "perfume": true
+          }
+        ]
+      },
+      {
+        "id": "fi-fr-ie-si",
+        "countries": [
+          "FI",
+          "FR",
           "IE",
-          "IT",
+          "SI"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 20.99,
+            "days": "4-5",
+            "perfume": true
+          }
+        ]
+      },
+      {
+        "id": "se",
+        "countries": [
+          "SE"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 24.99,
+            "days": "4-5",
+            "perfume": true
+          }
+        ]
+      },
+      {
+        "id": "it",
+        "countries": [
+          "IT"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 23.99,
+            "days": "4-6",
+            "perfume": true
+          }
+        ]
+      },
+      {
+        "id": "es-pt",
+        "countries": [
           "ES",
-          "PT",
-          "HU",
-          "SI",
-          "HR",
-          "RO",
-          "BG",
+          "PT"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 23.99,
+            "days": "5-7",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 21.99,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "hr",
+        "countries": [
+          "HR"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 27.99,
+            "days": "4-6",
+            "perfume": true
+          }
+        ]
+      },
+      {
+        "id": "ro",
+        "countries": [
+          "RO"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 27.99,
+            "days": "4-6",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 24.49,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "bg",
+        "countries": [
+          "BG"
+        ],
+        "freeFrom": 120,
+        "methods": [
+          {
+            "id": "dpd",
+            "carrier": "dpd",
+            "kind": "courier",
+            "price": 27.99,
+            "days": "4-6",
+            "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 20.49,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "gr",
+        "countries": [
           "GR"
         ],
         "freeFrom": 120,
@@ -264,32 +685,14 @@
             "id": "dpd",
             "carrier": "dpd",
             "kind": "courier",
-            "price": 12.99,
-            "days": "4-8",
+            "price": 27.99,
+            "days": "5-7",
             "perfume": true
           }
         ]
       },
       {
-        "id": "salos",
-        "countries": [
-          "CY",
-          "MT"
-        ],
-        "freeFrom": 150,
-        "methods": [
-          {
-            "id": "dpd",
-            "carrier": "dpd",
-            "kind": "courier",
-            "price": 16.99,
-            "days": "5-10",
-            "perfume": false
-          }
-        ]
-      },
-      {
-        "id": "jk",
+        "id": "gb",
         "countries": [
           "GB"
         ],
@@ -299,9 +702,51 @@
             "id": "dpd",
             "carrier": "dpd",
             "kind": "courier",
-            "price": 14.99,
-            "days": "4-7",
+            "price": 27.99,
+            "days": "4-6",
             "perfume": true
+          },
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 15.99,
+            "days": "3-5",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "cy",
+        "countries": [
+          "CY"
+        ],
+        "freeFrom": 150,
+        "methods": [
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 31.49,
+            "days": "4-7",
+            "perfume": false
+          }
+        ]
+      },
+      {
+        "id": "mt",
+        "countries": [
+          "MT"
+        ],
+        "freeFrom": 150,
+        "methods": [
+          {
+            "id": "lpexpress-courier",
+            "carrier": "lpexpress",
+            "kind": "courier",
+            "price": 34.99,
+            "days": "4-7",
+            "perfume": false
           }
         ]
       }

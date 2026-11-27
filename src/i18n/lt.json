@@ -603,6 +603,7 @@
   "val.medine": "Medinė",
   "ship.omniva.locker": "Omniva paštomatas",
   "ship.lpexpress.locker": "LP Express paštomatas",
+  "ship.dpd.locker": "DPD Pickup paštomatas",
   "ship.omniva.courier": "Omniva kurjeris iki durų",
   "ship.lpexpress.courier": "LP Express kurjeris iki durų",
   "ship.dpd.courier": "DPD kurjeris iki durų",
@@ -615,6 +616,7 @@
   "ship.perfumeNote": "Kvepaluose yra alkoholio, todėl siunčiame tik antžeminiu transportu - kai kurie būdai kvepalams negalimi.",
   "ship.noMethods": "Į šią šalį šių prekių šiuo metu nesiunčiame - parašykite mums.",
   "ship.noPerfume": "be kvepalų",
+  "terms.freeFrom": "Nemokamai nuo {sum}.",
   "pd.alcohol": "Sudėtyje yra alkoholio: degu - saugokite nuo karščio ir atviros ugnies. Tik išoriniam naudojimui. Laikykite vaikams nepasiekiamoje vietoje.",
   "pd.alcoholShip": "Kvepaluose yra alkoholio - siunčiame tik antžeminiu transportu.",
   "pd.allCountries": "Pristatymas į kitas šalis",
@@ -624,6 +626,7 @@
   "locker.lpText": "Įrašykite paštomato pavadinimą arba adresą - siuntą pristatysime į jį.",
   "locker.lpLabel": "Paštomatas",
   "locker.lpPh": "Pvz. Vilnius, PC Akropolis",
+  "locker.anyPh": "Pvz. miestas, paštomato pavadinimas",
   "locker.lpShort": "Įrašykite paštomato pavadinimą arba adresą",
   "common.change": "Keisti"
 }

@@ -8,6 +8,7 @@ const COUNTRY_NAME = { LT: "Lietuva", LV: "Latvija", EE: "Estija" };
 const ZONE_METHODS = [
   ["omniva.locker", "Omniva paštomatas"],
   ["lpexpress.locker", "LP Express paštomatas"],
+  ["dpd.locker", "DPD Pickup paštomatas"],
   ["omniva.courier", "Omniva kurjeris"],
   ["lpexpress.courier", "LP Express kurjeris"],
   ["dpd.courier", "DPD kurjeris"]
@@ -77,7 +78,7 @@ ${groupHTML(`${sfld("freeShippingFrom", "Nemokamai nuo, €", dec(S.freeShipping
         })
         .join("")}
 ${groupHTML(`${sfld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1-2 d. d.", max: 30 })}${sfld("returnDays", "Grąžinimas per, d.", S.returnDays, { mode: "numeric" })}`, { head: "Terminai" })}
-<p class="igFoot">Šalių kodai - ISO (LT, LV, DE, GB…). Kvepaluose yra alkoholio: būdams, kurie veža lėktuvu (pvz. į salas), nuimkite „Galima siųsti kvepalus“ - kvepalams jie nebus siūlomi.</p>`;
+<p class="igFoot">Šalių kodai - ISO (LT, LV, DE, GB…). Kvepaluose yra alkoholio: būdams, kurie kvepalų neveža (LP Express - taisyklės draudžia skysčius su daugiau nei 70 % alkoholio; lėktuvu - į Kiprą, Maltą), nuimkite „Galima siųsti kvepalus“ - kvepalams jie nebus siūlomi. Kainos - vežėjų tarifai su PVM mažai siuntai (iki 1 kg).</p>`;
     },
     read: (f, S, form) => {
       const errors = [];
@@ -93,7 +94,9 @@ ${groupHTML(`${sfld("dispatch", "Išsiunčiame per", S.dispatch, { ph: "1-2 d. d
           const [carrier, kind] = v.split(".");
           const price = money(f, `z_p_${i}_${j}`);
           if (!(price >= 0)) errors.push("Pristatymo kaina - skaičius");
-          const id = methods.some(m => m.id === carrier) ? `${carrier}-${kind}` : carrier;
+          // Pastovus id (pirkėjų krepšeliuose): pagrindinis vežėjo būdas - vežėjo vardas, kitas - vežėjas-būdas (v33i)
+          const id = kind === (carrier === "dpd" ? "courier" : "locker") ? carrier : `${carrier}-${kind}`;
+          if (methods.some(m => m.id === id)) errors.push("Zonoje tas pats būdas - du kartus");
           methods.push({ id, carrier, kind, price, days: f[`z_d_${i}_${j}`].value.replace(/[^\d-]/g, ""), perfume: f[`z_k_${i}_${j}`].checked });
         }
         if (!countries.length && !methods.length) continue;

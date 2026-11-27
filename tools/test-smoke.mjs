@@ -1107,7 +1107,7 @@ await run({ width: 1440, height: 900 });
     await page.click('#sheetBody [data-cc="DE"]');
     await page.waitForTimeout(250);
     const de = await page.evaluate(() => [...document.querySelectorAll("#cartRoot [data-ship]")].map(b => b.textContent.replace(/\s+/g, " ").trim()));
-    check(ccVisible === 1 && de.length === 1 && /DPD courier to your door/.test(de[0]) && /€9\.99/.test(de[0]) && /3-6 business days/.test(de[0].replace(/\u2060/g, "")), `EN ${tag}: šalis Vokietija (paieška „germ“) - DPD kurjeris €9.99, 3-6 d. d. (${de.join(" | ")})`);
+    check(ccVisible === 1 && de.length === 1 && /DPD courier to your door/.test(de[0]) && /€18\.99/.test(de[0]) && /3-4 business days/.test(de[0].replace(/\u2060/g, "")), `EN ${tag}: šalis Vokietija (paieška „germ“) - DPD kurjeris €18.99, 3-4 d. d. (LP Express - be kvepalų) (${de.join(" | ")})`);
     await open(page, `${A}en/perfumes/vanor`);
     check(/Contains alcohol: flammable/.test(await page.locator(".pdNotice").textContent()), `EN ${tag}: kvepalų puslapyje - įspėjimas apie alkoholį`);
     await page.evaluate(() => localStorage.setItem("vaidore_cart_v1", "[]"));
