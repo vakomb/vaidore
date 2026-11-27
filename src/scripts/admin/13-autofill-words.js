@@ -135,7 +135,7 @@ const AF_NAME_DROP = [
   "eau", "de", "toilette", "zapach", "zapachowy", "zapachowa", "zapachowe", "damskie", "damski", "damska", "męskie", "męski", "meskie", "meski", "unisex",
   "dla", "niej", "niego", "kobiet", "mężczyzn", "kobiety", "mężczyzny", "prezent", "zestaw", "świeca", "świeczka", "sojowa", "sojowy", "dyfuzor", "dyfuzory",
   "patyczkami", "patyczki", "z", "olejek", "olejki", "eteryczny", "do", "nawilżacza", "dyfuzora", "elektryczny", "ultradźwiękowy", "aromaterapia",
-  "perfume", "perfumes", "fragrance", "spray", "for", "women", "men", "woman", "man", "her", "him", "long", "lasting", "longlasting", "candle", "scented",
+  "perfume", "perfumes", "room", "home", "linen", "wosk", "woski", "kominek", "kominka", "kominków", "wax", "melt", "melts", "burner", "sojowe", "fragrance", "spray", "for", "women", "men", "woman", "man", "her", "him", "long", "lasting", "longlasting", "candle", "scented",
   "reed", "diffuser", "sticks", "with", "oil", "essential", "aroma", "electric", "ultrasonic", "new", "original", "gift", "set", "home",
   "luxury", "luksus", "premium", "natural", "naturalne", "naturalny", "rattan", "rattanowe", "handmade", "ręcznie", "robione", "led", "usb", "powietrza",
   "nawilżacz", "zapachowy", "kvepalai", "moterims", "vyrams", "kvapni", "žvakė", "difuzorius", "aromatinis", "aliejus", "elektrinis", "su", "lazdelėmis", "kvapusis", "vanduo", "ilgalaikiai"

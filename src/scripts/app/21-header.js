@@ -177,7 +177,7 @@ function setMega(open) {
 // Šoninis meniu (telefone ir planšetėje, v17 - kaip iOS programėlė): paieška → paskyros kortelė → sugrupuoti sąrašai
 // (Parduotuvė - prekių tipai; Kvepalai - lytis, naujienos, bestselleriai, nuolaidos; Kolekcijos) → trys greiti pasirinkimai
 // (mėginukai, rinkinys, testas) → Pagalba; apačioje - kiek liko iki nemokamo pristatymo (su juostele)
-const TYPE_ICO = { kvepalai: "drop", difuzoriai: "spark", zvakes: "sun", aliejai: "drop", "elektriniai-difuzoriai": "home" };
+const TYPE_ICO = { kvepalai: "drop", difuzoriai: "spark", zvakes: "sun", aliejai: "drop", "elektriniai-difuzoriai": "home", purskikliai: "spark", vaskai: "sun", aromalempos: "home" };
 function drawerHTML() {
   const cats = visibleCategories();
   const cur = ui.path || "";

@@ -246,7 +246,10 @@ const TX = {
       difuzoriai: { name: "Namų kvapų difuzoriai", one: "Namų kvapų difuzorius", what: "difuzoriai" },
       zvakes: { name: "Kvapnios žvakės", one: "Kvapni žvakė", what: "žvakės" },
       aliejai: { name: "Aromatiniai aliejai difuzoriams", one: "Aromatinis aliejus", what: "aliejai" },
-      "elektriniai-difuzoriai": { name: "Elektriniai difuzoriai", one: "Elektrinis difuzorius", what: "difuzoriai" }
+      "elektriniai-difuzoriai": { name: "Elektriniai difuzoriai", one: "Elektrinis difuzorius", what: "difuzoriai" },
+      purskikliai: { name: "Namų kvapų purškikliai", one: "Namų purškiklis", what: "purškikliai" },
+      vaskai: { name: "Kaitinami kvapnūs vaškai", one: "Kaitinamas vaškas", what: "vaškai" },
+      aromalempos: { name: "Aromalempos", one: "Aromalempa", what: "aromalempos" }
     },
     money: n => n.toFixed(2).replace(".", ",") + " €"
   },
@@ -286,7 +289,10 @@ const TX = {
       difuzoriai: { name: "Reed diffusers", one: "Reed diffuser", what: "diffusers" },
       zvakes: { name: "Scented candles", one: "Scented candle", what: "candles" },
       aliejai: { name: "Fragrance oils for diffusers", one: "Fragrance oil", what: "oils" },
-      "elektriniai-difuzoriai": { name: "Electric diffusers", one: "Electric diffuser", what: "diffusers" }
+      "elektriniai-difuzoriai": { name: "Electric diffusers", one: "Electric diffuser", what: "diffusers" },
+      purskikliai: { name: "Room sprays", one: "Room spray", what: "room sprays" },
+      vaskai: { name: "Scented wax melts", one: "Wax melt", what: "wax melts" },
+      aromalempos: { name: "Wax burners", one: "Wax burner", what: "wax burners" }
     },
     money: n => `€${n.toFixed(2)}`
   }

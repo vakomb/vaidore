@@ -13,19 +13,38 @@ export const CORS = {
 export const json = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { ...CORS, "Content-Type": "application/json", "Cache-Control": "no-store" } });
 const SAMPLE_ML = 2;
 // Prekių tipai (v15) - tie patys kaip TYPES (src/scripts/app/03-catalog.js): Stripe aprašymui ir nuorodoms
-const TYPE_ONE = { difuzoriai: "Namų kvapų difuzorius", zvakes: "Kvapni žvakė", aliejai: "Aromatinis aliejus", "elektriniai-difuzoriai": "Elektrinis difuzorius" };
+const TYPE_ONE = {
+  difuzoriai: "Namų kvapų difuzorius",
+  zvakes: "Kvapni žvakė",
+  aliejai: "Aromatinis aliejus",
+  "elektriniai-difuzoriai": "Elektrinis difuzorius",
+  purskikliai: "Namų purškiklis",
+  vaskai: "Kaitinamas vaškas",
+  aromalempos: "Aromalempa"
+};
+// Su alkoholiu (degus skystis): kvepalai ir namų purškikliai (v34) - būdai su perfume: false negalimi
+const ALCOHOL = p => !TYPE_ONE[p.type] || p.type === "purskikliai";
 const typePath = p => (TYPE_ONE[p.type] ? p.type : "kvepalai");
 // v33e: pirkėjo kalba (lt / en) - Stripe langas, nuorodos, laiškai pirkėjui, klaidos. Savininkui - visada lietuviškai.
 // Angliški adresai - kaip src/i18n/routes.json (test-api.mjs tikrina, kad sutampa)
 export const LANGS = ["lt", "en"];
 export const langOf = v => (v === "en" ? "en" : "lt");
-export const EN_PATHS = { kvepalai: "perfumes", zvakes: "candles", aliejai: "fragrance-oils", difuzoriai: "reed-diffusers", "elektriniai-difuzoriai": "electric-diffusers" };
+export const EN_PATHS = {
+  kvepalai: "perfumes",
+  zvakes: "candles",
+  aliejai: "fragrance-oils",
+  difuzoriai: "reed-diffusers",
+  "elektriniai-difuzoriai": "electric-diffusers",
+  purskikliai: "room-sprays",
+  vaskai: "wax-melts",
+  aromalempos: "wax-burners"
+};
 const pathFor = (lang, lt) =>
   lang === "en"
     ? `en/${{ aciu: "thank-you", krepselis: "cart", "paskyra/uzsakymai": "account/orders", naujienlaiskis: "newsletter", "": "" }[lt] ?? lt}`.replace(/\/$/, "")
     : lt;
 const productPath = (lang, p) => (lang === "en" ? `en/${EN_PATHS[typePath(p)]}/${p.id}` : `${typePath(p)}/${p.id}`);
-const TYPE_ONE_EN = { difuzoriai: "Reed diffuser", zvakes: "Scented candle", aliejai: "Fragrance oil", "elektriniai-difuzoriai": "Electric diffuser" };
+const TYPE_ONE_EN = { difuzoriai: "Reed diffuser", zvakes: "Scented candle", aliejai: "Fragrance oil", "elektriniai-difuzoriai": "Electric diffuser", purskikliai: "Room spray", vaskai: "Wax melt", aromalempos: "Wax burner" };
 export const TXT = {
   lt: {
     sample: "mėginukas 2 ml",
@@ -290,7 +309,7 @@ export function createShop(env) {
       if (!inStock(p)) return fail(409, lang, "out_of_stock", { name: loc(lang, p, "name") });
       if (p.stock != null && ml !== SAMPLE_ML && qty > p.stock) return fail(409, lang, "low_stock", { name: loc(lang, p, "name"), n: p.stock });
       subtotal += price * qty;
-      if (!TYPE_ONE[p.type]) hasPerfume = true;
+      if (ALCOHOL(p)) hasPerfume = true;
       if (ml === SAMPLE_ML) sampleCredit += cents(price) * qty;
       lines.push({
         quantity: qty,

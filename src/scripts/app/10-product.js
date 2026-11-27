@@ -59,7 +59,9 @@ const inspLine = x => {
   return `${[brand, name].filter(Boolean).join(" ")} · ${sizeLabel(defaultMl(x), x)}`;
 };
 // Elektrinio difuzoriaus savybės eilutėje („300 ml · iki 10 val.“)
-const deviceLine = x => [x.attrs?.tank && `${x.attrs.tank} ml`, x.attrs?.runtime && `${x.attrs.runtime} ${t("unit.h")}`].filter(Boolean).join(" · ") || TYPE.get(typeOf(x)).one;
+const deviceLine = x =>
+  [x.attrs?.tank && `${x.attrs.tank} ml`, x.attrs?.runtime && `${x.attrs.runtime} ${t("unit.h")}`, x.attrs?.material && attrVal(x.attrs.material), x.attrs?.dims && `${x.attrs.dims} cm`].filter(Boolean).join(" · ") ||
+  TYPE.get(typeOf(x)).one;
 // Pagrindinės savybės kortelėmis po kaina (v28, ne kvepalams): reikšmė stambiai, pavadinimas - po ja
 const SPEC_FMT = {
   tank: v => [`${v} ml`, t("spec.tank")],
@@ -73,10 +75,15 @@ const SPEC_FMT = {
   sticks: v => [`${v} ${t("unit.pcs")}`, t("spec.sticks")],
   burn: v => [`${v} ${t("unit.h")}`, t("spec.burn")],
   wax: v => [attrVal(v), t("spec.wax")],
-  wick: v => [attrVal(v), t("spec.wick")]
+  wick: v => [attrVal(v), t("spec.wick")],
+  sprays: v => [attrVal(v), t("spec.sprays")],
+  pieces: v => [`${v} ${t("unit.pcs")}`, t("spec.pieces")],
+  material: v => [attrVal(v), t("spec.material")],
+  dims: v => [`${v} cm`, t("spec.dims")],
+  heat: v => [attrVal(v), t("spec.heat")]
 };
 // Taip / ne savybės - viena aiški eilutė su varnele po kaina (v28b), ne kortelė
-const SPEC_LINE = { forDiffuser: t("spec.forDiffuser") };
+const SPEC_LINE = { forDiffuser: t("spec.forDiffuser"), forTextile: t("spec.forTextile"), forBurner: t("spec.forBurner") };
 function specsHTML(p) {
   const lines = (ATTR_DEFS[typeOf(p)] || []).filter(([k]) => SPEC_LINE[k] && p.attrs?.[k] === true).map(([k]) => SPEC_LINE[k]);
   const specs = (ATTR_DEFS[typeOf(p)] || [])
@@ -110,7 +117,7 @@ function productPageHTML(p, ml) {
     `<button class="sizeOpt" type="button" role="radio" data-ml="${s.ml}" aria-checked="${s.ml === ml}" aria-label="${sizeLabel(s.ml, p)}, ${eur(s.price)}"><b>${
       s.ml === SAMPLE_ML && isPerfume(p) ? nb(t("pd.sampleOpt")) : sizeLabel(s.ml, p)
     }</b></button>`;
-  const device = typeOf(p) === "elektriniai-difuzoriai";
+  const device = isDevice(p);
   const attrs = attrList(p);
   const T = TYPE.get(typeOf(p));
   // Tas pats kvapas kitose kategorijose (products.scent_id): „Šis kvapas taip pat“ - kvepalai, difuzorius, žvakė…
@@ -120,12 +127,17 @@ function productPageHTML(p, ml) {
     .slice(0, 8);
   // Kartu reikalingos prekės (v28): aliejui - elektriniai difuzoriai, elektriniam difuzoriui - aliejai (pirmi 5, kiti - „Rodyti dar“)
   const byNeed = list => list.sort((a, b) => inStock(b) - inStock(a) || a.rank - b.rank);
-  const devices = typeOf(p) === "aliejai" ? byNeed(PRODUCTS.filter(x => typeOf(x) === "elektriniai-difuzoriai")) : [];
-  const oils = device ? byNeed(PRODUCTS.filter(x => typeOf(x) === "aliejai")) : [];
+  // v34: kaitinamam vaškui - aromalempos, aromalempai - kaitinami vaškai
+  const PAIR = { aliejai: ["elektriniai-difuzoriai", "pd.devices", "pd.device"], vaskai: ["aromalempos", "pd.burners", "pd.burner"] };
+  const FILL = { "elektriniai-difuzoriai": ["aliejai", "pd.oils"], aromalempos: ["vaskai", "pd.melts"] };
+  const pair = PAIR[typeOf(p)];
+  const fill = FILL[typeOf(p)];
+  const devices = pair ? byNeed(PRODUCTS.filter(x => typeOf(x) === pair[0])) : [];
+  const oils = fill ? byNeed(PRODUCTS.filter(x => typeOf(x) === fill[0])) : [];
   const pairsHTML = devices.length
-    ? pickListHTML(devices.length > 1 ? t("pd.devices") : t("pd.device"), devices, { sub: deviceLine, limit: 5 })
+    ? pickListHTML(devices.length > 1 ? t(pair[1]) : t(pair[2]), devices, { sub: deviceLine, limit: 5 })
     : oils.length
-      ? pickListHTML(t("pd.oils"), oils, { sub: inspLine, limit: 5 })
+      ? pickListHTML(t(fill[1]), oils, { sub: inspLine, limit: 5 })
       : "";
   const sold = !inStock(p);
   const rate = ratingOf(p);
@@ -147,8 +159,8 @@ function productPageHTML(p, ml) {
   const cfg = pdpOf(typeOf(p));
   const notesInStory = blockOn(cfg.notes) && T.scented;
   const cc = state.ship.country || "LT";
-  const ms = (zoneOf(cc)?.methods || []).filter(m => m.on !== false && (m.perfume !== false || !isPerfume(p)));
-  const ship = `<ul class="accList"><li>${esc(regionName(cc))}: ${ms.map(o => `${esc(methodName(o))} - ${eur(Number(o.price))} (${esc(methodDays(o))})`).join("</li><li>")}</li><li>${t("pd.freeFrom", { price: eurShort(freeFrom(cc)) })}</li>${isPerfume(p) ? `<li>${t("pd.alcoholShip")}</li>` : ""}<li><a href="pagalba#pristatymas" data-nav>${t("pd.allCountries")}</a></li><li>${esc(nb(t("pd.dispatch", { d: dispatchText() })))}</li><li>${nb(t("pd.returns", { n: SET.returnDays || 14 }))} - <a href="pagalba#grazinimas" data-nav>${t("pd.howReturn")}</a></li></ul>`;
+  const ms = (zoneOf(cc)?.methods || []).filter(m => m.on !== false && (m.perfume !== false || !hasAlcohol(p)));
+  const ship = `<ul class="accList"><li>${esc(regionName(cc))}: ${ms.map(o => `${esc(methodName(o))} - ${eur(Number(o.price))} (${esc(methodDays(o))})`).join("</li><li>")}</li><li>${t("pd.freeFrom", { price: eurShort(freeFrom(cc)) })}</li>${hasAlcohol(p) ? `<li>${t(isPerfume(p) ? "pd.alcoholShip" : "pd.liquidShip")}</li>` : ""}<li><a href="pagalba#pristatymas" data-nav>${t("pd.allCountries")}</a></li><li>${esc(nb(t("pd.dispatch", { d: dispatchText() })))}</li><li>${nb(t("pd.returns", { n: SET.returnDays || 14 }))} - <a href="pagalba#grazinimas" data-nav>${t("pd.howReturn")}</a></li></ul>`;
   const details = [
     isPerfume(p) ? accHTML("user", t("pd.who"), who) : "",
     !notesInStory && keyNotes(p).length ? accHTML("drop", isPerfume(p) ? t("pd.notes") : t("pd.scentNotes"), notes, { id: "pdNotesH" }) : "",
@@ -171,8 +183,8 @@ ${specsHTML(p)}
 ${
   device
     ? ""
-    : `<p class="pdLabel pdLabSize">${typeOf(p) === "zvakes" ? t("pd.weight") : t("pd.size")}</p>
-<div class="sizes" role="radiogroup" aria-label="${typeOf(p) === "zvakes" ? t("pd.weight") : t("pd.size")}">${sizes.map(sizeBtn).join("")}</div>`
+    : `<p class="pdLabel pdLabSize">${unitOf(p, ml) === "g" ? t("pd.weight") : t("pd.size")}</p>
+<div class="sizes" role="radiogroup" aria-label="${unitOf(p, ml) === "g" ? t("pd.weight") : t("pd.size")}">${sizes.map(sizeBtn).join("")}</div>`
 }
 ${sold ? "" : `<p class="pdLabel pdLabQty">${t("common.qty")}</p>`}
 <div class="pdBuy" data-buy-anchor>${sold ? "" : qtyHTML()}${buyBtn}</div>

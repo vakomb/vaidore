@@ -6,7 +6,8 @@ const SAMPLE_ML = 2;
 // Buteliukų talpos - tik 33 ml ir 100 ml (+ 2 ml mėginukas). Kitos (seni 30 / 50 ml įrašai) parduotuvėje nerodomos.
 const BOTTLE_ML = [33, 100];
 
-// Prekės tipai (v13, v15 - 5 tipai): pradžios plytelės, meniu, katalogo puslapiai /<tipas>.
+// Prekės tipai (v13, v15 - 5 tipai; v34 - + namų purškikliai, kaitinami vaškai, aromalempos): pradžios plytelės, meniu,
+// katalogo puslapiai /<tipas>.
 // Lytis, mėginukas 2 ml, koncentracija ir talpos 33 / 100 ml - tik kvepalams. Tipas be prekių - nerodomas.
 // scented - turi kvapą (elektrinis difuzorius - prietaisas be kvapo); n - daiktavardis skaičiui (1 / 2 / 10).
 const TYPES = [
@@ -14,13 +15,21 @@ const TYPES = [
   { id: "difuzoriai", scented: true },
   { id: "zvakes", scented: true },
   { id: "aliejai", scented: true },
-  { id: "elektriniai-difuzoriai", scented: false }
+  { id: "elektriniai-difuzoriai", scented: false },
+  { id: "purskikliai", scented: true },
+  { id: "vaskai", scented: true },
+  { id: "aromalempos", scented: false }
 ].map(x => ({ ...x, name: t(`type.${x.id}.name`), one: t(`type.${x.id}.single`), title: t(`type.${x.id}.title`) }));
 // Kiek prekių: „3 kvapai“ / „3 fragrances“ (v33: žodyne type.<id>.count)
 const typeCount = (id, n) => tn(`type.${TYPE.has(id) ? id : "kvepalai"}.count`, n);
 const TYPE = new Map(TYPES.map(tx => [tx.id, tx]));
 const typeOf = p => (TYPE.has(p?.type) ? p.type : "kvepalai");
 const isPerfume = p => typeOf(p) === "kvepalai";
+// Prietaisai be kvapo (v34): elektrinis difuzorius, aromalempa - be talpų pasirinkimo, „1 vnt.“
+const DEVICE_TYPES = new Set(["elektriniai-difuzoriai", "aromalempos"]);
+const isDevice = p => DEVICE_TYPES.has(typeOf(p));
+// Su alkoholiu (degus skystis - tik antžeminis transportas, v33g): kvepalai ir namų purškikliai (v34)
+const hasAlcohol = p => isPerfume(p) || typeOf(p) === "purskikliai";
 const hasSample = p => isPerfume(p) && Number(p.sample) > 0;
 const perfumes = () => PRODUCTS.filter(isPerfume);
 const typesInUse = () => TYPES.filter(tx => PRODUCTS.some(p => typeOf(p) === tx.id));
@@ -50,6 +59,20 @@ const ATTR_DEFS = {
     ["tank", t("attr.tank"), "ml"],
     ["runtime", t("attr.runtime"), t("unit.h")],
     ["light", t("attr.light"), ""]
+  ],
+  purskikliai: [
+    ["sprays", t("attr.sprays"), ""],
+    ["forTextile", t("attr.forTextile"), ""]
+  ],
+  vaskai: [
+    ["pieces", t("attr.pieces"), t("unit.pcs")],
+    ["wax", t("attr.wax"), ""],
+    ["forBurner", t("attr.forBurner"), ""]
+  ],
+  aromalempos: [
+    ["material", t("attr.material"), ""],
+    ["dims", t("attr.dims"), "cm"],
+    ["heat", t("attr.heat"), ""]
   ]
 };
 // Prekės savybės puslapiui: [[pavadinimas, reikšmė]] (tik įrašytos)
@@ -62,8 +85,17 @@ const LASTS = ["", "2-3", "3-5", "5-7", "7-9", "9+"].map(x => (x ? `${x} ${t("un
 
 // v33: kita kalba - vertimai (i18n.<kalba>) uždedami ant kopijos: prekės, šeimos, kolekcijos, kvapai, nustatymai.
 // Lietuviški tekstai lieka o.lt (paieškai); originalas (telefono atmintyje, bazėje) nekeičiamas.
-const LT_PREFIX_TYPE = { "kvapni žvakė": "zvakes", "aromatinis aliejus": "aliejai", "namų kvapų difuzorius": "difuzoriai", difuzorius: "difuzoriai", "elektrinis difuzorius": "elektriniai-difuzoriai" };
-const LT_NAME_PREFIX = /^(kvapni žvakė|aromatinis aliejus|namų kvapų difuzorius|elektrinis difuzorius|difuzorius)(?=\s)/i;
+const LT_PREFIX_TYPE = {
+  "kvapni žvakė": "zvakes",
+  "aromatinis aliejus": "aliejai",
+  "namų kvapų difuzorius": "difuzoriai",
+  difuzorius: "difuzoriai",
+  "elektrinis difuzorius": "elektriniai-difuzoriai",
+  "namų purškiklis": "purskikliai",
+  "kaitinamas vaškas": "vaskai",
+  aromalempa: "aromalempos"
+};
+const LT_NAME_PREFIX = /^(kvapni žvakė|aromatinis aliejus|namų kvapų difuzorius|elektrinis difuzorius|difuzorius|namų purškiklis|kaitinamas vaškas|aromalempa)(?=\s)/i;
 function localizeCatalog(c) {
   c = JSON.parse(JSON.stringify(c));
   const over = o => {

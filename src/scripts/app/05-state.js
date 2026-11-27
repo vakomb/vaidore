@@ -58,7 +58,7 @@ function guessCountry() {
   const nav = (navigator.languages || [navigator.language || ""]).map(l => String(l).split("-")[1]?.toUpperCase()).find(ok);
   return ok(ck) || nav || null;
 }
-const cartHasPerfume = () => (state?.cart || []).some(l => isDisc(l.id) || isPerfume(BY_ID.get(l.id) || {}));
+const cartHasPerfume = () => (state?.cart || []).some(l => isDisc(l.id) || hasAlcohol(BY_ID.get(l.id) || {}));
 const shipMethods = (cc = state.ship.country) => (zoneOf(cc)?.methods || []).filter(m => m.on !== false && (m.perfume !== false || !cartHasPerfume()));
 const isLocker = m => m?.kind === "locker";
 const curMethod = () => shipMethods().find(m => m.id === state.ship.method) || null;

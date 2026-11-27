@@ -23,6 +23,9 @@ const TILE_NAMES = {
   zvakes: "Žvakės",
   aliejai: "Aliejai",
   "elektriniai-difuzoriai": "Elektriniai difuzoriai",
+  purskikliai: "Namų purškikliai",
+  vaskai: "Kaitinami vaškai",
+  aromalempos: "Aromalempos",
   moterims: "Moterims",
   vyrams: "Vyrams",
   unisex: "Unisex",
@@ -222,7 +225,7 @@ window.addEventListener("resize", () => HE.frame?.isConnected && fitFrame());
 // ── Skaidrės ──────────────────────────────────────────
 function linkGroups() {
   return [
-    ["Puslapiai", [["kvepalai", "Visi kvepalai"], ["difuzoriai", "Difuzoriai"], ["zvakes", "Žvakės"], ["aliejai", "Aliejai"], ["elektriniai-difuzoriai", "Elektriniai difuzoriai"], ["moterims", "Moterims"], ["vyrams", "Vyrams"], ["unisex", "Unisex"], ["meginukai", "Mėginukai 2 ml"], ["rinkinys", "Atradimų rinkinys"], ["kvepalai?rikiuoti=new", "Naujienos"], ["apie-mus", "Apie mus"]]],
+    ["Puslapiai", [["kvepalai", "Visi kvepalai"], ["difuzoriai", "Difuzoriai"], ["zvakes", "Žvakės"], ["aliejai", "Aliejai"], ["elektriniai-difuzoriai", "Elektriniai difuzoriai"], ["purskikliai", "Namų purškikliai"], ["vaskai", "Kaitinami vaškai"], ["aromalempos", "Aromalempos"], ["moterims", "Moterims"], ["vyrams", "Vyrams"], ["unisex", "Unisex"], ["meginukai", "Mėginukai 2 ml"], ["rinkinys", "Atradimų rinkinys"], ["kvepalai?rikiuoti=new", "Naujienos"], ["apie-mus", "Apie mus"]]],
     ["Kvapai", VD.CAT.products.map(p => [VD.productUrl(p), p.name])],
     ["Kategorijos", HE.cats.map(c => [`kategorija/${c.id}`, c.name])]
   ];

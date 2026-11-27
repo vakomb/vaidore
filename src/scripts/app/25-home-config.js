@@ -24,7 +24,7 @@ const DEFAULT_SLIDES = [
   { id: "dovana", on: true, preset: "gift" },
   { id: "teiginiai", on: true, preset: "claims" }
 ];
-const DEFAULT_TILES = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"].map(key => ({ key, on: true }));
+const DEFAULT_TILES = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai", "purskikliai", "vaskai", "aromalempos"].map(key => ({ key, on: true }));
 // Numatytieji skyriai - tokie pat kaip iki v15 (naujienos, moterims, vyrams, unisex, nuolaidos)
 const DEFAULT_RAILS = [
   { id: "naujienos", on: true, title: t("rail.new"), line: "", mode: "auto", rule: { type: "kvepalai", sort: "new" }, limit: 8 },
@@ -77,6 +77,9 @@ const RAIL_LINES = {
   difuzoriai: t("railLine.difuzoriai"),
   aliejai: t("railLine.aliejai"),
   "elektriniai-difuzoriai": t("railLine.elektriniai-difuzoriai"),
+  purskikliai: t("railLine.purskikliai"),
+  vaskai: t("railLine.vaskai"),
+  aromalempos: t("railLine.aromalempos"),
   moterims: t("railLine.moterims"),
   vyrams: t("railLine.vyrams"),
   unisex: t("railLine.unisex"),
@@ -232,7 +235,7 @@ function tilePreset(key) {
   // Prekių tipas - be įkeltos plytelės nuotraukos rodoma pirmos to tipo prekės nuotrauka
   if (TYPE.has(key)) {
     const list = byRank.filter(p => typeOf(p) === key);
-    return { name: TYPE.get(key).name, href: key, stage: { kvepalai: "unisex", difuzoriai: "fresh", zvakes: "set", aliejai: "vials", "elektriniai-difuzoriai": "fresh" }[key], list, image: list.find(p => p.images?.[0])?.images[0] || "" };
+    return { name: TYPE.get(key).name, href: key, stage: { kvepalai: "unisex", difuzoriai: "fresh", zvakes: "set", aliejai: "vials", "elektriniai-difuzoriai": "fresh", purskikliai: "fresh", vaskai: "set", aromalempos: "set" }[key], list, image: list.find(p => p.images?.[0])?.images[0] || "" };
   }
   if (key === "moterims" || key === "vyrams" || key === "unisex") {
     const st = { moterims: "women", vyrams: "men", unisex: "unisex" }[key];

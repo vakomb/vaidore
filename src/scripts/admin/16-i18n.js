@@ -9,15 +9,26 @@ const EN_NOTE = new Map(Object.entries(typeof NOTES_EN === "object" ? NOTES_EN :
 const enNote = n => EN_NOTE.get(fold(n).trim()) || n;
 const enJoin = arr => (arr.length > 1 ? `${arr.slice(0, -1).join(", ")} and ${arr[arr.length - 1]}` : arr[0] || "");
 const capFirst = s => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
-const EN_TYPE = { kvepalai: "", zvakes: "Scented candle", aliejai: "Fragrance oil", difuzoriai: "Reed diffuser", "elektriniai-difuzoriai": "Electric diffuser" };
-const LT_PREFIX = /^(kvapni žvakė|aromatinis aliejus|namų kvapų difuzorius|elektrinis difuzorius|difuzorius)\s+/i;
+const EN_TYPE = {
+  kvepalai: "",
+  zvakes: "Scented candle",
+  aliejai: "Fragrance oil",
+  difuzoriai: "Reed diffuser",
+  "elektriniai-difuzoriai": "Electric diffuser",
+  purskikliai: "Room spray",
+  vaskai: "Wax melt",
+  aromalempos: "Wax burner"
+};
+const LT_PREFIX = /^(kvapni žvakė|aromatinis aliejus|namų kvapų difuzorius|elektrinis difuzorius|difuzorius|namų purškiklis|kaitinamas vaškas|aromalempa)\s+/i;
 const EN_FOR = { moterims: "for women", vyrams: "for men", unisex: "for her and for him" };
 const EN_TPL = {
   oil: "A few drops in your diffuser's water are enough - the scent spreads evenly through the whole room. For room fragrancing only.",
   candle: "On the first burn, let it burn for at least an hour so the wax melts evenly across the whole surface.",
   reed: "The reeds draw up the fragrance evenly and diffuse it with no flame or electricity. Turn the reeds every few days to refresh the scent.",
   edp: "concentration - long-lasting on the skin.",
-  skin: "Every fragrance develops differently on each person's skin, so it's worth starting with a 2 ml sample."
+  skin: "Every fragrance develops differently on each person's skin, so it's worth starting with a 2 ml sample.",
+  spray: "One or two sprays are enough - into the air or onto curtains, bedding and upholstery from about 30 cm.",
+  melt: "Place one or two cubes in the bowl of a wax burner and light a tealight underneath - the wax melts and releases its fragrance for hours, with no wick and no smoke."
 };
 // Ar produktui trūksta vertimo: aprašymas ar trumpas aprašymas be EN; ne kvepalams - ir pavadinimas
 function enMissing(p) {
@@ -48,7 +59,10 @@ function enAutoFill(v) {
     zvakes: [`${name} - a fragrance for a cosy home.`, noteLine, EN_TPL.candle],
     aliejai: [`${name} - a fragrance for electric diffusers and humidifiers.`, noteLine, EN_TPL.oil],
     difuzoriai: [`${name} - a fragrance for your home.`, noteLine, EN_TPL.reed],
-    "elektriniai-difuzoriai": [`${name} - an electric aroma diffuser that quietly and evenly spreads your favourite fragrance throughout your home.`, "Add a few drops of fragrance oil to the water and your home will fill with scent."]
+    "elektriniai-difuzoriai": [`${name} - an electric aroma diffuser that quietly and evenly spreads your favourite fragrance throughout your home.`, "Add a few drops of fragrance oil to the water and your home will fill with scent."],
+    purskikliai: [`${name} - instant fragrance for your home.`, noteLine, EN_TPL.spray],
+    vaskai: [`${name} - a fragrance for your wax burner.`, noteLine, EN_TPL.melt],
+    aromalempos: [`${name} - a wax and oil burner that gently warms your favourite fragrance with the light of a tealight.`, EN_TPL.melt]
   }[type];
   return { name, tagline, description: (desc || []).filter(Boolean).join(" ") };
 }

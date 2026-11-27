@@ -8,9 +8,20 @@
 //   Iš šaltinio imami tik faktai; aprašymas ir šūkis - savi (šablonai), be pardavėjo teiginių ir prekės ženklų.
 //   Rezultatas deterministinis: sakinių variantai parenkami pagal pavadinimą (afPick).
 
-const AF_TYPE_IDS = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai"];
-const AF_SCENTED = new Set(["kvepalai", "difuzoriai", "zvakes", "aliejai"]);
-const AF_NAME_PREFIX = { kvepalai: "", difuzoriai: "Difuzorius", zvakes: "Kvapni žvakė", aliejai: "Aromatinis aliejus", "elektriniai-difuzoriai": "Elektrinis difuzorius" };
+const AF_TYPE_IDS = ["kvepalai", "difuzoriai", "zvakes", "aliejai", "elektriniai-difuzoriai", "purskikliai", "vaskai", "aromalempos"];
+const AF_SCENTED = new Set(["kvepalai", "difuzoriai", "zvakes", "aliejai", "purskikliai", "vaskai"]);
+// Prietaisai be kvapo (v34): viena eilutė „1 vnt.“, pavadinimas - iš aprašymo, ne iš kvapo
+const AF_DEVICE = new Set(["elektriniai-difuzoriai", "aromalempos"]);
+const AF_NAME_PREFIX = {
+  kvepalai: "",
+  difuzoriai: "Difuzorius",
+  zvakes: "Kvapni žvakė",
+  aliejai: "Aromatinis aliejus",
+  "elektriniai-difuzoriai": "Elektrinis difuzorius",
+  purskikliai: "Namų purškiklis",
+  vaskai: "Kaitinamas vaškas",
+  aromalempos: "Aromalempa"
+};
 // Tipui būdingos savybės (products.attrs): raktas, pavadinimas, vienetas (formoje ir parduotuvėje)
 const AF_ATTRS = {
   kvepalai: [],
@@ -31,6 +42,20 @@ const AF_ATTRS = {
     ["tank", "Vandens talpa", "ml"],
     ["runtime", "Veikimo laikas", "val."],
     ["light", "Apšvietimas", ""]
+  ],
+  purskikliai: [
+    ["sprays", "Kvapo kiekis", ""],
+    ["forTextile", "Tinka tekstilei", ""]
+  ],
+  vaskai: [
+    ["pieces", "Kubelių", "vnt."],
+    ["wax", "Vaškas", ""],
+    ["forBurner", "Aromalempoms", ""]
+  ],
+  aromalempos: [
+    ["material", "Medžiaga", ""],
+    ["dims", "Matmenys", "cm"],
+    ["heat", "Kaitinama", ""]
   ]
 };
 const afProductName = (type, scentName) => [AF_NAME_PREFIX[type] || "", scentName || ""].filter(Boolean).join(" ").trim();
@@ -153,6 +178,9 @@ function afDetectType(text) {
   const t = String(text).toLowerCase();
   const n = re => (t.match(re) || []).length;
   const score = {
+    aromalempos: 4 * n(/kominek|kominki|wax burner|oil burner|aroma lamp|tealight burner|aromalemp|vaško kaitintuv/g),
+    vaskai: 4 * n(/wosk\w* (?:zapach|do komink)|wosk(?:i|ów)? do komink|wax melts?|scented wax|kaitinam\w* va[šs]k|kvapn\w* va[šs]k/g),
+    purskikliai: 4 * n(/room spray|home spray|linen spray|od[śs]wie[żz]acz|spray do (?:wn[ęe]trz|pomieszcze|tkanin)|zapach do wn[ęe]trz w sprayu|nam\w* pur[šs]kikl|kvap\w* pur[šs]kikl/g),
     "elektriniai-difuzoriai": 4 * n(/dyfuzor\w* elektryczn|elektryczn\w* dyfuzor|nawil[żz]acz|ultrad[źz]wi[ęe]k|ultrasonic|electric (?:aroma )?diffuser|aroma diffuser|humidifier|nebuli[sz]er|elektrinis difuzorius|elektriniai difuzoriai|ultragars|dr[ėe]kintuv/g),
     zvakes: 4 * n(/[śs]wiec[aey]?\b|[śs]wieczk|candle|[žz]vak[ėe]/g),
     aliejai: 4 * n(/olej\w* (?:do|dla) (?:dyfuzor|nawil|aromaterap)|oil for (?:diffuser|humidifier)|diffuser oil|aliej\w* (?:difuzori|elektrini)|difuzori\w* aliej/g) + 2 * n(/olejek|fragrance oil|essential oil|aroma oil|aromatinis aliejus|eterinis aliejus/g),
@@ -160,6 +188,10 @@ function afDetectType(text) {
     kvepalai: 2 * n(/perfum|parfum|eau de|\bedp\b|\bedt\b|woda toaletowa|woda perfumowana|kvepal|tualetinis vanduo|zaperfumowanie/g)
   };
   if (score["elektriniai-difuzoriai"]) score.difuzoriai = 0;
+  // Aromalempa „do wosków i olejków“ - ne vaškas ir ne aliejus; vaškas aromalempai - ne žvakė
+  if (score.aromalempos) score.vaskai = score.aliejai = score.zvakes = 0;
+  if (score.vaskai) score.zvakes = 0;
+  if (score.purskikliai) score.kvepalai = 0;
   const best = Object.entries(score).sort((a, b) => b[1] - a[1])[0];
   return best[1] > 0 ? best[0] : null;
 }
@@ -365,6 +397,7 @@ function afTagline(f) {
   let line = keys.length ? afCap(afAnd(keys.map((x, i) => (i ? afLc(x) : x)))) : "";
   if (line.length > 60 && keys.length > 2) line = afCap(afAnd(keys.slice(0, 2).map((x, i) => (i ? afLc(x) : x))));
   if (!line && f.type === "elektriniai-difuzoriai") line = f.attrs.light ? "Tylus aromato difuzorius su apšvietimu" : "Tylus ir tolygus aromato difuzorius";
+  if (!line && f.type === "aromalempos") line = f.attrs.material ? `${afCap(String(f.attrs.material).toLowerCase().replace(/a$/, "inė"))} aromalempa vaškui ir aliejams` : "Aromalempa vaškui ir aliejams";
   if (!line && f.family) line = afCap(AF_FAMILY_TXT[f.family].home[0]);
   return line.slice(0, 60);
 }
@@ -396,12 +429,19 @@ function afDescribe(f) {
     if (a.light) S.push(/spalv/.test(a.light) ? `Turi LED apšvietimą (${a.light.replace(/^LED,?\s*/i, "")}), kuris sukuria jaukią nuotaiką.` : "Turi švelnų LED apšvietimą, kuris sukuria jaukią nuotaiką.");
     S.push("Įlašinkite kelis lašus aromatinio aliejaus į vandenį - ir namai prisipildys kvapo.");
     S.push(afPick(["Tinka miegamajam, svetainei ar biurui.", "Puikiai tinka miegamajam, svetainei ir darbo kambariui."], seed, "rooms"));
+  } else if (f.type === "aromalempos") {
+    S.push(`${f.name} - ${a.material ? `${String(a.material).toLowerCase().replace(/a$/, "inė")} ` : ""}aromalempa kaitinamam vaškui ir aromatiniams aliejams.`);
+    if (a.dims) S.push(`Dydis - ${a.dims} cm.`);
+    S.push("Į viršutinį dubenėlį įdėkite 1-2 vaško kubelius arba įpilkite vandens su keliais lašais aliejaus, apačioje uždekite arbatinę žvakutę - šiluma lėtai ištirpdo vašką ir kvapas tolygiai pasklinda po kambarį.");
+    S.push("Kartu sukuria jaukią, šiltą šviesą.");
   } else {
     const home = ft ? afPick(ft.home, seed, "home") : "malonus aromatas";
     const intro = {
       difuzoriai: `${f.name} - ${home} jūsų namams.`,
       zvakes: `${f.name} - ${home} jaukiai namų atmosferai.`,
-      aliejai: `${f.name} - ${home} elektriniams difuzoriams ir drėkintuvams.`
+      aliejai: `${f.name} - ${home} elektriniams difuzoriams ir drėkintuvams.`,
+      purskikliai: `${f.name} - ${home} jūsų namams akimirksniu.`,
+      vaskai: `${f.name} - ${home} aromalempai.`
     }[f.type];
     S.push(intro);
     S.push(afNotesSentence(f, seed));
@@ -416,6 +456,11 @@ function afDescribe(f) {
       if (wax) S.push(`Žvakė pagaminta iš ${wax[2]}${a.wick ? `, su ${a.wick === "Medinė" ? "medine" : "medvilnine"} dagtimi` : ""}.`);
       if (a.burn) S.push(`Degimo trukmė - iki ${a.burn} val.`);
       S.push("Pirmą kartą uždekite bent valandai, kad vaškas tolygiai išsilydytų visu paviršiumi.");
+    } else if (f.type === "purskikliai") {
+      S.push("Užtenka 1-2 purškimų į orą arba ant užuolaidų, patalynės ir minkštų baldų iš maždaug 30 cm atstumo - kvapas ilgai išlieka ore ir audiniuose.");
+    } else if (f.type === "vaskai") {
+      S.push(`Įdėkite 1-2 kubelius į aromalempos dubenėlį ir uždekite arbatinę žvakutę - vaškas ištirpsta ir valandų valandas skleidžia kvapą be dagties ir be dūmų.${a.wax === "Sojų vaškas" ? " Pagamintas iš sojų vaško." : ""}`);
+      if (a.pieces) S.push(`Pakuotėje - ${a.pieces} ${afPlural(a.pieces, "kubelis", "kubeliai", "kubelių")}.`);
     } else if (f.type === "aliejai") {
       S.push("Užtenka kelių lašų į difuzoriaus vandenį - kvapas tolygiai pasklinda po visą patalpą.");
       if (a.weeks) S.push(`Vieno buteliuko užtenka iki ${a.weeks} ${afPlural(a.weeks, "savaitės", "savaičių", "savaičių")}.`);
@@ -511,7 +556,7 @@ function afParse(text, opts = {}) {
 
   // Talpa, svoris, savybės
   const ml = afMl(first("volume")) || afMl(title) || afMl(body);
-  const grams = afG(first("weight")) || (type === "zvakes" ? afG(title) || afG(body) : null);
+  const grams = afG(first("weight")) || (type === "zvakes" || type === "vaskai" ? afG(title) || afG(body) : null);
   if (ml) fact("Talpa", `${ml} ml`);
   if (grams) fact("Svoris", `${grams} g`);
   const attrs = {};
@@ -534,6 +579,20 @@ function afParse(text, opts = {}) {
     attrs.forDiffuser = true;
     const wk = afMax(first("duration").match(AF_RX.weeks) || all.match(AF_RX.weeks)) || (afMax(first("duration").match(AF_RX.months) || all.match(AF_RX.months)) || 0) * 4;
     if (wk) attrs.weeks = wk;
+  } else if (type === "purskikliai") {
+    if (/tkanin|fabric|textile|zas[łl]on|po[śs]ciel|linen|tapicer|upholster|audin|patalyn|užuolaid/i.test(all)) attrs.forTextile = true;
+  } else if (type === "vaskai") {
+    attrs.forBurner = true;
+    const pc = all.match(/(\d+)\s*(?:kostek|kostki|kostka|cubes?|kubel\w*|szt\.?|pcs)/i);
+    if (pc) attrs.pieces = Number(pc[1]);
+    if (/soj|soy/i.test(all)) attrs.wax = "Sojų vaškas";
+  } else if (type === "aromalempos") {
+    if (/ceram|keram/i.test(all)) attrs.material = "Keramika";
+    else if (/szk[łl]|glass|stikl/i.test(all)) attrs.material = "Stiklas";
+    else if (/metal|metal/i.test(all)) attrs.material = "Metalas";
+    const dm = all.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?\s*cm/i);
+    if (dm) attrs.dims = [dm[1], dm[2], dm[3]].filter(Boolean).map(x => x.replace(".", ",")).join(" × ");
+    if (/tealight|podgrzewacz|t[ée]a ?light|arbatin/i.test(all)) attrs.heat = "Arbatinė žvakutė";
   } else if (type === "elektriniai-difuzoriai") {
     const tk = afMl(first("tank")) || ml;
     if (tk) attrs.tank = tk;
@@ -601,7 +660,7 @@ function afParse(text, opts = {}) {
     if (scented) auto.add("longevity").add("sillage");
     if (f.family) auto.add("look");
   }
-  f.name = afProductName(type, type === "elektriniai-difuzoriai" ? nm.name : f.scentName);
+  f.name = afProductName(type, AF_DEVICE.has(type) ? nm.name : f.scentName);
   if (f.name) auto.add("name");
   f.id = afSlug(f.name);
   if (type === "kvepalai") {
@@ -611,13 +670,13 @@ function afParse(text, opts = {}) {
       f.sizes = [{ ml: Math.round(ml), price: "" }];
       auto.add("sizes");
     }
-  } else if (type === "zvakes" && grams) {
+  } else if ((type === "zvakes" || type === "vaskai") && grams) {
     f.sizes = [{ ml: grams, unit: "g", price: "" }];
     auto.add("sizes");
-  } else if (type !== "elektriniai-difuzoriai" && ml) {
+  } else if (!AF_DEVICE.has(type) && ml) {
     f.sizes = [{ ml, price: "" }];
     auto.add("sizes");
-  } else if (type === "elektriniai-difuzoriai") {
+  } else if (AF_DEVICE.has(type)) {
     f.sizes = [{ ml: 1, unit: "vnt", price: "" }];
   }
   if (f.ingredients) auto.add("ingredients");
@@ -633,7 +692,7 @@ function afParse(text, opts = {}) {
   if (scented && !f.family) need("family", "Kvapo pobūdis");
   if (type === "kvepalai" && !fromScent && !gender) need("gender", "Kam skirta (lytis)");
   if (type === "kvepalai" && !cc.how) need("conc", "Koncentracija (patikrinkite)");
-  if (!f.sizes.length) need("sizes", type === "kvepalai" ? (ml ? `Talpa (${ml} ml - parduotuvėje tik 33 / 100 ml)` : "Talpa") : type === "zvakes" ? "Svoris" : "Talpa");
+  if (!f.sizes.length) need("sizes", type === "kvepalai" ? (ml ? `Talpa (${ml} ml - parduotuvėje tik 33 / 100 ml)` : "Talpa") : type === "zvakes" || type === "vaskai" ? "Svoris" : "Talpa");
   need("price", "Kaina");
   need("stock", "Likutis");
   need("images", "Nuotraukos");

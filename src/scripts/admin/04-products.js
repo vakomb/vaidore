@@ -42,10 +42,13 @@ const TYPE_FORM = {
   difuzoriai: { name: "Difuzorius LIBRADORE", tagline: "Švelnus gėlių aromatas namams", desc: "Kvapas, kiek jo užtenka", inci: "Sudėtis", inciPh: "Isopropyl Myristate, Parfum…", notes: "Kvapas" },
   zvakes: { name: "Kvapni žvakė LIBRADORE", tagline: "Jaukus vanilės aromatas vakarams", desc: "Kvapas, vaškas, degimo trukmė", inci: "Sudėtis", inciPh: "Sojų vaškas, kvapioji kompozicija…", notes: "Kvapas" },
   aliejai: { name: "Aromatinis aliejus LIBRADORE", tagline: "Gaivus citrusų aromatas difuzoriui", desc: "Kvapas, kaip naudoti, kiek užtenka", inci: "Sudėtis", inciPh: "Parfum, Dipropylene Glycol…", notes: "Kvapas" },
-  "elektriniai-difuzoriai": { name: "Elektrinis difuzorius AROMA", tagline: "Tylus difuzorius su apšvietimu", desc: "Kaip veikia, kas komplekte", inci: null, notes: "Kvapas" }
+  "elektriniai-difuzoriai": { name: "Elektrinis difuzorius AROMA", tagline: "Tylus difuzorius su apšvietimu", desc: "Kaip veikia, kas komplekte", inci: null, notes: "Kvapas" },
+  purskikliai: { name: "Namų purškiklis LIBRADORE", tagline: "Gėlių ir vanilės aromatas akimirksniu", desc: "Kvapas, kaip ir kur purkšti", inci: "Sudėtis", inciPh: "Aqua, Alcohol Denat., Parfum…", notes: "Kvapas" },
+  vaskai: { name: "Kaitinamas vaškas LIBRADORE", tagline: "Švelnus gėlių aromatas aromalempai", desc: "Kvapas, kiek kubelių, kaip naudoti", inci: "Sudėtis", inciPh: "Sojų vaškas, kvapioji kompozicija…", notes: "Kvapas" },
+  aromalempos: { name: "Aromalempa RANKOS", tagline: "Keraminė aromalempa vaškui ir aliejams", desc: "Medžiaga, dydis, kaip naudoti", inci: null, notes: "Kvapas" }
 };
 // Trumpi pavadinimai kategorijos pasirinkimui
-const TYPE_SHORT = { "elektriniai-difuzoriai": "Elektriniai" };
+const TYPE_SHORT = { "elektriniai-difuzoriai": "Elektriniai", purskikliai: "Purškikliai", vaskai: "Vaškai", aromalempos: "Aromalempos" };
 // Katalogo perjungiklis (telefone ir planšetėje; kompiuteryje - šoniniame meniu)
 const catalogSeg = cur =>
   `<div class="axSeg axCatSeg" role="tablist" aria-label="Katalogas">${[
@@ -151,7 +154,7 @@ const famName = id => VD.CAT.families.find(f => f.id === id)?.name || id || "";
 function productLine(p) {
   return (p.type || "kvepalai") === "kvepalai"
     ? [VD.GENDER_NAME[p.gender] || "", famName(p.family), p.conc].filter(Boolean).join(" · ")
-    : [typeName(p), p.type === "elektriniai-difuzoriai" ? "" : famName(p.family)].filter(Boolean).join(" · ");
+    : [typeName(p), AF_SCENTED.has(p.type || "kvepalai") ? famName(p.family) : ""].filter(Boolean).join(" · ");
 }
 // Sąraše - mažiausia kaina („nuo …“, jei talpų kelios)
 function priceFrom(p) {
@@ -639,20 +642,20 @@ const formType = form => form.elements.type?.value || "kvepalai";
 function paintSizes(form, sizes) {
   const type = formType(form);
   const perf = type === "kvepalai";
-  const unit = type === "zvakes" ? "g" : "ml";
+  const unit = type === "zvakes" || type === "vaskai" ? "g" : "ml";
   const price = s => `<label class="field"><span>Kaina, €</span><input inputmode="decimal" data-size-price value="${esc(dec(s.price ?? ""))}" placeholder="-" /></label>
 <label class="field"><span>Sena, €</span><input inputmode="decimal" data-size-was value="${esc(dec(s.was ?? ""))}" placeholder="-" /></label>`;
   const free = [...sizes.filter(s => s.ml !== "" && s.ml != null), {}, {}].slice(0, 2);
   if (!perf && !free[0].ml) free[0] = { ...free[0], ml: 100 };
   $("#sizesBox", form).innerHTML = perf
     ? VD.BOTTLE_ML.map(ml => `<div class="admSize" data-size-ml="${ml}"><b class="admSizeMl">${ml} ml</b>${price(sizes.find(x => Number(x.ml) === ml) || {})}</div>`).join("")
-    : type === "elektriniai-difuzoriai"
+    : AF_DEVICE.has(type)
       ? `<div class="admSize" data-size-ml="1" data-size-unit="vnt"><b class="admSizeMl">1 vnt.</b>${price(sizes[0] || {})}</div>`
       : free
           .map(
             s =>
               `<div class="admSize free" data-size-unit="${unit}"><label class="field"><span>${unit === "g" ? "Svoris, g" : "Tūris, ml"}</span><input inputmode="numeric" data-size-ml-in value="${esc(s.ml ?? "")}" placeholder="${
-                unit === "g" ? 180 : 100
+                unit === "g" ? (type === "vaskai" ? 56 : 180) : type === "purskikliai" ? 250 : 100
               }" /></label>${price(s)}</div>`
           )
           .join("");
@@ -788,7 +791,7 @@ function readProduct(ed, form) {
   }
   if (!row.family) errors.push("Pasirinkite kvapo šeimą");
   if (!perf) row.sample = 0;
-  if (!sizes.length) errors.push(perf ? "Įrašykite kainą bent vienai talpai (33 ml arba 100 ml)" : type === "elektriniai-difuzoriai" ? "Įrašykite kainą" : `Įrašykite ${type === "zvakes" ? "svorį" : "tūrį"} ir kainą`);
+  if (!sizes.length) errors.push(perf ? "Įrašykite kainą bent vienai talpai (33 ml arba 100 ml)" : AF_DEVICE.has(type) ? "Įrašykite kainą" : `Įrašykite ${type === "zvakes" || type === "vaskai" ? "svorį" : "tūrį"} ir kainą`);
   if (sizes.some(s => (s.unit || "ml") === "ml" && !(s.ml > 2))) errors.push("Tūris - daugiau nei 2 ml");
   if (sizes.some(s => !(s.ml > 0))) errors.push(type === "zvakes" ? "Svoris - daugiau nei 0 g" : "Tūris - daugiau nei 0");
   if (new Set(sizes.map(s => s.ml)).size !== sizes.length) errors.push("Tūriai kartojasi");
@@ -859,6 +862,10 @@ async function deleteProduct(p) {
 const typeName = p => VD.TYPES.find(t => t.id === (p.type || "kvepalai"))?.one || "";
 
 // ── Tipo savybės (products.attrs, v15) - laukai pagal AF_ATTRS (13-autofill.js) ──
+// Taip / ne savybės - jungikliai; tekstinės - laisvas tekstas; kitos - skaičiai (v34: + purškikliai, vaškai, aromalempos)
+const ATTR_BOOL = new Set(["forDiffuser", "forTextile", "forBurner"]);
+const ATTR_TEXT = new Set(["wax", "wick", "power", "light", "material", "dims", "heat", "sprays"]);
+const ATTR_PH = { sprays: "1-2 purškimai", material: "Keramika", dims: "10 × 12", heat: "Arbatinė žvakutė", wax: "Sojų vaškas", pieces: "6" };
 function paintAttrs(form, attrs) {
   const box = $("#attrsBox", form);
   if (!box) return;
@@ -866,11 +873,11 @@ function paintAttrs(form, attrs) {
   $("#attrsRow", form).hidden = !defs.length;
   box.innerHTML = defs
     .map(([k, label, unit]) =>
-      k === "forDiffuser"
+      ATTR_BOOL.has(k)
         ? `<label class="axField axSwitchRow" data-attr-row><span>${esc(label)}</span><input type="checkbox" class="admSwitchInp" data-attr="${k}"${attr(attrs?.[k] !== false, "checked")} /></label>`
-        : `<label class="field axField"><span>${esc(label)}${unit ? `, ${esc(unit)}` : ""}</span><input data-attr="${k}"${["wax", "wick", "power", "light"].includes(k) ? ` maxlength="60"` : ` inputmode="decimal"`} value="${esc(
-            attrs?.[k] ?? ""
-          )}" /></label>`
+        : `<label class="field axField"><span>${esc(label)}${unit ? `, ${esc(unit)}` : ""}</span><input data-attr="${k}"${ATTR_TEXT.has(k) ? ` maxlength="60"` : ` inputmode="decimal"`}${
+            ATTR_PH[k] ? ` placeholder="${esc(ATTR_PH[k])}"` : ""
+          } value="${esc(attrs?.[k] ?? "")}" /></label>`
     )
     .join("");
 }
@@ -879,7 +886,7 @@ function readAttrs(form) {
   for (const el of $$("[data-attr]", form)) {
     const k = el.dataset.attr;
     if (el.type === "checkbox") out[k] = el.checked;
-    else if (["wax", "wick", "power", "light"].includes(k)) {
+    else if (ATTR_TEXT.has(k)) {
       if (el.value.trim()) out[k] = el.value.trim();
     } else if (el.value.trim() !== "" && num(el.value) > 0) out[k] = Math.round(num(el.value) * 100) / 100;
   }

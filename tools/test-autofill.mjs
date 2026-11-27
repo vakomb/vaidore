@@ -91,6 +91,17 @@ check(el.type === "elektriniai-difuzoriai" && el.fields.name === "Elektrinis dif
 check(j(el.fields.attrs) === j({ tank: 300, runtime: 10, light: "LED, 7 spalvos" }) && !/m²|Maitinimas/.test(el.fields.description), "PL elektrinis difuzorius: talpa, veikimo laikas, apšvietimas (be ploto ir maitinimo)");
 check(!labels(el).includes("inspired") && !labels(el).includes("notes") && !el.fields.notes.top.length, "PL elektrinis difuzorius: be kvapo laukų ir be „Originalo kvapas“");
 
+// v34: namų purškiklis, kaitinamas vaškas, aromalempa
+const sp = afParse("Room spray Savage \u2013 z inspiracji Dior Sauvage 250 ml\nZapach do wnętrz w sprayu. Można stosować na zasłony, pościel i tapicerkę.\nNuty: bergamotka, pieprz, ambroxan", { families });
+check(sp.type === "purskikliai" && /^Namų purškiklis/.test(sp.fields.name) && sp.fields.attrs.forTextile === true && sp.fields.sizes[0]?.ml === 250, `PL namų purškiklis: tipas, pavadinimas, tekstilė, 250 ml (${sp.type}, ${sp.fields.name})`);
+check(/purškim/.test(sp.fields.description) && !/[\u2012-\u2015\u2212]/.test(sp.fields.description), "PL namų purškiklis: aprašymas su naudojimu, tik „-“");
+const wx = afParse("Wosk zapachowy Angel \u2013 z inspiracji Thierry Mugler Angel\nWosk sojowy do kominków, 56 g, 6 kostek", { families });
+check(wx.type === "vaskai" && /^Kaitinamas vaškas/.test(wx.fields.name) && wx.fields.sizes[0]?.ml === 56 && wx.fields.sizes[0]?.unit === "g", `PL kaitinamas vaškas: tipas, pavadinimas, 56 g (${wx.type})`);
+check(wx.fields.attrs.forBurner === true && wx.fields.attrs.pieces === 6 && wx.fields.attrs.wax === "Sojų vaškas" && /aromalemp/.test(wx.fields.description), "PL kaitinamas vaškas: aromalempoms, 6 kubeliai, sojų vaškas");
+const bu = afParse("Kominek zapachowy RANKOS ceramika 10x12 cm z podstawką\nDo wosków i olejków, na podgrzewacz tealight", { families });
+check(bu.type === "aromalempos" && bu.fields.attrs.material === "Keramika" && bu.fields.attrs.dims === "10 × 12" && bu.fields.attrs.heat === "Arbatinė žvakutė" && bu.fields.sizes[0]?.unit === "vnt", `PL aromalempa: tipas, keramika, 10 × 12 cm, arbatinė žvakutė (${bu.type})`);
+check(!bu.fields.notes.top.length && !labels(bu).includes("inspired") && /aromalempa/.test(bu.fields.description), "PL aromalempa: be kvapo laukų, aprašymas");
+
 const en = afParse("VELVET NIGHT Eau de Parfum for men 100 ml \u2013 inspired by Dior Sauvage\nFragrance notes: bergamot, pink pepper, lavender, geranium, ambroxan, cedar, vetiver\nFragrance family: aromatic fougere", { families });
 check(en.fields.name === "Velvet Night" && en.fields.gender === "vyrams" && en.fields.conc === "EDP" && en.fields.inspired === "Dior Sauvage", "EN kvepalai: pavadinimas, vyrams, EDP, originalas");
 check(en.fields.family === "sviezi" && en.fields.notes.top.length + en.fields.notes.heart.length + en.fields.notes.base.length === 7, "EN kvepalai: šeima švieži, 7 natos paskirstytos");

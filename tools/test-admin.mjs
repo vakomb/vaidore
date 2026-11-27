@@ -345,7 +345,7 @@ await page.selectOption('#prodForm select[name="type"]', "zvakes");
 await page.goto(`${BASE}admin/kvapai/naujas?kategorija=zvakes`);
 await page.waitForSelector("[data-pick-type]");
 check(
-  (await page.locator("[data-pick-type]").count()) === 5 &&
+  (await page.locator("[data-pick-type]").count()) === 8 &&
     (await page.locator('[data-pick-type="zvakes"]').getAttribute("aria-checked")) === "true" &&
     (await page.locator(".admSize .field span").first().textContent()).startsWith("Svoris") &&
     (await page.locator('[data-tf="inci"]').textContent()) === "Sudėtis" &&
@@ -358,6 +358,22 @@ await page.click('[data-pick-type="elektriniai-difuzoriai"]');
 check(
   (await page.locator('[data-tf-box="inci"]').isHidden()) && (await page.locator("#prodForm #bottlePrev").isHidden()) && (await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0 && (await page.inputValue("#prodForm [name=type]")) === "elektriniai-difuzoriai" && (await page.locator("#prodForm [name=cats]:visible").count()) === 0 && (await page.locator('#prodForm [data-attr="area"], #prodForm [data-attr="power"]').count()) === 0,
   "kategorijos pasirinkimas: elektrinis difuzorius - be kvapo, sudėties, buteliuko, kolekcijų, ploto ir maitinimo"
+);
+// v34: naujos kategorijos - savi laukai
+await page.click('[data-pick-type="aromalempos"]');
+check(
+  (await page.locator("#prodForm .admSizeMl").first().textContent()) === "1 vnt." && (await page.locator('#prodForm [data-attr="material"], #prodForm [data-attr="dims"], #prodForm [data-attr="heat"]').count()) === 3 && (await page.locator("#prodForm .scentOnly:not([hidden])").count()) === 0,
+  "kategorijos pasirinkimas (v34): aromalempa - 1 vnt., medžiaga, matmenys, kaitinimas, be kvapo laukų"
+);
+await page.click('[data-pick-type="vaskai"]');
+check(
+  (await page.locator(".admSize .field span").first().textContent()).startsWith("Svoris") && (await page.locator('#prodForm [data-attr="pieces"]').count()) === 1 && (await page.locator('#prodForm input[type=checkbox][data-attr="forBurner"]').count()) === 1 && (await page.getAttribute('#prodForm [name="name"]', "placeholder")).startsWith("Kaitinamas vaškas"),
+  "kategorijos pasirinkimas (v34): kaitinamas vaškas - svoris, kubeliai, „Aromalempoms“"
+);
+await page.click('[data-pick-type="purskikliai"]');
+check(
+  (await page.locator(".admSize .field span").first().textContent()).startsWith("Tūris") && (await page.locator('#prodForm input[type=checkbox][data-attr="forTextile"]').count()) === 1 && (await page.getAttribute('#prodForm [name="name"]', "placeholder")).startsWith("Namų purškiklis"),
+  "kategorijos pasirinkimas (v34): namų purškiklis - tūris, „Tinka tekstilei“"
 );
 await page.click('[data-pick-type="kvepalai"]');
 check(
@@ -664,7 +680,7 @@ await page.click("[data-he-save]");
 check(await until(() => sb.db.settings[0].data.topbar?.items?.[0]?.text === "Žiemos akcija - *-20 %*"), "juosta išsaugota");
 // Plytelės
 await go(page, "admin/vitrina/plyteles");
-check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,zvakes,aliejai,elektriniai-difuzoriai", "plytelės: numatytosios - 5 prekių tipai");
+check((await page.locator("#heTiles [data-he-tile]").evaluateAll(a => a.map(x => x.dataset.heTile))).join() === "kvepalai,difuzoriai,zvakes,aliejai,elektriniai-difuzoriai,purskikliai,vaskai,aromalempos", "plytelės: numatytosios - 8 prekių tipai (v34: + purškikliai, vaškai, aromalempos)");
 await page.locator('#heTiles [data-he-tile="aliejai"] [data-he-on]').click();
 await page.click("[data-he-addtile-menu]");
 await page.click('[data-sheet-act="kat-vakarui"]');

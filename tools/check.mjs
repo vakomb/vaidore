@@ -110,7 +110,7 @@ for (const f of fs.readdirSync(path.join(root, "src/styles")).filter(f => f.ends
   for (const [l, d] of Object.entries(DICTS)) for (const [k, v] of Object.entries(d)) if (/[\u2012-\u2015\u2212]/.test(v)) fail(`i18n/${l}.json: „${k}“ - tik paprastas „-“ brūkšnys`);
   const en = Object.values(ROUTES.paths);
   if (new Set(en).size !== en.length) fail("i18n/routes.json: pasikartoja angliškas adresas");
-  for (const tp of ["kvepalai", "zvakes", "aliejai", "difuzoriai", "elektriniai-difuzoriai"]) if (!ROUTES.paths[tp]) fail(`i18n/routes.json: nėra prekių tipo „${tp}“`);
+  for (const tp of ["kvepalai", "zvakes", "aliejai", "difuzoriai", "elektriniai-difuzoriai", "purskikliai", "vaskai", "aromalempos"]) if (!ROUTES.paths[tp]) fail(`i18n/routes.json: nėra prekių tipo „${tp}“`);
   for (const rel of ["", "kvepalai", "kvepalai/rasa?ml=2", "visos-prekes?tipas=zvakes&rikiuoti=new", "pagalba#pristatymas", "paskyra/uzsakymai", "kategorija/vakarui", "naujienlaiskis?atsisakyti=x"]) {
     const back = L10N.ltRel(L10N.enRel(rel));
     if (back !== rel) fail(`i18n: „${rel}“ → „${L10N.enRel(rel)}“ → „${back}“ (turi grįžti tas pats)`);

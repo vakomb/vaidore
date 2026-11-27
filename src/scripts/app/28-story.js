@@ -27,7 +27,15 @@ const STORY_ICO = {
   candle:
     '<path d="M7.5 12.5A1.5 1.5 0 0 1 9 11h6a1.5 1.5 0 0 1 1.5 1.5V19a1.5 1.5 0 0 1-1.5 1.5H9A1.5 1.5 0 0 1 7.5 19z"/><path d="M7.5 14.3h9"/><path d="M12 11V9.4"/><path d="M12 3.3c1.5 1.7 2.3 2.9 2.3 4a2.3 2.3 0 0 1-4.6 0c0-1.1.8-2.3 2.3-4z"/>',
   scissors: '<circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M8.4 15.9 17.5 4.5M15.6 15.9 6.5 4.5"/>',
-  vial: '<rect x="9" y="3.5" width="6" height="3" rx="1"/><path d="M9.8 6.5v12a2.2 2.2 0 0 0 4.4 0v-12"/><path d="M9.8 13h4.4"/>'
+  vial: '<rect x="9" y="3.5" width="6" height="3" rx="1"/><path d="M9.8 6.5v12a2.2 2.2 0 0 0 4.4 0v-12"/><path d="M9.8 13h4.4"/>',
+  // v34: namų purškikliai, kaitinami vaškai, aromalempos
+  spray: '<path d="M9 9.5h6v10.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 20z"/><path d="M10 9.5V7h4v2.5"/><path d="M10.5 7 9 4.5h6.5L18 6.5"/><path d="M20 4h.01M21 6.8h.01M20 9.5h.01" stroke-width="2.2"/>',
+  curtain: '<path d="M3.5 3.5h17"/><path d="M5.5 3.5c0 5.5 1.2 11 3.5 17h-4M18.5 3.5c0 5.5-1.2 11-3.5 17h4"/><path d="M8 3.5c.3 3.4 1.1 6.5 2.3 9.3M16 3.5c-.3 3.4-1.1 6.5-2.3 9.3"/>',
+  wardrobe: '<rect x="5" y="3" width="14" height="17.5" rx="1.5"/><path d="M12 3v17.5M10 10.5v2.5M14 10.5v2.5M7 20.5v1.5M17 20.5v1.5"/>',
+  car: '<path d="M5 13.5 6.8 8.6A1.5 1.5 0 0 1 8.2 7.6h7.6a1.5 1.5 0 0 1 1.4 1l1.8 4.9"/><rect x="3.5" y="13.5" width="17" height="4.5" rx="1.5"/><path d="M6.5 18v2M17.5 18v2M7 15.7h.01M17 15.7h.01" stroke-width="2"/>',
+  cube: '<path d="M12 3.5 19.5 7.5v9L12 20.5 4.5 16.5v-9z"/><path d="M4.5 7.5 12 11.5l7.5-4M12 11.5v9"/>',
+  tealight: '<path d="M6 15h12v3.5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M12 15v-2.2"/><path d="M12 12.8c-1.7-1.2-1.8-3.4 0-5.8 1.8 2.4 1.7 4.6 0 5.8z"/>',
+  melt: '<path d="M4.5 13h15l-1.8 6.2a1.5 1.5 0 0 1-1.4 1.1H7.7a1.5 1.5 0 0 1-1.4-1.1z"/><path d="M7.5 16.2h9"/><path d="M12 3.5c-1.7 2.2-2.4 3.6-2.4 4.8a2.4 2.4 0 0 0 4.8 0c0-1.2-.7-2.6-2.4-4.8z"/>'
 };
 // Piktogramų pasirinkimas administravime (v29c): raktas → pavadinimas
 const STORY_ICO_NAMES = {
@@ -51,6 +59,13 @@ const STORY_ICO_NAMES = {
   scissors: "Žirklės",
   clock: "Laikas",
   vial: "Mėginukas",
+  spray: "Purškiklis",
+  curtain: "Užuolaidos",
+  wardrobe: "Spinta",
+  car: "Automobilis",
+  cube: "Vaško kubelis",
+  tealight: "Arbatinė žvakutė",
+  melt: "Tirpstantis vaškas",
   info: "Informacija"
 };
 const storyIco = k => `<svg class="sIco" viewBox="0 0 24 24" aria-hidden="true">${STORY_ICO[k] || GLYPH[k] || GLYPH.info}</svg>`;

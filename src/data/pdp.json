@@ -1,35 +1,82 @@
 {
   "kvepalai": {
     "sub": "",
-    "notes": { "on": true, "title": "Kvapo natos" },
-    "traits": { "on": true, "title": "Kvapo charakteris" },
-    "mood": { "on": true },
-    "steps": { "on": false, "title": "", "items": [] },
+    "notes": {
+      "on": true,
+      "title": "Kvapo natos"
+    },
+    "traits": {
+      "on": true,
+      "title": "Kvapo charakteris"
+    },
+    "mood": {
+      "on": true
+    },
+    "steps": {
+      "on": false,
+      "title": "",
+      "items": []
+    },
     "where": {
       "on": true,
       "title": "Kur purkšti",
       "text": "Purkškite iš 15-20 cm atstumo ir netrinkite - natos atsiskleis tolygiai.",
       "items": [
-        { "ico": "wrist", "label": "Riešai" },
-        { "ico": "neck", "label": "Kaklas" },
-        { "ico": "ear", "label": "Už ausų" },
-        { "ico": "clothes", "label": "Drabužiai" }
+        {
+          "ico": "wrist",
+          "label": "Riešai"
+        },
+        {
+          "ico": "neck",
+          "label": "Kaklas"
+        },
+        {
+          "ico": "ear",
+          "label": "Už ausų"
+        },
+        {
+          "ico": "clothes",
+          "label": "Drabužiai"
+        }
       ]
     },
-    "sample": { "on": true },
-    "note": { "on": true, "title": "", "text": "Laikykite vėsioje ir tamsioje vietoje - kvapas ilgai išliks toks pat." }
+    "sample": {
+      "on": true
+    },
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Laikykite vėsioje ir tamsioje vietoje - kvapas ilgai išliks toks pat."
+    }
   },
   "difuzoriai": {
     "sub": "Namų kvapas su lazdelėmis",
-    "notes": { "on": true, "title": "Kvapo natos" },
-    "mood": { "on": true },
+    "notes": {
+      "on": true,
+      "title": "Kvapo natos"
+    },
+    "mood": {
+      "on": true
+    },
     "steps": {
       "on": true,
       "title": "Kaip naudoti",
       "items": [
-        { "ico": "cap", "title": "Atidarykite", "text": "Atsukite dangtelį ir nuimkite kamštelį." },
-        { "ico": "reeds", "title": "Įmerkite lazdeles", "text": "Sudėkite lazdeles į buteliuką ir išskleiskite vėduokle." },
-        { "ico": "flip", "title": "Apverskite kas savaitę", "text": "Apverstos lazdelės vėl įsigeria aliejaus - kvapas sustiprėja." }
+        {
+          "ico": "cap",
+          "title": "Atidarykite",
+          "text": "Atsukite dangtelį ir nuimkite kamštelį."
+        },
+        {
+          "ico": "reeds",
+          "title": "Įmerkite lazdeles",
+          "text": "Sudėkite lazdeles į buteliuką ir išskleiskite vėduokle."
+        },
+        {
+          "ico": "flip",
+          "title": "Apverskite kas savaitę",
+          "text": "Apverstos lazdelės vėl įsigeria aliejaus - kvapas sustiprėja."
+        }
       ]
     },
     "where": {
@@ -37,59 +84,150 @@
       "title": "Kur pastatyti",
       "text": "Geriausiai kvepia nedidelėje patalpoje, atokiau nuo skersvėjo ir tiesioginių saulės spindulių.",
       "items": [
-        { "ico": "sofa", "label": "Svetainė" },
-        { "ico": "bed", "label": "Miegamasis" },
-        { "ico": "bath", "label": "Vonia" },
-        { "ico": "door", "label": "Prieškambaris" },
-        { "ico": "laptop", "label": "Darbo kambarys" },
-        { "ico": "office", "label": "Biuras" }
+        {
+          "ico": "sofa",
+          "label": "Svetainė"
+        },
+        {
+          "ico": "bed",
+          "label": "Miegamasis"
+        },
+        {
+          "ico": "bath",
+          "label": "Vonia"
+        },
+        {
+          "ico": "door",
+          "label": "Prieškambaris"
+        },
+        {
+          "ico": "laptop",
+          "label": "Darbo kambarys"
+        },
+        {
+          "ico": "office",
+          "label": "Biuras"
+        }
       ]
     },
-    "note": { "on": true, "title": "", "text": "Laikykite vaikams ir gyvūnams nepasiekiamoje vietoje. Aliejus gali pažeisti lakuotus paviršius - statykite ant padėkliuko." }
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Laikykite vaikams ir gyvūnams nepasiekiamoje vietoje. Aliejus gali pažeisti lakuotus paviršius - statykite ant padėkliuko."
+    }
   },
   "zvakes": {
     "sub": "Kvapni žvakė namams",
-    "notes": { "on": true, "title": "Kvapo natos" },
-    "mood": { "on": true },
+    "notes": {
+      "on": true,
+      "title": "Kvapo natos"
+    },
+    "mood": {
+      "on": true
+    },
     "steps": {
       "on": true,
       "title": "Pirmasis uždegimas ir priežiūra",
       "items": [
-        { "ico": "candle", "title": "Pirmą kartą - ilgiau", "text": "Leiskite degti, kol ištirps visas paviršius: taip žvakė degs tolygiai." },
-        { "ico": "scissors", "title": "Patrumpinkite dagtį", "text": "Prieš kiekvieną uždegimą - iki 5 mm. Liepsna bus rami, be dūmų." },
-        { "ico": "clock", "title": "Iki 4 valandų", "text": "Degkite ne ilgiau kaip 4 val. iš eilės ir leiskite vaškui atvėsti." }
+        {
+          "ico": "candle",
+          "title": "Pirmą kartą - ilgiau",
+          "text": "Leiskite degti, kol ištirps visas paviršius: taip žvakė degs tolygiai."
+        },
+        {
+          "ico": "scissors",
+          "title": "Patrumpinkite dagtį",
+          "text": "Prieš kiekvieną uždegimą - iki 5 mm. Liepsna bus rami, be dūmų."
+        },
+        {
+          "ico": "clock",
+          "title": "Iki 4 valandų",
+          "text": "Degkite ne ilgiau kaip 4 val. iš eilės ir leiskite vaškui atvėsti."
+        }
       ]
     },
-    "where": { "on": false, "title": "", "text": "", "items": [] },
-    "note": { "on": true, "title": "", "text": "Niekada nepalikite degančios žvakės be priežiūros. Laikykite atokiau nuo užuolaidų, vaikų ir gyvūnų." }
+    "where": {
+      "on": false,
+      "title": "",
+      "text": "",
+      "items": []
+    },
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Niekada nepalikite degančios žvakės be priežiūros. Laikykite atokiau nuo užuolaidų, vaikų ir gyvūnų."
+    }
   },
   "aliejai": {
     "sub": "Aromatinis aliejus difuzoriui",
-    "notes": { "on": true, "title": "Kvapo natos" },
-    "mood": { "on": true },
+    "notes": {
+      "on": true,
+      "title": "Kvapo natos"
+    },
+    "mood": {
+      "on": true
+    },
     "steps": {
       "on": true,
       "title": "Kaip naudoti",
       "items": [
-        { "ico": "water", "title": "Įpilkite vandens", "text": "Pripildykite difuzoriaus talpą iki žymos." },
-        { "ico": "drops", "title": "Įlašinkite aliejaus", "text": "Užtenka kelių lašų - stiprumą reguliuokite lašų kiekiu." },
-        { "ico": "power", "title": "Įjunkite", "text": "Švelni aromato migla pasklis po visą kambarį." }
+        {
+          "ico": "water",
+          "title": "Įpilkite vandens",
+          "text": "Pripildykite difuzoriaus talpą iki žymos."
+        },
+        {
+          "ico": "drops",
+          "title": "Įlašinkite aliejaus",
+          "text": "Užtenka kelių lašų - stiprumą reguliuokite lašų kiekiu."
+        },
+        {
+          "ico": "power",
+          "title": "Įjunkite",
+          "text": "Švelni aromato migla pasklis po visą kambarį."
+        }
       ]
     },
-    "where": { "on": false, "title": "", "text": "", "items": [] },
-    "note": { "on": true, "title": "", "text": "Skirta tik difuzoriams: nevartokite viduje ir netepkite ant odos. Laikykite vaikams nepasiekiamoje vietoje." }
+    "where": {
+      "on": false,
+      "title": "",
+      "text": "",
+      "items": []
+    },
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Skirta tik difuzoriams: nevartokite viduje ir netepkite ant odos. Laikykite vaikams nepasiekiamoje vietoje."
+    }
   },
   "elektriniai-difuzoriai": {
     "sub": "Aromato difuzorius namams",
-    "notes": { "on": false, "title": "" },
-    "mood": { "on": false },
+    "notes": {
+      "on": false,
+      "title": ""
+    },
+    "mood": {
+      "on": false
+    },
     "steps": {
       "on": true,
       "title": "Kaip veikia",
       "items": [
-        { "ico": "water", "title": "Įpilkite vandens", "text": "Pripildykite talpą vandeniu iki žymos." },
-        { "ico": "drops", "title": "Įlašinkite aliejaus", "text": "Kelis lašus mėgstamo aromatinio aliejaus." },
-        { "ico": "power", "title": "Įjunkite", "text": "Difuzorius paverčia vandenį ir aliejų švelnia aromato migla." }
+        {
+          "ico": "water",
+          "title": "Įpilkite vandens",
+          "text": "Pripildykite talpą vandeniu iki žymos."
+        },
+        {
+          "ico": "drops",
+          "title": "Įlašinkite aliejaus",
+          "text": "Kelis lašus mėgstamo aromatinio aliejaus."
+        },
+        {
+          "ico": "power",
+          "title": "Įjunkite",
+          "text": "Difuzorius paverčia vandenį ir aliejų švelnia aromato migla."
+        }
       ]
     },
     "where": {
@@ -97,12 +235,214 @@
       "title": "Kur naudoti",
       "text": "",
       "items": [
-        { "ico": "sofa", "label": "Svetainė" },
-        { "ico": "bed", "label": "Miegamasis" },
-        { "ico": "laptop", "label": "Darbo kambarys" },
-        { "ico": "office", "label": "Biuras" }
+        {
+          "ico": "sofa",
+          "label": "Svetainė"
+        },
+        {
+          "ico": "bed",
+          "label": "Miegamasis"
+        },
+        {
+          "ico": "laptop",
+          "label": "Darbo kambarys"
+        },
+        {
+          "ico": "office",
+          "label": "Biuras"
+        }
       ]
     },
-    "note": { "on": true, "title": "Priežiūra", "text": "Kas kelis naudojimus išplaukite talpą šiltu vandeniu ir nusausinkite. Prieš valydami išjunkite iš elektros tinklo." }
+    "note": {
+      "on": true,
+      "title": "Priežiūra",
+      "text": "Kas kelis naudojimus išplaukite talpą šiltu vandeniu ir nusausinkite. Prieš valydami išjunkite iš elektros tinklo."
+    }
+  },
+  "purskikliai": {
+    "sub": "Namų kvapų purškiklis",
+    "notes": {
+      "on": true,
+      "title": "Kvapo natos"
+    },
+    "mood": {
+      "on": true
+    },
+    "steps": {
+      "on": true,
+      "title": "Kaip naudoti",
+      "items": [
+        {
+          "ico": "spray",
+          "title": "Purkškite į orą",
+          "text": "Užtenka 1-2 purškimų - kambarys pakvimpa akimirksniu."
+        },
+        {
+          "ico": "curtain",
+          "title": "Ant audinių",
+          "text": "Užuolaidas, patalynę ir pagalves purkškite iš maždaug 30 cm - kvapas išlieka ilgiau."
+        },
+        {
+          "ico": "clock",
+          "title": "Prieš svečius",
+          "text": "Purkštelėkite likus kelioms minutėms - kvapas spės tolygiai pasklisti."
+        }
+      ]
+    },
+    "where": {
+      "on": true,
+      "title": "Kur naudoti",
+      "text": "",
+      "items": [
+        {
+          "ico": "sofa",
+          "label": "Svetainė"
+        },
+        {
+          "ico": "bed",
+          "label": "Miegamasis"
+        },
+        {
+          "ico": "bath",
+          "label": "Vonia"
+        },
+        {
+          "ico": "wardrobe",
+          "label": "Drabužių spinta"
+        },
+        {
+          "ico": "car",
+          "label": "Automobilis"
+        }
+      ]
+    },
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Nepurkškite į akis, ant odos ir šalia atviros ugnies. Šilką ir odą purkšti nerekomenduojama - prieš purškiant ant audinio, išbandykite nepastebimoje vietoje. Laikykite vaikams nepasiekiamoje vietoje."
+    }
+  },
+  "vaskai": {
+    "sub": "Kaitinamas kvapnus vaškas",
+    "notes": {
+      "on": true,
+      "title": "Kvapo natos"
+    },
+    "mood": {
+      "on": true
+    },
+    "steps": {
+      "on": true,
+      "title": "Kaip naudoti",
+      "items": [
+        {
+          "ico": "cube",
+          "title": "Įdėkite kubelį",
+          "text": "Atlaužkite 1-2 kubelius ir įdėkite į aromalempos dubenėlį - be vandens."
+        },
+        {
+          "ico": "tealight",
+          "title": "Uždekite žvakutę",
+          "text": "Po dubenėliu uždekite arbatinę žvakutę - vaškas pamažu ištirps."
+        },
+        {
+          "ico": "melt",
+          "title": "Mėgaukitės kvapu",
+          "text": "Ištirpęs vaškas valandų valandas skleidžia kvapą - be dagties ir be dūmų."
+        },
+        {
+          "ico": "flip",
+          "title": "Pakeiskite",
+          "text": "Kai kvapas susilpnėja, leiskite vaškui sustingti, išimkite ir įdėkite naują kubelį."
+        }
+      ]
+    },
+    "where": {
+      "on": true,
+      "title": "Kur naudoti",
+      "text": "",
+      "items": [
+        {
+          "ico": "sofa",
+          "label": "Svetainė"
+        },
+        {
+          "ico": "bed",
+          "label": "Miegamasis"
+        },
+        {
+          "ico": "bath",
+          "label": "Vonia"
+        },
+        {
+          "ico": "door",
+          "label": "Prieškambaris"
+        }
+      ]
+    },
+    "note": {
+      "on": true,
+      "title": "",
+      "text": "Niekada nepalikite degančios žvakutės be priežiūros. Nejudinkite aromalempos, kol vaškas skystas. Laikykite atokiau nuo vaikų ir gyvūnų."
+    }
+  },
+  "aromalempos": {
+    "sub": "Aromalempa vaškui ir aliejams",
+    "notes": {
+      "on": false,
+      "title": ""
+    },
+    "mood": {
+      "on": false
+    },
+    "steps": {
+      "on": true,
+      "title": "Kaip naudoti",
+      "items": [
+        {
+          "ico": "cube",
+          "title": "Vaškas ar aliejus",
+          "text": "Į dubenėlį įdėkite 1-2 vaško kubelius arba įpilkite vandens su 3-5 lašais aromatinio aliejaus."
+        },
+        {
+          "ico": "tealight",
+          "title": "Uždekite žvakutę",
+          "text": "Arbatinę žvakutę padėkite po dubenėliu ir uždekite."
+        },
+        {
+          "ico": "melt",
+          "title": "Kvapas pasklinda",
+          "text": "Šiluma lėtai ištirpdo vašką - kambarys prisipildo kvapo ir jaukios šviesos."
+        }
+      ]
+    },
+    "where": {
+      "on": true,
+      "title": "Kur naudoti",
+      "text": "",
+      "items": [
+        {
+          "ico": "sofa",
+          "label": "Svetainė"
+        },
+        {
+          "ico": "bed",
+          "label": "Miegamasis"
+        },
+        {
+          "ico": "bath",
+          "label": "Vonia"
+        },
+        {
+          "ico": "office",
+          "label": "Biuras"
+        }
+      ]
+    },
+    "note": {
+      "on": true,
+      "title": "Saugumas ir priežiūra",
+      "text": "Statykite ant lygaus, karščiui atsparaus paviršiaus, atokiau nuo užuolaidų. Nepalikite degančios žvakutės be priežiūros. Vašką keiskite atvėsusį: sustingęs jis lengvai iškrenta, o dubenėlį pakanka nušluostyti popieriniu rankšluosčiu."
+    }
   }
 }
