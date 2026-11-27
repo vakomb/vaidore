@@ -253,9 +253,12 @@ async function run(viewport) {
       const sec = document.querySelector("#homeTilesSec");
       const first = document.querySelector("#homeRails > .hsec");
       const gap = first.getBoundingClientRect().top - document.querySelector("#homeHero").getBoundingClientRect().bottom;
-      return !sec.querySelector(".band") && Math.abs(gap) < 1;
+      const band = sec.querySelector(".bandBox .band");
+      const name = sec.querySelector(".tile .tileName").getBoundingClientRect();
+      const art = sec.querySelector(".tile .tileArt").getBoundingClientRect();
+      return !!band && getComputedStyle(band).backgroundColor === getComputedStyle(document.querySelector("#homeRails .band")).backgroundColor && sec.querySelector(".bandMore") && name.bottom <= art.top + 1 && Math.abs(gap) < 1;
     }),
-    "pradžia: pirmas prekių skyrius iškart po pagrindine nuotrauka, kategorijos - be antraštės"
+    "pradžia (v33k): pirmas prekių skyrius iškart po nuotrauka; kategorijos - su juoda juosta, pavadinimai virš paveikslų"
   );
   if (mobile && viewport.width < 700) {
     const tl = await page.evaluate(() => {
@@ -287,7 +290,7 @@ async function run(viewport) {
   check((await page.locator("#homeHero .heroClaims li").count()) >= 3, "skaidrė su teiginiais ir auksinėmis linijomis");
   check(
     (await page.locator("#homeTiles .tile .tileName").first().evaluate(e => [Number(getComputedStyle(e).fontWeight) >= 600, getComputedStyle(e).textTransform, e.offsetHeight > 0].join())) === "true,uppercase,true",
-    "plytelės: vientisa kortelė - pavadinimas po paveikslu (didžiosiomis, pusjuodis)"
+    "plytelės: vientisa kortelė - pavadinimas virš paveikslo (didžiosiomis, pusjuodis)"
   );
   check((await page.locator("#homeHero h1").count()) === 1, "pradžia: vienas h1");
   // v7: skaidrės ir kategorijos - scenos su Vaidore buteliukais be fono, kiekviena skaidrė - vienas veiksmas

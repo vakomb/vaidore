@@ -234,20 +234,15 @@
     background-size: 100% 2px, 100% 1px;
   }
 }
-.hsec > .wrap > .catTiles:first-child {
-  margin-top: 0;
-}
-/* Kategorijų plytelės (v33j - po prekių skyriais, be antraštės) - nedidelis tarpas viršuje */
-#homeTilesSec {
-  padding-top: 14px;
-}
+/* Kategorijų plytelės (v33k) - po juosta „Kategorijos“ tokiu pat tarpu kaip karuselės */
+.hsec > .wrap > .catTiles:first-child,
 .hsec > .wrap > .railWrap:first-child,
 .hsec > .wrap > .reviews:first-child {
   margin-top: 20px;
 }
 
-/* ── Kategorijų plytelės (v32, kaip iOS programėlėje): vientisa kortelė - paveikslas viršuje, po juo aiškus pavadinimas
-   (didžiosiomis, pusjuodis), švelnus kontūras ir užapvalinti kampai. Telefone - slenkama eilė (~2,3 matomos),
+/* ── Kategorijų plytelės (v32, kaip iOS programėlėje; v33k - pavadinimas VIRŠ paveikslo): vientisa kortelė - viršuje aiškus
+   pavadinimas (didžiosiomis, pusjuodis), po juo paveikslas, švelnus kontūras ir užapvalinti kampai. Telefone - slenkama eilė (~2,3 matomos),
    kompiuteryje - iki 5 vienoje eilėje centre. Pavadinimai ir paveikslai - bendrose eilėse (subgrid): ilgas pavadinimas
    („Elektriniai difuzoriai“) keliamas į antrą eilutę, o visų plytelių paveikslai ir pavadinimai lieka vienoje linijoje ── */
 .catTiles {
@@ -282,20 +277,20 @@
 }
 .tileArt {
   position: relative;
-  grid-row: 1;
+  grid-row: 2;
   display: block;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--st-stone);
 }
 .tileName {
-  grid-row: 2;
+  grid-row: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 11px 8px 12px;
-  border-top: 1px solid var(--line);
+  padding: 12px 8px 11px;
+  border-bottom: 1px solid var(--line);
   font-size: var(--tileFs, 15px);
   font-weight: 600;
   line-height: 1.25;

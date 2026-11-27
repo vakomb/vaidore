@@ -152,6 +152,8 @@ window.addEventListener("resize", () => {
 function renderHome() {
   $("#homeHero").innerHTML = heroHTML();
   const tiles = homeTiles();
+  // v33k: kategorijos - tokia pat juoda juosta kaip prekių skyriai („Kategorijos“, paantraštė, „Peržiūrėti viską“ - visos prekės)
+  $("#homeTilesBand").innerHTML = bandHTML(t("home.tiles"), t("home.tilesLine"), "visos-prekes");
   $("#homeTiles").innerHTML = tiles.map(tileHTML).join("");
   $("#homeTiles").closest(".hsec").hidden = !tiles.length;
 

@@ -97,7 +97,8 @@
   .bandMore {
     font-size: 19px;
   }
-  .hsec > .wrap > .railWrap:first-child {
+  .hsec > .wrap > .railWrap:first-child,
+  .hsec > .wrap > .catTiles:first-child {
     margin-top: 22px;
   }
   .catTiles {
